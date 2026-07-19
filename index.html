@@ -35,7 +35,7 @@ HEADER
     </h5>
 
     <h6 class="mb-1">
-        OFFICE OF THE COMMISSIONER OF RURAL DEVELOPMENT
+        OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT       
     </h6>
 
     <h3 class="fw-bold">
@@ -207,23 +207,20 @@ MAIN CONTAINER
 
         <div class="col text-center">
 
-            <button class="btn btn-secondary m-2">
+           <button class="btn btn-secondary m-2"
+                    onclick="openMasters()">
+            Masters
+        </button>
 
-                Masters
+        <button class="btn btn-secondary m-2"
+        onclick="openReports()">
+            Reports
+                </button>
 
-            </button>
-
-            <button class="btn btn-secondary m-2">
-
-                Reports
-
-            </button>
-
-            <button class="btn btn-secondary m-2">
-
-                Utilities
-
-            </button>
+            <button class="btn btn-secondary m-2"
+        onclick="openUtilities()">
+    Utilities
+</button>
 
         </div>
 
@@ -239,9 +236,17 @@ FOOTER
 
     <small>
 
-        File Management System (FMS)
+        <small>
 
-        Version 1.0
+    © <span id="currentYear"></span>
+
+    File Management System (FMS)
+
+    | Version
+
+    <span id="appVersion"></span>
+
+</small>
 
     </small>
 
@@ -256,6 +261,8 @@ FOOTER
 <script src="js/app.js"></script>
 
 <script src="js/navigation.js"></script>
+
+<script src="js/id-generator.js"></script>
 
 </body>
 
