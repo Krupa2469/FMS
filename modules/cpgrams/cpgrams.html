@@ -30,19 +30,22 @@
 
 </header>
 
+
+
 <div class="container mt-4">
 
 <div class="d-flex justify-content-between">
+       
+    
 
 <h3>CPGRAMS File Registration</h3>
 
 <div>
 
 <button class="btn btn-secondary"
+        type="button"
         onclick="goHome()">
-
-Home
-
+    Home
 </button>
 
 <button class="btn btn-primary"
@@ -64,77 +67,115 @@ Clear
 </div>
 
 <hr>
+   
 
-<form id="cpgramsForm">
+<!-- ==========================================================
+FILE INFORMATION
+=========================================================== -->
 
-<div class="row">
+<div class="card shadow-sm mb-4">
 
-<div class="col-md-4">
+    <div class="card-header bg-primary text-white">
 
-<label class="form-label">
+        <h5 class="mb-0">
+            File Information
+        </h5>
 
-File Number
+    </div>
 
-</label>
+    <div class="card-body">
 
-<input type="text"
-       id="fileNumber"
-       class="form-control"
-       readonly>
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    File Number
+                </label>
+
+                <input
+                    type="text"
+                    id="fileNumber"
+                    class="form-control"
+                    readonly>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Grievance Number
+                </label>
+
+                <input
+                    type="text"
+                    id="grievanceNumber"
+                    class="form-control">
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Date Received
+                </label>
+
+                <input
+                    type="date"
+                    id="dateReceived"
+                    class="form-control">
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Due Date
+                </label>
+
+                <input
+                    type="date"
+                    id="dueDate"
+                    class="form-control"
+                    readonly>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Priority
+                </label>
+
+                <select
+                    id="priority"
+                    class="form-select">
+                </select>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Status
+                </label>
+
+                <select
+                    id="status"
+                    class="form-select">
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
-
-<div class="col-md-4">
-
-<label class="form-label">
-
-Grievance Number
-
-</label>
-
-<input type="text"
-       id="grievanceNumber"
-       class="form-control">
-
-</div>
-
-<div class="col-md-4">
-
-<label class="form-label">
-
-Date Received
-
-</label>
-
-<input type="date"
-       id="dateReceived"
-       class="form-control">
-
-</div>
-
-</div>
-
-<br>
-
-<div class="row">
-
-<div class="col-md-6">
-
-<label class="form-label">
-
-Complainant Name
-
-</label>
-
-<input type="text"
-       id="complainantName"
-       class="form-control">
-
-</div>
-
-<div class="col-md-6">
-
-<label class="form-label">
 
 District
 
@@ -233,20 +274,6 @@ Grievance Description
 
 <label class="form-label">
 
-Due Date
-
-</label>
-
-<input type="date"
-       id="dueDate"
-       class="form-control"
-       readonly>
-
-</div>
-
-<div class="col-md-4">
-
-<label class="form-label">
 
 Assigned To
 
@@ -265,19 +292,10 @@ Assigned To
 
 <label class="form-label">
 
-Status
+       <div class="col-md-4">
 
-</label>
-
-<select id="status"
-        class="form-select">
-
-<option>Under Circulation</option>
-
-<option>Disposed</option>
-
-</select>
-
+    <label class="form-label">
+      
 </div>
 
 </div>
@@ -331,7 +349,12 @@ Version
 <script src="../../js/master-data.js"></script>
 <script src="../../js/validation.js"></script>
 <script src="../../js/id-generator.js"></script>
+<script src="../../js/district-master.js"></script>
+<script src="../../js/officer-master.js"></script>
+<script src="../../js/status-master.js"></script>
+<script src="../../js/priority-master.js"></script>
 <script src="cpgrams.js"></script>
+<script src="cpgrams-crud.js"></script>
 
 </body>
 

@@ -25,13 +25,23 @@ function initializeCPGRAMS()
 
     calculateDueDate();
 
+    loadDistricts("district");
+
+    loadOfficers("assignedTo");
+
+    loadPriorities("priority");
+
+    loadStatus();
+
+    loadATR();
+
+    loadDisposed();
+
     setValue("status","Under Circulation");
 
-    if(getElement("atrReceived"))
-        setValue("atrReceived","No");
+    setValue("atrReceived","No");
 
-    if(getElement("disposed"))
-        setValue("disposed","No");
+    setValue("disposed","No");
 
     toggleATRDate();
 
@@ -39,6 +49,72 @@ function initializeCPGRAMS()
 
     attachEvents();
 }
+
+/*==========================================================
+CPGRAMS INITIALIZATION
+==========================================================*/
+
+function initializeCPGRAMS()
+{
+    generateFileNumber();
+    setTodayDate();
+    calculateDueDate();
+
+    loadDistricts("district");
+    loadPriorities("priority");
+    loadStatus("status");
+
+    setDefaultStatus();
+
+    const dateReceived = document.getElementById("dateReceived");
+
+    if(dateReceived)
+    {
+        dateReceived.addEventListener("change", calculateDueDate);
+    }
+}
+
+/*==========================================================
+CALCULATE DUE DATE
+==========================================================*/
+
+function calculateDueDate()
+{
+    const received = document.getElementById("dateReceived").value;
+
+    if(received === "")
+        return;
+
+    const due = new Date(received);
+
+    due.setDate(due.getDate() + 21);
+
+    document.getElementById("dueDate").value =
+        due.toISOString().split("T")[0];
+}
+
+/*==========================================================
+DEFAULT STATUS
+==========================================================*/
+
+function setDefaultStatus()
+{
+    const status = document.getElementById("status");
+
+    if(status)
+    {
+        status.value = "Under Circulation";
+    }
+}
+
+/*==========================================================
+PAGE LOAD
+==========================================================*/
+
+document.addEventListener("DOMContentLoaded", function()
+{
+    initializeCPGRAMS();
+});
 
 /*==========================================================
 ATTACH EVENTS

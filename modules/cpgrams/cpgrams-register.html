@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CPGRAMS Register</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../css/style.css">
+
+</head>
+
+<body>
+
+<div class="container-fluid mt-3">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+
+            <h4 class="mb-0">
+                CPGRAMS Register
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-3">
+
+                <div class="col-md-4">
+
+                    <input
+                        type="text"
+                        id="searchText"
+                        class="form-control"
+                        placeholder="Search..."
+                        onkeyup="loadRegister()">
+
+                </div>
+
+                <div class="col text-end">
+
+                    <button
+                        class="btn btn-success"
+                        onclick="window.location='cpgrams.html'">
+
+                        New File
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table
+                    class="table table-bordered table-hover table-striped"
+                    id="registerTable">
+
+                    <thead class="table-dark">
+
+                    <tr>
+
+                        <th>Sl.No</th>
+
+                        <th>File No</th>
+
+                        <th>Grievance No</th>
+
+                        <th>Date</th>
+
+                        <th>Complainant</th>
+
+                        <th>District</th>
+
+                        <th>Officer</th>
+
+                        <th>Status</th>
+
+                        <th width="150">Action</th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody id="registerBody">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="../../js/storage.js"></script>
+<script src="../../js/master-data.js"></script>
+<script src="../../js/search-engine.js"></script>
+<script src="cpgrams-register.js"></script>
+
+</body>
+
+</html>
