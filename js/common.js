@@ -116,6 +116,38 @@ function setFocus(id)
     }
 }
 
+/******************************************************************************
+ * Set Default Dates
+ ******************************************************************************/
+function setDefaultDates() {
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const dateReceived = document.getElementById("dateReceived");
+    if (dateReceived && !dateReceived.value) {
+        dateReceived.value = today;
+    }
+
+    calculateDueDate();
+
+}
+
+/******************************************************************************
+ * Calculate Due Date
+ ******************************************************************************/
+function calculateDueDate() {
+
+    const received = document.getElementById("dateReceived").value;
+
+    if (!received) return;
+
+    const due = new Date(received);
+    due.setDate(due.getDate() + CPGRAMS_DUE_DAYS);
+
+    document.getElementById("dueDate").value =
+        due.toISOString().split("T")[0];
+}
+
 /*==========================================================
 TODAY
 ==========================================================*/

@@ -82,7 +82,7 @@ function loadDropdown(dropdownId, data, defaultText)
 LOAD STATUS
 ==========================================================*/
 
-function loadStatus()
+function loadStatuses()
 {
     loadDropdown(
         "status",

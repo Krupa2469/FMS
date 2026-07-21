@@ -19,7 +19,7 @@ const APP = {
 
     VERSION: "1.0.0",
 
-    DEPARTMENT: "Office of the Commissioner of Rural Development",
+    DEPARTMENT: "Office of the Commissioner, Rural Development",
 
     STATE: "Government of Telangana"
 

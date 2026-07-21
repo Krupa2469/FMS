@@ -90,54 +90,32 @@ function setCardValue(id, value)
 RECENT FILES
 ==========================================================*/
 
-function loadRecentFiles()
-{
-    const tbody = document.getElementById("recentFiles");
 
-    if(!tbody)
-    {
-        return;
-    }
-
-    tbody.innerHTML = "";
-
-    let records = getData(STORAGE_KEYS.CPGRAMS);
-
-    records = records.reverse();
-
-    records.slice(0,10).forEach(function(record)
-    {
-        const row = tbody.insertRow();
-
-        row.insertCell().textContent = record.id;
-
-        row.insertCell().textContent = record.subject;
-
-        row.insertCell().textContent = record.district;
-
-        row.insertCell().textContent = record.status;
-    });
-    
-}
 
 /*==========================================================
 OPEN MODULE
 ==========================================================*/
 
-function openModule(module)
-{
-    switch(module)
-    {
-        case "cpgrams":
+function openModule(module) {
+    switch (module) {
+        case 'cpgrams':
+            window.location.href = 'cpgrams.html';
+            break;
 
-            window.location.href =
-                "../modules/cpgrams/cpgrams.html";
+        case 'prajavani':
+            window.location.href = 'prajavani.html';
+            break;
 
+        case 'rti':
+            window.location.href = 'rti.html';
+            break;
+
+        case 'reports':
+            window.location.href = 'reports.html';
             break;
 
         default:
-
-            alert("Module under development.");
+            alert('Module not found');
     }
 }
 

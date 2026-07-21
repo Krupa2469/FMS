@@ -21,13 +21,25 @@ OPEN MODULE
 
 function openModule(module)
 {
-    switch(module)
-    {
-        case "cpgrams":
-            window.location.href = "../modules/cpgrams/cpgrams.html";
-            break;
+    switch (module) {
 
-        default:
-            alert("Module under development.");
-    }
+    case "cpgrams":
+        window.location.href = "modules/cpgrams/cpgrams.html";
+        break;
+
+    case "rti":
+        window.location.href = "modules/rti/rti.html";
+        break;
+
+    case "disha":
+        window.location.href = "modules/disha/disha.html";
+        break;
+
+    case "prajavani":
+        window.location.href = "modules/prajavani/prajavani.html";
+        break;
+
+    default:
+        alert("Module under development.");
+}
 }

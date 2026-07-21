@@ -1,359 +1,427 @@
-/*==========================================================
-    FILE MANAGEMENT SYSTEM (FMS)
-    Module      : CPGRAMS
-    File        : cpgrams.js
-    Version     : 1.0.0
-==========================================================*/
-
-"use strict";
-
-/*==========================================================
-PAGE LOAD
-==========================================================*/
+/******************************************************************************
+ * Initialize CPGRAMS
+ ******************************************************************************/
 
 document.addEventListener("DOMContentLoaded", initializeCPGRAMS);
 
-/*==========================================================
-INITIALIZE
-==========================================================*/
+const CPGRAMS_DUE_DAYS = 21;
+let currentRecordId = null;
 
-function initializeCPGRAMS()
-{
-    generateNewFile();
+function initializeCPGRAMS() {
 
-    setToday("dateReceived");
-
-    calculateDueDate();
-
-    loadDistricts("district");
-
-    loadOfficers("assignedTo");
-
-    loadPriorities("priority");
-
-    loadStatus();
-
-    loadATR();
-
-    loadDisposed();
-
-    setValue("status","Under Circulation");
-
-    setValue("atrReceived","No");
-
-    setValue("disposed","No");
-
-    toggleATRDate();
-
-    toggleDisposedDate();
-
-    attachEvents();
-}
-
-/*==========================================================
-CPGRAMS INITIALIZATION
-==========================================================*/
-
-function initializeCPGRAMS()
-{
     generateFileNumber();
-    setTodayDate();
-    calculateDueDate();
 
-    loadDistricts("district");
-    loadPriorities("priority");
-    loadStatus("status");
+    setDefaultDates();
 
-    setDefaultStatus();
+    loadMasterData();
 
-    const dateReceived = document.getElementById("dateReceived");
+    registerEvents();
 
-    if(dateReceived)
-    {
-        dateReceived.addEventListener("change", calculateDueDate);
-    }
+    clearValidation();
+
+    loadRecordFromURL();
+
 }
 
-/*==========================================================
-CALCULATE DUE DATE
-==========================================================*/
+/******************************************************************************
+ * Load Record From URL
+ ******************************************************************************/
 
-function calculateDueDate()
-{
-    const received = document.getElementById("dateReceived").value;
+function loadRecordFromURL() {
 
-    if(received === "")
+    const params = new URLSearchParams(window.location.search);
+
+    const id = params.get("id");
+
+    if (!id)
         return;
 
-    const due = new Date(received);
+    const record = getRecordById(Number(id));
 
-    due.setDate(due.getDate() + 21);
-
-    document.getElementById("dueDate").value =
-        due.toISOString().split("T")[0];
-}
-
-/*==========================================================
-DEFAULT STATUS
-==========================================================*/
-
-function setDefaultStatus()
-{
-    const status = document.getElementById("status");
-
-    if(status)
-    {
-        status.value = "Under Circulation";
-    }
-}
-
-/*==========================================================
-PAGE LOAD
-==========================================================*/
-
-document.addEventListener("DOMContentLoaded", function()
-{
-    initializeCPGRAMS();
-});
-
-/*==========================================================
-ATTACH EVENTS
-==========================================================*/
-
-function attachEvents()
-{
-    const dateReceived = getElement("dateReceived");
-
-    if(dateReceived)
-    {
-        dateReceived.addEventListener("change",calculateDueDate);
-    }
-
-    const atr = getElement("atrReceived");
-
-    if(atr)
-    {
-        atr.addEventListener("change",toggleATRDate);
-    }
-
-    const disposed = getElement("disposed");
-
-    if(disposed)
-    {
-        disposed.addEventListener("change",toggleDisposedDate);
-    }
-}
-
-/*==========================================================
-GENERATE FILE NUMBER
-==========================================================*/
-
-function generateNewFile()
-{
-    setValue(
-        "fileNumber",
-        generateFileNumber("CPG")
-    );
-}
-
-/*==========================================================
-CALCULATE DUE DATE
-==========================================================*/
-
-function calculateDueDate()
-{
-    const received = getValue("dateReceived");
-
-    if(received=="")
+    if (!record)
         return;
 
-    const due = addDays(received,
-        APP_CONFIG.CPGRAMS_DUE_DAYS);
+    loadRecord(record);
 
-    setValue(
-        "dueDate",
-        due.toISOString().split("T")[0]
-    );
 }
 
-/*==========================================================
-ATR DATE ENABLE/DISABLE
-==========================================================*/
 
-function toggleATRDate()
-{
-    const value = getValue("atrReceived");
+/*===========================================================================
+    Register Events
+===========================================================================*/
 
-    if(!getElement("atrReceivedDate"))
-        return;
+function registerEvents() {
 
-    if(value=="Yes")
-    {
-        enableControl("atrReceivedDate");
-    }
-    else
-    {
-        clearValue("atrReceivedDate");
+    // Date Received Change
+    document
+        .getElementById("dateReceived")
+        .addEventListener("change", calculateDueDate);
 
-        disableControl("atrReceivedDate");
-    }
+    // District -> Mandal
+    document
+        .getElementById("district")
+        .addEventListener("change", districtChanged);
+
+    // Mandal -> Village
+    document
+        .getElementById("mandal")
+        .addEventListener("change", mandalChanged);
+
+    // Buttons
+    document
+        .getElementById("btnSave")
+        .addEventListener("click", saveRecord);
+
+    document
+        .getElementById("btnUpdate")
+        .addEventListener("click", updateRecord);
+
+    document
+        .getElementById("btnDelete")
+        .addEventListener("click", deleteRecord);
+
+    document
+        .getElementById("btnClear")
+        .addEventListener("click", clearForm);
+
 }
 
-/*==========================================================
-DISPOSED DATE ENABLE/DISABLE
-==========================================================*/
+/*===========================================================================
+    District Changed
+===========================================================================*/
 
-function toggleDisposedDate()
-{
-    const value = getValue("disposed");
+function districtChanged() {
 
-    if(!getElement("disposedDate"))
-        return;
+    const district =
+        document.getElementById("district").value;
 
-    if(value=="Yes")
-    {
-        enableControl("disposedDate");
+    loadMandals(district);
 
-        setValue("status","Disposed");
-    }
-    else
-    {
-        clearValue("disposedDate");
+    // Clear village list
+    clearVillageDropdown();
 
-        disableControl("disposedDate");
-
-        setValue(
-            "status",
-            "Under Circulation"
-        );
-    }
 }
 
-/*==========================================================
-SAVE
-==========================================================*/
+/*===========================================================================
+    Mandal Changed
+===========================================================================*/
 
-function saveCPGRAMS()
-{
-    if(!validateCPGRAMS())
+function mandalChanged() {
+
+    const district =
+        document.getElementById("district").value;
+
+    const mandal =
+        document.getElementById("mandal").value;
+
+    loadVillages(district, mandal);
+
+}
+
+/*===========================================================================
+    Clear Village Dropdown
+===========================================================================*/
+
+function clearVillageDropdown() {
+
+    const village =
+        document.getElementById("village");
+
+    village.innerHTML =
+        '<option value="">-- Select Village --</option>';
+
+}
+
+/*===========================================================================
+    Clear Form
+===========================================================================*/
+
+function clearForm() {
+
+    if (!confirm("Clear all entered data?"))
         return;
 
-    const record =
-    {
-        id : getValue("fileNumber"),
+    document
+        .getElementById("cpgramsForm")
+        .reset();
 
-        grievanceNo : getValue("grievanceNumber"),
+    currentRecordId = null;
 
-        dateReceived : getValue("dateReceived"),
+    generateFileNumber();
 
-        complainantName : getValue("complainantName"),
+    setDefaultDates();
 
-        district : getValue("district"),
+    loadMasterData();
 
-        mandal : getValue("mandal"),
+    clearValidation();
 
-        village : getValue("village"),
+}
 
-        subject : getValue("subject"),
+/*===========================================================================
+    Form Validation
+===========================================================================*/
 
-        description : getValue("description"),
+function validateForm() {
 
-        assignedTo : getValue("assignedTo"),
+    clearValidation();
 
-        dueDate : getValue("dueDate"),
+    let valid = true;
 
-        status : getValue("status"),
+    if (isBlank("grievanceNumber"))
+        valid = false;
 
-        atrReceived : getValue("atrReceived"),
+    if (isBlank("complainantName"))
+        valid = false;
 
-        atrReceivedDate : getValue("atrReceivedDate"),
+    if (isBlank("district"))
+        valid = false;
 
-        disposed : getValue("disposed"),
+    if (isBlank("subject"))
+        valid = false;
 
-        disposedDate : getValue("disposedDate"),
+    if (isBlank("category"))
+        valid = false;
 
-        remarks : getValue("remarks"),
+    if (isBlank("description"))
+        valid = false;
 
-        createdOn : new Date().toISOString(),
+    if (isBlank("assignedOfficer"))
+        valid = false;
 
-        modifiedOn : new Date().toISOString()
+    if (!valid) {
+
+        alert("Please fill all mandatory fields.");
+
+    }
+
+    return valid;
+
+}
+
+/*===========================================================================
+    Clear Validation
+===========================================================================*/
+
+function clearValidation() {
+
+    document
+        .querySelectorAll(".is-invalid")
+        .forEach(control => {
+
+            control.classList.remove("is-invalid");
+
+        });
+
+}
+
+/*===========================================================================
+    Check Blank Field
+===========================================================================*/
+
+function isBlank(id) {
+
+    const control =
+        document.getElementById(id);
+
+    if (!control)
+        return false;
+
+    if (control.value.trim() === "") {
+
+        control.classList.add("is-invalid");
+
+        return true;
+
+    }
+
+    return false;
+
+}
+
+/******************************************************************************
+ * Load Record Into Form
+ ******************************************************************************/
+
+function loadRecord(record) {
+
+    if (!record) return;
+
+    currentRecordId = record.id;
+
+    setValue("fileNumber", record.fileNumber);
+    setValue("grievanceNumber", record.grievanceNumber);
+    setValue("dateReceived", record.dateReceived);
+    setValue("dueDate", record.dueDate);
+    setValue("priority", record.priority);
+    setValue("status", record.status);
+
+    setValue("complainantName", record.complainantName);
+    setValue("mobileNumber", record.mobileNumber);
+    setValue("email", record.email);
+    setValue("district", record.district);
+
+    // Populate Mandals after District
+    if (typeof districtChanged === "function") {
+        districtChanged();
+    }
+
+    setValue("mandal", record.mandal);
+
+    // Populate Villages after Mandal
+    if (typeof mandalChanged === "function") {
+        mandalChanged();
+    }
+
+    setValue("village", record.village);
+
+    setValue("address", record.address);
+    setValue("aadhaarNumber", record.aadhaarNumber);
+    setValue("gender", record.gender);
+    setValue("occupation", record.occupation);
+    setValue("preferredContact", record.preferredContact);
+
+    setValue("subject", record.subject);
+    setValue("category", record.category);
+    setValue("description", record.description);
+    setValue("source", record.source);
+    setValue("natureOfGrievance", record.natureOfGrievance);
+    setValue("priorityClassification", record.priorityClassification);
+    setValue("attachmentCount", record.attachmentCount);
+
+    setValue("assignedOfficer", record.assignedOfficer);
+    setValue("section", record.section);
+    setValue("fileLocation", record.fileLocation);
+    setValue("dateAssigned", record.dateAssigned);
+    setValue("atrReceived", record.atrReceived);
+    setValue("atrDate", record.atrDate);
+    setValue("atrDueDate", record.atrDueDate);
+    setValue("finalStatus", record.finalStatus);
+    setValue("disposedDate", record.disposedDate);
+    setValue("fileClosed", record.fileClosed);
+    setValue("remarks", record.remarks);
+
+    if (typeof calculateDueDate === "function") {
+        calculateDueDate();
+    }
+
+    if (typeof updateButtonState === "function") {
+        updateButtonState(true);
+    }
+
+}
+
+/*===========================================================================
+    Set Control Value
+===========================================================================*/
+
+function setValue(id, value) {
+
+    const control = document.getElementById(id);
+
+    if (!control)
+        return;
+
+    control.value = value || "";
+
+}
+
+/*===========================================================================
+    Button State
+===========================================================================*/
+
+function updateButtonState(editMode) {
+
+    document.getElementById("btnSave").disabled = editMode;
+
+    document.getElementById("btnUpdate").disabled = !editMode;
+
+    document.getElementById("btnDelete").disabled = !editMode;
+
+}
+
+/*===========================================================================
+    New Record Mode
+===========================================================================*/
+
+function newRecord() {
+
+    currentRecordId = null;
+
+    clearForm();
+
+    updateButtonState(false);
+
+}
+
+/*===========================================================================
+    Read Complete Form
+===========================================================================*/
+
+function getFormData() {
+
+    return {
+
+        id: currentRecordId,
+
+        // File Information
+        fileNumber: value("fileNumber"),
+        grievanceNumber: value("grievanceNumber"),
+        dateReceived: value("dateReceived"),
+        dueDate: value("dueDate"),
+        priority: value("priority"),
+        status: value("status"),
+
+        // Complainant
+        complainantName: value("complainantName"),
+        mobileNumber: value("mobileNumber"),
+        email: value("email"),
+        address: value("address"),
+        district: value("district"),
+        mandal: value("mandal"),
+        village: value("village"),
+        aadhaarNumber: value("aadhaarNumber"),
+        gender: value("gender"),
+        occupation: value("occupation"),
+        preferredContact: value("preferredContact"),
+
+        // Grievance
+        subject: value("subject"),
+        category: value("category"),
+        description: value("description"),
+        source: value("source"),
+        natureOfGrievance: value("natureOfGrievance"),
+        priorityClassification: value("priorityClassification"),
+        attachmentCount: value("attachmentCount"),
+
+        // Office
+        assignedOfficer: value("assignedOfficer"),
+        section: value("section"),
+        fileLocation: value("fileLocation"),
+        dateAssigned: value("dateAssigned"),
+        atrReceived: value("atrReceived"),
+        atrDate: value("atrDate"),
+        atrDueDate: value("atrDueDate"),
+        finalStatus: value("finalStatus"),
+        disposedDate: value("disposedDate"),
+        fileClosed: value("fileClosed"),
+        remarks: value("remarks")
+
     };
 
-    addRecord(
-        STORAGE_KEYS.CPGRAMS,
-        record
-    );
-
-    alert("Record Saved Successfully.");
-
-    clearForm("cpgramsForm");
-
-    generateNewFile();
-
-    setToday("dateReceived");
-
-    calculateDueDate();
-
-    setValue(
-        "status",
-        "Under Circulation"
-    );
 }
 
-/*==========================================================
-VALIDATION
-==========================================================*/
+/*===========================================================================
+    Read Control Value
+===========================================================================*/
 
-function validateCPGRAMS()
-{
-    if(!validateRequired(
-        "grievanceNumber",
-        "Grievance Number"))
-        return false;
+function value(id) {
 
-    if(!validateRequired(
-        "dateReceived",
-        "Date Received"))
-        return false;
+    const control = document.getElementById(id);
 
-    if(!validateRequired(
-        "complainantName",
-        "Complainant Name"))
-        return false;
+    return control ? control.value.trim() : "";
 
-    if(!validateRequired(
-        "district",
-        "District"))
-        return false;
-
-    if(!validateRequired(
-        "subject",
-        "Subject"))
-        return false;
-
-    return true;
 }
 
-/*==========================================================
-NEW RECORD
-==========================================================*/
-
-function newCPGRAMS()
-{
-    clearForm("cpgramsForm");
-
-    generateNewFile();
-
-    setToday("dateReceived");
-
-    calculateDueDate();
-
-    setValue(
-        "status",
-        "Under Circulation"
-    );
-}
-
-/*==========================================================
-END OF FILE
-==========================================================*/
+/*===========================================================================
+    End of File
+===========================================================================*/
