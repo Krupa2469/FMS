@@ -314,16 +314,7 @@ function loadRecord(record) {
     Set Control Value
 ===========================================================================*/
 
-function setValue(id, value) {
 
-    const control = document.getElementById(id);
-
-    if (!control)
-        return;
-
-    control.value = value || "";
-
-}
 
 /*===========================================================================
     Button State
