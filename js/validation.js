@@ -262,6 +262,52 @@ function validateForm(validations)
     return true;
 }
 
+/*==========================================================
+CPGRAMS VALIDATION
+==========================================================*/
+
+function validateCPGRAMS()
+{
+    if (!required("complainantName", "Please enter Complainant Name"))
+        return false;
+
+    if (!required("grievanceNumber", "Please enter Grievance Number"))
+        return false;
+
+    if (!required("subject", "Please enter Subject"))
+        return false;
+
+    if (!required("district", "Please select District"))
+        return false;
+
+    if (!required("description", "Please enter Description"))
+        return false;
+
+    return true;
+}
+
+/*==========================================================
+REQUIRED FIELD
+==========================================================*/
+
+function required(id, message)
+{
+    const control = document.getElementById(id);
+
+    if (!control)
+        return false;
+
+    if (control.value.trim() === "")
+    {
+        alert(message);
+
+        control.focus();
+
+        return false;
+    }
+
+    return true;
+}
 
 /*==========================================================
 END OF FILE

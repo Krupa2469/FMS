@@ -40,34 +40,44 @@
 
 <h3>CPGRAMS File Registration</h3>
 
-<div>
+<div class="text-center mt-4 mb-4">
 
-<button class="btn btn-secondary"
+    <button
         type="button"
+        class="btn btn-success"
+        onclick="saveRecord()">
+        Save
+    </button>
+
+    <button
+        type="button"
+        class="btn btn-primary"
+        onclick="updateRecord()">
+        Update
+    </button>
+
+    <button
+        type="button"
+        class="btn btn-danger"
+        onclick="deleteRecord()">
+        Delete
+    </button>
+
+    <button
+        type="button"
+        class="btn btn-warning"
+        onclick="clearForm()">
+        Clear
+    </button>
+
+    <button
+        type="button"
+        class="btn btn-secondary"
         onclick="goHome()">
-    Home
-</button>
+        Home
+    </button>
 
-<button class="btn btn-primary"
-        onclick="saveCPGRAMS()">
-
-Save
-
-</button>
-
-<button class="btn btn-warning"
-        onclick="clearForm('cpgramsForm')">
-
-Clear
-
-</button>
-
-</div>
-
-</div>
-
-<hr>
-   
+</div>   
 
 <!-- ==========================================================
 FILE INFORMATION
@@ -339,6 +349,397 @@ Version
 </small>
 
 </footer>
+<!-- ==========================================================
+COMPLAINANT DETAILS
+=========================================================== -->
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-header bg-success text-white">
+
+        <h5 class="mb-0">
+            Complainant Details
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Complainant Name <span class="text-danger">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="complainantName"
+                    class="form-control"
+                    maxlength="100"
+                    placeholder="Enter complainant name">
+
+            </div>
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Mobile Number
+                </label>
+
+                <input
+                    type="text"
+                    id="mobileNumber"
+                    class="form-control"
+                    maxlength="10"
+                    placeholder="10-digit mobile">
+
+            </div>
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Email ID
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    class="form-control"
+                    placeholder="name@email.com">
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    District <span class="text-danger">*</span>
+                </label>
+
+                <select
+                    id="district"
+                    class="form-select">
+                </select>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Mandal
+                </label>
+
+                <select
+                    id="mandal"
+                    class="form-select">
+
+                    <option value="">-- Select Mandal --</option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Village
+                </label>
+
+                <select
+                    id="village"
+                    class="form-select">
+
+                    <option value="">-- Select Village --</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================================================
+GRIEVANCE DETAILS
+=========================================================== -->
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-header bg-warning">
+
+        <h5 class="mb-0">
+            Grievance Details
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Subject <span class="text-danger">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="subject"
+                    class="form-control"
+                    maxlength="200"
+                    placeholder="Enter grievance subject">
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Grievance Category
+                </label>
+
+                <select
+                    id="category"
+                    class="form-select">
+
+                    <option value="">-- Select Category --</option>
+
+                    <option>Roads</option>
+                    <option>Drinking Water</option>
+                    <option>Drainage</option>
+                    <option>Housing</option>
+                    <option>Pensions</option>
+                    <option>MGNREGS</option>
+                    <option>PMAY</option>
+                    <option>Sanitation</option>
+                    <option>Electricity</option>
+                    <option>Agriculture</option>
+                    <option>Revenue</option>
+                    <option>Others</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+
+            <div class="col-md-12">
+
+                <label class="form-label">
+                    Grievance Description <span class="text-danger">*</span>
+                </label>
+
+                <textarea
+                    id="description"
+                    class="form-control"
+                    rows="5"
+                    maxlength="5000"
+                    placeholder="Enter detailed grievance description"></textarea>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Upload Grievance Document
+                </label>
+
+                <input
+                    type="file"
+                    id="grievanceDocument"
+                    class="form-control"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+
+                <small class="text-muted">
+                    Allowed: PDF, DOC, DOCX, JPG, PNG
+                </small>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Grievance Source
+                </label>
+
+                <select
+                    id="source"
+                    class="form-select">
+
+                    <option>CPGRAMS Portal</option>
+                    <option>Email</option>
+                    <option>Post</option>
+                    <option>In Person</option>
+                    <option>Telephone</option>
+                    <option>Other</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================================================
+OFFICE PROCESSING
+=========================================================== -->
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-header bg-info text-white">
+
+        <h5 class="mb-0">
+            Office Processing
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Assigned Officer
+                </label>
+
+                <select
+                    id="assignedOfficer"
+                    class="form-select">
+                </select>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Concerned Section
+                </label>
+
+                <select
+                    id="section"
+                    class="form-select">
+
+                    <option value="">-- Select Section --</option>
+
+                    <option>Administration</option>
+                    <option>Accounts</option>
+                    <option>Engineering</option>
+                    <option>MGNREGS</option>
+                    <option>PMAY</option>
+                    <option>General</option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    ATR Received
+                </label>
+
+                <select
+                    id="atrReceived"
+                    class="form-select">
+
+                    <option>No</option>
+                    <option>Yes</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Date of ATR
+                </label>
+
+                <input
+                    type="date"
+                    id="atrDate"
+                    class="form-control">
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Disposal Date
+                </label>
+
+                <input
+                    type="date"
+                    id="disposedDate"
+                    class="form-control">
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Final Status
+                </label>
+
+                <select
+                    id="finalStatus"
+                    class="form-select">
+
+                    <option>Under Circulation</option>
+                    <option>Pending</option>
+                    <option>Disposed</option>
+                    <option>Closed</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+
+            <div class="col-md-12">
+
+                <label class="form-label">
+                    Office Remarks
+                </label>
+
+                <textarea
+                    id="remarks"
+                    rows="4"
+                    maxlength="2000"
+                    class="form-control"
+                    placeholder="Enter office remarks here..."></textarea>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
