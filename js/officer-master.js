@@ -16,13 +16,13 @@ const OFFICERS = [
 
     "Commissioner",
 
-    "Additional Commissioner",
+    "Special Commissioner",
 
     "Joint Commissioner",
 
-    "Deputy Commissioner",
+    "Administrative Officer",
 
-    "Assistant Commissioner",
+    "Assistant Director",
 
     "District Rural Development Officer",
 

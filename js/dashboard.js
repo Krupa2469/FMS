@@ -96,26 +96,32 @@ RECENT FILES
 OPEN MODULE
 ==========================================================*/
 
-function openModule(module) {
-    switch (module) {
-        case 'cpgrams':
-            window.location.href = 'cpgrams.html';
+function openModule(module)
+{
+    switch(module)
+    {
+        case "cpgrams":
+            window.location.href =
+                "../modules/cpgrams/cpgrams.html";
             break;
 
-        case 'prajavani':
-            window.location.href = 'prajavani.html';
+        case "prajavani":
+            window.location.href =
+                "../modules/prajavani/prajavani.html";
             break;
 
-        case 'rti':
-            window.location.href = 'rti.html';
+        case "rti":
+            window.location.href =
+                "../modules/rti/rti.html";
             break;
 
-        case 'reports':
-            window.location.href = 'reports.html';
+        case "disha":
+            window.location.href =
+                "../modules/disha/disha.html";
             break;
 
         default:
-            alert('Module not found');
+            alert("Module under development.");
     }
 }
 
@@ -148,17 +154,6 @@ function openMasters()
 REFRESH
 ==========================================================*/
 
-function refreshDashboard()
-{
-    loadStatistics();
-
-    loadRecentFiles();
-}
-
-document.addEventListener("DOMContentLoaded", function ()
-{
-    initializeDashboard();
-});
 
 /*==========================================================
 SYSTEM INFORMATION

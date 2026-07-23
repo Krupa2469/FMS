@@ -598,7 +598,7 @@ function newRecord() {
 ===========================================================================*/
 
 function goHome() {
-    window.location.href = "pages/dashboard.html";
+    window.location.href = "../../pages/dashboard.html";
 }
 
 /*===========================================================================

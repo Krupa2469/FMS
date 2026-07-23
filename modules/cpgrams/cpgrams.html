@@ -4,33 +4,28 @@
 <head>
 
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>CPGRAMS File Management</title>
 
     <!-- Bootstrap -->
-    <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-
-    <!-- Common Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="stylesheet"
-          href="../../css/style.css">
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="../../css/style.css">
 
 </head>
 
 <body>
 
-<!-- ==========================================================
+<!-- ===========================================================
      HEADER
-=========================================================== -->
+============================================================ -->
 
-<header class="bg-primary text-white shadow">
+<header class="bg-primary text-white shadow-sm">
 
     <div class="container-fluid py-3">
 
@@ -39,8 +34,8 @@
             <div class="col-md-2 text-center">
 
                 <img src="../../images/telangana-logo.png"
-                     alt="Government Logo"
                      class="img-fluid"
+                     alt="Government Logo"
                      style="max-height:80px;">
 
             </div>
@@ -55,11 +50,11 @@
                     Office of the Commissioner, Rural Development
                 </h5>
 
-                <h3 class="fw-bold mb-0">
+                <h3 class="fw-bold mb-1">
                     FILE MANAGEMENT SYSTEM
                 </h3>
 
-                <h5 class="mt-2">
+                <h5 class="mb-0">
                     CPGRAMS MODULE
                 </h5>
 
@@ -79,48 +74,48 @@
 
 </header>
 
-<!-- ==========================================================
+<!-- ===========================================================
      NAVIGATION
-=========================================================== -->
+============================================================ -->
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+<nav class="navbar navbar-expand-lg bg-light border-bottom">
 
     <div class="container-fluid">
 
-        <div class="d-flex flex-wrap gap-2">
+        <div class="d-flex gap-2 flex-wrap">
 
-            <button
-                class="btn btn-outline-primary"
-                type="button"
-                onclick="goHome()">
+            <button class="btn btn-outline-primary"
+                    type="button"
+                    onclick="goHome()">
 
+                <i class="bi bi-house"></i>
                 Home
 
             </button>
 
-            <button
-                class="btn btn-outline-success"
-                type="button"
-                onclick="window.location='cpgrams-register.html'">
+            <button class="btn btn-outline-success"
+                    type="button"
+                    onclick="window.location='cpgrams-register.html'">
 
+                <i class="bi bi-table"></i>
                 Register
 
             </button>
 
-            <button
-                class="btn btn-outline-info"
-                type="button"
-                onclick="window.location='../../pages/dashboard.html'">
+            <button class="btn btn-outline-info"
+        type="button"
+        onclick="window.location='../../pages/dashboard.html'">
 
-                Dashboard
+    <i class="bi bi-speedometer2"></i>
+    Dashboard
 
-            </button>
+</button>
 
-            <button
-                class="btn btn-outline-secondary"
-                type="button"
-                onclick="window.print()">
+            <button class="btn btn-outline-secondary"
+                    type="button"
+                    onclick="window.print()">
 
+                <i class="bi bi-printer"></i>
                 Print
 
             </button>
@@ -131,52 +126,19 @@
 
 </nav>
 
-<!-- ==========================================================
+<!-- ===========================================================
      MAIN CONTAINER
-=========================================================== -->
+============================================================ -->
 
 <div class="container-fluid mt-4 mb-5">
 
 <form id="cpgramsForm">
 
-<!-- ==========================================================
+<!-- ===========================================================
      FILE INFORMATION
-=========================================================== -->
+============================================================ -->
 
 <div class="card shadow-sm mb-4">
-
-    <div class="card-body">
-
-      <div class="row g-3">
-
-    <div class="col-md-3">
-        <button class="btn btn-primary btn-module w-100"
-                onclick="openModule('cpgrams')">
-            <h3>CPGRAMS</h3>
-        </button>
-    </div>
-
-    <div class="col-md-3">
-        <button class="btn btn-success btn-module w-100"
-                onclick="openModule('prajavani')">
-            <h3>Prajavani</h3>
-        </button>
-    </div>
-
-    <div class="col-md-3">
-        <button class="btn btn-warning btn-module w-100"
-                onclick="openModule('rti')">
-            <h3>RTI</h3>
-        </button>
-    </div>
-
-    <div class="col-md-3">
-        <button class="btn btn-danger btn-module w-100"
-                onclick="openModule('reports')">
-            <h3>Reports</h3>
-        </button>
-    </div>
-
 
     <div class="card-header bg-primary text-white">
 
@@ -188,15 +150,15 @@
 
     </div>
 
-    
-</div>
-      
+    <div class="card-body">
+
+        <div class="row g-3">
+
             <!-- File Number -->
 
             <div class="col-md-4">
 
-                <label for="fileNumber"
-                       class="form-label">
+                <label for="fileNumber" class="form-label">
 
                     File Number
 
@@ -323,33 +285,31 @@
     </div>
 
 </div>
-
-<!-- ==========================================================
-     PART 2 STARTS HERE
-=========================================================== -->
-<!-- ==========================================================
+<!-- ===========================================================
      COMPLAINANT DETAILS
-=========================================================== -->
+============================================================ -->
 
 <div class="card shadow-sm mb-4">
 
     <div class="card-header bg-success text-white">
 
         <h5 class="mb-0">
-
             Complainant Details
-
         </h5>
+
     </div>
 
-    
-</div>
+    <div class="card-body">
+
+        <!-- Row 1 -->
+
+        <div class="row g-3">
+
             <!-- Complainant Name -->
-             
+
             <div class="col-md-6">
 
-                <label for="complainantName"
-                       class="form-label">
+                <label for="complainantName" class="form-label">
 
                     Complainant Name
                     <span class="text-danger">*</span>
@@ -360,17 +320,15 @@
                     type="text"
                     id="complainantName"
                     class="form-control"
-                    maxlength="100"
-                    placeholder="Enter Complainant Name">
+                    maxlength="100">
 
             </div>
 
-            <!-- Mobile Number -->
+            <!-- Mobile -->
 
-            <!div class="col-md-3">
+            <div class="col-md-3">
 
-                <label for="mobileNumber"
-                       class="form-label">
+                <label for="mobileNumber" class="form-label">
 
                     Mobile Number
 
@@ -380,28 +338,24 @@
                     type="text"
                     id="mobileNumber"
                     class="form-control"
-                    maxlength="10"
-                    placeholder="9876543210">
+                    maxlength="10">
 
             </div>
 
-            <!- - Email -->
+            <!-- Email -->
 
             <div class="col-md-3">
 
-                <label for="email"
-                       class="form-label">
+                <label for="email" class="form-label">
 
-                    Email Address
+                    Email
 
                 </label>
 
-                <input-
+                <input
                     type="email"
                     id="email"
-                    class="form-control"
-                    maxlength="100"
-                    placeholder="name@email.com">
+                    class="form-control">
 
             </div>
 
@@ -415,8 +369,7 @@
 
             <div class="col-md-4">
 
-                <label for="district"
-                       class="form-label">
+                <label for="district" class="form-label">
 
                     District
                     <span class="text-danger">*</span>
@@ -439,8 +392,7 @@
 
             <div class="col-md-4">
 
-                <label for="mandal"
-                       class="form-label">
+                <label for="mandal" class="form-label">
 
                     Mandal
 
@@ -462,8 +414,7 @@
 
             <div class="col-md-4">
 
-                <label for="village"
-                       class="form-label">
+                <label for="village" class="form-label">
 
                     Village
 
@@ -487,12 +438,9 @@
 
         <div class="row g-3 mt-2">
 
-            <!-- Address -->
-
             <div class="col-md-12">
 
-                <label for="address"
-                       class="form-label">
+                <label for="address" class="form-label">
 
                     Address
 
@@ -502,8 +450,7 @@
                     id="address"
                     class="form-control"
                     rows="3"
-                    maxlength="300"
-                    placeholder="Enter Complete Postal Address"></textarea>
+                    maxlength="300"></textarea>
 
             </div>
 
@@ -517,8 +464,7 @@
 
             <div class="col-md-3">
 
-                <label for="aadhaarNumber"
-                       class="form-label">
+                <label for="aadhaarNumber" class="form-label">
 
                     Aadhaar Number
 
@@ -528,8 +474,7 @@
                     type="text"
                     id="aadhaarNumber"
                     class="form-control"
-                    maxlength="12"
-                    placeholder="Optional">
+                    maxlength="12">
 
             </div>
 
@@ -537,8 +482,7 @@
 
             <div class="col-md-3">
 
-                <label for="gender"
-                       class="form-label">
+                <label for="gender" class="form-label">
 
                     Gender
 
@@ -548,10 +492,7 @@
                     id="gender"
                     class="form-select">
 
-                    <option value="">
-                        -- Select --
-                    </option>
-
+                    <option value="">-- Select --</option>
                     <option>Male</option>
                     <option>Female</option>
                     <option>Transgender</option>
@@ -565,8 +506,7 @@
 
             <div class="col-md-3">
 
-                <label for="occupation"
-                       class="form-label">
+                <label for="occupation" class="form-label">
 
                     Occupation
 
@@ -575,8 +515,7 @@
                 <input
                     type="text"
                     id="occupation"
-                    class="form-control"
-                    maxlength="50">
+                    class="form-control">
 
             </div>
 
@@ -584,8 +523,7 @@
 
             <div class="col-md-3">
 
-                <label for="preferredContact"
-                       class="form-label">
+                <label for="preferredContact" class="form-label">
 
                     Preferred Contact
 
@@ -595,9 +533,9 @@
                     id="preferredContact"
                     class="form-select">
 
-                    <option>Mobile</option>
-                    <option>Email</option>
-                    <option>Post</option>
+                    <option value="Mobile">Mobile</option>
+                    <option value="Email">Email</option>
+                    <option value="Post">Post</option>
 
                 </select>
 
@@ -605,37 +543,34 @@
 
         </div>
 
-    </div-->
+    </div>
 
 </div>
-
-<!-- ==========================================================
-     PART 3 STARTS HERE
-=========================================================== -->
-<!-- ==========================================================
+<!-- ===========================================================
      GRIEVANCE DETAILS
-=========================================================== -->
+============================================================ -->
 
 <div class="card shadow-sm mb-4">
 
     <div class="card-header bg-warning">
 
         <h5 class="mb-0">
-
             Grievance Details
-
         </h5>
 
     </div>
 
-   
-        </div> 
+    <div class="card-body">
+
+        <!-- Row 1 -->
+
+        <div class="row g-3">
+
             <!-- Subject -->
 
             <div class="col-md-8">
 
-                <label for="subject"
-                       class="form-label">
+                <label for="subject" class="form-label">
 
                     Subject
                     <span class="text-danger">*</span>
@@ -655,8 +590,7 @@
 
             <div class="col-md-4">
 
-                <label for="category"
-                       class="form-label">
+                <label for="category" class="form-label">
 
                     Grievance Category
                     <span class="text-danger">*</span>
@@ -667,9 +601,7 @@
                     id="category"
                     class="form-select">
 
-                    <option value="">
-                        -- Select Category --
-                    </option>
+                    <option value="">-- Select Category --</option>
 
                     <option>Roads</option>
                     <option>Drinking Water</option>
@@ -694,12 +626,11 @@
 
         <!-- Row 2 -->
 
-        <div class="row g-3 mt-2">
+        <div class="row g-3 mt-3">
 
             <div class="col-md-12">
 
-                <label for="description"
-                       class="form-label">
+                <label for="description" class="form-label">
 
                     Grievance Description
                     <span class="text-danger">*</span>
@@ -723,7 +654,7 @@
 
         <!-- Row 3 -->
 
-        <div class="row g-3 mt-2">
+        <div class="row g-3 mt-3">
 
             <!-- Upload -->
 
@@ -745,12 +676,7 @@
                 <small class="text-muted">
 
                     Allowed Formats:
-                    PDF,
-                    DOC,
-                    DOCX,
-                    JPG,
-                    JPEG,
-                    PNG
+                    PDF, DOC, DOCX, JPG, JPEG, PNG
 
                 </small>
 
@@ -776,17 +702,11 @@
                     </option>
 
                     <option>Email</option>
-
                     <option>Post</option>
-
                     <option>In Person</option>
-
                     <option>Telephone</option>
-
                     <option>Collector Camp Office</option>
-
                     <option>Prajavani</option>
-
                     <option>Other</option>
 
                 </select>
@@ -797,7 +717,7 @@
 
         <!-- Row 4 -->
 
-        <div class="row g-3 mt-2">
+        <div class="row g-3 mt-3">
 
             <!-- Nature -->
 
@@ -814,14 +734,10 @@
                     id="natureOfGrievance"
                     class="form-select">
 
-                    <option value="">
-                        -- Select --
-                    </option>
+                    <option value="">-- Select --</option>
 
                     <option>Individual</option>
-
                     <option>Public</option>
-
                     <option>Community</option>
 
                 </select>
@@ -844,9 +760,7 @@
                     class="form-select">
 
                     <option>Normal</option>
-
                     <option>Urgent</option>
-
                     <option>Very Urgent</option>
 
                 </select>
@@ -860,7 +774,7 @@
                 <label for="attachmentCount"
                        class="form-label">
 
-                    No. of Attachments
+                    Number of Attachments
 
                 </label>
 
@@ -878,34 +792,31 @@
     </div>
 
 </div>
-
-<!-- ==========================================================
-     PART 4 STARTS HERE
-=========================================================== -->
-<!-- ==========================================================
+<!-- ===========================================================
      OFFICE PROCESSING
-=========================================================== -->
+============================================================ -->
 
 <div class="card shadow-sm mb-4">
 
     <div class="card-header bg-info text-white">
 
         <h5 class="mb-0">
-
             Office Processing
-
         </h5>
 
     </div>
 
-   
-</div>
+    <div class="card-body">
+
+        <!-- Row 1 -->
+
+        <div class="row g-3">
+
             <!-- Assigned Officer -->
 
             <div class="col-md-4">
 
-                <label for="assignedOfficer"
-                       class="form-label">
+                <label for="assignedOfficer" class="form-label">
 
                     Assigned Officer
                     <span class="text-danger">*</span>
@@ -947,7 +858,7 @@
 
             </div>
 
-            <!-- Current File Location -->
+            <!-- File Location -->
 
             <div class="col-md-4">
 
@@ -962,7 +873,7 @@
                     type="text"
                     id="fileLocation"
                     class="form-control"
-                    placeholder="Example: SO Desk">
+                    placeholder="Example : SO Desk">
 
             </div>
 
@@ -970,9 +881,7 @@
 
         <!-- Row 2 -->
 
-        <div class="row g-3 mt-2">
-
-            <!-- Date Assigned -->
+        <div class="row g-3 mt-3">
 
             <div class="col-md-3">
 
@@ -989,8 +898,6 @@
                     class="form-control">
 
             </div>
-
-            <!-- ATR Received -->
 
             <div class="col-md-3">
 
@@ -1012,8 +919,6 @@
 
             </div>
 
-            <!-- ATR Date -->
-
             <div class="col-md-3">
 
                 <label for="atrDate"
@@ -1029,8 +934,6 @@
                     class="form-control">
 
             </div>
-
-            <!-- ATR Due Date -->
 
             <div class="col-md-3">
 
@@ -1053,9 +956,7 @@
 
         <!-- Row 3 -->
 
-        <div class="row g-3 mt-2">
-
-            <!-- Final Status -->
+        <div class="row g-3 mt-3">
 
             <div class="col-md-4">
 
@@ -1083,8 +984,6 @@
 
             </div>
 
-            <!-- Disposal Date -->
-
             <div class="col-md-4">
 
                 <label for="disposedDate"
@@ -1100,8 +999,6 @@
                     class="form-control">
 
             </div>
-
-            <!-- File Closed -->
 
             <div class="col-md-4">
 
@@ -1127,7 +1024,7 @@
 
         <!-- Row 4 -->
 
-        <div class="row g-3 mt-2">
+        <div class="row mt-3">
 
             <div class="col-md-12">
 
@@ -1142,8 +1039,7 @@
                     id="remarks"
                     class="form-control"
                     rows="4"
-                    maxlength="2000"
-                    placeholder="Enter office remarks"></textarea>
+                    maxlength="2000"></textarea>
 
             </div>
 
@@ -1153,86 +1049,75 @@
 
 </div>
 
-<!-- ==========================================================
-     PART 5 STARTS HERE
-=========================================================== -->
-<!-- ==========================================================
+<!-- ===========================================================
      ACTION BUTTONS
-=========================================================== -->
+============================================================ -->
 
 <div class="card shadow-sm">
 
-    <div class="card-body">
+    <div class="card-body text-center">
 
-        <div class="row">
+        <button
+            type="button"
+            id="btnSave"
+            class="btn btn-success me-2">
 
-            <div class="col text-center">
+            <i class="bi bi-save"></i>
+            Save
 
-                <button
-                    type="button"
-                    class="btn btn-success me-2"
-                    id="btnSave">
+        </button>
 
-                    <i class="bi bi-save"></i>
-                    Save
+        <button
+            type="button"
+            id="btnUpdate"
+            class="btn btn-primary me-2">
 
-                </button>
+            <i class="bi bi-pencil-square"></i>
+            Update
 
-                <button
-                    type="button"
-                    class="btn btn-primary me-2"
-                    id="btnUpdate">
+        </button>
 
-                    <i class="bi bi-pencil-square"></i>
-                    Update
+        <button
+            type="button"
+            id="btnDelete"
+            class="btn btn-danger me-2">
 
-                </button>
+            <i class="bi bi-trash"></i>
+            Delete
 
-                <button
-                    type="button"
-                    class="btn btn-danger me-2"
-                    id="btnDelete">
+        </button>
 
-                    <i class="bi bi-trash"></i>
-                    Delete
+        <button
+            type="reset"
+            id="btnClear"
+            class="btn btn-warning me-2">
 
-                </button>
+            <i class="bi bi-arrow-clockwise"></i>
+            Clear
 
-                <button
-                    type="reset"
-                    class="btn btn-warning me-2"
-                    id="btnClear">
+        </button>
 
-                    <i class="bi bi-arrow-clockwise"></i>
-                    Clear
+        <button
+            type="button"
+            id="btnRegister"
+            class="btn btn-info text-white me-2"
+            onclick="window.location='cpgrams-register.html'">
 
-                </button>
+            <i class="bi bi-table"></i>
+            Register
 
-                <button
-                    type="button"
-                    class="btn btn-info text-white me-2"
-                    id="btnRegister"
-                    onclick="window.location='cpgrams-register.html'">
+        </button>
 
-                    <i class="bi bi-table"></i>
-                    Register
+        <button
+            type="button"
+            id="btnHome"
+            class="btn btn-secondary"
+            onclick="goHome()">
 
-                </button>
+            <i class="bi bi-house"></i>
+            Home
 
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    id="btnHome"
-                    onclick="goHome()">
-
-                    <i class="bi bi-house"></i>
-                    Home
-
-                </button>
-
-            </div>
-
-        </div>
+        </button>
 
     </div>
 
@@ -1241,10 +1126,9 @@
 </form>
 
 </div>
-
-<!-- ==========================================================
+<!-- ===========================================================
      FOOTER
-=========================================================== -->
+============================================================ -->
 
 <footer class="bg-light border-top mt-5">
 
@@ -1260,7 +1144,9 @@
 
                 <br>
 
-                Commissioner, Rural Development
+                Office of the Commissioner,
+                Rural Development,
+                Government of Telangana
 
             </div>
 
@@ -1281,46 +1167,47 @@
 
 </footer>
 
-<!-- ==========================================================
+<!-- ===========================================================
      JAVASCRIPT
-=========================================================== -->
+============================================================ -->
 
 <!-- Bootstrap -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Common Scripts -->
+<!-- ===========================================================
+     COMMON
+============================================================ -->
 
 <script src="../../js/storage.js"></script>
-
 <script src="../../js/common.js"></script>
-
 <script src="../../js/navigation.js"></script>
-
 <script src="../../js/validation.js"></script>
 
-<script src="../../js/id-generator.js"></script>
+<!-- ===========================================================
+     MASTER DATA
+============================================================ -->
 
+<script src="../../js/id-generator.js"></script>
 <script src="../../js/master-data.js"></script>
 
 <script src="../../js/district-master.js"></script>
 
-<!--script src="../../js/mandal-master.js"></script-->
+<script src="../../js/mandal-master.js"></script>
 
-<!--script src="../../js/village-master.js"></script-->
+<script src="../../js/village-master.js"></script>
 
 <script src="../../js/officer-master.js"></script>
 
-<!--script src="../../js/section-master.js"></script-->
+<script src="../../js/section-master.js"></script>
+
 <script src="../../js/status-master.js"></script>
 
+<script src="../../js/category-master.js"></script>
 
-<!--script src="../../js/dashboard.js"></script -->
-
-<!--script src="../../js/category-master.js"></script-->
-
-
-<!-- CPGRAMS -->
+<!-- ===========================================================
+     CPGRAMS
+============================================================ -->
 
 <script src="cpgrams.js"></script>
 

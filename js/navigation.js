@@ -1,17 +1,10 @@
-/*==========================================================
-    FILE MANAGEMENT SYSTEM (FMS)
-    File        : navigation.js
-    Version     : 1.0.0
-==========================================================*/
-
 "use strict";
 
 /*==========================================================
 GO HOME
 ==========================================================*/
 
-function goHome()
-{
+function goHome() {
     window.location.href = "../../index.html";
 }
 
@@ -19,27 +12,31 @@ function goHome()
 OPEN MODULE
 ==========================================================*/
 
-function openModule(module)
-{
+function openModule(module) {
+
+    const inPages = window.location.pathname.includes("/pages/");
+    const base = inPages ? "../" : "";
+
     switch (module) {
 
-    case "cpgrams":
-        window.location.href = "modules/cpgrams/cpgrams.html";
-        break;
+        case "cpgrams":
+            window.location.href = base + "modules/cpgrams/cpgrams.html";
+            break;
 
-    case "rti":
-        window.location.href = "modules/rti/rti.html";
-        break;
+        case "prajavani":
+            window.location.href = base + "modules/prajavani/prajavani.html";
+            break;
 
-    case "disha":
-        window.location.href = "modules/disha/disha.html";
-        break;
+        case "rti":
+            window.location.href = base + "modules/rti/rti.html";
+            break;
 
-    case "prajavani":
-        window.location.href = "modules/prajavani/prajavani.html";
-        break;
+        case "disha":
+            window.location.href = base + "modules/disha/disha.html";
+            break;
 
-    default:
-        alert("Module under development.");
-}
+        default:
+            alert("Module under development.");
+
+    }
 }
