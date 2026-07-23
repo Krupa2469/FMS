@@ -139,6 +139,40 @@ const APP_CONFIG = {
 
 };
 
+/******************************************************************************
+ * Load All Master Data
+ ******************************************************************************/
+/******************************************************************************
+ * Load All Master Data
+ ******************************************************************************/
+
+function loadMasterData() {
+
+    if (typeof loadDistricts === "function") {
+        loadDistricts("district");
+    }
+
+    if (typeof loadPriorities === "function") {
+        loadPriorities("priority");
+    }
+
+    if (typeof loadStatus === "function") {
+        loadStatus();
+    }
+
+    if (typeof loadATR === "function") {
+        loadATR();
+    }
+
+    if (typeof loadOfficers === "function") {
+        loadOfficers("assignedOfficer");
+    }
+
+    if (typeof loadSections === "function") {
+        loadSections("section");
+    }
+
+}
 
 /*==========================================================
 END OF FILE

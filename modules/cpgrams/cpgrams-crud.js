@@ -1,135 +1,138 @@
-/*==========================================================
-    FILE MANAGEMENT SYSTEM (FMS)
-    Module      : CPGRAMS
-    File        : cpgrams-crud.js
-    Version     : 1.0.0
-==========================================================*/
+/******************************************************************************
+ * File        : cpgrams-crud.js
+ * Module      : CPGRAMS
+ * Description : CRUD Operations
+ * Version     : 2.0
+ * Developer   : Lekha Technologies
+ ******************************************************************************/
 
 "use strict";
 
-let editIndex = -1;
+/*===========================================================================
+    Storage Key
+===========================================================================*/
 
-/*==========================================================
-SAVE / UPDATE
-==========================================================*/
+const STORAGE_KEY = "CPGRAMS_RECORDS";
 
-function saveCPGRAMS()
-{
-    if (!validateCPGRAMS())
-    {
+/*===========================================================================
+    Save Record
+===========================================================================*/
+
+function saveRecord() {
+
+    if (!validateForm())
         return;
+
+    const record = getFormData();
+
+    const records = getAllRecords();
+
+    // Duplicate Check
+
+    const duplicate = records.find(r =>
+        r.grievanceNumber === record.grievanceNumber
+    );
+
+    if (duplicate) {
+
+        alert("Grievance Number already exists.");
+
+        return;
+
     }
 
-    const record =
-    {
-        id               : getValue("fileNumber"),
-        grievanceNo      : getValue("grievanceNumber"),
-        dateReceived     : getValue("dateReceived"),
-        complainantName  : getValue("complainantName"),
-        district         : getValue("district"),
-        mandal           : getValue("mandal"),
-        village          : getValue("village"),
-        subject          : getValue("subject"),
-        description      : getValue("description"),
-        assignedTo       : getValue("assignedTo"),
-        dueDate          : getValue("dueDate"),
-        status           : getValue("status"),
-        atrReceived      : getValue("atrReceived"),
-        atrReceivedDate  : getValue("atrReceivedDate"),
-        disposed         : getValue("disposed"),
-        disposedDate     : getValue("disposedDate"),
-        remarks          : getValue("remarks"),
-        modifiedOn       : new Date().toISOString()
-    };
+    record.id = Date.now();
 
-    if(editIndex === -1)
-    {
-        record.createdOn = new Date().toISOString();
+    record.createdOn = new Date().toISOString();
 
-        addRecord(STORAGE_KEYS.CPGRAMS, record);
+    records.push(record);
 
-        alert("Record Saved Successfully.");
-    }
-    else
-    {
-        const records = getData(STORAGE_KEYS.CPGRAMS);
+    saveAllRecords(records);
 
-        record.createdOn = records[editIndex].createdOn;
+    alert("Record saved successfully.");
 
-        updateRecord(STORAGE_KEYS.CPGRAMS, editIndex, record);
+    currentRecordId = record.id;
 
-        alert("Record Updated Successfully.");
+    updateButtonState(true);
 
-        editIndex = -1;
-    }
-
-    newCPGRAMS();
 }
 
-/*==========================================================
-LOAD RECORD FOR EDIT
-==========================================================*/
+/*===========================================================================
+    Get All Records
+===========================================================================*/
 
-function loadRecord(index)
-{
-    const records = getData(STORAGE_KEYS.CPGRAMS);
+function getAllRecords() {
 
-    if(index < 0 || index >= records.length)
-    {
-        return;
-    }
+    const data = localStorage.getItem(STORAGE_KEY);
 
-    const record = records[index];
+    if (!data)
+        return [];
 
-    editIndex = index;
+    return JSON.parse(data);
 
-    setValue("fileNumber", record.id);
-    setValue("grievanceNumber", record.grievanceNo);
-    setValue("dateReceived", record.dateReceived);
-    setValue("complainantName", record.complainantName);
-    setValue("district", record.district);
-    setValue("mandal", record.mandal);
-    setValue("village", record.village);
-    setValue("subject", record.subject);
-    setValue("description", record.description);
-    setValue("assignedTo", record.assignedTo);
-    setValue("dueDate", record.dueDate);
-    setValue("status", record.status);
-    setValue("atrReceived", record.atrReceived);
-    setValue("atrReceivedDate", record.atrReceivedDate);
-    setValue("disposed", record.disposed);
-    setValue("disposedDate", record.disposedDate);
-    setValue("remarks", record.remarks);
-
-    toggleATRDate();
-
-    toggleDisposedDate();
 }
 
-/*==========================================================
-DELETE RECORD
-==========================================================*/
+/*===========================================================================
+    Save All Records
+===========================================================================*/
 
-function deleteCurrentRecord()
-{
-    if(editIndex === -1)
-    {
-        alert("Please load a record first.");
+function saveAllRecords(records) {
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(records)
+    );
+
+}
+
+/*===========================================================================
+    Get Record By ID
+===========================================================================*/
+
+function getRecordById(id) {
+
+    const records = getAllRecords();
+
+    return records.find(r => r.id == id);
+
+}
+
+/*===========================================================================
+    Update Record
+===========================================================================*/
+
+function updateRecord() {
+
+    if (!validateForm())
+        return;
+
+    if (currentRecordId == null) {
+
+        alert("Please select a record to update.");
 
         return;
+
     }
 
-    if(!confirm("Delete this record?"))
-    {
+    const records = getAllRecords();
+
+    const index = records.findIndex(r => r.id == currentRecordId);
+
+    if (index === -1) {
+
+        alert("Record not found.");
+
         return;
+
     }
 
-    deleteRecord(STORAGE_KEYS.CPGRAMS, editIndex);
+    const record = getFormData();
 
-    alert("Record Deleted Successfully.");
+    record.id = currentRecordId;
 
-    editIndex = -1;
+    record.createdOn = records[index].createdOn;
 
+<<<<<<< HEAD
     newCPGRAMS();
 }
 /*==========================================================
@@ -290,3 +293,336 @@ function loadRecord(record)
     document.getElementById("finalStatus").value = record.finalStatus;
     document.getElementById("remarks").value = record.remarks;
 }
+=======
+    record.modifiedOn = new Date().toISOString();
+
+    records[index] = record;
+
+    saveAllRecords(records);
+
+    alert("Record updated successfully.");
+
+}
+
+/*===========================================================================
+    Delete Record
+===========================================================================*/
+
+function deleteRecord() {
+
+    if (currentRecordId == null) {
+
+        alert("Please select a record.");
+
+        return;
+
+    }
+
+    if (!confirm("Are you sure you want to delete this record?"))
+        return;
+
+    let records = getAllRecords();
+
+    records = records.filter(r => r.id != currentRecordId);
+
+    saveAllRecords(records);
+
+    alert("Record deleted successfully.");
+
+    newRecord();
+
+}
+
+/*===========================================================================
+    Search Record By Grievance Number
+===========================================================================*/
+
+function searchRecord(grievanceNumber) {
+
+    const records = getAllRecords();
+
+    return records.find(r =>
+        r.grievanceNumber === grievanceNumber
+    );
+
+}
+
+/*===========================================================================
+    Load Record By ID
+===========================================================================*/
+
+function loadRecordById(id) {
+
+    const record = getRecordById(id);
+
+    if (!record) {
+
+        alert("Record not found.");
+
+        return;
+
+    }
+
+    loadRecord(record);
+
+}
+
+/*===========================================================================
+    Get Total Records
+===========================================================================*/
+
+function getRecordCount() {
+
+    return getAllRecords().length;
+
+}
+
+/*===========================================================================
+    Check Duplicate Grievance Number
+===========================================================================*/
+
+function grievanceExists(grievanceNumber) {
+
+    const records = getAllRecords();
+
+    return records.some(r =>
+        r.grievanceNumber === grievanceNumber &&
+        r.id != currentRecordId
+    );
+
+}
+
+/*===========================================================================
+    Refresh Register
+===========================================================================*/
+
+function refreshRegister() {
+
+    if (typeof loadRegister === "function") {
+
+        loadRegister();
+
+    }
+
+}
+
+/*===========================================================================
+    Save and Refresh
+===========================================================================*/
+
+function saveAndRefresh() {
+
+    saveRecord();
+
+    refreshRegister();
+
+}
+
+/*===========================================================================
+    Update and Refresh
+===========================================================================*/
+
+function updateAndRefresh() {
+
+    updateRecord();
+
+    refreshRegister();
+
+}
+
+/*===========================================================================
+    Delete and Refresh
+===========================================================================*/
+
+function deleteAndRefresh() {
+
+    deleteRecord();
+
+    refreshRegister();
+
+}
+
+/*===========================================================================
+    Get Records By Status
+===========================================================================*/
+
+function getRecordsByStatus(status) {
+
+    return getAllRecords().filter(record =>
+        record.status === status
+    );
+
+}
+
+/*===========================================================================
+    Get Records By District
+===========================================================================*/
+
+function getRecordsByDistrict(district) {
+
+    return getAllRecords().filter(record =>
+        record.district === district
+    );
+
+}
+
+/*===========================================================================
+    Get Pending Records
+===========================================================================*/
+
+function getPendingRecords() {
+
+    return getAllRecords().filter(record =>
+        record.finalStatus !== "Disposed" &&
+        record.finalStatus !== "Closed"
+    );
+
+}
+
+/*===========================================================================
+    Get Overdue Records
+===========================================================================*/
+
+function getOverdueRecords() {
+
+    const today = new Date();
+
+    return getAllRecords().filter(record => {
+
+        if (!record.dueDate)
+            return false;
+
+        if (
+            record.finalStatus === "Disposed" ||
+            record.finalStatus === "Closed"
+        )
+            return false;
+
+        return new Date(record.dueDate) < today;
+
+    });
+
+}
+
+/*===========================================================================
+    Search Records
+===========================================================================*/
+
+function searchRecords(searchText) {
+
+    searchText = searchText.toLowerCase().trim();
+
+    return getAllRecords().filter(record =>
+
+        (record.fileNumber || "").toLowerCase().includes(searchText) ||
+
+        (record.grievanceNumber || "").toLowerCase().includes(searchText) ||
+
+        (record.complainantName || "").toLowerCase().includes(searchText) ||
+
+        (record.subject || "").toLowerCase().includes(searchText) ||
+
+        (record.district || "").toLowerCase().includes(searchText)
+
+    );
+
+}
+
+/*===========================================================================
+    Sort Records
+===========================================================================*/
+
+function sortRecords(records, field) {
+
+    return records.sort((a, b) => {
+
+        const valueA = (a[field] || "").toString().toLowerCase();
+
+        const valueB = (b[field] || "").toString().toLowerCase();
+
+        if (valueA < valueB)
+            return -1;
+
+        if (valueA > valueB)
+            return 1;
+
+        return 0;
+
+    });
+
+}
+
+/*===========================================================================
+    Export Records
+===========================================================================*/
+
+function exportRecords() {
+
+    return JSON.stringify(
+        getAllRecords(),
+        null,
+        2
+    );
+
+}
+
+/*===========================================================================
+    Import Records
+===========================================================================*/
+
+function importRecords(jsonData) {
+
+    try {
+
+        const records = JSON.parse(jsonData);
+
+        if (!Array.isArray(records)) {
+
+            alert("Invalid import file.");
+
+            return false;
+
+        }
+
+        saveAllRecords(records);
+
+        alert("Records imported successfully.");
+
+        return true;
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        alert("Unable to import records.");
+
+        return false;
+
+    }
+
+}
+
+/*===========================================================================
+    Clear All Records
+===========================================================================*/
+
+function clearAllRecords() {
+
+    if (!confirm("Delete ALL CPGRAMS records?"))
+        return;
+
+    localStorage.removeItem(STORAGE_KEY);
+
+    alert("All records deleted.");
+
+    newRecord();
+
+    refreshRegister();
+
+}
+
+/*===========================================================================
+    End of File
+===========================================================================*/
+>>>>>>> f2f75a3bba0165089da376c7b25e05c934a78b19
