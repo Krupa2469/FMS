@@ -1,506 +1,981 @@
-/******************************************************************************
- * File        : cpgrams-register.js
- * Module      : CPGRAMS Register
- * Description : Register Controller
- * Version     : 2.0
- * Developer   : Lekha Technologies
- ******************************************************************************/
-
 "use strict";
 
-/*===========================================================================
-    Global Variables
-===========================================================================*/
+//=========================================================
+// CPGRAMS REGISTER CONTROLLER
+// Version : 4.0
+//=========================================================
 
-let registerData = [];
+//---------------------------------------------------------
+// GLOBAL VARIABLES
+//---------------------------------------------------------
 
-let filteredData = [];
+let grievanceList = [];
+
+let filteredList = [];
 
 let currentPage = 1;
 
-const RECORDS_PER_PAGE = 10;
+const pageSize = 25;
 
-/*===========================================================================
-    Page Load
-===========================================================================*/
+let selectedDocumentId = null;
 
-document.addEventListener(
-    "DOMContentLoaded",
-    initializeRegister
-);
+let lastDocument = null;
 
-/*===========================================================================
-    Initialize Register
-===========================================================================*/
+//---------------------------------------------------------
+// INITIALIZATION
+//---------------------------------------------------------
 
-function initializeRegister() {
+document.addEventListener("DOMContentLoaded", initialize);
 
-    loadFilters();
+//---------------------------------------------------------
+// INITIALIZE PAGE
+//---------------------------------------------------------
 
-    loadRegister();
+async function initialize() {
 
-    registerEvents();
+    try {
+
+        showLoading();
+
+        registerEvents();
+
+        await loadRegister();
+
+        await loadDashboardSummary();
+
+        await loadDistricts();
+
+        console.log("CPGRAMS Register Loaded.");
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            "danger",
+            error.message
+        );
+
+    }
+    finally {
+
+        hideLoading();
+
+    }
 
 }
 
-/*===========================================================================
-    Load Register
-===========================================================================*/
+//---------------------------------------------------------
+// REGISTER EVENTS
+//---------------------------------------------------------
 
-function loadRegister() {
+function registerEvents() {
 
-    registerData = getAllRecords();
+    //-----------------------------------------------------
+    // Toolbar
+    //-----------------------------------------------------
 
-    filteredData = [...registerData];
+    document
+        .getElementById("btnRefresh")
+        .addEventListener("click", refreshRegister);
 
-    updateRecordCount();
+    document
+        .getElementById("btnNew")
+        .addEventListener("click", openNewGrievance);
 
-    displayRecords();
+    document
+        .getElementById("btnHome")
+        .addEventListener("click", goHome);
+
+    document
+        .getElementById("btnDashboard")
+        .addEventListener("click", openDashboard);
+
+    document
+        .getElementById("btnPrint")
+        .addEventListener("click", printRegister);
+
+    //-----------------------------------------------------
+    // Search
+    //-----------------------------------------------------
+
+    document
+        .getElementById("btnSearch")
+        .addEventListener("click", searchRecords);
+
+    document
+        .getElementById("searchGrievanceNumber")
+        .addEventListener("keyup", searchRecords);
+
+    document
+        .getElementById("searchDistrict")
+        .addEventListener("change", searchRecords);
+
+    document
+        .getElementById("searchStatus")
+        .addEventListener("change", searchRecords);
+
+    //-----------------------------------------------------
+    // Advanced Search
+    //-----------------------------------------------------
+
+    document
+        .getElementById("searchCategory")
+        .addEventListener("change", searchRecords);
+
+    document
+        .getElementById("searchPriority")
+        .addEventListener("change", searchRecords);
+
+    document
+        .getElementById("fromDate")
+        .addEventListener("change", searchRecords);
+
+    document
+        .getElementById("toDate")
+        .addEventListener("change", searchRecords);
+
+    //-----------------------------------------------------
+    // Pagination
+    //-----------------------------------------------------
+
+    document
+        .getElementById("btnNext")
+        .addEventListener("click", nextPage);
+
+    document
+        .getElementById("btnPrevious")
+        .addEventListener("click", previousPage);
+
+    document
+        .getElementById("btnFirst")
+        .addEventListener("click", firstPage);
+
+    document
+        .getElementById("btnLast")
+        .addEventListener("click", lastPage);
+
+    //-----------------------------------------------------
+    // Export
+    //-----------------------------------------------------
+
+    document
+        .getElementById("btnExcel")
+        .addEventListener("click", exportExcel);
+
+    document
+        .getElementById("btnPDF")
+        .addEventListener("click", exportPDF);
+
+    document
+        .getElementById("btnPrintRegister")
+        .addEventListener("click", printRegister);
+
+    //-----------------------------------------------------
+    // Delete
+    //-----------------------------------------------------
+
+    document
+        .getElementById("btnConfirmDelete")
+        .addEventListener("click", deleteRecord);
+
+}
+//=========================================================
+// LOAD REGISTER
+//=========================================================
+
+async function loadRegister() {
+
+    try {
+
+        showLoading();
+
+        const result =
+            await getActiveRecords(500);
+
+        if (!result.success) {
+
+            showMessage(
+                "danger",
+                result.message
+            );
+
+            return;
+
+        }
+
+        grievanceList = result.data || [];
+
+        filteredList = [...grievanceList];
+
+        currentPage = 1;
+
+        renderRegisterTable();
+
+        updateRecordCount();
+
+        updatePageInfo();
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            "danger",
+            error.message
+        );
+
+    }
+    finally {
+
+        hideLoading();
+
+    }
 
 }
 
-/*===========================================================================
-    Display Records
-===========================================================================*/
+//=========================================================
+// RENDER REGISTER TABLE
+//=========================================================
 
-function displayRecords() {
+function renderRegisterTable() {
 
     const tbody =
         document.getElementById("registerBody");
 
     tbody.innerHTML = "";
 
+    if (filteredList.length === 0) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="12"
+                    class="text-center text-muted py-5">
+                    No Records Available
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
     const start =
-        (currentPage - 1) * RECORDS_PER_PAGE;
+        (currentPage - 1) * pageSize;
 
     const end =
-        start + RECORDS_PER_PAGE;
+        Math.min(
+            start + pageSize,
+            filteredList.length
+        );
 
-    const pageData =
-        filteredData.slice(start, end);
+    let serialNo = start + 1;
 
-    pageData.forEach((record, index) => {
+    for (let i = start; i < end; i++) {
 
-        const row =
-            tbody.insertRow();
+        const item = filteredList[i];
+
+        const row = document.createElement("tr");
 
         row.innerHTML = `
 
-<td>${start + index + 1}</td>
+        <td>${serialNo++}</td>
 
-<td>${record.fileNumber}</td>
+        <td>${item.grievanceId || ""}</td>
 
-<td>${record.grievanceNumber}</td>
+        <td>${item.grievanceNumber || ""}</td>
 
-<td>${record.dateReceived}</td>
+        <td>${item.dateReceived || ""}</td>
 
-<td>${record.complainantName}</td>
+        <td>${item.complainantName || ""}</td>
 
-<td>${record.district}</td>
+        <td>${item.district || ""}</td>
 
-<td>${record.subject}</td>
+        <td>${item.subject || ""}</td>
 
-<td>${record.finalStatus}</td>
+        <td>${item.currentStatus || ""}</td>
 
-<td>
+        <td>${item.dueDate || ""}</td>
 
-<button
-class="btn btn-sm btn-primary"
-onclick="editRecord(${record.id})">
+        <td>${item.priority || ""}</td>
 
-Edit
+        <td>${item.finalStatus || ""}</td>
 
-</button>
+        <td>
 
-<button
-class="btn btn-sm btn-danger"
-onclick="removeRecord(${record.id})">
+            <button
+                class="btn btn-sm btn-primary"
 
-Delete
+                onclick="openRecord('${item.id}')">
 
-</button>
+                View
 
-</td>
+            </button>
 
-`;
+        </td>
 
-    });
+        `;
 
-    createPagination();
+        tbody.appendChild(row);
+
+    }
 
 }
 
-/*===========================================================================
-    Record Count
-===========================================================================*/
+//=========================================================
+// LOAD DASHBOARD SUMMARY
+//=========================================================
 
-/*===========================================================================
-    Update Summary Cards
-===========================================================================*/
+async function loadDashboardSummary() {
+
+    try {
+
+        const result =
+            await getDashboardSummary();
+
+        if (!result.success) {
+
+            return;
+
+        }
+
+        document.getElementById(
+            "totalRecords"
+        ).textContent =
+            result.total;
+
+        document.getElementById(
+            "pendingRecords"
+        ).textContent =
+            result.pending;
+
+        document.getElementById(
+            "disposedRecords"
+        ).textContent =
+            result.disposed;
+
+        document.getElementById(
+            "overdueRecords"
+        ).textContent =
+            result.overdue;
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+//=========================================================
+// UPDATE RECORD COUNT
+//=========================================================
 
 function updateRecordCount() {
 
-    const total = filteredData.length;
-
-    // Existing Label
-    const recordCount = document.getElementById("recordCount");
-    if (recordCount) {
-        recordCount.textContent = total;
-    }
-
-    // Dashboard Cards
-    const lblTotalRecords = document.getElementById("lblTotalRecords");
-    const lblPendingRecords = document.getElementById("lblPendingRecords");
-    const lblDisposedRecords = document.getElementById("lblDisposedRecords");
-    const lblOverdueRecords = document.getElementById("lblOverdueRecords");
-
-    let pending = 0;
-    let disposed = 0;
-    let overdue = 0;
-
-    filteredData.forEach(record => {
-
-        const status = (record.finalStatus || "").toLowerCase();
-
-        if (status === "disposed") {
-            disposed++;
-        } else {
-            pending++;
-        }
-
-        if (record.dueDate) {
-
-            const dueDate = new Date(record.dueDate);
-
-            if (
-                dueDate < new Date() &&
-                status !== "disposed"
-            ) {
-                overdue++;
-            }
-
-        }
-
-    });
-
-    if (lblTotalRecords)
-        lblTotalRecords.textContent = total;
-
-    if (lblPendingRecords)
-        lblPendingRecords.textContent = pending;
-
-    if (lblDisposedRecords)
-        lblDisposedRecords.textContent = disposed;
-
-    if (lblOverdueRecords)
-        lblOverdueRecords.textContent = overdue;
+    document.getElementById(
+        "recordCount"
+    ).textContent =
+        `Total Records : ${filteredList.length}`;
 
 }
 
-/*===========================================================================
-    Register Events
-===========================================================================*/
+//=========================================================
+// UPDATE PAGE INFORMATION
+//=========================================================
 
-function registerEvents() {
+function updatePageInfo() {
 
-    // Search
-    document
-        .getElementById("btnSearch")
-        .addEventListener("click", applyFilters);
+    if (filteredList.length === 0) {
 
-    document
-        .getElementById("txtSearch")
-        .addEventListener("keyup", applyFilters);
+        document.getElementById(
+            "pageInfo"
+        ).textContent =
+            "Showing 0 to 0 of 0 records";
 
-    // Filters
-    document
-        .getElementById("filterDistrict")
-        .addEventListener("change", applyFilters);
+        return;
 
-    document
-        .getElementById("filterStatus")
-        .addEventListener("change", applyFilters);
+    }
 
-    document
-        .getElementById("filterPriority")
-        .addEventListener("change", applyFilters);
+    const start =
+        ((currentPage - 1) * pageSize) + 1;
 
-    // Toolbar Buttons
-    document
-        .getElementById("btnRefresh")
-        .addEventListener("click", loadRegister);
+    const end =
+        Math.min(
+            currentPage * pageSize,
+            filteredList.length
+        );
 
-    document
-        .getElementById("btnNew")
-        .addEventListener("click", newRecord);
-
-    document
-        .getElementById("btnPrint")
-        .addEventListener("click", printRegister);
-
-    document
-        .getElementById("btnExport")
-        .addEventListener("click", exportRegister);
-
-    document
-        .getElementById("btnHome")
-        .addEventListener("click", goHome);
+    document.getElementById(
+        "pageInfo"
+    ).textContent =
+        `Showing ${start} to ${end} of ${filteredList.length} records`;
 
 }
+//=========================================================
+// SEARCH RECORDS
+//=========================================================
 
-/*===========================================================================
-    Load Filter Dropdowns
-===========================================================================*/
+function searchRecords() {
 
-/*===========================================================================
-    Load Filter Dropdowns
-===========================================================================*/
-
-function loadFilters() {
-
-    // District
-    if (typeof loadDistricts === "function") {
-        loadDistricts("filterDistrict");
-    }
-    else if (typeof loadDistrictDropdown === "function") {
-        loadDistrictDropdown("filterDistrict");
-    }
-
-    // Status
-    if (typeof loadStatus === "function") {
-        loadStatus("filterStatus");
-    }
-    else if (typeof loadStatusDropdown === "function") {
-        loadStatusDropdown("filterStatus");
-    }
-
-    // Priority
-    if (typeof loadPriorities === "function") {
-        loadPriorities("filterPriority");
-    }
-    else if (typeof loadPriorityDropdown === "function") {
-        loadPriorityDropdown("filterPriority");
-    }
-
-}
-
-/*===========================================================================
-    Apply Filters
-===========================================================================*/
-
-function applyFilters() {
-
-    const search =
-        document
-            .getElementById("txtSearch")
+    const grievanceNumber =
+        document.getElementById("searchGrievanceNumber")
             .value
-            .toLowerCase()
-            .trim();
+            .trim()
+            .toLowerCase();
 
     const district =
-        document
-            .getElementById("filterDistrict")
-            .value;
+        document.getElementById("searchDistrict")
+            .value
+            .trim()
+            .toLowerCase();
 
     const status =
-        document
-            .getElementById("filterStatus")
-            .value;
+        document.getElementById("searchStatus")
+            .value
+            .trim()
+            .toLowerCase();
+
+    const category =
+        document.getElementById("searchCategory")
+            .value
+            .trim()
+            .toLowerCase();
 
     const priority =
-        document
-            .getElementById("filterPriority")
-            .value;
+        document.getElementById("searchPriority")
+            .value
+            .trim()
+            .toLowerCase();
 
-    filteredData = registerData.filter(record => {
+    const fromDate =
+        document.getElementById("fromDate").value;
 
-        const matchesSearch =
+    const toDate =
+        document.getElementById("toDate").value;
 
-            search === "" ||
+    filteredList = grievanceList.filter(record => {
 
-            (record.fileNumber || "")
-                .toLowerCase()
-                .includes(search) ||
-
+        const grievanceMatch =
+            !grievanceNumber ||
             (record.grievanceNumber || "")
                 .toLowerCase()
-                .includes(search) ||
+                .includes(grievanceNumber);
 
-            (record.complainantName || "")
-                .toLowerCase()
-                .includes(search) ||
+        const districtMatch =
+            !district ||
+            (record.district || "")
+                .toLowerCase() === district;
 
-            (record.subject || "")
-                .toLowerCase()
-                .includes(search);
+        const statusMatch =
+            !status ||
+            (record.currentStatus || "")
+                .toLowerCase() === status;
 
-        const matchesDistrict =
-            district === "" ||
-            record.district === district;
+        const categoryMatch =
+            !category ||
+            (record.category || "")
+                .toLowerCase() === category;
 
-        const matchesStatus =
-            status === "" ||
-            record.finalStatus === status;
+        const priorityMatch =
+            !priority ||
+            (record.priority || "")
+                .toLowerCase() === priority;
 
-        const matchesPriority =
-            priority === "" ||
-            record.priority === priority;
+        let dateMatch = true;
 
-        return (
+        if (fromDate && record.dateReceived) {
 
-            matchesSearch &&
-            matchesDistrict &&
-            matchesStatus &&
-            matchesPriority
+            dateMatch =
+                record.dateReceived >= fromDate;
 
-        );
+        }
+
+        if (dateMatch &&
+            toDate &&
+            record.dateReceived) {
+
+            dateMatch =
+                record.dateReceived <= toDate;
+
+        }
+
+        return grievanceMatch &&
+               districtMatch &&
+               statusMatch &&
+               categoryMatch &&
+               priorityMatch &&
+               dateMatch;
 
     });
 
     currentPage = 1;
 
+    renderRegisterTable();
+
     updateRecordCount();
 
-    displayRecords();
+    updatePageInfo();
 
 }
 
-/*===========================================================================
-    Refresh Register
-===========================================================================*/
+//=========================================================
+// REFRESH REGISTER
+//=========================================================
 
-function refreshRegister() {
+async function refreshRegister() {
 
-    loadRegister();
+    clearFilters();
 
-}/*===========================================================================
-    Edit Record
-===========================================================================*/
+    await loadRegister();
 
-function editRecord(id) {
+    await loadDashboardSummary();
 
-    window.location.href =
-        "cpgrams.html?id=" + id;
-
-}
-
-/*===========================================================================
-    Delete Record
-===========================================================================*/
-
-function removeRecord(id) {
-
-    if (!confirm("Are you sure you want to delete this record?"))
-        return;
-
-    let records = getAllRecords();
-
-    records = records.filter(record => record.id != id);
-
-    saveAllRecords(records);
-
-    loadRegister();
+    showMessage(
+        "success",
+        "Register refreshed successfully."
+    );
 
 }
 
-/*===========================================================================
-    Create Pagination
-===========================================================================*/
+//=========================================================
+// CLEAR FILTERS
+//=========================================================
 
-function createPagination() {
+function clearFilters() {
 
-    const pagination =
-        document.getElementById("pagination");
+    document.getElementById("searchGrievanceNumber").value = "";
 
-    pagination.innerHTML = "";
+    document.getElementById("searchDistrict").value = "";
 
-    const totalPages =
-        Math.ceil(filteredData.length / RECORDS_PER_PAGE);
+    document.getElementById("searchStatus").value = "";
 
-    if (totalPages <= 1)
-        return;
+    document.getElementById("searchCategory").value = "";
 
-    // Previous Button
+    document.getElementById("searchPriority").value = "";
 
-    let li = document.createElement("li");
+    document.getElementById("fromDate").value = "";
 
-    li.className =
-        "page-item " +
-        (currentPage === 1 ? "disabled" : "");
+    document.getElementById("toDate").value = "";
 
-    li.innerHTML =
+}
 
-        `<a class="page-link" href="#">Previous</a>`;
+//=========================================================
+// LOAD DISTRICTS
+//=========================================================
 
-    li.onclick = function () {
+async function loadDistricts() {
 
-        if (currentPage > 1) {
+    const districtDropdown =
+        document.getElementById("searchDistrict");
 
-            currentPage--;
+    districtDropdown.innerHTML =
+        '<option value="">All Districts</option>';
 
-            displayRecords();
+    const districts = [
 
-        }
+        "Adilabad",
+        "Bhadradri Kothagudem",
+        "Hyderabad",
+        "Jagtial",
+        "Jangaon",
+        "Jayashankar Bhupalpally",
+        "Jogulamba Gadwal",
+        "Kamareddy",
+        "Karimnagar",
+        "Khammam",
+        "Komaram Bheem Asifabad",
+        "Mahabubabad",
+        "Mahabubnagar",
+        "Mancherial",
+        "Medak",
+        "Medchal Malkajgiri",
+        "Mulugu",
+        "Nagarkurnool",
+        "Nalgonda",
+        "Narayanpet",
+        "Nirmal",
+        "Nizamabad",
+        "Peddapalli",
+        "Rajanna Sircilla",
+        "Rangareddy",
+        "Sangareddy",
+        "Siddipet",
+        "Suryapet",
+        "Vikarabad",
+        "Wanaparthy",
+        "Warangal",
+        "Hanamkonda",
+        "Yadadri Bhuvanagiri"
 
-    };
+    ];
 
-    pagination.appendChild(li);
+    districts.sort().forEach(district => {
 
-    // Page Numbers
+        const option =
+            document.createElement("option");
 
-    for (let i = 1; i <= totalPages; i++) {
+        option.value = district;
 
-        li = document.createElement("li");
+        option.textContent = district;
 
-        li.className =
-            "page-item " +
-            (i === currentPage ? "active" : "");
+        districtDropdown.appendChild(option);
 
-        li.innerHTML =
-            `<a class="page-link" href="#">${i}</a>`;
+    });
 
-        li.onclick = function () {
+}
+//=========================================================
+// PAGINATION
+//=========================================================
 
-            currentPage = i;
+function firstPage() {
 
-            displayRecords();
+    currentPage = 1;
 
-        };
+    renderRegisterTable();
 
-        pagination.appendChild(li);
+    updatePageInfo();
+
+}
+
+function previousPage() {
+
+    if (currentPage > 1) {
+
+        currentPage--;
+
+        renderRegisterTable();
+
+        updatePageInfo();
 
     }
 
-    // Next Button
+}
 
-    li = document.createElement("li");
+function nextPage() {
 
-    li.className =
-        "page-item " +
-        (currentPage === totalPages ? "disabled" : "");
+    const totalPages =
+        Math.ceil(filteredList.length / pageSize);
 
-    li.innerHTML =
-        `<a class="page-link" href="#">Next</a>`;
+    if (currentPage < totalPages) {
 
-    li.onclick = function () {
+        currentPage++;
 
-        if (currentPage < totalPages) {
+        renderRegisterTable();
 
-            currentPage++;
+        updatePageInfo();
 
-            displayRecords();
-
-        }
-
-    };
-
-    pagination.appendChild(li);
+    }
 
 }
 
-/*===========================================================================
-    Print Register
-===========================================================================*/
+function lastPage() {
+
+    currentPage =
+        Math.max(
+            1,
+            Math.ceil(filteredList.length / pageSize)
+        );
+
+    renderRegisterTable();
+
+    updatePageInfo();
+
+}
+
+//=========================================================
+// OPEN RECORD
+//=========================================================
+
+async function openRecord(documentId) {
+
+    try {
+
+        showLoading();
+
+        selectedDocumentId = documentId;
+
+        const result =
+            await getDocument(documentId);
+
+        if (!result.success) {
+
+            showMessage(
+                "danger",
+                result.message
+            );
+
+            return;
+
+        }
+
+        const record = result.data;
+
+        const tbody =
+            document.getElementById("recordDetails");
+
+        tbody.innerHTML = "";
+
+        Object.entries(record).forEach(([key, value]) => {
+
+            const row =
+                document.createElement("tr");
+
+            row.innerHTML = `
+                <th style="width:35%">
+                    ${formatFieldName(key)}
+                </th>
+                <td>
+                    ${value ?? ""}
+                </td>
+            `;
+
+            tbody.appendChild(row);
+
+        });
+
+        const modal =
+            new bootstrap.Modal(
+                document.getElementById("recordModal")
+            );
+
+        modal.show();
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            "danger",
+            error.message
+        );
+
+    }
+    finally {
+
+        hideLoading();
+
+    }
+
+}
+
+//=========================================================
+// OPEN SELECTED RECORD
+//=========================================================
+
+function openSelectedRecord() {
+
+    if (!selectedDocumentId) {
+
+        return;
+
+    }
+
+    window.location.href =
+        `cpgrams.html?id=${selectedDocumentId}`;
+
+}
+
+//=========================================================
+// DELETE RECORD
+//=========================================================
+
+async function deleteRecord() {
+
+    if (!selectedDocumentId) {
+
+        return;
+
+    }
+
+    try {
+
+        showLoading();
+
+        const result =
+            await deleteRecord(selectedDocumentId);
+
+        if (!result.success) {
+
+            showMessage(
+                "danger",
+                result.message
+            );
+
+            return;
+
+        }
+
+        bootstrap.Modal
+            .getInstance(
+                document.getElementById("deleteModal")
+            )
+            ?.hide();
+
+        await loadRegister();
+
+        await loadDashboardSummary();
+
+        showMessage(
+            "success",
+            "Record deleted successfully."
+        );
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            "danger",
+            error.message
+        );
+
+    }
+    finally {
+
+        hideLoading();
+
+    }
+
+}
+
+//=========================================================
+// NAVIGATION
+//=========================================================
+
+function openNewGrievance() {
+
+    window.location.href =
+        "cpgrams.html";
+
+}
+
+function openDashboard() {
+
+    window.location.href =
+        "../../dashboard.html";
+
+}
+
+function goHome() {
+
+    window.location.href =
+        "../../index.html";
+
+}
+
+//=========================================================
+// FORMAT FIELD NAME
+//=========================================================
+
+function formatFieldName(fieldName) {
+
+    return fieldName
+
+        .replace(/([A-Z])/g, " $1")
+
+        .replace(/^./, text => text.toUpperCase());
+
+}
+//=========================================================
+// LOADING INDICATOR
+//=========================================================
+
+function showLoading() {
+
+    const overlay =
+        document.getElementById("loadingOverlay");
+
+    if (overlay) {
+
+        overlay.classList.remove("d-none");
+
+        overlay.classList.add("d-flex");
+
+    }
+
+}
+
+function hideLoading() {
+
+    const overlay =
+        document.getElementById("loadingOverlay");
+
+    if (overlay) {
+
+        overlay.classList.remove("d-flex");
+
+        overlay.classList.add("d-none");
+
+    }
+
+}
+
+//=========================================================
+// MESSAGE
+//=========================================================
+
+function showMessage(type, message) {
+
+    const area =
+        document.getElementById("messageArea");
+
+    if (!area) return;
+
+    area.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show">
+
+            ${message}
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    `;
+
+    setTimeout(() => {
+
+        area.innerHTML = "";
+
+    }, 5000);
+
+}
+
+//=========================================================
+// EXPORT TO EXCEL
+//=========================================================
+
+function exportExcel() {
+
+    alert(
+        "Excel Export will be implemented in Version 4.1."
+    );
+
+}
+
+//=========================================================
+// EXPORT TO PDF
+//=========================================================
+
+function exportPDF() {
+
+    alert(
+        "PDF Export will be implemented in Version 4.1."
+    );
+
+}
+
+//=========================================================
+// PRINT REGISTER
+//=========================================================
 
 function printRegister() {
 
@@ -508,99 +983,56 @@ function printRegister() {
 
 }
 
-/*===========================================================================
-    Export Register (CSV)
-===========================================================================*/
+//=========================================================
+// KEYBOARD SHORTCUTS
+//=========================================================
 
-function exportRegister() {
+document.addEventListener("keydown", function (event) {
 
-    if (filteredData.length === 0) {
+    if (event.ctrlKey && event.key === "f") {
 
-        alert("No records available.");
+        event.preventDefault();
 
-        return;
+        document
+            .getElementById("searchGrievanceNumber")
+            ?.focus();
 
     }
 
-    const headers = [
+    if (event.key === "F5") {
 
-        "File Number",
-        "Grievance Number",
-        "Date Received",
-        "Complainant",
-        "District",
-        "Subject",
-        "Status"
+        event.preventDefault();
 
-    ];
+        refreshRegister();
 
-    const rows = filteredData.map(record => [
+    }
 
-        record.fileNumber,
-        record.grievanceNumber,
-        record.dateReceived,
-        record.complainantName,
-        record.district,
-        record.subject,
-        record.finalStatus
+});
 
-    ]);
+//=========================================================
+// DEBUG
+//=========================================================
 
-    let csv =
-        headers.join(",") + "\n";
+function debugRegister() {
 
-    rows.forEach(row => {
+    console.log("Total Records :", grievanceList.length);
 
-        csv += row.map(value =>
+    console.log("Filtered Records :", filteredList.length);
 
-            `"${value ?? ""}"`
-
-        ).join(",") + "\n";
-
-    });
-
-    const blob =
-        new Blob([csv], {
-            type: "text/csv;charset=utf-8;"
-        });
-
-    const url =
-        URL.createObjectURL(blob);
-
-    const link =
-        document.createElement("a");
-
-    link.href = url;
-
-    link.download =
-        "CPGRAMS_Register.csv";
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
-
-    URL.revokeObjectURL(url);
+    console.log("Current Page :", currentPage);
 
 }
 
-/*===========================================================================
-    New Record
-===========================================================================*/
+//=========================================================
+// EXPORT FUNCTIONS
+//=========================================================
 
-function newRecord() {
-    window.location.href = "cpgrams.html";
-}
+window.openRecord = openRecord;
 
-/*===========================================================================
-    Home
-===========================================================================*/
+window.debugRegister = debugRegister;
 
-function goHome() {
-    window.location.href = "../../pages/dashboard.html";
-}
+window.refreshRegister = refreshRegister;
 
-/*===========================================================================
-    End of File
-===========================================================================*/
+//=========================================================
+// END OF FILE
+//=========================================================

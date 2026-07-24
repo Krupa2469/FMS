@@ -1,112 +1,192 @@
-/******************************************************************************
- * Initialize CPGRAMS
- ******************************************************************************/
+/*==========================================================
+  CPGRAMS MODULE
+  File        : cpgrams.js
+  Version     : 4.0
+  Description : Controller for CPGRAMS Module
+==========================================================*/
 
-document.addEventListener("DOMContentLoaded", initializeCPGRAMS);
+"use strict";
 
-const CPGRAMS_DUE_DAYS = 21;
-let currentRecordId = null;
+//==========================================================
+// GLOBAL VARIABLES
+//==========================================================
 
-function initializeCPGRAMS() {
+let currentDocumentId = null;
+let editMode = false;
+let selectedDocument = null;
 
-    generateFileNumber();
+//==========================================================
+// PAGE INITIALIZATION
+//==========================================================
 
-    setDefaultDates();
+document.addEventListener("DOMContentLoaded", initializePage);
 
-    loadMasterData();
+//==========================================================
+// INITIALIZE PAGE
+//==========================================================
 
-    registerEvents();
+async function initializePage() {
 
-    clearValidation();
+    console.log("CPGRAMS Module Initializing...");
 
-    loadRecordFromURL();
+    registerButtonEvents();
 
-}
+    registerFieldEvents();
 
-/******************************************************************************
- * Load Record From URL
- ******************************************************************************/
+    clearForm();
 
-function loadRecordFromURL() {
+    generateGrievanceId();
 
-    const params = new URLSearchParams(window.location.search);
+    await loadMasterData();
 
-    const id = params.get("id");
-
-    if (!id)
-        return;
-
-    const record = getRecordById(Number(id));
-
-    if (!record)
-        return;
-
-    loadRecord(record);
+    console.log("CPGRAMS Module Loaded Successfully.");
 
 }
 
+//==========================================================
+// REGISTER BUTTON EVENTS
+//==========================================================
 
-/*===========================================================================
-    Register Events
-===========================================================================*/
+function registerButtonEvents() {
 
-function registerEvents() {
+    document.getElementById("btnNew")
+        .addEventListener("click", clearForm);
 
-    // Date Received Change
+    document.getElementById("btnSave")
+        .addEventListener("click", saveGrievance);
+
+    document.getElementById("btnUpdate")
+        .addEventListener("click", updateGrievance);
+
+    document.getElementById("btnDelete")
+        .addEventListener("click", confirmDelete);
+
+    document.getElementById("btnRegister")
+        .addEventListener("click", openRegister);
+
+    document.getElementById("btnDashboard")
+        .addEventListener("click", openDashboard);
+
+    document.getElementById("btnPrint")
+        .addEventListener("click", printGrievance);
+
+    document.getElementById("btnHome")
+        .addEventListener("click", goHome);
+
+}
+
+//==========================================================
+// REGISTER FIELD EVENTS
+//==========================================================
+
+function registerFieldEvents() {
+
     document
         .getElementById("dateReceived")
         .addEventListener("change", calculateDueDate);
 
-    // District -> Mandal
     document
         .getElementById("district")
         .addEventListener("change", districtChanged);
 
-    // Mandal -> Village
     document
         .getElementById("mandal")
         .addEventListener("change", mandalChanged);
 
-    // Buttons
-    document
-        .getElementById("btnSave")
-        .addEventListener("click", saveRecord);
+}
 
-    document
-        .getElementById("btnUpdate")
-        .addEventListener("click", updateRecord);
+//==========================================================
+// GENERATE GRIEVANCE ID
+//==========================================================
 
-    document
-        .getElementById("btnDelete")
-        .addEventListener("click", deleteRecord);
+function generateGrievanceId() {
 
-    document
-        .getElementById("btnClear")
-        .addEventListener("click", clearForm);
+    const now = new Date();
+
+    const yyyy = now.getFullYear();
+
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+
+    const dd = String(now.getDate()).padStart(2, "0");
+
+    const hh = String(now.getHours()).padStart(2, "0");
+
+    const mi = String(now.getMinutes()).padStart(2, "0");
+
+    const ss = String(now.getSeconds()).padStart(2, "0");
+
+    const grievanceId =
+        "CPG-" +
+        yyyy +
+        mm +
+        dd +
+        "-" +
+        hh +
+        mi +
+        ss;
+
+    document.getElementById("grievanceId").value =
+        grievanceId;
 
 }
 
-/*===========================================================================
-    District Changed
-===========================================================================*/
+//==========================================================
+// CALCULATE DUE DATE
+// CPGRAMS = 21 DAYS
+//==========================================================
 
-function districtChanged() {
+function calculateDueDate() {
+
+    const receivedDate =
+        document.getElementById("dateReceived").value;
+
+    if (receivedDate === "")
+        return;
+
+    const dueDate =
+        new Date(receivedDate);
+
+    dueDate.setDate(dueDate.getDate() + 21);
+
+    document.getElementById("dueDate").value =
+        dueDate.toISOString().substring(0, 10);
+
+}
+
+//==========================================================
+// LOAD MASTER DATA
+//==========================================================
+
+async function loadMasterData() {
+
+    console.log("Loading Masters...");
+
+    await loadDistricts();
+
+    await loadOfficers();
+
+    await loadSections();
+
+}
+
+//==========================================================
+// DISTRICT CHANGED
+//==========================================================
+
+async function districtChanged() {
 
     const district =
         document.getElementById("district").value;
 
-    loadMandals(district);
-
-    // Clear village list
-    clearVillageDropdown();
+    await loadMandals(district);
 
 }
 
-/*===========================================================================
-    Mandal Changed
-===========================================================================*/
+//==========================================================
+// MANDAL CHANGED
+//==========================================================
 
-function mandalChanged() {
+async function mandalChanged() {
 
     const district =
         document.getElementById("district").value;
@@ -114,305 +194,914 @@ function mandalChanged() {
     const mandal =
         document.getElementById("mandal").value;
 
-    loadVillages(district, mandal);
+    await loadVillages(district, mandal);
 
 }
 
-/*===========================================================================
-    Clear Village Dropdown
-===========================================================================*/
-
-function clearVillageDropdown() {
-
-    const village =
-        document.getElementById("village");
-
-    village.innerHTML =
-        '<option value="">-- Select Village --</option>';
-
-}
-
-/*===========================================================================
-    Clear Form
-===========================================================================*/
+//==========================================================
+// NEW RECORD
+//==========================================================
 
 function clearForm() {
-
-    if (!confirm("Clear all entered data?"))
-        return;
 
     document
         .getElementById("cpgramsForm")
         .reset();
 
-    currentRecordId = null;
+    currentDocumentId = null;
 
-    generateFileNumber();
+    editMode = false;
 
-    setDefaultDates();
+    selectedDocument = null;
 
-    loadMasterData();
+    generateGrievanceId();
 
-    clearValidation();
+    document
+        .getElementById("grievanceNumber")
+        .focus();
 
 }
 
-/*===========================================================================
-    Form Validation
-===========================================================================*/
+//==========================================================
+// PLACEHOLDER FUNCTIONS
+// IMPLEMENTED IN NEXT PARTS
+//==========================================================
 
-function validateForm() {
+async function saveGrievance() {
 
-    clearValidation();
+    console.log("Save Clicked");
 
-    let valid = true;
+}
 
-    if (isBlank("grievanceNumber"))
-        valid = false;
+async function updateGrievance() {
 
-    if (isBlank("complainantName"))
-        valid = false;
+    console.log("Update Clicked");
 
-    if (isBlank("district"))
-        valid = false;
+}
 
-    if (isBlank("subject"))
-        valid = false;
+function confirmDelete() {
 
-    if (isBlank("category"))
-        valid = false;
+    console.log("Delete Clicked");
 
-    if (isBlank("description"))
-        valid = false;
+}
 
-    if (isBlank("assignedOfficer"))
-        valid = false;
+function openRegister() {
 
-    if (!valid) {
+    window.location.href =
+        "cpgrams-register.html";
 
-        alert("Please fill all mandatory fields.");
+}
+
+function openDashboard() {
+
+    window.location.href =
+        "../../dashboard/dashboard.html";
+
+}
+
+function printGrievance() {
+
+    window.print();
+
+}
+
+function goHome() {
+
+    window.location.href =
+        "../../index.html";
+
+}
+
+/*==========================================================
+  CPGRAMS MODULE
+  File        : cpgrams.js
+  Version     : 4.0
+  Description : Controller for CPGRAMS Module
+==========================================================*/
+
+"use strict";
+
+//==========================================================
+// GLOBAL VARIABLES
+//==========================================================
+
+let currentDocumentId = null;
+let editMode = false;
+let selectedDocument = null;
+
+//==========================================================
+// PAGE INITIALIZATION
+//==========================================================
+
+document.addEventListener("DOMContentLoaded", initializePage);
+
+//==========================================================
+// INITIALIZE PAGE
+//==========================================================
+
+async function initializePage() {
+
+    console.log("CPGRAMS Module Initializing...");
+
+    registerButtonEvents();
+
+    registerFieldEvents();
+
+    clearForm();
+
+    generateGrievanceId();
+
+    await loadMasterData();
+
+    console.log("CPGRAMS Module Loaded Successfully.");
+
+}
+
+//==========================================================
+// REGISTER BUTTON EVENTS
+//==========================================================
+
+function registerButtonEvents() {
+
+    document.getElementById("btnNew")
+        .addEventListener("click", clearForm);
+
+    document.getElementById("btnSave")
+        .addEventListener("click", saveGrievance);
+
+    document.getElementById("btnUpdate")
+        .addEventListener("click", updateGrievance);
+
+    document.getElementById("btnDelete")
+        .addEventListener("click", confirmDelete);
+
+    document.getElementById("btnRegister")
+        .addEventListener("click", openRegister);
+
+    document.getElementById("btnDashboard")
+        .addEventListener("click", openDashboard);
+
+    document.getElementById("btnPrint")
+        .addEventListener("click", printGrievance);
+
+    document.getElementById("btnHome")
+        .addEventListener("click", goHome);
+
+}
+
+//==========================================================
+// REGISTER FIELD EVENTS
+//==========================================================
+
+function registerFieldEvents() {
+
+    document
+        .getElementById("dateReceived")
+        .addEventListener("change", calculateDueDate);
+
+    document
+        .getElementById("district")
+        .addEventListener("change", districtChanged);
+
+    document
+        .getElementById("mandal")
+        .addEventListener("change", mandalChanged);
+
+}
+
+//==========================================================
+// GENERATE GRIEVANCE ID
+//==========================================================
+
+function generateGrievanceId() {
+
+    const now = new Date();
+
+    const yyyy = now.getFullYear();
+
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+
+    const dd = String(now.getDate()).padStart(2, "0");
+
+    const hh = String(now.getHours()).padStart(2, "0");
+
+    const mi = String(now.getMinutes()).padStart(2, "0");
+
+    const ss = String(now.getSeconds()).padStart(2, "0");
+
+    const grievanceId =
+        "CPG-" +
+        yyyy +
+        mm +
+        dd +
+        "-" +
+        hh +
+        mi +
+        ss;
+
+    document.getElementById("grievanceId").value =
+        grievanceId;
+
+}
+
+//==========================================================
+// CALCULATE DUE DATE
+// CPGRAMS = 21 DAYS
+//==========================================================
+
+function calculateDueDate() {
+
+    const receivedDate =
+        document.getElementById("dateReceived").value;
+
+    if (receivedDate === "")
+        return;
+
+    const dueDate =
+        new Date(receivedDate);
+
+    dueDate.setDate(dueDate.getDate() + 21);
+
+    document.getElementById("dueDate").value =
+        dueDate.toISOString().substring(0, 10);
+
+}
+
+//==========================================================
+// LOAD MASTER DATA
+//==========================================================
+
+async function loadMasterData() {
+
+    console.log("Loading Masters...");
+
+    await loadDistricts();
+
+    await loadOfficers();
+
+    await loadSections();
+
+}
+
+//==========================================================
+// DISTRICT CHANGED
+//==========================================================
+
+async function districtChanged() {
+
+    const district =
+        document.getElementById("district").value;
+
+    await loadMandals(district);
+
+}
+
+//==========================================================
+// MANDAL CHANGED
+//==========================================================
+
+async function mandalChanged() {
+
+    const district =
+        document.getElementById("district").value;
+
+    const mandal =
+        document.getElementById("mandal").value;
+
+    await loadVillages(district, mandal);
+
+}
+
+//==========================================================
+// NEW RECORD
+//==========================================================
+
+function clearForm() {
+
+    document
+        .getElementById("cpgramsForm")
+        .reset();
+
+    currentDocumentId = null;
+
+    editMode = false;
+
+    selectedDocument = null;
+
+    generateGrievanceId();
+
+    document
+        .getElementById("grievanceNumber")
+        .focus();
+
+}
+
+//==========================================================
+// PLACEHOLDER FUNCTIONS
+// IMPLEMENTED IN NEXT PARTS
+//==========================================================
+
+async function saveGrievance() {
+
+    console.log("Save Clicked");
+
+}
+
+async function updateGrievance() {
+
+    console.log("Update Clicked");
+
+}
+
+function confirmDelete() {
+
+    console.log("Delete Clicked");
+
+}
+
+function openRegister() {
+
+    window.location.href =
+        "cpgrams-register.html";
+
+}
+
+function openDashboard() {
+
+    window.location.href =
+        "../../dashboard/dashboard.html";
+
+}
+
+function printGrievance() {
+
+    window.print();
+
+}
+
+function goHome() {
+
+    window.location.href =
+        "../../index.html";
+
+}
+
+//==========================================================
+// UPDATE GRIEVANCE
+//==========================================================
+
+async function updateGrievance() {
+
+    try {
+
+        if (currentDocumentId == null) {
+
+            showMessage(
+                "Please load a grievance before updating.",
+                "warning"
+            );
+
+            return;
+
+        }
+
+        if (!validateForm())
+            return;
+
+        showLoading();
+
+        const grievance = buildGrievanceObject();
+
+        grievance.updatedOn = new Date();
+
+        const result = await updateRecord(
+            currentDocumentId,
+            grievance
+        );
+
+        hideLoading();
+
+        if (result.success) {
+
+            showMessage(
+                "Grievance updated successfully.",
+                "success"
+            );
+
+        }
+        else {
+
+            showMessage(
+                result.message,
+                "danger"
+            );
+
+        }
+
+    }
+    catch (error) {
+
+        hideLoading();
+
+        console.error(error);
+
+        showMessage(
+            error.message,
+            "danger"
+        );
 
     }
 
-    return valid;
+}
+
+//==========================================================
+// DELETE GRIEVANCE
+//==========================================================
+
+async function deleteGrievance() {
+
+    try {
+
+        if (currentDocumentId == null) {
+
+            showMessage(
+                "No grievance selected.",
+                "warning"
+            );
+
+            return;
+
+        }
+
+        showLoading();
+
+        const result =
+            await deleteRecord(currentDocumentId);
+
+        hideLoading();
+
+        if (result.success) {
+
+            showMessage(
+                "Grievance deleted successfully.",
+                "success"
+            );
+
+            clearForm();
+
+        }
+        else {
+
+            showMessage(
+                result.message,
+                "danger"
+            );
+
+        }
+
+    }
+    catch (error) {
+
+        hideLoading();
+
+        console.error(error);
+
+        showMessage(
+            error.message,
+            "danger"
+        );
+
+    }
 
 }
 
-/*===========================================================================
-    Clear Validation
-===========================================================================*/
+//==========================================================
+// DELETE CONFIRMATION
+//==========================================================
 
-function clearValidation() {
+function confirmDelete() {
 
-    document
-        .querySelectorAll(".is-invalid")
-        .forEach(control => {
+    const modal = new bootstrap.Modal(
+        document.getElementById("deleteModal")
+    );
 
-            control.classList.remove("is-invalid");
+    modal.show();
+
+    document.getElementById("confirmDelete").onclick =
+        async function () {
+
+            modal.hide();
+
+            await deleteGrievance();
+
+        };
+
+}
+
+//==========================================================
+// SEARCH GRIEVANCE
+//==========================================================
+
+async function searchGrievance(documentId) {
+
+    try {
+
+        showLoading();
+
+        const result =
+            await getRecord(documentId);
+
+        hideLoading();
+
+        if (!result.success) {
+
+            showMessage(
+                result.message,
+                "warning"
+            );
+
+            return;
+
+        }
+
+        currentDocumentId = documentId;
+
+        editMode = true;
+
+        selectedDocument = result.data;
+
+        populateForm(result.data);
+
+    }
+    catch (error) {
+
+        hideLoading();
+
+        console.error(error);
+
+        showMessage(
+            error.message,
+            "danger"
+        );
+
+    }
+
+}
+
+//==========================================================
+// POPULATE FORM
+//==========================================================
+
+async function populateForm(data) {
+
+    document.getElementById("grievanceId").value =
+        data.grievanceId || "";
+
+    document.getElementById("grievanceNumber").value =
+        data.grievanceNumber || "";
+
+    document.getElementById("dateReceived").value =
+        data.dateReceived || "";
+
+    calculateDueDate();
+
+    document.getElementById("priority").value =
+        data.priority || "";
+
+    document.getElementById("complainantName").value =
+        data.complainantName || "";
+
+    document.getElementById("mobileNumber").value =
+        data.mobileNumber || "";
+
+    document.getElementById("gender").value =
+        data.gender || "";
+
+    document.getElementById("district").value =
+        data.district || "";
+
+    await districtChanged();
+
+    document.getElementById("mandal").value =
+        data.mandal || "";
+
+    await mandalChanged();
+
+    document.getElementById("village").value =
+        data.village || "";
+
+    document.getElementById("address").value =
+        data.address || "";
+
+    document.getElementById("preferredContact").value =
+        data.preferredContact || "";
+
+    document.getElementById("subject").value =
+        data.subject || "";
+
+    document.getElementById("category").value =
+        data.category || "";
+
+    document.getElementById("grievanceDescription").value =
+        data.grievanceDescription || "";
+
+    document.getElementById("source").value =
+        data.source || "";
+
+    document.getElementById("natureOfGrievance").value =
+        data.natureOfGrievance || "";
+
+    document.getElementById("priorityClassification").value =
+        data.priorityClassification || "";
+
+    document.getElementById("attachmentCount").value =
+        data.attachmentCount || 0;
+
+    document.getElementById("fileNumber").value =
+        data.fileNumber || "";
+
+    document.getElementById("dateArised").value =
+        data.dateArised || "";
+
+    document.getElementById("officeSubject").value =
+        data.officeSubject || "";
+
+    document.getElementById("assignedOfficer").value =
+        data.assignedOfficer || "";
+
+    document.getElementById("section").value =
+        data.section || "";
+
+    document.getElementById("fileLocation").value =
+        data.fileLocation || "";
+
+    document.getElementById("dateAssigned").value =
+        data.dateAssigned || "";
+
+    document.getElementById("currentStatus").value =
+        data.currentStatus || "";
+
+    document.getElementById("finalStatus").value =
+        data.finalStatus || "";
+
+    document.getElementById("atrReceived").value =
+        data.atrReceived || "";
+
+    document.getElementById("atrDate").value =
+        data.atrDate || "";
+
+    document.getElementById("atrDueDate").value =
+        data.atrDueDate || "";
+
+    document.getElementById("disposalDate").value =
+        data.disposalDate || "";
+
+    document.getElementById("fileClosed").value =
+        data.fileClosed || "";
+
+    document.getElementById("remarks").value =
+        data.remarks || "";
+
+}
+
+//==========================================================
+// LOAD DISTRICTS
+//==========================================================
+
+async function loadDistricts() {
+
+    const district =
+        document.getElementById("district");
+
+    district.innerHTML =
+        '<option value="">Select District</option>';
+
+    if (typeof DISTRICTS === "undefined")
+        return;
+
+    DISTRICTS.forEach(item => {
+
+        district.innerHTML +=
+            `<option value="${item.name}">
+                ${item.name}
+             </option>`;
+
+    });
+
+}
+
+//==========================================================
+// LOAD MANDALS
+//==========================================================
+
+async function loadMandals(districtName) {
+
+    const mandal =
+        document.getElementById("mandal");
+
+    mandal.innerHTML =
+        '<option value="">Select Mandal</option>';
+
+    document.getElementById("village").innerHTML =
+        '<option value="">Select Village</option>';
+
+    if (typeof MANDALS === "undefined")
+        return;
+
+    MANDALS
+        .filter(x => x.district === districtName)
+        .forEach(item => {
+
+            mandal.innerHTML +=
+                `<option value="${item.name}">
+                    ${item.name}
+                 </option>`;
 
         });
 
 }
 
-/*===========================================================================
-    Check Blank Field
-===========================================================================*/
+//==========================================================
+// LOAD VILLAGES
+//==========================================================
 
-function isBlank(id) {
+async function loadVillages(districtName, mandalName) {
 
-    const control =
-        document.getElementById(id);
+    const village =
+        document.getElementById("village");
 
-    if (!control)
-        return false;
+    village.innerHTML =
+        '<option value="">Select Village</option>';
 
-    if (control.value.trim() === "") {
+    if (typeof VILLAGES === "undefined")
+        return;
 
-        control.classList.add("is-invalid");
+    VILLAGES
+        .filter(x =>
+            x.district === districtName &&
+            x.mandal === mandalName)
+        .forEach(item => {
 
-        return true;
+            village.innerHTML +=
+                `<option value="${item.name}">
+                    ${item.name}
+                 </option>`;
+
+        });
+
+}
+
+//==========================================================
+// LOAD OFFICERS
+//==========================================================
+
+async function loadOfficers() {
+
+    const officer =
+        document.getElementById("assignedOfficer");
+
+    officer.innerHTML =
+        '<option value="">Select Officer</option>';
+
+    if (typeof OFFICERS === "undefined")
+        return;
+
+    OFFICERS.forEach(item => {
+
+        officer.innerHTML +=
+            `<option value="${item.name}">
+                ${item.name}
+             </option>`;
+
+    });
+
+}
+
+//==========================================================
+// LOAD SECTIONS
+//==========================================================
+
+async function loadSections() {
+
+    const section =
+        document.getElementById("section");
+
+    section.innerHTML =
+        '<option value="">Select Section</option>';
+
+    if (typeof SECTIONS === "undefined")
+        return;
+
+    SECTIONS.forEach(item => {
+
+        section.innerHTML +=
+            `<option value="${item.name}">
+                ${item.name}
+             </option>`;
+
+    });
+
+}
+
+//==========================================================
+// ENABLE/DISABLE FORM
+//==========================================================
+
+function setFormEnabled(enabled) {
+
+    document
+        .querySelectorAll("#cpgramsForm input, #cpgramsForm select, #cpgramsForm textarea")
+        .forEach(control => {
+
+            if (control.id !== "grievanceId") {
+
+                control.disabled = !enabled;
+
+            }
+
+        });
+
+}
+
+//==========================================================
+// CLEAR MESSAGE AREA
+//==========================================================
+
+function clearMessage() {
+
+    document
+        .getElementById("messageArea")
+        .innerHTML = "";
+
+}
+
+//==========================================================
+// FORMAT MOBILE NUMBER
+//==========================================================
+
+function formatMobileNumber() {
+
+    const mobile =
+        document.getElementById("mobileNumber");
+
+    mobile.value =
+        mobile.value.replace(/\D/g, "");
+
+    if (mobile.value.length > 10) {
+
+        mobile.value =
+            mobile.value.substring(0, 10);
 
     }
 
-    return false;
+}
+
+//==========================================================
+// FORM DIRTY CHECK
+//==========================================================
+
+function isFormDirty() {
+
+    return true;
 
 }
 
-/******************************************************************************
- * Load Record Into Form
- ******************************************************************************/
+//==========================================================
+// RESET EDIT MODE
+//==========================================================
 
-function loadRecord(record) {
+function resetEditMode() {
 
-    if (!record) return;
+    currentDocumentId = null;
 
-    currentRecordId = record.id;
+    editMode = false;
 
-    setValue("fileNumber", record.fileNumber);
-    setValue("grievanceNumber", record.grievanceNumber);
-    setValue("dateReceived", record.dateReceived);
-    setValue("dueDate", record.dueDate);
-    setValue("priority", record.priority);
-    setValue("status", record.status);
-
-    setValue("complainantName", record.complainantName);
-    setValue("mobileNumber", record.mobileNumber);
-    setValue("email", record.email);
-    setValue("district", record.district);
-
-    // Populate Mandals after District
-    if (typeof districtChanged === "function") {
-        districtChanged();
-    }
-
-    setValue("mandal", record.mandal);
-
-    // Populate Villages after Mandal
-    if (typeof mandalChanged === "function") {
-        mandalChanged();
-    }
-
-    setValue("village", record.village);
-
-    setValue("address", record.address);
-    setValue("aadhaarNumber", record.aadhaarNumber);
-    setValue("gender", record.gender);
-    setValue("occupation", record.occupation);
-    setValue("preferredContact", record.preferredContact);
-
-    setValue("subject", record.subject);
-    setValue("category", record.category);
-    setValue("description", record.description);
-    setValue("source", record.source);
-    setValue("natureOfGrievance", record.natureOfGrievance);
-    setValue("priorityClassification", record.priorityClassification);
-    setValue("attachmentCount", record.attachmentCount);
-
-    setValue("assignedOfficer", record.assignedOfficer);
-    setValue("section", record.section);
-    setValue("fileLocation", record.fileLocation);
-    setValue("dateAssigned", record.dateAssigned);
-    setValue("atrReceived", record.atrReceived);
-    setValue("atrDate", record.atrDate);
-    setValue("atrDueDate", record.atrDueDate);
-    setValue("finalStatus", record.finalStatus);
-    setValue("disposedDate", record.disposedDate);
-    setValue("fileClosed", record.fileClosed);
-    setValue("remarks", record.remarks);
-
-    if (typeof calculateDueDate === "function") {
-        calculateDueDate();
-    }
-
-    if (typeof updateButtonState === "function") {
-        updateButtonState(true);
-    }
+    selectedDocument = null;
 
 }
 
-/*===========================================================================
-    Set Control Value
-===========================================================================*/
+//==========================================================
+// EXPORT CURRENT OBJECT
+//==========================================================
 
+function getCurrentGrievance() {
 
-
-/*===========================================================================
-    Button State
-===========================================================================*/
-
-function updateButtonState(editMode) {
-
-    document.getElementById("btnSave").disabled = editMode;
-
-    document.getElementById("btnUpdate").disabled = !editMode;
-
-    document.getElementById("btnDelete").disabled = !editMode;
+    return buildGrievanceObject();
 
 }
 
-/*===========================================================================
-    New Record Mode
-===========================================================================*/
+//==========================================================
+// DEBUG
+//==========================================================
 
-function newRecord() {
+function debugForm() {
 
-    currentRecordId = null;
-
-    clearForm();
-
-    updateButtonState(false);
+    console.table(getCurrentGrievance());
 
 }
 
-/*===========================================================================
-    Read Complete Form
-===========================================================================*/
+window.debugForm = debugForm;
 
-function getFormData() {
-
-    return {
-
-        id: currentRecordId,
-
-        // File Information
-        fileNumber: value("fileNumber"),
-        grievanceNumber: value("grievanceNumber"),
-        dateReceived: value("dateReceived"),
-        dueDate: value("dueDate"),
-        priority: value("priority"),
-        status: value("status"),
-
-        // Complainant
-        complainantName: value("complainantName"),
-        mobileNumber: value("mobileNumber"),
-        email: value("email"),
-        address: value("address"),
-        district: value("district"),
-        mandal: value("mandal"),
-        village: value("village"),
-        aadhaarNumber: value("aadhaarNumber"),
-        gender: value("gender"),
-        occupation: value("occupation"),
-        preferredContact: value("preferredContact"),
-
-        // Grievance
-        subject: value("subject"),
-        category: value("category"),
-        description: value("description"),
-        source: value("source"),
-        natureOfGrievance: value("natureOfGrievance"),
-        priorityClassification: value("priorityClassification"),
-        attachmentCount: value("attachmentCount"),
-
-        // Office
-        assignedOfficer: value("assignedOfficer"),
-        section: value("section"),
-        fileLocation: value("fileLocation"),
-        dateAssigned: value("dateAssigned"),
-        atrReceived: value("atrReceived"),
-        atrDate: value("atrDate"),
-        atrDueDate: value("atrDueDate"),
-        finalStatus: value("finalStatus"),
-        disposedDate: value("disposedDate"),
-        fileClosed: value("fileClosed"),
-        remarks: value("remarks")
-
-    };
-
-}
-
-/*===========================================================================
-    Read Control Value
-===========================================================================*/
-
-function value(id) {
-
-    const control = document.getElementById(id);
-
-    return control ? control.value.trim() : "";
-
-}
-
-/*===========================================================================
-    End of File
-===========================================================================*/
+//==========================================================
+// END OF FILE
+//==========================================================
