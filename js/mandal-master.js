@@ -34,6 +34,10 @@ Load Mandals
 
 function loadMandals(district) {
 
+    console.log("District received:", district);
+
+    console.log(MANDAL_MASTER);
+
     const mandal = document.getElementById("mandal");
 
     mandal.innerHTML =
@@ -50,6 +54,8 @@ function loadMandals(district) {
         return;
 
     const list = MANDAL_MASTER[district] || [];
+
+    console.log("Mandals found:", list);
 
     list.forEach(item => {
 
