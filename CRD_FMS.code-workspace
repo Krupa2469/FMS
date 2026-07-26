@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../Telangana-Master-Data-Engine"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "FMS"
+	}
+}

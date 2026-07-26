@@ -1,18 +1,13 @@
-/*==========================================================
-    FILE MANAGEMENT SYSTEM (FMS)
-    File        : district-master.js
-    Version     : 1.0.0
-    Description : Telangana District Master
-==========================================================*/
-
-"use strict";
-
-/*==========================================================
-TELANGANA DISTRICTS
-==========================================================*/
+/*
+=========================================================
+Government of Telangana - File Management System (FMS)
+Master Data - Districts
+Developed by: Lekha Technologies
+Version: 1.0
+=========================================================
+*/
 
 const DISTRICTS = [
-
     "Adilabad",
     "Bhadradri Kothagudem",
     "Hanamkonda",
@@ -29,7 +24,7 @@ const DISTRICTS = [
     "Mahabubnagar",
     "Mancherial",
     "Medak",
-    "Medchal-Malkajgiri",
+    "Medchal–Malkajgiri",
     "Mulugu",
     "Nagarkurnool",
     "Nalgonda",
@@ -38,7 +33,7 @@ const DISTRICTS = [
     "Nizamabad",
     "Peddapalli",
     "Rajanna Sircilla",
-    "Ranga Reddy",
+    "Rangareddy",
     "Sangareddy",
     "Siddipet",
     "Suryapet",
@@ -48,39 +43,27 @@ const DISTRICTS = [
     "Yadadri Bhuvanagiri"
 ];
 
-/*==========================================================
-LOAD DISTRICT DROPDOWN
-==========================================================*/
+/**
+ * Populate District Dropdown
+ */
+function loadDistricts() {
 
-function loadDistricts(dropdownId)
-{
-    const dropdown = document.getElementById(dropdownId);
+    const district = document.getElementById("district");
 
-    if (!dropdown)
-        return;
+    if (!district) return;
 
-    dropdown.innerHTML = "";
+    district.innerHTML =
+        '<option value="">-- Select District --</option>';
 
-    const defaultOption = document.createElement("option");
+    DISTRICTS.forEach(name => {
 
-    defaultOption.value = "";
-
-    defaultOption.text = "--Select District--";
-
-    dropdown.appendChild(defaultOption);
-
-    DISTRICTS.forEach(function(district)
-    {
         const option = document.createElement("option");
 
-        option.value = district;
+        option.value = name;
+        option.textContent = name;
 
-        option.text = district;
+        district.appendChild(option);
 
-        dropdown.appendChild(option);
     });
-}
 
-/*==========================================================
-END OF FILE
-==========================================================*/
+}
