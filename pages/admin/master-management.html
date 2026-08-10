@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Master Management</title>
+
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link rel="stylesheet" href="../../css/master.css">
+
+</head>
+
+<body>
+
+<header class="page-header">
+
+    <h2>Government of Telangana</h2>
+
+    <h3>File Management System (FMS)</h3>
+
+    <h4>Master Data Management</h4>
+
+</header>
+
+<div class="container">
+
+    <!-- Master Selection -->
+
+    <div class="card">
+
+        <label><b>Master Type</b></label>
+
+        <select id="masterType">
+
+            <option value="districts">Districts</option>
+
+            <option value="mandals">Mandals</option>
+
+            <option value="villages">Villages</option>
+
+            <option value="departments">Departments</option>
+
+            <option value="sections">Sections</option>
+
+            <option value="officers">Officers</option>
+
+            <option value="designations">Designations</option>
+
+            <option value="categories">Grievance Categories</option>
+
+            <option value="sources">Complaint Sources</option>
+
+            <option value="priorityLevels">Priority Levels</option>
+
+            <option value="statusMaster">Status Master</option>
+
+            <option value="fileLocations">File Locations</option>
+
+            <option value="officeCommunicationTypes">Office Communication Types</option>
+
+            <option value="fileStatuses">Office File Statuses</option>
+
+        </select>
+
+    </div>
+
+    <!-- Entry Form -->
+
+    <div class="card">
+
+        <table class="entryTable">
+
+            <tr>
+
+                <td>Name</td>
+
+                <td>
+
+                    <input
+                        type="text"
+                        id="name"
+                        maxlength="100">
+
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <td>Code</td>
+
+                <td>
+
+                    <input
+                        type="text"
+                        id="code"
+                        maxlength="30">
+
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <td>Description</td>
+
+                <td>
+
+                    <textarea
+                        id="description"
+                        rows="3"></textarea>
+
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <td>Active</td>
+
+                <td>
+
+                    <input
+                        type="checkbox"
+                        id="active"
+                        checked>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+    <!-- Buttons -->
+
+    <div class="card buttonBar">
+
+        <button id="btnNew">
+
+            New
+
+        </button>
+
+        <button id="btnSave">
+
+            Save
+
+        </button>
+
+        <button id="btnUpdate">
+
+            Update
+
+        </button>
+
+        <button id="btnDelete">
+
+            Delete
+
+        </button>
+
+        <button id="btnClear">
+
+            Clear
+
+        </button>
+
+    </div>
+
+    <!-- Search -->
+
+    <div class="card">
+
+        <input
+            type="text"
+            id="txtSearch"
+            placeholder="Search...">
+
+    </div>
+
+    <!-- Grid -->
+
+    <div class="card">
+
+        <table
+            id="masterGrid"
+            class="grid">
+
+            <thead>
+
+                <tr>
+
+                    <th width="70">
+
+                        Sl.No
+
+                    </th>
+
+                    <th>
+
+                        Name
+
+                    </th>
+
+                    <th width="120">
+
+                        Code
+
+                    </th>
+
+                    <th width="120">
+
+                        Status
+
+                    </th>
+
+                    <th width="80">
+
+                        Edit
+
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script src="../../js/firebase-config.js"></script>
+
+<script src="../../js/common.js"></script>
+
+<script src="../../js/master-service.js"></script>
+
+<script src="../../js/master-management.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Master Data Administration</title>
+
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+</head>
+
+<body>
+
+<header class="page-header">
+    <h2>FILE MANAGEMENT SYSTEM</h2>
+    <h3>Master Data Administration</h3>
+</header>
+
+<div class="container">
+
+    <div class="card">
+
+        <h3>Master Tables</h3>
+
+        <div class="master-grid">
+
+            <button id="btnDistricts">Districts</button>
+
+            <button id="btnMandals">Mandals</button>
+
+            <button id="btnVillages">Villages</button>
+
+            <button id="btnDepartments">Departments</button>
+
+            <button id="btnSections">Sections</button>
+
+            <button id="btnOfficers">Officers</button>
+
+            <button id="btnDesignations">Designations</button>
+
+            <button id="btnCategories">Grievance Categories</button>
+
+            <button id="btnSources">Complaint Sources</button>
+
+            <button id="btnPriority">Priority Levels</button>
+
+            <button id="btnStatus">Status Master</button>
+
+            <button id="btnFileLocations">File Locations</button>
+
+            <button id="btnOfficeProcessingMasters" class="btn btn-primary">
+                Office Processing Masters
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h3>Import / Export</h3>
+
+        <button id="btnImportExcel">
+            Import Excel
+        </button>
+
+        <button id="btnExportExcel">
+            Export Excel
+        </button>
+
+    </div>
+
+</div>
+
+<script src="../../js/firebase-config.js"></script>
+<script src="../../js/master-service.js"></script>
+<script src="../../js/admin-master.js"></script>
+<script>
+document.getElementById("btnOfficeProcessingMasters")?.addEventListener("click", function () {
+    window.location.href = "office-processing-master.html";
+});
+</script>
+
+</body>
+
+</html>
