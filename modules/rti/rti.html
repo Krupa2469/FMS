@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>RTI Application - FMS</title>
+
+
+    <!-- =========================================================
+         BOOTSTRAP
+    ========================================================== -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+
+    <!-- =========================================================
+         BOOTSTRAP ICONS
+    ========================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+    <!-- =========================================================
+         PAGE STYLE
+    ========================================================== -->
+
+    <style>
+
+        body {
+
+            background: #f4f6f9;
+
+            font-family: Arial, sans-serif;
+
+            margin: 0;
+
+            padding: 0;
+
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .page-header {
+
+            background: #0d6efd;
+
+            color: white;
+
+            padding: 18px 25px;
+
+            text-align: center;
+
+        }
+
+
+        .page-header h1 {
+
+            margin: 0;
+
+            font-size: 28px;
+
+            font-weight: 700;
+
+        }
+
+
+        .page-header h2 {
+
+            margin: 5px 0 0;
+
+            font-size: 18px;
+
+            font-weight: 400;
+
+        }
+
+
+        .page-header h3 {
+
+            margin: 8px 0 0;
+
+            font-size: 22px;
+
+            font-weight: 700;
+
+        }
+
+
+        /* =====================================================
+           MAIN CARD
+        ===================================================== */
+
+        .form-container {
+
+            max-width: 1200px;
+
+            margin: 25px auto;
+
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 8px;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.10);
+
+        }
+
+
+        /* =====================================================
+           SECTION HEADER
+        ===================================================== */
+
+        .section-header {
+
+            background: #0d6efd;
+
+            color: white;
+
+            padding: 10px 15px;
+
+            border-radius: 5px;
+
+            margin-bottom: 20px;
+
+            font-size: 19px;
+
+            font-weight: 600;
+
+        }
+
+
+        /* =====================================================
+           LABELS
+        ===================================================== */
+
+        .form-label {
+
+            font-weight: 600;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        /* =====================================================
+           REQUIRED FIELD
+        ===================================================== */
+
+        .required::after {
+
+            content: " *";
+
+            color: red;
+
+            font-weight: bold;
+
+        }
+
+
+        /* =====================================================
+           TEXT AREA
+        ===================================================== */
+
+        textarea {
+
+            resize: vertical;
+
+            min-height: 120px;
+
+        }
+
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .btn-space {
+
+            margin-right: 8px;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        /* =====================================================
+           MESSAGE
+        ===================================================== */
+
+        #rtiMessage {
+
+            margin-top: 15px;
+
+        }
+
+
+        /* =====================================================
+           DUE DATE
+        ===================================================== */
+
+        #dueDate {
+
+            background-color: #f1f3f5;
+
+            font-weight: 600;
+
+        }
+
+
+        /* =====================================================
+           DOCUMENT LIST
+        ===================================================== */
+
+        .document-list {
+
+            border: 1px solid #dee2e6;
+
+            border-radius: 5px;
+
+            padding: 10px;
+
+            background: #fafafa;
+
+            min-height: 60px;
+
+        }
+
+
+        .document-item {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 10px;
+
+            margin-bottom: 8px;
+
+            background: white;
+
+            border: 1px solid #dee2e6;
+
+            border-radius: 5px;
+
+        }
+
+
+        .document-item:last-child {
+
+            margin-bottom: 0;
+
+        }
+
+
+        .document-name {
+
+            font-weight: 600;
+
+            word-break: break-word;
+
+        }
+
+
+        .document-status {
+
+            font-size: 12px;
+
+            color: #6c757d;
+
+            margin-top: 3px;
+
+        }
+
+
+        #noDocumentsMessage {
+
+            color: #6c757d;
+
+            text-align: center;
+
+            padding: 10px;
+
+        }
+
+
+        /* =====================================================
+           PARSED TEXT
+        ===================================================== */
+
+        #parsedText {
+
+            min-height: 150px;
+
+            font-family: Arial, sans-serif;
+
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .page-footer {
+
+            text-align: center;
+
+            color: #6c757d;
+
+            padding: 15px;
+
+            font-size: 14px;
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 768px) {
+
+            .form-container {
+
+                margin: 10px;
+
+                padding: 15px;
+
+            }
+
+
+            .page-header h1 {
+
+                font-size: 22px;
+
+            }
+
+
+            .page-header h2 {
+
+                font-size: 15px;
+
+            }
+
+
+            .page-header h3 {
+
+                font-size: 19px;
+
+            }
+
+
+            .document-item {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================== -->
+
+<div class="page-header">
+
+    <h1>
+        GOVERNMENT OF TELANGANA
+    </h1>
+
+    <h2>
+        OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT
+    </h2>
+
+    <h2>
+        # 6-3-607, Anand Nagar Colony, Khairatabad, Hyderabad-500004
+    </h2>
+
+    <h3>
+        RTI APPLICATION MANAGEMENT
+    </h3>
+
+</div>
+
+
+<!-- =========================================================
+     MAIN FORM
+========================================================== -->
+
+<div class="form-container">
+
+
+    <!-- =====================================================
+         SECTION 1
+    ====================================================== -->
+
+    <div class="section-header">
+
+        <i class="bi bi-file-earmark-text"></i>
+
+        RTI Application Details
+
+    </div>
+
+
+    <div class="row g-3">
+
+
+        <!-- =================================================
+             APPLICATION NUMBER
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="applicationNumber"
+                class="form-label required">
+
+                Application Number
+
+            </label>
+
+            <input
+                type="text"
+                class="form-control"
+                id="applicationNumber"
+                placeholder="Enter RTI Application Number">
+
+        </div>
+
+
+        <!-- =================================================
+             APPLICATION DATE
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="applicationDate"
+                class="form-label required">
+
+                Application Date
+
+            </label>
+
+            <input
+                type="date"
+                class="form-control"
+                id="applicationDate">
+
+        </div>
+
+
+        <!-- =================================================
+             DUE DATE
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="dueDate"
+                class="form-label">
+
+                Due Date
+
+            </label>
+
+            <input
+                type="date"
+                class="form-control"
+                id="dueDate"
+                readonly>
+
+            <small class="text-muted">
+
+                Automatically calculated as
+                Application Date + 30 days.
+
+            </small>
+
+        </div>
+
+
+        <!-- =================================================
+             APPLICANT NAME
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="applicantName"
+                class="form-label required">
+
+                Applicant Name
+
+            </label>
+
+            <input
+                type="text"
+                class="form-control"
+                id="applicantName"
+                placeholder="Enter Applicant Name">
+
+        </div>
+
+
+        <!-- =================================================
+             MOBILE NUMBER
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="mobileNumber"
+                class="form-label">
+
+                Mobile Number
+
+            </label>
+
+            <input
+                type="tel"
+                class="form-control"
+                id="mobileNumber"
+                maxlength="10"
+                placeholder="Enter Mobile Number">
+
+        </div>
+
+
+        <!-- =================================================
+             APPLICANT ADDRESS
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="applicantAddress"
+                class="form-label">
+
+                Applicant Address
+
+            </label>
+
+            <textarea
+                class="form-control"
+                id="applicantAddress"
+                rows="2"
+                placeholder="Enter Applicant Address"></textarea>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         SECTION 2
+    ====================================================== -->
+
+    <div class="section-header mt-4">
+
+        <i class="bi bi-chat-left-text"></i>
+
+        Information Sought
+
+    </div>
+
+
+    <div class="row g-3">
+
+        <div class="col-md-12">
+
+            <label
+                for="informationSought"
+                class="form-label required">
+
+                Information Sought
+
+            </label>
+
+            <textarea
+                class="form-control"
+                id="informationSought"
+                rows="5"
+                placeholder="Enter the information sought by the applicant"></textarea>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SECTION 3
+    ====================================================== -->
+
+    <div class="section-header mt-4">
+
+        <i class="bi bi-geo-alt"></i>
+
+        Applicant Location
+
+    </div>
+
+
+    <div class="row g-3">
+
+
+        <!-- =================================================
+             DISTRICT
+        ================================================== -->
+
+        <div class="col-md-4">
+
+            <label
+                for="district"
+                class="form-label">
+
+                District
+
+            </label>
+
+            <select
+                class="form-select"
+                id="district">
+
+                <option value="">
+                    Select District
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =================================================
+             MANDAL
+        ================================================== -->
+
+        <div class="col-md-4">
+
+            <label
+                for="mandal"
+                class="form-label">
+
+                Mandal
+
+            </label>
+
+            <select
+                class="form-select"
+                id="mandal"
+                disabled>
+
+                <option value="">
+                    Select Mandal
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =================================================
+             VILLAGE
+        ================================================== -->
+
+        <div class="col-md-4">
+
+            <label
+                for="village"
+                class="form-label">
+
+                Village
+
+            </label>
+
+            <select
+                class="form-select"
+                id="village"
+                disabled>
+
+                <option value="">
+                    Select Village
+                </option>
+
+            </select>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         SECTION 4
+    ====================================================== -->
+
+    <div class="section-header mt-4">
+
+        <i class="bi bi-folder2-open"></i>
+
+        File & Assignment Details
+
+    </div>
+
+
+    <div class="row g-3">
+
+
+        <!-- =================================================
+             FILE NUMBER
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="fileNumber"
+                class="form-label">
+
+                File Number
+
+            </label>
+
+            <input
+                type="text"
+                class="form-control"
+                id="fileNumber"
+                placeholder="Enter File Number">
+
+        </div>
+
+
+        <!-- =================================================
+             DATE ARISED
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="dateArised"
+                class="form-label">
+
+                Date Arised
+
+            </label>
+
+            <input
+                type="date"
+                class="form-control"
+                id="dateArised">
+
+        </div>
+
+
+        <!-- =================================================
+             ASSIGNED TO
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="assignedTo"
+                class="form-label">
+
+                Assigned To
+
+            </label>
+
+            <select
+                class="form-select"
+                id="assignedTo">
+
+                <option value="">
+                    Select Officer / Section
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =================================================
+             CONCERNED SECTION
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="concernedSection"
+                class="form-label">
+
+                Concerned Section
+
+            </label>
+
+            <select
+                class="form-select"
+                id="concernedSection">
+
+                <option value="">
+                    --Select Section--
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =================================================
+             PRESENT STATUS
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="presentStatus"
+                class="form-label required">
+
+                Present Status
+
+            </label>
+
+            <select
+                class="form-select"
+                id="presentStatus">
+
+                <option value="">
+                    Select Status
+                </option>
+
+                <option value="Received">
+                    Received
+                </option>
+
+                <option value="Under Process">
+                    Under Process
+                </option>
+
+                <option value="Information Collected">
+                    Information Collected
+                </option>
+
+                <option value="Reply Prepared">
+                    Reply Prepared
+                </option>
+
+                <option value="Reply Furnished">
+                    Reply Furnished
+                </option>
+
+                <option value="Transferred">
+                    Transferred
+                </option>
+
+                <option value="Closed">
+                    Closed
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =================================================
+             REPLY FURNISHED BY CONCERNED SECTION DATE
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="replyFurnishedByConcernedSectionDate"
+                class="form-label">
+
+                Reply Furnished by Concerned Section - Date
+
+            </label>
+
+            <input
+                type="date"
+                class="form-control"
+                id="replyFurnishedByConcernedSectionDate">
+
+        </div>
+
+
+        <!-- =================================================
+             FINAL REPLY SENT TO PIO DATE
+        ================================================== -->
+
+        <div class="col-md-6">
+
+            <label
+                for="finalReplySentToPIODate"
+                class="form-label">
+
+                Final Reply Sent to PIO - Date
+
+            </label>
+
+            <input
+                type="date"
+                class="form-control"
+                id="finalReplySentToPIODate">
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         SECTION 5
+    ====================================================== -->
+
+    <div class="section-header mt-4">
+
+        <i class="bi bi-paperclip"></i>
+
+        RTI Documents
+
+    </div>
+
+
+    <div class="row g-3">
+
+
+        <!-- =================================================
+             DOCUMENT TYPE
+        ================================================== -->
+
+        <div class="col-md-4">
+
+            <label
+                for="documentType"
+                class="form-label">
+
+                Document Type
+
+            </label>
+
+            <select
+                class="form-select"
+                id="documentType">
+
+                <option value="">
+                    Select Document Type
+                </option>
+
+                <option value="RTI Application">
+                    RTI Application
+                </option>
+
+                <option value="Acknowledgement">
+                    Acknowledgement
+                </option>
+
+                <option value="File Note">
+                    File Note
+                </option>
+
+                <option value="Section Reply">
+                    Section Reply
+                </option>
+
+                <option value="Draft Reply">
+                    Draft Reply
+                </option>
+
+                <option value="Final Reply">
+                    Final Reply
+                </option>
+
+                <option value="Other">
+                    Other
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =================================================
+             DOCUMENT FILE
+        ================================================== -->
+
+        <div class="col-md-5">
+
+            <label
+                for="documentFile"
+                class="form-label">
+
+                Select Document
+
+            </label>
+
+            <input
+                type="file"
+                class="form-control"
+                id="documentFile"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+
+        </div>
+
+
+        <!-- =================================================
+             UPLOAD BUTTON
+        ================================================== -->
+
+        <div class="col-md-3 d-flex align-items-end">
+
+            <button
+                type="button"
+                class="btn btn-primary w-100"
+                id="btnUploadDocument">
+
+                <i class="bi bi-upload"></i>
+
+                Upload Document
+
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             DOCUMENT LIST
+        ================================================== -->
+
+        <div class="col-md-12">
+
+            <label class="form-label">
+
+                Uploaded Documents
+
+            </label>
+
+
+            <div
+                id="documentList"
+                class="document-list">
+
+                <div
+                    id="noDocumentsMessage">
+
+                    No documents uploaded.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         SECTION 6
+    ====================================================== -->
+
+    <div class="section-header mt-4">
+
+        <i class="bi bi-file-earmark-code"></i>
+
+        Document Parsing
+
+    </div>
+
+
+    <div class="row g-3">
+
+
+        <!-- =================================================
+             SELECT DOCUMENT
+        ================================================== -->
+
+        <div class="col-md-9">
+
+            <label
+                for="parseDocumentSelect"
+                class="form-label">
+
+                Select Uploaded Document for Parsing
+
+            </label>
+
+            <select
+                class="form-select"
+                id="parseDocumentSelect">
+
+                <option value="">
+
+                    Select uploaded document
+
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- =================================================
+             PARSE BUTTON
+        ================================================== -->
+
+        <div class="col-md-3 d-flex align-items-end">
+
+            <button
+                type="button"
+                class="btn btn-warning w-100"
+                id="btnParseDocument">
+
+                <i class="bi bi-file-earmark-text"></i>
+
+                Parse Document
+
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             PARSED TEXT
+        ================================================== -->
+
+        <div class="col-md-12">
+
+            <label
+                for="parsedText"
+                class="form-label">
+
+                Extracted Text
+
+            </label>
+
+            <textarea
+                class="form-control"
+                id="parsedText"
+                rows="7"
+                placeholder="Extracted document text will appear here..."></textarea>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         BUTTONS
+    ====================================================== -->
+
+    <div class="mt-4">
+
+
+        <!-- New -->
+
+        <button
+            type="button"
+            class="btn btn-secondary btn-space"
+            id="btnNew">
+
+            <i class="bi bi-file-earmark-plus"></i>
+
+            New
+
+        </button>
+
+
+        <!-- Save -->
+
+        <button
+            type="button"
+            class="btn btn-success btn-space"
+            id="btnSave">
+
+            <i class="bi bi-save"></i>
+
+            Save
+
+        </button>
+
+
+        <!-- Update -->
+
+        <button
+            type="button"
+            class="btn btn-primary btn-space"
+            id="btnUpdate">
+
+            <i class="bi bi-pencil-square"></i>
+
+            Update
+
+        </button>
+
+
+        <!-- Delete -->
+
+        <button
+            type="button"
+            class="btn btn-danger btn-space"
+            id="btnDelete">
+
+            <i class="bi bi-trash"></i>
+
+            Delete
+
+        </button>
+
+
+        <!-- Print -->
+
+        <button
+            type="button"
+            class="btn btn-dark btn-space"
+            id="btnPrint">
+
+            <i class="bi bi-printer"></i>
+
+            Print
+
+        </button>
+
+
+        <!-- Register -->
+
+        <button
+            type="button"
+            class="btn btn-info text-white btn-space"
+            id="btnRegister">
+
+            <i class="bi bi-table"></i>
+
+            Register
+
+        </button>
+
+
+        <!-- Daily Status -->
+
+        <button
+            type="button"
+            class="btn btn-warning btn-space"
+            id="btnDailyStatus">
+
+            <i class="bi bi-bar-chart-line"></i>
+
+            Daily Status
+
+        </button>
+
+
+        <!-- WhatsApp -->
+
+        <button
+            type="button"
+            class="btn btn-success btn-space"
+            id="btnWhatsApp">
+
+            <i class="bi bi-whatsapp"></i>
+
+            WhatsApp
+
+        </button>
+
+
+        <!-- Home -->
+
+        <button
+            type="button"
+            class="btn btn-dark btn-space"
+            id="btnHome">
+
+            <i class="bi bi-house"></i>
+
+            Home
+
+        </button>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         MESSAGE
+    ====================================================== -->
+
+    <div id="rtiMessage"></div>
+
+
+</div>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================== -->
+
+<div class="page-footer">
+
+    RTI Application Management |
+    FMS |
+    Lekha Technologies
+
+</div>
+
+
+<!-- =========================================================
+     MASTER DATA
+========================================================== -->
+
+<script src="../../js/district-master.js"></script>
+
+<script src="../../js/mandal-master.js"></script>
+
+<script src="../../js/village-master.js"></script>
+
+<script src="../../js/officer-master.js"></script>
+
+<script src="../../js/section-master.js"></script>
+
+
+
+<!-- =========================================================
+     COMMON FMS FIREBASE
+========================================================== -->
+
+<script src="../../js/firebase/firebase-loader.js"></script>
+
+<script src="../../js/firebase/firebase-ready.js"></script>
+
+<script src="../../js/firebase/firebase-service.js"></script>
+
+
+<!-- =========================================================
+     PDF.JS
+========================================================== -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+
+
+<!-- =========================================================
+     TESSERACT OCR
+========================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+
+<!-- =========================================================
+     FMS CENTRAL DOCUMENT ENGINE
+========================================================== -->
+
+<script src="../../js/document/document-engine.js"></script>
+
+
+<!-- =========================================================
+     RTI JAVASCRIPT
+========================================================== -->
+
+<script src="rti.js"></script>
+
+
+</body>
+
+</html>
