@@ -127,35 +127,38 @@ function generateId(prefix) {
 // MESSAGE
 //=========================================================
 
-function showMessage(type, message) {
+function showMessage(message, type = "success") {
 
-    const area =
-
-        document.getElementById("messageArea");
+    const area = document.getElementById("messageArea");
 
     if (!area) return;
 
     area.innerHTML =
-
-    `<div class="alert alert-${type} alert-dismissible fade show">
-
-        ${message}
-
-        <button
-
-            class="btn-close"
-
-            data-bs-dismiss="alert">
-
-        </button>
-
-    </div>`;
+        `<div class="alert alert-${type} alert-dismissible fade show">
+            ${message}
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
+        </div>`;
 
     setTimeout(() => {
-
         area.innerHTML = "";
-
     }, 5000);
+
+}
+
+function clearMessage() {
+
+    const messageArea = document.getElementById("messageArea");
+
+    if (!messageArea) {
+        return;
+    }
+
+    messageArea.innerHTML = "";
+    messageArea.style.display = "none";
 
 }
 
@@ -277,7 +280,7 @@ function fillDropdown(id, items, firstText = "Select") {
 // CONFIRMATION
 //=========================================================
 
-function confirmDelete(message = "Are you sure?") {
+function confirmAction(message = "Are you sure?") {
 
     return confirm(message);
 
