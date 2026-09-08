@@ -214,6 +214,22 @@ function highlightOverdueFiles()
     });
 }
 
+function shareDashboardWhatsApp()
+{
+    if (!window.FMSWhatsAppService?.compose) return;
+    const summary=document.querySelector(".container-fluid")?.innerText?.slice(0,2800) || "FMS Dashboard Update";
+    window.FMSWhatsAppService.compose({
+        module: "FMS",
+        title: "FMS Dashboard Message",
+        defaultMessage:`FMS Dashboard Update\nStatus as on: ${new Date().toLocaleDateString("en-IN")}\n\n${summary}\n\nPlease type or edit your custom message.`,
+        message: function(msg){ alert(msg); }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    document.getElementById("btnWhatsAppDashboard")?.addEventListener("click", shareDashboardWhatsApp);
+});
+
 /*==========================================================
 END OF FILE
 ==========================================================*/

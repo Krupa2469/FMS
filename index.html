@@ -1,269 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>File Management System (FMS)</title>
-
-    <!-- Bootstrap -->
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-
-    <!-- Common Styles -->
-
-    <link rel="stylesheet"
-          href="css/style.css">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMS Home Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:22px 15px;text-align:center}.home-header h2{font-weight:700;margin:4px 0}.nav-btn{min-width:120px}.metric-card{border:0;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.10);min-height:150px}.metric-value{font-size:42px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.16)!important}.fy-bar{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+</style>
 </head>
-
 <body>
-
-<!-- ======================================================
-HEADER
-======================================================= -->
-
-<header class="bg-primary text-white text-center p-3">
-
-    <h5 class="mb-1">
-        GOVERNMENT OF TELANGANA
-    </h5>
-
-    <h6 class="mb-1">
-        OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT       
-    </h6>
-
-    <h3 class="fw-bold">
-        FILE MANAGEMENT SYSTEM (FMS)
-    </h3>
-
+<header class="home-header">
+<div>GOVERNMENT OF TELANGANA</div>
+<div class="small">OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT</div>
+<h2>FILE MANAGEMENT SYSTEM (FMS)</h2>
+<div class="opacity-75">FMS Home Dashboard</div>
 </header>
-
-<!-- ======================================================
-MAIN CONTAINER
-======================================================= -->
-
-<div class="container mt-4">
-
-    <div class="row g-4">
-
-        <!-- MODULE A -->
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow">
-
-                <div class="card-header bg-success text-white">
-
-                    <h5 class="mb-0">
-                        Module A
-                    </h5>
-
-                </div>
-
-                <div class="card-body">
-
-                    <h6>
-                        Citizen & Administrative Files
-                    </h6>
-
-                    <hr>
-
-                    <ul>
-
-                        <li>CPGRAMS</li>
-
-                        <li>Prajavani</li>
-
-                        <li>Public Grievances</li>
-
-                        <li>Direct Complaints</li>
-
-                        <li>Assembly Questions</li>
-
-                        <li>Court Cases</li>
-
-                        <li>VIP References</li>
-
-                        <li>CMO References</li>
-
-                        <li>Audit Paras</li>
-
-                        <li>Vigilance Cases</li>
-
-                    </ul>
-
-                </div>
-
-                <div class="card-footer">
-
-                    <button class="btn btn-success w-100"
-                            onclick="openModule('cpgrams')">
-
-                        Open Module
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- MODULE B -->
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow">
-
-                <div class="card-header bg-warning">
-
-                    <h5 class="mb-0">
-
-                        Module B
-
-                    </h5>
-
-                </div>
-
-                <div class="card-body">
-
-                    <h5>
-
-                        RTI Management
-
-                    </h5>
-
-                </div>
-
-                <div class="card-footer">
-
-                    <button class="btn btn-warning w-100"
-                            onclick="openModule('rti')">
-
-                        Open Module
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- MODULE C -->
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow">
-
-                <div class="card-header bg-info text-white">
-
-                    <h5 class="mb-0">
-
-                        Module C
-
-                    </h5>
-
-                </div>
-
-                <div class="card-body">
-
-                    <h5>
-
-                        DISHA Management
-
-                    </h5>
-
-                </div>
-
-                <div class="card-footer">
-
-                    <button class="btn btn-info text-white w-100"
-                            onclick="openModule('disha')">
-
-                        Open Module
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- ==================================================
-    COMMON MENU
-    =================================================== -->
-
-    <div class="row mt-5">
-
-        <div class="col text-center">
-
-           <button class="btn btn-secondary m-2"
-                    onclick="openMasters()">
-            Masters
-        </button>
-
-        <button class="btn btn-secondary m-2"
-        onclick="openReports()">
-            Reports
-                </button>
-
-            <button class="btn btn-secondary m-2"
-        onclick="openUtilities()">
-    Utilities
-</button>
-
-        </div>
-
-    </div>
-
+<nav class="navbar bg-white border-bottom shadow-sm">
+<div class="container-fluid p-2 d-flex gap-2 flex-wrap">
+<button class="btn btn-dark nav-btn"><i class="bi bi-house"></i> FMS Home</button>
+<button class="btn btn-primary nav-btn" onclick="goModule('cpgrams')"><i class="bi bi-file-earmark-text"></i> CPGRAMS</button>
+<button class="btn btn-warning nav-btn" onclick="goModule('rti')"><i class="bi bi-journal-text"></i> RTI</button>
+<button class="btn btn-info text-white nav-btn" onclick="goModule('disha')"><i class="bi bi-people"></i> DISHA</button>
 </div>
-
-<!-- ======================================================
-FOOTER
-======================================================= -->
-
-<footer class="bg-light text-center mt-5 p-3">
-
-    <small>
-
-        <small>
-
-    © <span id="currentYear"></span>
-
-    File Management System (FMS)
-
-    | Version
-
-    <span id="appVersion"></span>
-
-</small>
-
-    </small>
-
-</footer>
-
-<!-- Bootstrap -->
-
+</nav>
+<main class="container-fluid py-4">
+<div class="card fy-bar p-3 mb-4">
+<div class="row align-items-center g-3">
+<div class="col-md-4"><label for="homeFY" class="form-label fw-bold mb-1">Financial Year</label><select id="homeFY" class="form-select"></select></div>
+<div class="col-md-8"><div id="homeStatus" class="alert alert-info mb-0">Loading dashboard...</div></div>
+</div>
+</div>
+<div class="row g-4" id="homeModuleCards"></div>
+<div class="card mt-4"><div class="card-body text-center"><div id="dashboardReady" class="fw-bold text-success">Dashboard ready — CPGRAMS: 0, RTI: 0, DISHA: 0 | Financial Year: 2026-27.</div></div></div>
+<div class="row mt-4 g-3">
+<div class="col-md-4"><button class="btn btn-outline-secondary w-100" onclick="openReports()"><i class="bi bi-bar-chart"></i> Reports</button></div>
+<div class="col-md-4"><button class="btn btn-outline-secondary w-100" onclick="openMasters()"><i class="bi bi-database"></i> Masters</button></div>
+<div class="col-md-4"><button class="btn btn-outline-secondary w-100" onclick="openUtilities()"><i class="bi bi-tools"></i> Utilities</button></div>
+</div>
+</main>
+<footer class="bg-light text-center p-3"><small>© <span id="currentYear"></span> File Management System (FMS) | Version <span id="appVersion"></span></small></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase/firebase-bootstrap.js"></script>
+<script>
+/* ==========================================================
+   FMS HOME DASHBOARD - ROBUST FY + FIRESTORE LOADING
+   FY range: 2014-15 through current FY
+   CPGRAMS category selector opens the selected dashboard.
+========================================================== */
+const homeCollections={cpgrams:'cpgrams',rti:'rtiApplications',disha:'dishaMeetings'};
+const homeDateFields={cpgrams:['dateReceived','dateArised','receivedDate','date'],rti:['applicationDate','date','dateReceived'],disha:['dateOfMeeting','meetingDate','date']};
+const HOME_CATEGORIES=["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","Assembly Questions","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
+let homeRows={cpgrams:[],rti:[],disha:[]};
+let homeInitialized=false;
 
-<!-- Common JS -->
-
-<script src="js/app.js"></script>
-
-<script src="js/navigation.js"></script>
-
-<script src="js/id-generator.js"></script>
-
-</body>
-
-</html>
+function goModule(m){ location.href='pages/module-dashboard.html?module='+encodeURIComponent(m); }
+function openHomeCPGRAMSDashboard(category){
+  const value=category||'CPGRAMS';
+  location.href='pages/module-dashboard.html?module=cpgrams&category='+encodeURIComponent(value);
+}
+function homeCategoryKey(value){
+  return String(value||'').trim().toLowerCase().replace(/\s+/g,' ')
+    .replace(/\bcomplaint\b/g,'complaints').replace(/\breference\b/g,'references').replace(/\bpara\b/g,'paras');
+}
+function homeRecordDate(record, fields){
+  for(const f of (fields||[])){
+    const v=record?.[f]; if(!v) continue;
+    const d=window.FMSFY?.parseDate ? window.FMSFY.parseDate(v) : null;
+    if(d && !isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+function homeRecordFY(record, fields){
+  const d=homeRecordDate(record,fields); if(!d) return '';
+  return window.FMSFY?.formatFY ? window.FMSFY.formatFY(d.getMonth()>=3?d.getFullYear():d.getFullYear()-1) : '';
+}
+function categoryMatchesHome(row,category){
+  const raw=row?.category||row?.grievanceType||row?.referenceType||row?.source||row?.sourceType||row?.type||row?.grievanceSource||'';
+  const actual=homeCategoryKey(raw), selected=homeCategoryKey(category);
+  if(selected==='cpgrams') return !actual || ['cpgrams','cpgrams portal','cpgram'].includes(actual);
+  return actual===selected;
+}
+function populateHomeFY(){
+  const sel=document.getElementById('homeFY'); if(!sel) return;
+  const all=[...homeRows.cpgrams,...homeRows.rti,...homeRows.disha];
+  const current=window.FMSFY?.getCurrentFY?.() || '2026-27';
+  if(window.FMSFY?.populateFYSelect){
+    window.FMSFY.populateFYSelect(sel, all, ['dateReceived','dateArised','receivedDate','applicationDate','date','dateOfMeeting','meetingDate'], current);
+  } else {
+    sel.innerHTML='';
+    const startYear=new Date().getFullYear()-(new Date().getMonth()<3?1:0);
+    for(let y=startYear;y>=2014;y--) sel.insertAdjacentHTML('beforeend',`<option value="${y}-${String(y+1).slice(-2)}">${y}-${String(y+1).slice(-2)}</option>`);
+    sel.value=current;
+  }
+}
+function homeCard(title,value,icon,color,target){
+  const safe=String(title).replace(/'/g,"\\'");
+  return `<div class="col-xl-3 col-lg-4 col-md-6"><div class="card metric-card h-100 dashboard-home-card" role="button" tabindex="0" onclick="openHomeCard('${safe}','${target}')" onkeydown="if(event.key==='Enter'||event.key===' ')openHomeCard('${safe}','${target}')"><div class="card-body text-center"><i class="bi ${icon} fs-1 text-${color}"></i><h5 class="mt-3">${title}</h5><div class="metric-value text-${color}">${value}</div><div class="small text-muted mt-1">Selected FY</div></div></div></div>`;
+}
+function openHomeCard(category,target){
+  if(target==='cpgrams') openHomeCPGRAMSDashboard(category);
+  else goModule(target);
+}
+function updateHomeCards(){
+  const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'2026-27');
+  const cpRows=homeRows.cpgrams.filter(r=>homeRecordFY(r,homeDateFields.cpgrams)===fy);
+  const rti=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti)===fy).length;
+  const disha=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha)===fy).length;
+  const icons=['bi-file-earmark-text','bi-megaphone','bi-chat-left-text','bi-person-raised-hand','bi-building','bi-bank','bi-star','bi-person-badge','bi-envelope-paper','bi-clipboard-check','bi-shield-exclamation'];
+  const colors=['primary','success','info','warning','secondary','dark','danger','primary','success','warning','danger'];
+  let html='';
+  HOME_CATEGORIES.forEach((cat,i)=>{
+    const count=cpRows.filter(r=>categoryMatchesHome(r,cat)).length;
+    html+=homeCard(cat,count,icons[i],colors[i],'cpgrams');
+  });
+  html+=homeCard('RTI',rti,'bi-journal-text', 'warning','rti');
+  html+=homeCard('DISHA',disha,'bi-people','info','disha');
+  const container=document.getElementById('homeModuleCards'); if(container) container.innerHTML=html;
+  const ready=document.getElementById('dashboardReady');
+  if(ready) ready.textContent=`Dashboard ready — FY ${fy} | CPGRAMS: ${cpRows.length}, RTI: ${rti}, DISHA: ${disha}.`;
+  const status=document.getElementById('homeStatus');
+  if(status){status.className='alert alert-success mb-0';status.textContent=`Financial Year: ${fy} • ${cpRows.length + rti + disha} record(s) across FMS modules.`;}
+}
+async function readCollectionSafely(name){
+  try{
+    if(!window.db) throw new Error('Firebase database is not ready');
+    const snap=await window.db.collection(name).get();
+    return {rows:snap.docs.map(x=>({id:x.id,...x.data()})),error:null};
+  }catch(error){console.error(`FMS Home: unable to read ${name}`,error);return {rows:[],error};}
+}
+async function loadHome(){
+  if(homeInitialized) return;
+  if(!window.db){const status=document.getElementById('homeStatus');if(status)status.textContent='Firebase is not ready. Please wait and refresh.';return;}
+  homeInitialized=true;
+  try{
+    const [cp,rti,disha]=await Promise.all([readCollectionSafely(homeCollections.cpgrams),readCollectionSafely(homeCollections.rti),readCollectionSafely(homeCollections.disha)]);
+    homeRows={cpgrams:cp.rows,rti:rti.rows,disha:disha.rows};
+    populateHomeFY();
+    document.getElementById('homeFY')?.addEventListener('change',updateHomeCards);
+    updateHomeCards();
+    const errors=[cp,rti,disha].filter(x=>x.error);
+    if(errors.length){const status=document.getElementById('homeStatus');if(status){status.className='alert alert-warning mb-0';status.textContent='Dashboard loaded. Some modules could not be read from Firebase.';}}
+  }catch(e){console.error('FMS Home dashboard error:',e);homeInitialized=false;const status=document.getElementById('homeStatus');if(status){status.className='alert alert-danger mb-0';status.textContent='Unable to load dashboard: '+(e.message||e);}}
+}
+function initHomeDashboard(){
+  if(window.db) loadHome(); else window.addEventListener('fmsFirebaseReady',loadHome,{once:true});
+  setTimeout(()=>{if(window.db)loadHome();},2500);
+}
+window.addEventListener('fmsFirebaseReady',loadHome,{once:true});
+document.addEventListener('DOMContentLoaded',initHomeDashboard);</script>
+</body></html>

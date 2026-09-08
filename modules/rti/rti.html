@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTI Application - FMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+body{background:#f4f6f9;font-family:Arial,sans-serif;margin:0}.page-header{background:#0d6efd;color:#fff;padding:16px 20px;text-align:center}.page-header h1{font-size:27px;margin:0;font-weight:700}.page-header h2{font-size:16px;margin:4px 0}.page-header h3{font-size:22px;margin:7px 0 0;font-weight:700}.fms-action-toolbar{position:sticky;top:0;z-index:1000}.form-container{max-width:1250px;margin:20px auto 30px;background:#fff;padding:22px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)}.section-header{background:#0d6efd;color:#fff;padding:11px 15px;border-radius:5px;margin:8px 0 18px;font-size:19px;font-weight:700}.sub-card{border:1px solid #dee2e6;border-radius:6px;padding:15px;background:#fbfbfb}.form-label{font-weight:600}.required::after{content:" *";color:red}.parse-box{border:2px dashed #9ec5fe;background:#f8fbff}.attachment-box{border:1px solid #dee2e6;border-radius:6px;padding:14px;background:#fafafa}.attachment-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #dee2e6;background:#fff;border-radius:5px;padding:10px;margin-bottom:8px}.parsed-text{min-height:120px;font-size:13px}.page-footer{text-align:center;color:#6c757d;padding:15px;font-size:14px}@media(max-width:768px){.form-container{margin:10px;padding:14px}.attachment-row{flex-direction:column;align-items:flex-start}.page-header h1{font-size:21px}}
+@media print{.fms-action-toolbar,.page-footer,#rtiMessage,.no-print{display:none!important}.form-container{box-shadow:none;margin:0;max-width:none}.section-header{break-after:avoid}}
+</style>
+</head>
+<body>
+<div class="page-header">
+<h1>GOVERNMENT OF TELANGANA</h1>
+<h2>OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT</h2>
+<h2># 6-3-607, Anand Nagar Colony, Khairatabad, Hyderabad-500004</h2>
+<h3>RTI APPLICATION MANAGEMENT</h3>
+</div>
+
+<nav class="fms-action-toolbar navbar navbar-expand-lg bg-light border-bottom">
+<div class="container-fluid"><div class="d-flex gap-2 flex-wrap">
+<button type="button" class="btn btn-secondary" id="btnNew"><i class="bi bi-file-earmark-plus"></i> New</button>
+<button type="button" class="btn btn-success" id="btnSave"><i class="bi bi-save"></i> Save</button>
+<button type="button" class="btn btn-primary" id="btnUpdate"><i class="bi bi-pencil-square"></i> Update</button>
+<button type="button" class="btn btn-danger" id="btnDelete"><i class="bi bi-trash"></i> Delete</button>
+<button type="button" class="btn btn-dark" id="btnPrint"><i class="bi bi-printer"></i> Print</button>
+<button type="button" class="btn btn-info text-white" id="btnRegister"><i class="bi bi-table"></i> Register</button>
+<button type="button" class="btn btn-warning" id="btnDailyStatus"><i class="bi bi-bar-chart-line"></i> Daily Status</button>
+<button type="button" class="btn btn-success" id="btnWhatsApp"><i class="bi bi-whatsapp"></i> WhatsApp</button>
+<button type="button" class="btn btn-dark" id="btnHome"><i class="bi bi-house"></i> Home</button>
+</div></div></nav>
+
+<div class="form-container">
+<form id="rtiForm" onsubmit="return false">
+
+<!-- 1 APPLICATION DETAILS -->
+<div class="section-header"><i class="bi bi-file-earmark-text"></i> 1. APPLICATION DETAILS</div>
+<div class="sub-card">
+<div class="row g-3">
+<div class="col-md-4"><label class="form-label required" for="applicationNumber">RTI Application Number</label><input class="form-control" id="applicationNumber" type="text"></div>
+<div class="col-md-4"><label class="form-label required" for="applicationDate">Application Date</label><input class="form-control" id="applicationDate" type="date"></div>
+<div class="col-md-4"><label class="form-label" for="dueDate">Due Date</label><input class="form-control" id="dueDate" type="date" readonly><small class="text-muted">Application Date + 30 days</small></div>
+<div class="col-12"><label class="form-label required" for="informationSought">Information Sought</label><textarea class="form-control" id="informationSought" rows="6" placeholder="Enter the information sought by the applicant"></textarea></div>
+</div>
+
+<div class="sub-card parse-box mt-4">
+<div class="row g-3 align-items-end">
+<div class="col-md-8">
+<label class="form-label required" for="rtiApplicationFile"><i class="bi bi-file-earmark-pdf"></i> Choose RTI Application for Upload &amp; Parsing</label>
+<input class="form-control" id="rtiApplicationFile" type="file" accept=".pdf,.txt,.png,.jpg,.jpeg,.webp">
+<div id="rtiApplicationStatus" class="small text-muted mt-2">No RTI Application selected.</div>
+</div>
+<div class="col-md-4"><button type="button" class="btn btn-primary w-100" id="btnParseRTIApplication"><i class="bi bi-magic"></i> Parse RTI Application</button></div>
+<div class="col-12"><div class="alert alert-info py-2 mb-0"><strong>Important:</strong> The selected RTI Application is used for parsing first. After you click <strong>Save</strong>, the RTI Application file itself is uploaded to Firebase Storage and its attachment metadata is saved in Firestore.</div></div>
+<div class="col-12"><label class="form-label" for="parsedText">Extracted Text (verification)</label><textarea class="form-control parsed-text" id="parsedText" readonly></textarea></div>
+</div>
+</div>
+</div>
+
+<!-- 2 APPLICANT DETAILS -->
+<div class="section-header mt-4"><i class="bi bi-person-vcard"></i> 2. APPLICANT DETAILS</div>
+<div class="sub-card"><div class="row g-3">
+<div class="col-md-6"><label class="form-label required" for="applicantName">Applicant Name</label><input class="form-control" id="applicantName" type="text"></div>
+<div class="col-md-6"><label class="form-label" for="mobileNumber">Mobile Number</label><input class="form-control" id="mobileNumber" type="tel" maxlength="10"></div>
+<div class="col-12"><label class="form-label" for="applicantAddress">Applicant Address</label><textarea class="form-control" id="applicantAddress" rows="3"></textarea></div>
+<div class="col-md-4"><label class="form-label" for="district">District</label><select class="form-select" id="district"><option value="">-- Select District --</option></select></div>
+<div class="col-md-4">
+<label class="form-label" for="mandal">Mandal</label>
+<div class="input-group">
+<select class="form-select" id="mandal" disabled><option value="">-- Select Mandal --</option></select>
+<input class="form-control" id="newMandal" type="text" placeholder="New Mandal">
+<button type="button" class="btn btn-outline-primary" id="btnSaveMandal">Save</button>
+</div>
+<small class="text-muted">Select District, then choose a Mandal or enter a new Mandal and Save.</small>
+</div>
+<div class="col-md-4">
+<label class="form-label" for="village">Village</label>
+<div class="input-group">
+<select class="form-select" id="village" disabled><option value="">-- Select Village --</option></select>
+<input class="form-control" id="newVillage" type="text" placeholder="New Village">
+<button type="button" class="btn btn-outline-primary" id="btnSaveVillage">Save</button>
+</div>
+<small class="text-muted">Select Mandal, then choose a Village or enter a new Village and Save.</small>
+</div>
+</div></div>
+
+<!-- 3 OFFICE PROCESSING -->
+<div class="section-header mt-4"><i class="bi bi-building"></i> 3. OFFICE PROCESSING</div>
+<div class="sub-card"><div class="row g-3">
+<div class="col-md-3"><label class="form-label" for="officeFileNo">File No.</label><input class="form-control" id="officeFileNo" type="text"></div>
+<div class="col-md-3"><label class="form-label" for="officeDateArised">Date Arised</label><input class="form-control" id="officeDateArised" type="date"></div>
+<div class="col-md-6"><label class="form-label" for="officeSubject">Subject</label><input class="form-control" id="officeSubject" type="text" maxlength="300"></div>
+<div class="col-md-4"><label class="form-label" for="officeCommunicationType">Type of Communication</label><select class="form-select" id="officeCommunicationType"><option value="">-- Select Type --</option><option>Letter</option><option>D.O. Letter</option><option>UO Note</option><option>Memo</option></select></div>
+<div class="col-md-8">
+<label class="form-label" for="officeLetterAddressedTo">Letter addressed to</label>
+<div class="input-group">
+<select class="form-select" id="officeLetterAddressedTo"><option value="">-- Select Officer --</option></select>
+<input class="form-control" id="newOfficeOfficer" type="text" placeholder="New Officer">
+<button type="button" class="btn btn-outline-primary" id="btnSaveOfficeOfficer">Save</button>
+</div>
+<small class="text-muted">Officer data is loaded from Officer Master. New officers are saved to Firestore.</small>
+</div>
+<div class="col-md-8">
+<label class="form-label" for="officeReplySection">Reply obtained from</label>
+<div class="input-group">
+<select class="form-select" id="officeReplySection"><option value="">-- Select Section --</option></select>
+<input class="form-control" id="newOfficeSection" type="text" placeholder="New Section">
+<button type="button" class="btn btn-outline-primary" id="btnAddOfficeSection"><i class="bi bi-plus-circle"></i> Save</button>
+</div>
+<small class="text-muted">Section data is loaded from Section Master. New sections are saved to Firestore.</small>
+</div>
+<div class="col-md-4"><label class="form-label" for="officeStatus">Status of File</label><select class="form-select" id="officeStatus"><option value="">-- Select Status --</option><option>Arised</option><option>Under Circulation</option><option>Despatched</option><option>Reply Obtained</option><option>Closed</option></select></div>
+<div class="col-12"><small class="text-muted">Sections are maintained centrally in Section Master. A new section added here is stored in Firestore and becomes available across FMS modules.</small></div>
+</div></div>
+
+<!-- 4 ATTACHMENTS -->
+<div class="section-header mt-4"><i class="bi bi-paperclip"></i> 4. ATTACHMENTS UPLOAD — SAVED TO FIRESTORE</div>
+<div class="attachment-box">
+<div class="d-flex align-items-center gap-3 flex-wrap">
+<input class="form-control" id="attachmentFile" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.webp" style="max-width:650px;">
+<button type="button" class="btn btn-primary" id="btnUploadAttachment"><i class="bi bi-paperclip"></i> Attachments</button>
+</div>
+<small class="text-muted d-block mt-2">Upload any supporting document. No document type is required. The attachment is saved to Firebase Storage and its metadata is saved in Firestore against this RTI record.</small>
+<div class="mt-3"><label class="form-label">Saved Attachments</label><div id="attachmentList" class="attachment-box"><div class="text-muted text-center py-3">No saved attachments.</div></div></div>
+</div>
+
+<div id="rtiMessage" class="mt-3"></div>
+</form>
+</div>
+<div class="page-footer">RTI Application Management | FMS | Lekha Technologies</div>
+
+<script src="../../js/district-master.js"></script>
+<script src="../../js/mandal-master.js"></script>
+<script src="../../js/village-master.js"></script>
+<script src="../../js/section-master.js"></script>
+<script src="../../js/firebase/firebase-loader.js"></script>
+<script src="../../js/firebase/firebase-ready.js"></script>
+<script src="../../js/firebase/firebase-service.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>window.addEventListener('load',function(){if(window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';});</script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="../../js/document/document-engine.js"></script>
+<script src="../../js/services/parser/module-parsers.js"></script>
+<script src="../../js/services/fms-parser-service.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
+<script src="../../js/services/whatsapp-service.js"></script>
+<script src="../../js/services/excel-report-service.js"></script>
+<script src="../../js/services/office-processing-service.js"></script>
+<script src="../../js/services/rti-master-service.js"></script>
+<script src="rti.js"></script>
+</body>
+</html>

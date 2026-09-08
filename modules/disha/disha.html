@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        DISHA Module
+    </title>
+
+
+    <!-- Bootstrap -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+
+    <!-- Bootstrap Icons -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+    <style>
+
+        body {
+            background-color: #f5f7fa;
+            font-family: Arial, sans-serif;
+        }
+
+
+        .page-header {
+            background: #0d6efd;
+            color: white;
+            padding: 18px;
+            text-align: center;
+        }
+
+
+        .page-header h3 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+
+        .page-header p {
+            margin: 4px 0 0;
+            font-size: 14px;
+        }
+
+
+        .section-card {
+            margin-top: 20px;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+
+        .section-title {
+            background: #0d6efd;
+            color: white;
+            font-weight: 600;
+        }
+
+
+        .form-label {
+            font-weight: 500;
+        }
+
+
+        .required {
+            color: red;
+        }
+
+
+        .calculated-field {
+            background-color: #f1f3f5;
+        }
+
+
+        .status-card {
+            border-left: 4px solid #0d6efd;
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            height: 100%;
+        }
+
+
+        .status-value {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+
+        .status-label {
+            color: #666;
+            font-size: 13px;
+        }
+
+
+        .btn-space {
+            margin-right: 6px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     PAGE HEADER
+========================================================= -->
+
+<div class="page-header">
+
+    <h3>
+        DISHA MODULE
+    </h3>
+
+    <p>
+        District Development Coordination and Monitoring Committee
+    </p>
+
+</div>
+
+<!-- =================================================
+             ACTION BUTTONS
+        ================================================== -->
+
+        <nav class="fms-action-toolbar navbar navbar-expand-lg bg-light border-bottom"><div class="container-fluid"><div class="d-flex gap-2 flex-wrap">
+
+            <button
+                type="button"
+                id="btnNew"
+                class="btn btn-secondary btn-space">
+
+                <i class="bi bi-file-earmark-plus"></i>
+                New
+
+            </button>
+
+
+            <button
+                type="button"
+                id="btnSave"
+                class="btn btn-success btn-space">
+
+                <i class="bi bi-save"></i>
+                Save
+
+            </button>
+
+
+            <button
+                type="button"
+                id="btnUpdate"
+                class="btn btn-primary btn-space">
+
+                <i class="bi bi-pencil-square"></i>
+                Update
+
+            </button>
+
+
+            <button
+                type="button"
+                id="btnDelete"
+                class="btn btn-danger btn-space">
+
+                <i class="bi bi-trash"></i>
+                Delete
+
+            </button>
+
+
+          <button
+    type="button"
+    class="btn btn-dark"
+    id="btnPrint">
+    <i class="bi bi-printer"></i>
+    Print
+</button>
+
+<button
+    type="button"
+    class="btn btn-info text-white"
+    id="btnRegister">
+    <i class="bi bi-table"></i>
+    Register
+</button>
+
+<button
+    type="button"
+    class="btn btn-success"
+    id="btnWhatsApp">
+    <i class="bi bi-whatsapp"></i>
+    WhatsApp
+</button>
+
+<button
+    type="button"
+    class="btn btn-dark"
+    id="btnHome">
+    <i class="bi bi-house"></i>
+    Home
+</button>
+        </div></div></div></nav>
+
+
+
+
+<div class="container-fluid px-4">
+
+
+<!-- =========================================================
+     DASHBOARD SUMMARY
+========================================================= -->
+
+<div class="row g-3 mt-3">
+
+
+    <!-- Days Left -->
+
+    <div class="col-md-3">
+
+        <div class="status-card">
+
+            <div class="status-label">
+                Days Left for PoM Upload
+            </div>
+
+            <div
+                id="daysLeft"
+                class="status-value">
+
+                -
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Days Delayed -->
+
+    <div class="col-md-3">
+
+        <div class="status-card">
+
+            <div class="status-label">
+                Days Delayed after Due Date
+            </div>
+
+            <div
+                id="daysDelayed"
+                class="status-value">
+
+                -
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PoM Status -->
+
+    <div class="col-md-3">
+
+        <div class="status-card">
+
+            <div class="status-label">
+                PoM Upload Status
+            </div>
+
+            <div
+                id="pomStatus"
+                class="status-value">
+
+                -
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Meeting Status -->
+
+    <div class="col-md-3">
+
+        <div class="status-card">
+
+            <div class="status-label">
+                Meeting Status
+            </div>
+
+            <div
+                id="meetingStatusSummary"
+                class="status-value">
+
+                -
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     DISHA DATA ENTRY
+========================================================= -->
+
+<div class="card section-card">
+
+    <div class="card-header section-title">
+
+        DISHA MEETING DETAILS
+
+    </div>
+
+
+    <div class="card-body">
+
+
+        <!-- =================================================
+             ROW 1
+        ================================================== -->
+
+        <div class="row g-3">
+
+
+            <!-- Sl No -->
+
+            <div class="col-md-2">
+
+                <label class="form-label">
+                    Sl. No.
+                </label>
+
+                <input
+                    type="number"
+                    id="slNo"
+                    class="form-control"
+                    readonly>
+
+            </div>
+
+
+            <!-- District -->
+
+            <div class="col-md-5">
+
+                <label class="form-label">
+
+                    Name of the District
+
+                    <span class="required">*</span>
+
+                </label>
+
+                <select
+                    id="district"
+                    class="form-select">
+
+                    <option value="">
+                        Select District
+                    </option>
+
+                    <option value="Adilabad">
+                        Adilabad
+                    </option>
+
+                    <option value="Bhadradri Kothagudem">
+                        Bhadradri Kothagudem
+                    </option>
+
+                    <option value="Hanumakonda">
+                        Hanumakonda
+                    </option>
+
+                    <option value="Hyderabad">
+                        Hyderabad
+                    </option>
+
+                    <option value="Jagtial">
+                        Jagtial
+                    </option>
+
+                    <option value="Jangaon">
+                        Jangaon
+                    </option>
+
+                    <option value="Jayashankar Bhupalpally">
+                        Jayashankar Bhupalpally
+                    </option>
+
+                    <option value="Jogulamba Gadwal">
+                        Jogulamba Gadwal
+                    </option>
+
+                    <option value="Kamareddy">
+                        Kamareddy
+                    </option>
+
+                    <option value="Karimnagar">
+                        Karimnagar
+                    </option>
+
+                    <option value="Khammam">
+                        Khammam
+                    </option>
+
+                    <option value="Komaram Bheem Asifabad">
+                        Komaram Bheem Asifabad
+                    </option>
+
+                    <option value="Mahabubabad">
+                        Mahabubabad
+                    </option>
+
+                    <option value="Mahabubnagar">
+                        Mahabubnagar
+                    </option>
+
+                    <option value="Mancherial">
+                        Mancherial
+                    </option>
+
+                    <option value="Medak">
+                        Medak
+                    </option>
+
+                    <option value="Medchal-Malkajgiri">
+                        Medchal-Malkajgiri
+                    </option>
+
+                    <option value="Mulugu">
+                        Mulugu
+                    </option>
+
+                    <option value="Nagarkurnool">
+                        Nagarkurnool
+                    </option>
+
+                    <option value="Nalgonda">
+                        Nalgonda
+                    </option>
+
+                    <option value="Narayanpet">
+                        Narayanpet
+                    </option>
+
+                    <option value="Nirmal">
+                        Nirmal
+                    </option>
+
+                    <option value="Nizamabad">
+                        Nizamabad
+                    </option>
+
+                    <option value="Peddapalli">
+                        Peddapalli
+                    </option>
+
+                    <option value="Rajanna Sircilla">
+                        Rajanna Sircilla
+                    </option>
+
+                    <option value="Rangareddy">
+                        Rangareddy
+                    </option>
+
+                    <option value="Sangareddy">
+                        Sangareddy
+                    </option>
+
+                    <option value="Siddipet">
+                        Siddipet
+                    </option>
+
+                    <option value="Suryapet">
+                        Suryapet
+                    </option>
+
+                    <option value="Vikarabad">
+                        Vikarabad
+                    </option>
+
+                    <option value="Wanaparthy">
+                        Wanaparthy
+                    </option>
+
+                    <option value="Warangal">
+                        Warangal
+                    </option>
+
+                    <option value="Yadadri Bhuvanagiri">
+                        Yadadri Bhuvanagiri
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Date of Meeting -->
+
+            <div class="col-md-5">
+
+                <label class="form-label">
+
+                    Date of Meeting
+
+                    <span class="required">*</span>
+
+                </label>
+
+                <input
+                    type="date"
+                    id="dateOfMeeting"
+                    class="form-control">
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             ROW 2
+        ================================================== -->
+
+        <div class="row g-3 mt-2">
+
+
+            <!-- PoM Due Date -->
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Due Date for PoM Upload
+
+                </label>
+
+                <input
+                    type="text"
+                    id="pomDueDate"
+                    class="form-control calculated-field"
+                    placeholder="dd/mm/yyyy"
+                    readonly>
+
+            </div>
+
+
+            <!-- PoM Uploaded -->
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    PoM Uploaded
+
+                </label>
+
+                <select
+                    id="pomUploaded"
+                    class="form-select">
+
+                    <option value="">
+                        Select
+                    </option>
+
+                    <option value="Yes">
+                        Yes
+                    </option>
+
+                    <option value="No">
+                        No
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Meeting Expenditure -->
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Meeting Expenditure
+
+                </label>
+
+                <input
+                    type="number"
+                    id="meetingExpenditure"
+                    class="form-control"
+                    min="0"
+                    step="0.01"
+                    placeholder="Enter amount">
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             ROW 3
+        ================================================== -->
+
+        <div class="row g-3 mt-2">
+
+
+            <!-- Status of Bills -->
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Status of Bills
+
+                </label>
+
+                <select
+                    id="statusOfBills"
+                    class="form-select">
+
+                    <option value="">
+                        Select
+                    </option>
+
+                    <option value="Not Submitted">
+                        Not Submitted
+                    </option>
+
+                    <option value="Submitted">
+                        Submitted
+                    </option>
+
+                    <option value="Under Process">
+                        Under Process
+                    </option>
+
+                    <option value="Approved">
+                        Approved
+                    </option>
+
+                    <option value="Rejected">
+                        Rejected
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Bills Submitted to CRD -->
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Bills Submitted to CRD
+
+                </label>
+
+                <input
+                    type="date"
+                    id="billsSubmittedCRD"
+                    class="form-control">
+
+            </div>
+
+
+            <!-- Bills Forwarded to MoRD -->
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Bills Forwarded to MoRD
+
+                </label>
+
+                <input
+                    type="date"
+                    id="billsForwardedMoRD"
+                    class="form-control">
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             ROW 4
+        ================================================== -->
+
+        <div class="row g-3 mt-2">
+
+
+            <!-- Proposed Date -->
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Proposed Date of Meeting
+
+                </label>
+
+                <input
+                    type="date"
+                    id="proposedDateOfMeeting"
+                    class="form-control">
+
+            </div>
+
+
+            <!-- Meeting Status -->
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Status of Meeting
+
+                </label>
+
+                <select
+                    id="statusOfMeeting"
+                    class="form-select">
+
+                    <option value="">
+                        Select
+                    </option>
+
+                    <option value="Held">
+                        Held
+                    </option>
+
+                    <option value="To be held">
+                        To be held
+                    </option>
+
+                    <option value="Postponed">
+                        Postponed
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Remarks -->
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+
+                    Remarks
+
+                </label>
+
+                <input
+                    type="text"
+                    id="remarks"
+                    class="form-control"
+                    placeholder="Enter remarks">
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Message -->
+
+        <div
+            id="dishaMessage"
+            class="mt-3">
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+<!-- =========================================================
+     OFFICE PROCESSING
+========================================================== -->
+<div class="card section-card mt-3 office-processing-section">
+    <div class="card-header section-title">
+        <i class="bi bi-building"></i>
+        Office Processing
+    </div>
+
+    <div class="card-body">
+        <div class="row g-3">
+
+            <div class="col-md-3">
+                <label class="form-label" for="officeFileNo">File No.</label>
+                <input type="text" id="officeFileNo" class="form-control"
+                       maxlength="100" placeholder="Enter File No.">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="officeDateArised">Date Arised</label>
+                <input type="date" id="officeDateArised" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="officeSubject">Subject</label>
+                <input type="text" id="officeSubject" class="form-control"
+                       maxlength="300" placeholder="Enter subject">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="officeCommunicationType">Type of Communication</label>
+                <select id="officeCommunicationType" class="form-select">
+                    <option value="">-- Select Type --</option>
+                    <option value="Letter">Letter</option>
+                    <option value="D.O. Letter">D.O. Letter</option>
+                    <option value="UO Note">UO Note</option>
+                    <option value="Memo">Memo</option>
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label" for="officeLetterAddressedTo">Letter addressed to</label>
+                <input type="text" id="officeLetterAddressedTo" class="form-control"
+                       maxlength="250" placeholder="Enter addressee">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="officeReplySection">Reply obtained from</label>
+                <div class="input-group">
+                    <select id="officeReplySection" class="form-select"
+                            aria-label="Reply obtained from section">
+                        <option value="">-- Select Section --</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-primary"
+                            id="btnAddOfficeSection" title="Add new section">
+                        <i class="bi bi-plus-circle"></i> Add
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="newOfficeSection">
+                    Add New Section to Section Master
+                </label>
+                <input type="text" id="newOfficeSection" class="form-control"
+                       maxlength="100" placeholder="New section name">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="officeStatus">Status of file</label>
+                <select id="officeStatus" class="form-select">
+                    <option value="">-- Select Status --</option>
+                    <option value="Arised">Arised</option>
+                    <option value="Under Circulation">Under Circulation</option>
+                    <option value="Despatched">Despatched</option>
+                    <option value="Reply Obtained">Reply Obtained</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="small text-muted mt-2">
+            Sections are maintained centrally in the Section Master. New sections added here
+            are saved to Firestore and become available in all modules.
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     ATTACHMENTS — SAVED TO FIRESTORE
+========================================================= -->
+<div class="card section-card mt-3">
+  <div class="card-header section-title">
+    <i class="bi bi-paperclip"></i> Attachments — Saved to Firestore
+  </div>
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-8">
+        <label class="form-label" for="fmsAttachmentFile">Select Attachment</label>
+        <input type="file" id="fmsAttachmentFile" class="form-control"
+               accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt">
+      </div>
+      <div class="col-md-4">
+        <button type="button" id="fmsUploadAttachment" class="btn btn-success w-100">
+          <i class="bi bi-cloud-arrow-up"></i> Upload Attachment
+        </button>
+      </div>
+    </div>
+    <div id="fmsAttachmentList" class="mt-3"></div>
+    <div class="small text-muted mt-2">
+      Attachments are stored in Firebase Storage and their metadata is stored in Firestore.
+      Files selected in the Document Parser are temporary and are never saved here.
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<div class="text-center text-muted mt-4 mb-4">
+
+    DISHA Module
+
+</div>
+
+
+</div>
+
+
+<!-- Bootstrap JS -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<!-- =========================================================
+     FIREBASE SDK
+========================================================= -->
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
+
+
+<!-- =========================================================
+     FIREBASE CONFIGURATION
+========================================================= -->
+
+<script src="../../js/firebase/firebase-config.js"></script>
+
+
+<!-- =========================================================
+     FIREBASE SERVICE
+========================================================= -->
+
+<script src="../../js/firebase/firebase-service.js"></script>
+
+
+<!-- =========================================================
+     DISHA MODULE
+========================================================= -->
+
+<script src="../../js/services/attachment-service.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
+<script src="../../js/services/whatsapp-service.js"></script>
+<script src="../../js/services/excel-report-service.js"></script>
+<script src="disha.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";}</script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="../../js/services/parser/module-parsers.js"></script>
+<script src="../../js/document/document-engine.js"></script>
+<script src="../../js/services/fms-parser-service.js"></script>
+<script src="../../js/services/fms-parser-ui.js"></script>
+
+
+<!-- =====================================================
+     FMS FIREBASE STARTUP
+====================================================== -->
+
+<script src="../../js/firebase/firebase-loader.js"></script>
+
+<script src="../../js/firebase/firebase-ready.js"></script>
+
+<script src="../../js/services/office-processing-service.js"></script>
+
+</body>
+
+</html>

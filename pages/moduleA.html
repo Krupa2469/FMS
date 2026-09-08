@@ -17,6 +17,7 @@
     <!-- Common CSS -->
 
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 </head>
 
@@ -55,6 +56,13 @@ PAGE TITLE
             Module A - Citizen & Administrative Files
 
         </h3>
+
+        <button class="btn btn-success me-2"
+                id="btnWhatsAppDashboard">
+
+            <i class="bi bi-whatsapp"></i> WhatsApp
+
+        </button>
 
         <button class="btn btn-secondary"
                 onclick="goHome()">
@@ -298,8 +306,16 @@ FOOTER
 
 <!-- Module JS -->
 
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
+<script src="../js/services/whatsapp-service.js"></script>
 <script src="../modules/moduleA/moduleA.js"></script>
 
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1050;">
+  <a href="document-parser.html" class="btn btn-primary shadow">
+    <i class="bi bi-file-earmark-text"></i> Central Document Parser
+  </a>
+</div>
 </body>
 
 </html>

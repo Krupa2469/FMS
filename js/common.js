@@ -6,6 +6,7 @@
 ==========================================================*/
 
 "use strict";
+console.log("Common.js Loaded");
 
 /*==========================================================
 GET ELEMENT
@@ -167,6 +168,85 @@ function setToday(id)
 }
 
 console.log("Common.js Loaded");
+
+/*==========================================================
+LOADING OVERLAY
+==========================================================*/
+
+function showLoading() {
+
+    const overlay = document.getElementById("loadingOverlay");
+
+    if (overlay) {
+        overlay.style.display = "flex";
+    }
+
+}
+
+function hideLoading() {
+
+    const overlay = document.getElementById("loadingOverlay");
+
+    if (overlay) {
+        overlay.style.display = "none";
+    }
+
+}
+
+/*==========================================================
+MESSAGE AREA
+==========================================================*/
+
+function showMessage(message, type = "success") {
+
+    const area = document.getElementById("messageArea");
+
+    if (!area) {
+
+        alert(message);
+        return;
+
+    }
+
+    area.innerHTML =
+        `<div class="alert alert-${type}">${message}</div>`;
+
+    area.style.display = "block";
+
+    setTimeout(clearMessage, 4000);
+
+}
+
+function clearMessage() {
+
+    const area = document.getElementById("messageArea");
+
+    if (!area) return;
+
+    area.innerHTML = "";
+    area.style.display = "none";
+
+}
+
+/*==========================================================
+CONFIRM ACTION
+==========================================================*/
+
+function confirmAction(message) {
+
+    return window.confirm(message);
+
+}
+
+/*==========================================================
+TOAST
+==========================================================*/
+
+function showToast(message) {
+
+    showMessage(message, "success");
+
+}
 
 /*==========================================================
 END OF FILE

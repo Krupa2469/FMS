@@ -43,36 +43,75 @@ const SECTIONS = [
 LOAD SECTION DROPDOWN
 ==========================================================*/
 
-function loadSections(dropdownId)
+async function loadSections(dropdownId)
 {
     const dropdown = document.getElementById(dropdownId);
 
-    if (!dropdown)
-    {
+    if (!dropdown) {
         return;
     }
 
-    dropdown.innerHTML = "";
+    const defaultSections = [...SECTIONS];
 
-    const defaultOption = document.createElement("option");
+    function render(list) {
+        dropdown.innerHTML = "";
 
-    defaultOption.value = "";
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.text = "--Select Section--";
+        dropdown.appendChild(defaultOption);
 
-    defaultOption.text = "--Select Section--";
+        list.forEach(function(section)
+        {
+            const option = document.createElement("option");
+            option.value = section;
+            option.text = section;
+            dropdown.appendChild(option);
+        });
+    }
 
-    dropdown.appendChild(defaultOption);
+    try {
+        const firestore =
+            (typeof window.getFMSFirestore === "function"
+                ? window.getFMSFirestore()
+                : (window.fmsFirebase?.db || window.db));
 
-    SECTIONS.forEach(function(section)
-    {
-        const option = document.createElement("option");
+        if (!firestore) {
+            render(defaultSections);
+            return;
+        }
 
-        option.value = section;
+        const snapshot =
+            await firestore.collection("sections").get();
 
-        option.text = section;
+        const values = [];
 
-        dropdown.appendChild(option);
-    });
+        snapshot.forEach(function(doc) {
+            const data = doc.data() || {};
+            if (data.active !== false && data.name) {
+                values.push(String(data.name).trim());
+            }
+        });
+
+        const merged = [...new Set(
+            [...defaultSections, ...values].filter(Boolean)
+        )].sort((a,b) => a.localeCompare(b));
+
+        render(merged);
+    }
+    catch (error) {
+        console.warn("Section master load failed; using default sections.", error);
+        render(defaultSections);
+    }
 }
+
+window.addEventListener("fmsFirebaseReady", function() {
+    document.querySelectorAll("select").forEach(function(select) {
+        if (select.id === "section" || select.id === "concernedSection") {
+            loadSections(select.id);
+        }
+    });
+});
 
 /*==========================================================
 END OF FILE

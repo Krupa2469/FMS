@@ -19,6 +19,8 @@
 <link rel="stylesheet"
       href="../css/dashboard.css">
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 </head>
 
 <body>
@@ -29,6 +31,13 @@
             onclick="refreshDashboard()">
 
         Refresh
+
+    </button>
+
+    <button class="btn btn-success ms-2"
+            id="btnWhatsAppDashboard">
+
+        <i class="bi bi-whatsapp"></i> WhatsApp
 
     </button>
 
@@ -395,6 +404,8 @@
 <script src="../js/report-engine.js"></script>
 <script src="../js/navigation.js"></script>
 <script src="dashboard-recent.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
+<script src="../js/services/whatsapp-service.js"></script>
 <script src="../js/dashboard.js"></script>
 <script src="../modules/cpgrams/cpgrams-register.js"></script>
 

@@ -89,7 +89,7 @@
      TOOLBAR
 ============================================================ -->
 
-<nav class="navbar navbar-expand-lg bg-light border-bottom">
+<nav class="fms-action-toolbar navbar navbar-expand-lg bg-light border-bottom">
 
     <div class="container-fluid">
 
@@ -166,6 +166,16 @@
             </button>
 
             <button
+                id="btnWhatsApp"
+                class="btn btn-success">
+
+                <i class="bi bi-whatsapp"></i>
+
+                WhatsApp
+
+            </button>
+
+            <button
                 id="btnHome"
                 class="btn btn-outline-dark">
 
@@ -189,145 +199,167 @@
 
 <form id="cpgramsForm">
 
-<!-- ===========================================================
-     SECTION 1 : FILE INFORMATION
-============================================================ -->
+<div class="card-header bg-primary text-white">
 
-<div class="card shadow-sm">
+    <h5 class="mb-0">
+        SECTION 1 : GRIEVANCE DETAILS
+    </h5>
 
-    <div class="card-header bg-primary text-white">
+</div>
 
-        <h5 class="mb-0">
+<div class="card-body">
 
-            SECTION 1 : FILE INFORMATION
+    <div class="row g-3">
 
-        </h5>
+        <!-- Grievance ID -->
 
-    </div>
+        <div class="col-md-4">
 
-    <div class="card-body">
+            <label class="form-label">
+                Grievance ID
+            </label>
 
-        <div class="row g-3">
-
-            <!-- Grievance ID -->
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-
-                    Grievance ID
-
-                </label>
+           
 
                 <input
                     type="text"
                     id="grievanceId"
                     class="form-control"
                     readonly>
+                
+           
 
-            </div>
+        </div>
 
-            <!-- Grievance Number -->
+        <!-- Grievance Number -->
 
-            <div class="col-md-4">
+        <div class="col-md-4">
 
-                <label class="form-label">
+            <label class="form-label">
 
-                    Grievance Number
+                Grievance Number
 
-                    <span class="text-danger">*</span>
+                <span class="text-danger">*</span>
 
-                </label>
+            </label>
+
+            <input
+                type="text"
+                id="grievanceNumber"
+                class="form-control">
+
+        </div>
+
+
+        <!-- Date Received -->
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+
+                Date Received
+
+                <span class="text-danger">*</span>
+
+            </label>
+
+            <div class="input-group">
+
+                <!-- Visible Date Received -->
 
                 <input
                     type="text"
-                    id="grievanceNumber"
-                    class="form-control">
-
-            </div>
-
-            <!-- Date Received -->
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-
-                    Date Received
-
-                    <span class="text-danger">*</span>
-
-                </label>
-
-                <input
-                    type="date"
                     id="dateReceived"
-                    class="form-control">
+                    class="form-control"
+                    placeholder="dd/mm/yyyy"
+                    maxlength="10"
+                    autocomplete="off">
+
+                <!-- Calendar Button -->
+
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    id="dateReceivedPickerButton"
+                    title="Select Date">
+
+                    <i class="bi bi-calendar3"></i>
+
+                </button>
 
             </div>
+
+            <!-- Hidden Native Calendar -->
+
+            <input
+                type="date"
+                id="dateReceivedPicker"
+                style="
+                    position:absolute;
+                    left:-9999px;
+                    width:1px;
+                    height:1px;
+                    opacity:0;
+                    pointer-events:none;
+                ">
 
         </div>
 
-        <div class="row g-3 mt-2">
+    </div>
 
-            <!-- Due Date -->
 
-            <div class="col-md-4">
+    <!-- Row 2 -->
 
-                <label class="form-label">
+    <div class="row g-3 mt-2">
 
-                    Due Date
+        <!-- Due Date -->
 
-                </label>
+        <div class="col-md-4">
 
-                <input
-                    type="date"
-                    id="dueDate"
-                    class="form-control"
-                    readonly>
+            <label class="form-label">
+                Due Date
+            </label>
 
-            </div>
+            <input
+                type="text"
+                id="dueDate"
+                class="form-control"
+                placeholder="dd/mm/yyyy"
+                maxlength="10"
+                readonly>
 
-            <!-- Priority -->
+        </div>
 
-            <div class="col-md-4">
 
-                <label class="form-label">
+        <!-- Priority -->
 
-                    Priority
+        <div class="col-md-4">
 
-                </label>
+            <label class="form-label">
+                Priority
+            </label>
 
-                <select
-                    id="priority"
-                    class="form-select">
+            <select
+                id="priority"
+                class="form-select">
 
-                    <option value="">
+                <option value="">
+                    Select
+                </option>
 
-                        Select
+                <option value="Normal">
+                    Normal
+                </option>
 
-                    </option>
+                <option value="High">
+                    High
+                </option>
 
-                    <option>
+                <option value="Urgent">
+                    Urgent
+                </option>
 
-                        Normal
-
-                    </option>
-
-                    <option>
-
-                        High
-
-                    </option>
-
-                    <option>
-
-                        Urgent
-
-                    </option>
-
-                </select>
-
-            </div>
+            </select>
 
         </div>
 
@@ -335,204 +367,7 @@
 
 </div>
 
-<!-- ===========================================================
-     SECTION 2 : COMPLAINANT DETAILS
-============================================================ -->
-
-<div class="card mt-4">
-
-    <div class="card-header bg-success text-white">
-
-        <h5 class="mb-0">
-            SECTION 2 : COMPLAINANT DETAILS
-        </h5>
-
-    </div>
-
-    <div class="card-body">
-
-        <!-- Row 1 -->
-
-        <div class="row g-3">
-
-            <div class="col-md-6">
-
-                <label class="form-label">
-                    Complainant Name <span class="text-danger">*</span>
-                </label>
-
-                <input
-                    type="text"
-                    id="complainantName"
-                    class="form-control"
-                    maxlength="100">
-
-            </div>
-
-            <div class="col-md-3">
-
-                <label class="form-label">
-                    Mobile Number
-                </label>
-
-                <input
-                    type="text"
-                    id="mobileNumber"
-                    class="form-control"
-                    maxlength="10">
-
-            </div>
-
-            <div class="col-md-3">
-
-                <label class="form-label">
-                    Gender
-                </label>
-
-                <select
-                    id="gender"
-                    class="form-select">
-
-                    <option value="">Select</option>
-                    <option>Male</option>
-                    <option>Female</option>
-                    <option>Transgender</option>
-                    <option>Other</option>
-
-                </select>
-
-            </div>
-
-        </div>
-
-        <!-- Row 2 -->
-
-        <div class="row g-3 mt-2">
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-                    District
-                </label>
-
-                <select
-                    id="district"
-                    class="form-select">
-
-                    <option value="">
-                        Select District
-                    </option>
-
-                </select>
-
-            </div>
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-                    Mandal
-                </label>
-
-                <select
-                    id="mandal"
-                    class="form-select">
-
-                    <option value="">
-                        Select Mandal
-                    </option>
-
-                </select>
-
-            </div>
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-                    Village
-                </label>
-
-                <select
-                    id="village"
-                    class="form-select">
-
-                    <option value="">
-                        Select Village
-                    </option>
-
-                </select>
-
-            </div>
-
-        </div>
-
-        <!-- Row 3 -->
-
-        <div class="row g-3 mt-2">
-
-            <div class="col-md-8">
-
-                <label class="form-label">
-                    Address
-                </label>
-
-                <textarea
-                    id="address"
-                    rows="3"
-                    maxlength="300"
-                    class="form-control"></textarea>
-
-            </div>
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-                    Preferred Contact
-                </label>
-
-                <select
-                    id="preferredContact"
-                    class="form-select">
-
-                    <option value="Mobile">
-                        Mobile
-                    </option>
-
-                    <option value="Post">
-                        Post
-                    </option>
-
-                    <option value="Email">
-                        Email
-                    </option>
-
-                </select>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ===========================================================
-     SECTION 3 : GRIEVANCE DETAILS
-============================================================ -->
-
-<div class="card shadow-sm mt-4">
-
-    <div class="card-header bg-warning">
-
-        <h5 class="mb-0">
-
-            SECTION 3 : GRIEVANCE DETAILS
-
-        </h5>
-
-    </div>
-
-    <div class="card-body">
-
+<!-- Continued Grievance Details -->
         <!-- Row 1 -->
 
         <div class="row g-3">
@@ -643,7 +478,7 @@
 
                 <input
                     type="file"
-                    id="grievanceDocument"
+                    id="fileDocument"
                     class="form-control"
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
 
@@ -759,12 +594,178 @@
 
         </div>
 
+    
+
+
+<!-- ===========================================================
+     SECTION 2 : COMPLAINANT DETAILS
+============================================================ -->
+
+<div class="card mt-4">
+
+    <div class="card-header bg-success text-white">
+
+        <h5 class="mb-0">
+            SECTION 2 : COMPLAINANT DETAILS
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <!-- Row 1 -->
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Complainant Name <span class="text-danger">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="complainantName"
+                    class="form-control"
+                    maxlength="100">
+
+            </div>
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Mobile Number
+                </label>
+
+                <input
+                    type="text"
+                    id="mobileNumber"
+                    class="form-control"
+                    maxlength="10">
+
+            </div>
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Gender
+                </label>
+
+                <select
+                    id="gender"
+                    class="form-select">
+
+                    <option value="">Select</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Transgender</option>
+                    <option>Other</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- Row 2 -->
+
+            <div class="row g-3 mt-2">
+
+            <div class="mb-3">
+                <label class="form-label">District</label>
+
+                <select id="district" class="form-select">
+                <option value="">Select District</option>
+                </select>
+
+                <input
+                    type="text"
+                    id="districtManual"
+                    class="form-control mt-2"
+                    placeholder="Or enter District manually">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Mandal</label>
+
+            <select id="mandal" class="form-select">
+                <option value="">Select Mandal</option>
+            </select>
+
+            <input
+                type="text"
+                id="mandalManual"
+                class="form-control mt-2"
+                placeholder="Or enter Mandal manually">
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Village</label>
+
+            <select id="village" class="form-select">
+                <option value="">Select Village</option>
+            </select>
+
+            <input
+                type="text"
+                id="villageManual"
+                class="form-control mt-2"
+                placeholder="Or enter Village manually">
+            </div>
+        </div>
+
+        <!-- Row 3 -->
+
+        <div class="row g-3 mt-2">
+
+            <div class="col-md-8">
+
+                <label class="form-label">
+                    Address
+                </label>
+
+                <textarea
+                    id="address"
+                    rows="3"
+                    maxlength="300"
+                    class="form-control"></textarea>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Preferred Contact
+                </label>
+
+                <select
+                    id="preferredContact"
+                    class="form-select">
+
+                    <option value="Mobile">
+                        Mobile
+                    </option>
+
+                    <option value="Post">
+                        Post
+                    </option>
+
+                    <option value="Email">
+                        Email
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
     </div>
 
 </div>
 
 <!-- ===========================================================
-     SECTION 4 : OFFICE PROCESSING
+     SECTION 3 : OFFICE PROCESSING
 ============================================================ -->
 
 <div class="card shadow-sm mt-4">
@@ -773,7 +774,7 @@
 
         <h5 class="mb-0">
 
-            SECTION 4 : OFFICE PROCESSING
+            SECTION 3 : OFFICE PROCESSING
 
         </h5>
 
@@ -867,6 +868,72 @@
 
             </div>
 
+        </div>
+
+        <!-- ============================================
+             OFFICE PROCESSING: COMMUNICATION
+        ============================================= -->
+
+        <div class="row g-3 mt-2">
+
+            <div class="col-md-3">
+                <label class="form-label" for="officeCommunicationType">
+                    Type of communication
+                </label>
+                <select id="officeCommunicationType" class="form-select">
+                    <option value="">-- Select Type --</option>
+                    <option value="Letter">Letter</option>
+                    <option value="D.O. Letter">D.O. Letter</option>
+                    <option value="UO Note">UO Note</option>
+                    <option value="Memo">Memo</option>
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label" for="officeLetterAddressedTo">
+                    Letter addressed to
+                </label>
+                <input type="text" id="officeLetterAddressedTo"
+                       class="form-control" maxlength="250">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="officeReplySection">
+                    Reply obtained from
+                </label>
+                <div class="input-group">
+                    <select id="officeReplySection" class="form-select">
+                        <option value="">-- Select Section --</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-primary"
+                            id="btnAddOfficeSection">
+                        <i class="bi bi-plus-circle"></i> Add
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row g-3 mt-2">
+            <div class="col-md-4">
+                <label class="form-label" for="newOfficeSection">
+                    Add New Section to Section Master
+                </label>
+                <input type="text" id="newOfficeSection" class="form-control"
+                       maxlength="100" placeholder="New section name">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="officeStatus">Status of file</label>
+                <select id="officeStatus" class="form-select">
+                    <option value="">-- Select Status --</option>
+                    <option value="Arised">Arised</option>
+                    <option value="Under Circulation">Under Circulation</option>
+                    <option value="Despatched">Despatched</option>
+                    <option value="Reply Obtained">Reply Obtained</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
         </div>
 
         <!-- ============================================
@@ -1137,6 +1204,98 @@
 
 </div>
 
+
+<!-- ======================================================
+SECTION 4 : ATTACHMENTS
+======================================================= -->
+
+<div class="card mt-3">
+
+    <div class="card-header bg-primary text-white">
+
+        <h5 class="mb-0">
+            SECTION 4 : ATTACHMENTS
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Upload Document
+                </label>
+
+                <input
+                    type="file"
+                   id="fileAttachment"
+                    class="form-control">
+
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+
+                <button
+                    type="button"
+                    id="btnUploadAttachment"
+                    class="btn btn-success w-100">
+
+                Upload
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <table
+            class="table table-bordered table-striped"
+            id="attachmentTable">
+
+            <thead>
+
+                <tr>
+
+                    <th width="5%">Sl.No</th>
+
+                    <th>File Name</th>
+
+                    <th width="15%">Type</th>
+
+                    <th width="12%">Size</th>
+
+                    <th width="22%">Action</th>
+                    
+                </tr>
+
+            </thead>
+
+            <tbody id="attachmentBody">
+
+                <tr>
+
+                    <td colspan="5"
+                        class="text-center text-muted">
+
+                        No Attachments
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
 <!-- ===========================================================
      FOOTER
 ============================================================ -->
@@ -1273,6 +1432,7 @@
 
 </div>
 
+
 <!-- ===========================================================
      MESSAGE AREA
 ============================================================ -->
@@ -1307,7 +1467,9 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 
-<script src="../../js/firebase-config.js"></script>
+<script src="../../js/firebase/firebase-config.js"></script>
+
+<script src="../../js/firebase/firebase-service.js"></script>
 
 <!-- Common Utilities -->
 
@@ -1334,9 +1496,77 @@
 
 <script src="cpgrams-validator.js"></script>
 
-<script src="cpgrams-repository.js"></script>
+<script src="../../js/repository/base-repository.js"></script>
 
+<script src="../../js/repository/cpgrams-repository.js"></script>
+
+<script src="../../js/repository/attachment-repository.js"></script>
+
+<script src="../../js/services/storage-service.js"></script>
+
+<script src="attachment.js"></script>
+
+<!-- PDF.js -->
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script src="../../js/services/classification-engine.js"></script>
+
+<script src="../../js/services/parser/layout-detector.js"></script>
+
+<script src="../../js/services/parser/parser-utils.js"></script>
+
+<script src="../../js/services/parser/name-extractor.js"></script>
+
+<script src="../../js/services/parser/address-extractor.js"></script>
+
+<script src="../../js/services/parser/description-extractor.js"></script>
+
+<script src="../../js/services/parser/validation-engine.js"></script>
+
+<script src="../../js/services/parser/confidence-engine.js"></script>
+
+<script src="../../js/services/parser/keyword-engine.js"></script>
+
+<script src="../../js/services/parser/field-extractor.js"></script>
+
+<script src="../../js/services/parser/subject-engine.js"></script>
+
+<script src="../../js/services/parser/parser-core.js"></script>
+
+<script src="../../js/services/form-filler.js"></script>
+<script src="../../js/services/document-parser.js"></script>
+<script src="../../js/services/parser/module-parsers.js"></script>
+<script src="../../js/document/document-engine.js"></script>
+<script src="../../js/services/fms-parser-service.js"></script>
+
+
+<script src="../../js/services/ocr-engine.js"></script>
+
+<script src="document-capture.js"></script>
+
+<script src="../../js/services/attachment-service.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
+<script src="../../js/services/whatsapp-service.js"></script>
 <script src="cpgrams.js"></script>
+
+<!-- =====================================================
+     FMS FIREBASE STARTUP
+====================================================== -->
+
+<script src="../../js/firebase/firebase-loader.js"></script>
+
+<script src="../../js/firebase/firebase-ready.js"></script>
+
+<script src="../../js/services/office-processing-service.js"></script>
 
 </body>
 

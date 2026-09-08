@@ -48,6 +48,10 @@
 
             <button id="btnFileLocations">File Locations</button>
 
+            <button id="btnOfficeProcessingMasters" class="btn btn-primary">
+                Office Processing Masters
+            </button>
+
         </div>
 
     </div>
@@ -68,9 +72,14 @@
 
 </div>
 
-<script src="../../js/firebase-config.js"></script>
+<script src="../../js/firebase/firebase-config.js"></script>
 <script src="../../js/master-service.js"></script>
 <script src="../../js/admin-master.js"></script>
+<script>
+document.getElementById("btnOfficeProcessingMasters")?.addEventListener("click", function () {
+    window.location.href = "office-processing-master.html";
+});
+</script>
 
 </body>
 

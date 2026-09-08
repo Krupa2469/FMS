@@ -1,292 +1,895 @@
 /*==========================================================
-  CPGRAMS MODULE
-  File        : cpgrams.js
-  Version     : 4.0
-  Description : Controller for CPGRAMS Module
+ FILE MANAGEMENT SYSTEM (FMS)
+ Module      : CPGRAMS
+ File        : cpgrams.js
+ Version     : 5.1
+ Developer   : Lekha Technologies
+ Description : CPGRAMS Controller
 ==========================================================*/
 
 "use strict";
 
-//==========================================================
-// GLOBAL VARIABLES
-//==========================================================
+/*==========================================================
+ GLOBAL VARIABLES
+==========================================================*/
 
 let currentDocumentId = null;
+let currentGrievance = null;
+
 let editMode = false;
-let selectedDocument = null;
+let formDirty = false;
 
-//==========================================================
-// PAGE INITIALIZATION
-//==========================================================
+/*==========================================================
+ REPOSITORY SERVICES
+==========================================================*/
 
-document.addEventListener("DOMContentLoaded", initializePage);
+async function saveGrievanceToDatabase(grievance) {
 
-//==========================================================
-// INITIALIZE PAGE
-//==========================================================
+    return await createRecord(grievance);
+
+}
+
+async function updateGrievanceToDatabase(id, grievance) {
+
+    return await updateRecord(id, grievance);
+
+}
+
+async function deleteGrievanceFromDatabase(id) {
+    
+     return await deleteRecord(id);
+
+}
+
+async function getGrievance(documentId) {
+
+    return await getDocument(documentId);
+
+}
+
+async function getAllGrievances() {
+
+    return await getActiveRecords();
+
+}
+
+async function checkDuplicateGrievanceNumber(grievanceNumber, excludeId = null) {
+
+    return await grievanceExists(grievanceNumber, excludeId);
+
+}
+
+/*==========================================================
+ INITIALIZATION
+==========================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializePage
+);
 
 async function initializePage() {
 
-    console.log("CPGRAMS Module Initializing...");
+    try {
 
-    registerButtonEvents();
+        console.clear();
 
-    registerFieldEvents();
+        console.log("CPGRAMS Version 5.1 Initializing...");
 
-    clearForm();
+        registerButtonEvents();
 
-    generateGrievanceId();
+        registerFieldEvents();
 
-    await loadMasterData();
+        registerAttachmentEvents();
 
-    console.log("CPGRAMS Module Loaded Successfully.");
+        await loadMasterData();
+
+        checkPageMode();
+
+        console.log("CPGRAMS Ready.");
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            "danger",
+            error.message
+        );
+
+    }
 
 }
 
-//==========================================================
-// REGISTER BUTTON EVENTS
-//==========================================================
+/*==========================================================
+ PAGE MODE
+==========================================================*/
+
+function checkPageMode() {
+
+    const params =
+        new URLSearchParams(window.location.search);
+
+    const mode =
+        params.get("mode") || "new";
+
+    switch (mode) {
+
+        case "new":
+
+            clearForm();
+            break;
+
+        case "edit":
+
+            loadSelectedGrievance();
+            break;
+
+        case "view":
+
+            loadSelectedGrievance();
+            makeReadOnly();
+            break;
+
+        default:
+
+            clearForm();
+
+    }
+
+}
+
+/*==========================================================
+ LOAD EDIT RECORD
+==========================================================*/
+
+async function loadSelectedGrievance() {
+
+    const data =
+        sessionStorage.getItem(
+            "selectedGrievance"
+        );
+
+    if (!data)
+        return;
+
+    currentGrievance =
+        JSON.parse(data);
+
+        console.log("Session Data:", currentGrievance);
+console.log("Current Document ID:", currentGrievance.id);
+
+    currentDocumentId =
+        currentGrievance.id;
+
+    console.log("Loaded currentDocumentId:", currentDocumentId);
+
+    editMode = true;
+
+    enableEditing();
+
+    populateForm(
+        currentGrievance
+    );
+
+    await loadAttachments(currentDocumentId);
+
+    refreshButtons();
+
+}
+
+/*==========================================================
+ BUTTON EVENTS
+==========================================================*/
 
 function registerButtonEvents() {
 
-    document.getElementById("btnNew")
-        .addEventListener("click", clearForm);
+    document.getElementById("btnNew")?.addEventListener("click", clearForm);
 
-    document.getElementById("btnSave")
-        .addEventListener("click", saveGrievance);
+    document.getElementById("btnSave")?.addEventListener("click", saveGrievance);
 
-    document.getElementById("btnUpdate")
-        .addEventListener("click", updateGrievance);
+    document.getElementById("btnUpdate")?.addEventListener("click", updateGrievance);
 
-    document.getElementById("btnDelete")
-        .addEventListener("click", confirmDelete);
+    document.getElementById("btnDelete")?.addEventListener("click", confirmDelete);
 
-    document.getElementById("btnRegister")
-        .addEventListener("click", openRegister);
+    document.getElementById("btnRegister")?.addEventListener("click", openRegister);
 
-    document.getElementById("btnDashboard")
-        .addEventListener("click", openDashboard);
+    document.getElementById("btnDashboard")?.addEventListener("click", openDashboard);
 
-    document.getElementById("btnPrint")
-        .addEventListener("click", printGrievance);
+    document.getElementById("btnPrint")?.addEventListener("click", printGrievance);
+    document.getElementById("btnWhatsApp")?.addEventListener("click", async function () {
+        await window.FMSWhatsAppService?.compose({
+            module:"CPGRAMS",
+            title:"CPGRAMS Grievance Message",
+            defaultMessage:`CPGRAMS Update
+Grievance No: ${document.getElementById("grievanceNumber")?.value||""}
+Subject: ${document.getElementById("subject")?.value||""}
+Status: ${document.getElementById("currentStatus")?.value||document.getElementById("finalStatus")?.value||""}
 
-    document.getElementById("btnHome")
-        .addEventListener("click", goHome);
+Please type or edit your custom message.`,
+            message:(m,t)=>showMessage(t||"info",m)
+        });
+    });
+
+    document.getElementById("btnHome")?.addEventListener("click", goHome);
 
 }
 
-//==========================================================
-// REGISTER FIELD EVENTS
-//==========================================================
+/*==========================================================
+ FIELD EVENTS
+==========================================================*/
 
 function registerFieldEvents() {
 
-    document
-        .getElementById("dateReceived")
-        .addEventListener("change", calculateDueDate);
+    document.getElementById("district")
+        ?.addEventListener("change", districtChanged);
 
-    document
-        .getElementById("district")
-        .addEventListener("change", districtChanged);
+    document.getElementById("mandal")
+        ?.addEventListener("change", mandalChanged);
 
-    document
-        .getElementById("mandal")
-        .addEventListener("change", mandalChanged);
+    document.querySelectorAll(
+        "#cpgramsForm input,#cpgramsForm textarea,#cpgramsForm select"
+    ).forEach(control => {
+
+        control.addEventListener("input", markDirty);
+
+    });
+
+    // Validate the Grievance Number as soon as the user leaves the field.
+    // Save/Update also performs the final duplicate check.
+    document.getElementById("grievanceNumber")?.addEventListener("blur", async function () {
+        const value = this.value.trim();
+        this.classList.remove("is-invalid", "is-valid");
+        if (!value) return;
+        try {
+            const duplicate = await checkDuplicateGrievanceNumber(
+                value,
+                editMode ? currentDocumentId : null
+            );
+            if (duplicate) {
+                this.classList.add("is-invalid");
+                showMessage("warning", "This Grievance Number already exists. Please enter a unique Grievance Number.");
+            } else {
+                this.classList.add("is-valid");
+            }
+        } catch (error) {
+            console.error("Grievance Number validation failed:", error);
+            showMessage("danger", "Unable to validate the Grievance Number. Please try again before saving.");
+        }
+    });
 
 }
 
-//==========================================================
-// GENERATE GRIEVANCE ID
-//==========================================================
+/*==========================================================
+ LOAD MASTER DATA
+==========================================================*/
+
+async function loadMasterData() {
+
+    try {
+
+        await loadDistricts();
+
+        await loadPriorities();
+
+        loadOfficers(
+            "assignedOfficer"
+        );
+
+        loadSections(
+            "section"
+        );
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+/*==========================================================
+ FORM HELPERS
+==========================================================*/
+
+function getControl(id) {
+
+    return document.getElementById(id);
+
+}
+
+function getControlValue(id) {
+
+    const control = getControl(id);
+
+    return control
+        ? control.value.trim()
+        : "";
+
+}
+
+function setControlValue(id, value) {
+
+    const control = getControl(id);
+
+    if (control)
+        control.value = value ?? "";
+
+}
+
+function clearDropdown(id, caption = "Select") {
+
+    const ddl = getControl(id);
+
+    if (!ddl)
+        return;
+
+    ddl.innerHTML =
+        `<option value="">${caption}</option>`;
+
+}
+
+/*==========================================================
+ MARK FORM DIRTY
+==========================================================*/
+
+function markDirty() {
+
+    formDirty = true;
+
+}
+
+/*==========================================================
+ RESET EDIT MODE
+==========================================================*/
+
+function resetEditMode() {
+
+    currentDocumentId = null;
+
+    currentGrievance = null;
+
+    editMode = false;
+
+    formDirty = false;
+
+}
+
+/*==========================================================
+ GENERATE GRIEVANCE ID
+==========================================================*/
 
 function generateGrievanceId() {
 
     const now = new Date();
 
-    const yyyy = now.getFullYear();
-
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-
-    const dd = String(now.getDate()).padStart(2, "0");
-
-    const hh = String(now.getHours()).padStart(2, "0");
-
-    const mi = String(now.getMinutes()).padStart(2, "0");
-
-    const ss = String(now.getSeconds()).padStart(2, "0");
-
-    const grievanceId =
+    const id =
         "CPG-" +
-        yyyy +
-        mm +
-        dd +
+        now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        String(now.getDate()).padStart(2, "0") +
         "-" +
-        hh +
-        mi +
-        ss;
+        String(now.getHours()).padStart(2, "0") +
+        String(now.getMinutes()).padStart(2, "0") +
+        String(now.getSeconds()).padStart(2, "0") +
+        String(now.getMilliseconds()).padStart(3, "0");
 
-    document.getElementById("grievanceId").value =
-        grievanceId;
+    setControlValue(
+        "grievanceId",
+        id
+    );
 
 }
 
-//==========================================================
-// CALCULATE DUE DATE
-// CPGRAMS = 21 DAYS
-//==========================================================
+/*==========================================================
+ENABLE EDIT MODE
+==========================================================*/
+
+function enableEditing() {
+
+    document
+        .querySelectorAll(
+            "#cpgramsForm input, #cpgramsForm textarea, #cpgramsForm select"
+        )
+        .forEach(control => {
+
+            control.disabled = false;
+
+        });
+
+    getControl("btnSave").style.display = "";
+
+    getControl("btnUpdate").style.display = "";
+
+    getControl("btnDelete").style.display = "";
+
+}
+
+editRecord()
+
+/*==========================================================
+ CLEAR FORM
+==========================================================*/
+
+function clearForm() {
+
+    const form =
+        getControl("cpgramsForm");
+
+    if (form)
+        form.reset();
+
+    resetEditMode();
+
+    enableEditing();
+
+    refreshButtons();
+
+    generateGrievanceId();
+
+    calculateDueDateFromDisplay("");
+
+    clearMessage?.();
+
+    attachmentList = [];
+
+    renderAttachments();
+
+    getControl(
+        "grievanceNumber"
+    )?.focus();
+
+}
+
+/*==========================================================
+ POPULATE FORM
+==========================================================*/
+
+function populateForm(grievance) {
+
+    if (!grievance)
+        return;
+
+    Object.keys(grievance)
+        .forEach(key => {
+
+            const control =
+                getControl(key);
+
+            if (control) {
+
+                control.value =
+                    grievance[key] ?? "";
+
+            }
+
+        });
+
+    calculateDueDateFromDisplay("");
+
+    if (window.FMSOfficeProcessing) {
+        window.FMSOfficeProcessing.populateOfficeProcessing(grievance);
+    }
+
+    attachmentList =
+    grievance.attachments || [];
+
+    renderAttachments();
+}
+
+/*==========================================================
+READ ONLY MODE
+==========================================================*/
+
+function makeReadOnly() {
+
+    document
+        .querySelectorAll(
+            "#cpgramsForm input, #cpgramsForm textarea, #cpgramsForm select"
+        )
+        .forEach(control => {
+
+            control.disabled = true;
+
+        });
+
+    getControl("btnSave").style.display = "none";
+    getControl("btnUpdate").style.display = "none";
+    getControl("btnDelete").style.display = "none";
+
+}
+
+/*==========================================================
+ CALCULATE DUE DATE
+==========================================================*/
 
 function calculateDueDate() {
 
-    const receivedDate =
-        document.getElementById("dateReceived").value;
+    const receivedControl =
+        document.getElementById("dateReceived");
 
-    if (receivedDate === "")
+    const dueControl =
+        document.getElementById("dueDate");
+
+    if (!receivedControl || !dueControl)
         return;
 
-    const dueDate =
-        new Date(receivedDate);
+    if (!receivedControl.value) {
 
+        dueControl.value = "";
+
+        return;
+    }
+
+    const dueDate = new Date(receivedControl.value);
+
+    // CPGRAMS = 21 days
     dueDate.setDate(dueDate.getDate() + 21);
 
-    document.getElementById("dueDate").value =
-        dueDate.toISOString().substring(0, 10);
+    const yyyy = dueDate.getFullYear();
+
+    const mm = String(dueDate.getMonth() + 1)
+        .padStart(2, "0");
+
+    const dd = String(dueDate.getDate())
+        .padStart(2, "0");
+
+    dueControl.value = `${yyyy}-${mm}-${dd}`;
+
+    console.log(
+        "Due Date Calculated:",
+        dueControl.value
+    );
 
 }
 
-//==========================================================
-// LOAD MASTER DATA
-//==========================================================
-
-async function loadMasterData() {
-
-    console.log("Loading Masters...");
-
-    loadDistricts("district");
-
-    loadPriorities("priority");
-
-    loadOfficers("assignedOfficer");
-
-    loadSections("section");
-
-}
-
-//==========================================================
-// DISTRICT CHANGED
-//==========================================================
+/*==========================================================
+ DISTRICT CHANGED
+==========================================================*/
 
 async function districtChanged() {
 
     const district =
-        document.getElementById("district").value;
+        getControlValue(
+            "district"
+        );
 
-    await loadMandals(district);
+    clearDropdown(
+        "mandal",
+        "Select Mandal"
+    );
+
+    clearDropdown(
+        "village",
+        "Select Village"
+    );
+
+    if (!district)
+        return;
+
+    await loadMandals(
+        district
+    );
 
 }
 
-//==========================================================
-// MANDAL CHANGED
-//==========================================================
+/*==========================================================
+ MANDAL CHANGED
+==========================================================*/
 
 async function mandalChanged() {
 
     const district =
-        document.getElementById("district").value;
+        getControlValue(
+            "district"
+        );
 
     const mandal =
-        document.getElementById("mandal").value;
+        getControlValue(
+            "mandal"
+        );
 
-    await loadVillages(district, mandal);
+    clearDropdown(
+        "village",
+        "Select Village"
+    );
 
-}
+    if (
+        !district ||
+        !mandal
+    )
+        return;
 
-//==========================================================
-// NEW RECORD
-//==========================================================
-
-function clearForm() {
-
-    document
-        .getElementById("cpgramsForm")
-        .reset();
-
-    currentDocumentId = null;
-
-    editMode = false;
-
-    selectedDocument = null;
-
-    generateGrievanceId();
-
-    document
-        .getElementById("grievanceNumber")
-        .focus();
+    await loadVillages(
+        district,
+        mandal
+    );
 
 }
 
-//==========================================================
-// PLACEHOLDER FUNCTIONS
-// IMPLEMENTED IN NEXT PARTS
-//==========================================================
+/*==========================================================
+ HYBRID VALUE
+==========================================================*/
+
+function getHybridValue(
+    dropdownId,
+    manualId
+) {
+
+    const manual =
+        getControlValue(
+            manualId
+        );
+
+    if (manual !== "")
+        return manual;
+
+    return getControlValue(
+        dropdownId
+    );
+
+}
+
+/*==========================================================
+ BUILD OBJECT
+==========================================================*/
+
+function buildGrievanceObject() {
+
+    const grievance = {};
+
+    document
+        .querySelectorAll(
+            "#cpgramsForm input,#cpgramsForm select,#cpgramsForm textarea"
+        )
+        .forEach(control => {
+
+            grievance[
+                control.id
+            ] = control.value.trim();
+
+        });
+
+    grievance.district =
+        getHybridValue(
+            "district",
+            "districtManual"
+        );
+
+    grievance.mandal =
+        getHybridValue(
+            "mandal",
+            "mandalManual"
+        );
+
+    grievance.village =
+        getHybridValue(
+            "village",
+            "villageManual"
+        );
+
+    grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || "")
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, "");
+
+    grievance.updatedOn =
+        new Date();
+
+    grievance.version =
+        "5.2";
+
+    return grievance;
+
+}
+/*==========================================================
+ VALIDATION
+==========================================================*/
+
+function validateForm() {
+
+    clearMessage?.();
+
+    const requiredFields = [
+
+        ["grievanceNumber", "Grievance Number"],
+        ["dateReceived", "Date Received"],
+        ["complainantName", "Complainant Name"],
+        ["subject", "Subject"],
+        ["grievanceDescription", "Grievance Description"]
+
+    ];
+
+    for (const field of requiredFields) {
+
+        const control = getControl(field[0]);
+
+        if (!control)
+            continue;
+
+        if (control.value.trim() === "") {
+
+            showMessage(
+                "warning",
+                field[1] + " is required."
+            );
+
+            control.focus();
+
+            return false;
+
+        }
+
+    }
+
+    if (!validateMobile())
+        return false;
+
+    return true;
+
+}
+
+/*==========================================================
+ MOBILE VALIDATION
+==========================================================*/
+
+function validateMobile() {
+
+    const mobile =
+        getControlValue("mobileNumber");
+
+    if (mobile === "")
+        return true;
+
+    if (!/^[0-9]{10}$/.test(mobile)) {
+
+        showMessage(
+            "warning",
+            "Mobile Number should contain exactly 10 digits."
+        );
+
+        getControl("mobileNumber").focus();
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
+/*==========================================================
+ DUPLICATE CHECK
+==========================================================*/
+
+async function validateDuplicate() {
+
+    const grievanceNumber =
+        getControlValue(
+            "grievanceNumber"
+        );
+
+    if (!grievanceNumber)
+        return true;
+
+    const exists =
+        await checkDuplicateGrievanceNumber(
+            grievanceNumber,
+            editMode ? currentDocumentId : null
+        );
+
+    if (exists) {
+
+        showMessage(
+            "warning",
+            "Grievance Number already exists."
+        );
+
+        getControl(
+            "grievanceNumber"
+        ).focus();
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
+/*==========================================================
+ SAVE
+==========================================================*/
 
 async function saveGrievance() {
 
-    console.log("Save Clicked");
-
-}
-
-async function updateGrievance() {
-
-    console.log("Update Clicked");
-
-}
-
-function confirmDelete() {
-
-    console.log("Delete Clicked");
-
-}
-
-function openRegister() {
-
-    window.location.href =
-        "cpgrams-register.html";
-
-}
-
-function openDashboard() {
-
-    window.location.href =
-        "../../dashboard/dashboard.html";
-
-}
-
-function printGrievance() {
-
-    window.print();
-
-}
-
-function goHome() {
-
-    window.location.href =
-        "../../index.html";
-
-}
-
-//==========================================================
-// UPDATE GRIEVANCE
-//==========================================================
-
-async function updateGrievance() {
+    console.log("Save button clicked");
 
     try {
 
-        if (currentDocumentId == null) {
+        if (!validateForm())
+            return;
+
+        if (!await validateDuplicate())
+            return;
+
+        showLoading?.();
+
+        let grievance = buildGrievanceObject();
+
+        grievance.createdOn = new Date();
+
+        console.log("Saving...", grievance);
+
+        const result = await saveGrievanceToDatabase(grievance);
+
+        hideLoading?.();
+
+        console.log("Firestore returned", result);
+
+        if (!result.success) {
+
+            showMessage?.(
+                "danger",
+                result.message || "Unable to save."
+            );
+
+            return;
+
+        }
+
+        currentDocumentId = result.data.id;
+
+        editMode = true;
+
+        formDirty = false;
+
+        refreshButtons();
+
+        console.log("Saved Successfully");
+
+        if (typeof showMessage === "function") {
 
             showMessage(
-                "Please load a grievance before updating.",
-                "warning"
+                "success",
+                "Grievance saved successfully."
+            );
+
+        } else {
+
+            alert("Grievance saved successfully.");
+
+        }
+
+    }
+    catch (error) {
+
+        hideLoading?.();
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
+
+}
+
+/*==========================================================
+ UPDATE
+==========================================================*/
+
+async function updateGrievance() {
+
+console.log("Before update currentDocumentId:", currentDocumentId);    
+
+    try {
+
+        if (!currentDocumentId) {
+
+            showMessage(
+                "warning",
+                "Please open a grievance before updating."
             );
 
             return;
@@ -296,439 +899,674 @@ async function updateGrievance() {
         if (!validateForm())
             return;
 
-        showLoading();
+        if (!await validateDuplicate())
+            return;
 
-        const grievance = buildGrievanceObject();
+        showLoading?.();
 
-        grievance.updatedOn = new Date();
+        let grievance =
+            buildGrievanceObject();
 
-        const result = await updateRecord(
-            currentDocumentId,
-            grievance
+        const result =
+            await updateGrievanceToDatabase(
+                currentDocumentId,
+                grievance
+            );
+
+        hideLoading?.();
+
+        if (!result.success) {
+
+            showMessage(
+                "danger",
+                result.message
+            );
+
+            return;
+
+        }
+
+        formDirty = false;
+
+        showMessage(
+            "success",
+            "Grievance updated successfully."
         );
 
-        hideLoading();
-
-        if (result.success) {
-
-            showMessage(
-                "Grievance updated successfully.",
-                "success"
-            );
-
-        }
-        else {
-
-            showMessage(
-                result.message,
-                "danger"
-            );
-
-        }
-
+        sessionStorage.removeItem(
+    "selectedGrievance"
+);
     }
     catch (error) {
 
-        hideLoading();
+        hideLoading?.();
 
         console.error(error);
 
         showMessage(
-            error.message,
-            "danger"
+            "danger",
+            error.message
         );
 
     }
 
 }
 
-//==========================================================
-// DELETE GRIEVANCE
-//==========================================================
+/*==========================================================
+ DELETE
+==========================================================*/
 
 async function deleteGrievance() {
 
     try {
 
-        if (currentDocumentId == null) {
+        if (!currentDocumentId) {
 
             showMessage(
-                "No grievance selected.",
-                "warning"
+                "warning",
+                "No grievance selected."
             );
 
             return;
 
         }
 
-        showLoading();
+        showLoading?.();
 
         const result =
-            await deleteRecord(currentDocumentId);
-
-        hideLoading();
-
-        if (result.success) {
-
-            showMessage(
-                "Grievance deleted successfully.",
-                "success"
+            await deleteGrievanceFromDatabase(
+                currentDocumentId
             );
 
-            clearForm();
+        hideLoading?.();
 
-        }
-        else {
+        if (!result.success) {
 
             showMessage(
-                result.message,
-                "danger"
+                "danger",
+                result.message
             );
 
+            return;
+
         }
+
+        showMessage(
+            "success",
+            "Grievance deleted successfully."
+        );
+
+        clearForm();
+
+        refreshButtons();
 
     }
     catch (error) {
 
-        hideLoading();
+        hideLoading?.();
 
         console.error(error);
 
         showMessage(
-            error.message,
-            "danger"
+            "danger",
+            error.message
         );
 
     }
 
 }
 
-//==========================================================
-// DELETE CONFIRMATION
-//==========================================================
+/*==========================================================
+ DELETE CONFIRMATION
+==========================================================*/
 
 function confirmDelete() {
 
-    const modal = new bootstrap.Modal(
-        document.getElementById("deleteModal")
-    );
+    if (!currentDocumentId) {
 
-    modal.show();
+        showMessage(
+            "warning",
+            "No grievance selected."
+        );
 
-    document.getElementById("confirmDelete").onclick =
-        async function () {
+        return;
 
-            modal.hide();
+    }
 
-            await deleteGrievance();
+    if (
+        !confirm(
+            "Are you sure you want to delete this grievance?"
+        )
+    ) {
 
-        };
+        return;
+
+    }
+
+    deleteGrievance();
+
+}
+/*==========================================================
+ NAVIGATION
+==========================================================*/
+
+function openRegister() {
+
+    if (checkUnsavedChanges())
+        return;
+
+    window.location.href =
+        "cpgrams-register.html";
 
 }
 
-//==========================================================
-// SEARCH GRIEVANCE
-//==========================================================
+function openDashboard() {
 
-async function searchGrievance(documentId) {
+    if (checkUnsavedChanges())
+        return;
+
+    window.location.href =
+        "../../pages/module-dashboard.html?module=cpgrams";
+
+}
+
+function goHome() {
+
+    if (checkUnsavedChanges())
+        return;
+
+    window.location.href =
+        "../../pages/module-dashboard.html?module=cpgrams";
+
+}
+
+/*==========================================================
+ PRINT
+==========================================================*/
+
+function printGrievance() {
+
+    window.print();
+
+}
+
+/*==========================================================
+ LOAD RECORD FROM DATABASE
+==========================================================*/
+
+async function loadGrievance(documentId) {
 
     try {
 
-        showLoading();
+        showLoading?.();
 
         const result =
-            await getRecord(documentId);
+            await getGrievance(documentId);
 
-        hideLoading();
+        hideLoading?.();
 
         if (!result.success) {
 
             showMessage(
-                result.message,
-                "warning"
+                "danger",
+                result.message
             );
 
             return;
 
         }
 
-        currentDocumentId = documentId;
+        currentDocumentId =
+            documentId;
+
+        currentGrievance =
+            result.data;
 
         editMode = true;
-
-        selectedDocument = result.data;
 
         populateForm(result.data);
 
     }
     catch (error) {
 
-        hideLoading();
+        hideLoading?.();
 
         console.error(error);
 
         showMessage(
-            error.message,
-            "danger"
+            "danger",
+            error.message
         );
 
     }
 
 }
 
-//==========================================================
-// POPULATE FORM
-//==========================================================
+/*==========================================================
+ UNSAVED CHANGES
+==========================================================*/
 
-async function populateForm(data) {
+function checkUnsavedChanges() {
 
-    document.getElementById("grievanceId").value =
-        data.grievanceId || "";
+    if (!formDirty)
+        return false;
 
-    document.getElementById("grievanceNumber").value =
-        data.grievanceNumber || "";
-
-    document.getElementById("dateReceived").value =
-        data.dateReceived || "";
-
-    calculateDueDate();
-
-    document.getElementById("priority").value =
-        data.priority || "";
-
-    document.getElementById("complainantName").value =
-        data.complainantName || "";
-
-    document.getElementById("mobileNumber").value =
-        data.mobileNumber || "";
-
-    document.getElementById("gender").value =
-        data.gender || "";
-
-    document.getElementById("district").value =
-        data.district || "";
-
-    await districtChanged();
-
-    document.getElementById("mandal").value =
-        data.mandal || "";
-
-    await mandalChanged();
-
-    document.getElementById("village").value =
-        data.village || "";
-
-    document.getElementById("address").value =
-        data.address || "";
-
-    document.getElementById("preferredContact").value =
-        data.preferredContact || "";
-
-    document.getElementById("subject").value =
-        data.subject || "";
-
-    document.getElementById("category").value =
-        data.category || "";
-
-    document.getElementById("grievanceDescription").value =
-        data.grievanceDescription || "";
-
-    document.getElementById("source").value =
-        data.source || "";
-
-    document.getElementById("natureOfGrievance").value =
-        data.natureOfGrievance || "";
-
-    document.getElementById("priorityClassification").value =
-        data.priorityClassification || "";
-
-    document.getElementById("attachmentCount").value =
-        data.attachmentCount || 0;
-
-    document.getElementById("fileNumber").value =
-        data.fileNumber || "";
-
-    document.getElementById("dateArised").value =
-        data.dateArised || "";
-
-    document.getElementById("officeSubject").value =
-        data.officeSubject || "";
-
-    document.getElementById("assignedOfficer").value =
-        data.assignedOfficer || "";
-
-    document.getElementById("section").value =
-        data.section || "";
-
-    document.getElementById("fileLocation").value =
-        data.fileLocation || "";
-
-    document.getElementById("dateAssigned").value =
-        data.dateAssigned || "";
-
-    document.getElementById("currentStatus").value =
-        data.currentStatus || "";
-
-    document.getElementById("finalStatus").value =
-        data.finalStatus || "";
-
-    document.getElementById("atrReceived").value =
-        data.atrReceived || "";
-
-    document.getElementById("atrDate").value =
-        data.atrDate || "";
-
-    document.getElementById("atrDueDate").value =
-        data.atrDueDate || "";
-
-    document.getElementById("disposalDate").value =
-        data.disposalDate || "";
-
-    document.getElementById("fileClosed").value =
-        data.fileClosed || "";
-
-    document.getElementById("remarks").value =
-        data.remarks || "";
+    return !confirm(
+        "You have unsaved changes. Continue?"
+    );
 
 }
 
-//==========================================================
-// LOAD DISTRICTS
-//==========================================================
+window.addEventListener(
+    "beforeunload",
+    function (event) {
 
-async function loadDistricts() {
+        if (!formDirty)
+            return;
 
-    const district =
-        document.getElementById("district");
+        event.preventDefault();
 
-    district.innerHTML =
-        '<option value="">Select District</option>';
+        event.returnValue = "";
 
-    if (typeof DISTRICTS === "undefined")
-        return;
+    }
+);
 
-    DISTRICTS.forEach(name => {
+/*==========================================================
+ ENABLE / DISABLE BUTTONS
+==========================================================*/
 
-        district.innerHTML +=
-            `<option value="${name}">
-                ${name}
-             </option>`;
+function refreshButtons() {
 
-    });
+    const saveButton =
+        getControl("btnSave");
 
-}
+    const updateButton =
+        getControl("btnUpdate");
 
-//==========================================================
-// LOAD MANDALS
-//==========================================================
+    const deleteButton =
+        getControl("btnDelete");
 
+    if (editMode) {
 
+        if (saveButton)
+            saveButton.disabled = true;
 
-//==========================================================
-// LOAD VILLAGES
-//==========================================================
+        if (updateButton)
+            updateButton.disabled = false;
 
+        if (deleteButton)
+            deleteButton.disabled = false;
 
+    }
+    else {
 
-//==========================================================
-// ENABLE/DISABLE FORM
-//==========================================================
+        if (saveButton)
+            saveButton.disabled = false;
 
-function setFormEnabled(enabled) {
+        if (updateButton)
+            updateButton.disabled = true;
 
-    document
-        .querySelectorAll("#cpgramsForm input, #cpgramsForm select, #cpgramsForm textarea")
-        .forEach(control => {
-
-            if (control.id !== "grievanceId") {
-
-                control.disabled = !enabled;
-
-            }
-
-        });
-
-}
-
-//==========================================================
-// CLEAR MESSAGE AREA
-//==========================================================
-
-function clearMessage() {
-
-    document
-        .getElementById("messageArea")
-        .innerHTML = "";
-
-}
-
-//==========================================================
-// FORMAT MOBILE NUMBER
-//==========================================================
-
-function formatMobileNumber() {
-
-    const mobile =
-        document.getElementById("mobileNumber");
-
-    mobile.value =
-        mobile.value.replace(/\D/g, "");
-
-    if (mobile.value.length > 10) {
-
-        mobile.value =
-            mobile.value.substring(0, 10);
+        if (deleteButton)
+            deleteButton.disabled = true;
 
     }
 
 }
 
-//==========================================================
-// FORM DIRTY CHECK
-//==========================================================
+/*==========================================================
+ MESSAGE HELPERS
+==========================================================*/
 
-function isFormDirty() {
+function showSuccess(message) {
 
-    return true;
-
-}
-
-//==========================================================
-// RESET EDIT MODE
-//==========================================================
-
-function resetEditMode() {
-
-    currentDocumentId = null;
-
-    editMode = false;
-
-    selectedDocument = null;
+    showMessage?.(
+        "success",
+        message
+    );
 
 }
 
-//==========================================================
-// EXPORT CURRENT OBJECT
-//==========================================================
+function showWarning(message) {
 
-function getCurrentGrievance() {
-
-    return buildGrievanceObject();
-
-}
-
-//==========================================================
-// DEBUG
-//==========================================================
-
-function debugForm() {
-
-    console.table(getCurrentGrievance());
+    showMessage?.(
+        "warning",
+        message
+    );
 
 }
 
-window.debugForm = debugForm;
+function showError(message) {
 
-//==========================================================
-// END OF FILE
-//==========================================================
+    showMessage?.(
+        "danger",
+        message
+    );
+
+}
+
+/*==========================================================
+ DEVELOPMENT LOGGER
+==========================================================*/
+
+function log(...args) {
+    console.log(...args);
+}
+
+/*==========================================================
+ INITIAL BUTTON STATE
+==========================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        refreshButtons();
+
+    }
+);
+
+/* ============================================================
+   DATE RECEIVED CALENDAR PICKER
+   ============================================================ */
+
+function initializeDateReceivedPicker() {
+
+    const dateInput =
+        document.getElementById("dateReceived");
+
+    const picker =
+        document.getElementById("dateReceivedPicker");
+
+    const button =
+        document.getElementById(
+            "dateReceivedPickerButton"
+        );
+
+    if (!dateInput || !picker || !button) {
+
+        console.warn(
+            "Date Received picker controls not found."
+        );
+
+        return;
+    }
+
+
+    /* ---------------------------------------------------------
+       OPEN CALENDAR
+       --------------------------------------------------------- */
+
+    button.addEventListener("click", function () {
+
+        /*
+         * If current value is DD/MM/YYYY,
+         * convert it to YYYY-MM-DD.
+         */
+
+        const value =
+            dateInput.value.trim();
+
+        if (
+            /^\d{2}\/\d{2}\/\d{4}$/.test(value)
+        ) {
+
+            const parts =
+                value.split("/");
+
+            const dd = parts[0];
+            const mm = parts[1];
+            const yyyy = parts[2];
+
+            picker.value =
+                `${yyyy}-${mm}-${dd}`;
+        }
+
+        /*
+         * Make the native date picker visible temporarily.
+         * This is more reliable in Edge.
+         */
+
+        picker.style.position = "fixed";
+        picker.style.left = "50%";
+        picker.style.top = "50%";
+        picker.style.width = "1px";
+        picker.style.height = "1px";
+        picker.style.opacity = "0.01";
+        picker.style.zIndex = "99999";
+        picker.style.pointerEvents = "auto";
+
+
+        try {
+
+            if (
+                typeof picker.showPicker ===
+                "function"
+            ) {
+
+                picker.showPicker();
+
+            } else {
+
+                picker.click();
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Calendar open error:",
+                error
+            );
+
+            picker.click();
+        }
+    });
+
+
+    /* ---------------------------------------------------------
+       DATE SELECTED
+       --------------------------------------------------------- */
+
+    picker.addEventListener(
+        "change",
+        function () {
+
+            if (!this.value) {
+                return;
+            }
+
+            const parts =
+                this.value.split("-");
+
+            const yyyy = parts[0];
+            const mm = parts[1];
+            const dd = parts[2];
+
+
+            /*
+             * Display DD/MM/YYYY
+             */
+
+            dateInput.value =
+                `${dd}/${mm}/${yyyy}`;
+
+
+            /*
+             * Calculate Due Date
+             */
+
+            calculateDueDateFromDisplay(
+                dateInput.value
+            );
+
+
+            /*
+             * Hide picker again
+             */
+
+            this.style.position =
+                "absolute";
+
+            this.style.left =
+                "-9999px";
+
+            this.style.width =
+                "1px";
+
+            this.style.height =
+                "1px";
+
+            this.style.opacity =
+                "0";
+
+            this.style.pointerEvents =
+                "none";
+        }
+    );
+
+
+    /* ---------------------------------------------------------
+       MANUAL ENTRY
+       --------------------------------------------------------- */
+
+    dateInput.addEventListener(
+        "change",
+        function () {
+
+            const value =
+                this.value.trim();
+
+            if (!value) {
+                return;
+            }
+
+            if (
+                !/^\d{2}\/\d{2}\/\d{4}$/.test(value)
+            ) {
+
+                alert(
+                    "Please enter Date Received in DD/MM/YYYY format."
+                );
+
+                this.value = "";
+
+                return;
+            }
+
+            calculateDueDateFromDisplay(
+                value
+            );
+        }
+    );
+
+}
+
+
+/* ============================================================
+   CALCULATE CPGRAMS DUE DATE
+   ============================================================ */
+
+function calculateDueDateFromDisplay(
+    dateValue
+) {
+
+    if (!dateValue) {
+        return;
+    }
+
+
+    const parts =
+        dateValue.split("/");
+
+
+    if (parts.length !== 3) {
+        return;
+    }
+
+
+    const dd =
+        parseInt(parts[0], 10);
+
+    const mm =
+        parseInt(parts[1], 10);
+
+    const yyyy =
+        parseInt(parts[2], 10);
+
+
+    const receivedDate =
+        new Date(
+            yyyy,
+            mm - 1,
+            dd
+        );
+
+
+    if (
+        isNaN(
+            receivedDate.getTime()
+        )
+    ) {
+        return;
+    }
+
+
+    /* CPGRAMS = 21 days */
+
+    receivedDate.setDate(
+        receivedDate.getDate() + 21
+    );
+
+
+    const dueDD =
+        String(
+            receivedDate.getDate()
+        ).padStart(2, "0");
+
+    const dueMM =
+        String(
+            receivedDate.getMonth() + 1
+        ).padStart(2, "0");
+
+    const dueYYYY =
+        receivedDate.getFullYear();
+
+
+    const dueDate =
+        document.getElementById(
+            "dueDate"
+        );
+
+
+    if (dueDate) {
+
+        dueDate.value =
+            `${dueDD}/${dueMM}/${dueYYYY}`;
+    }
+
+
+    console.log(
+        "Date Received:",
+        dateValue
+    );
+
+    console.log(
+        "Due Date:",
+        dueDate
+            ? dueDate.value
+            : ""
+    );
+}
+
+
+/* ============================================================
+   START
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        initializeDateReceivedPicker();
+
+    }
+);

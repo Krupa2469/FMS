@@ -171,6 +171,25 @@ function openVigilanceCases()
 }
 
 
+function shareModuleADashboardWhatsApp()
+{
+    if (!window.FMSWhatsAppService?.compose) return;
+    const summary =
+        "Total Files: " + (document.getElementById("totalFiles")?.textContent || "0") + "\n" +
+        "Files Under Circulation: " + (document.getElementById("filesUnderCirculation")?.textContent || "0") + "\n" +
+        "Disposed Files: " + (document.getElementById("disposedFiles")?.textContent || "0");
+    window.FMSWhatsAppService.compose({
+        module: "Module A",
+        title: "Module A Message",
+        defaultMessage:`Module A Update\nStatus as on: ${new Date().toLocaleDateString("en-IN")}\n\n${summary}\n\nPlease type or edit your custom message.`,
+        message: function(msg){ alert(msg); }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    document.getElementById("btnWhatsAppDashboard")?.addEventListener("click", shareModuleADashboardWhatsApp);
+});
+
 /*==========================================================
 END OF FILE
 ==========================================================*/

@@ -1,0 +1,29 @@
+FMS Project Cleanup
+===================
+Removed from the supplied project ZIP:
+- .git/ repository history and metadata
+- node_modules/ installed dependencies (can be restored with npm install if required)
+- firebase-debug.log
+- firebase-test.html
+- firestore-save-test.html
+- modules/cpgrams.rar
+- modules/cpgrams.zip
+
+Application source files and Firebase configuration/rules were retained.
+No application source code was modified.
+
+PARSING ENHANCEMENT - 2026-08-10
+---------------------------------
+Added a central document parsing architecture across the active FMS data-entry modules.
+
+1. js/services/fms-parser-service.js - common parse/fill/notification service.
+2. js/services/fms-parser-ui.js - common Parse & Fill UI for CPGRAMS, RTI and DISHA.
+3. js/services/parser/module-parsers.js - shared RTI, DISHA, CPGRAMS and generic field parsers.
+4. js/document/document-engine.js - extended to OCR image files and route module parsers centrally.
+5. pages/document-parser.html - standalone Central Document Parser Center.
+6. pages/moduleA.html - added a link to the Central Document Parser Center.
+
+Supported document inputs: PDF, TXT, PNG and JPG/JPEG. Scanned PDFs/images use Tesseract OCR when loaded.
+Existing module-specific parsing and upload code has been retained for backward compatibility.
+Parsed values are used to populate only empty fields; existing manual values are not overwritten.
+All JavaScript files passed Node syntax validation after the enhancement.

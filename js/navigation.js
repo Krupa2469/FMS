@@ -20,7 +20,7 @@ function openModule(module) {
     switch (module) {
 
         case "cpgrams":
-            window.location.href = base + "modules/cpgrams/cpgrams.html";
+            window.location.href = base + "pages/module-dashboard.html?module=cpgrams";
             break;
 
         case "prajavani":
@@ -28,15 +28,35 @@ function openModule(module) {
             break;
 
         case "rti":
-            window.location.href = base + "modules/rti/rti.html";
+            window.location.href = base + "pages/module-dashboard.html?module=rti";
             break;
 
         case "disha":
-            window.location.href = base + "modules/disha/disha.html";
+            window.location.href = base + "pages/module-dashboard.html?module=disha";
             break;
 
         default:
             alert("Module under development.");
 
     }
+}
+
+/* ==========================================================
+   HOME PAGE SERVICES
+========================================================== */
+function openMasters() {
+    window.location.href = "pages/admin/master-management.html";
+}
+
+function openReports() {
+    window.location.href = "pages/reports.html";
+}
+
+function openUtilities() {
+    window.location.href = "pages/utilities.html";
+}
+
+function openModuleDashboard(module) {
+    const root = window.location.pathname.includes("/pages/") ? "" : "pages/";
+    window.location.href = root + "module-dashboard.html?module=" + encodeURIComponent(module);
 }
