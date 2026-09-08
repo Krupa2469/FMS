@@ -3,7 +3,11 @@
 
    Module    : RTI
    File      : rti-daily-status.js
+<<<<<<< HEAD
    Version   : 3.1
+=======
+   Version   : 3.0
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
    Developer : Lekha Technologies
 
    Purpose:
@@ -29,6 +33,7 @@ const RTI_COLLECTION =
     "rtiApplications";
 
 
+<<<<<<< HEAD
 
 
 function getRTIDailyDB() {
@@ -47,6 +52,8 @@ function getRTIDailyDB() {
     return null;
 }
 
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 /* ============================================================
    GLOBAL DATA
 ============================================================ */
@@ -101,8 +108,19 @@ async function initializeRTIDailyStatus() {
          * by firebase-config.js.
          */
 
+<<<<<<< HEAD
         if (!getRTIDailyDB()) {
             throw new Error("Firebase Firestore database is not initialized.");
+=======
+        if (
+            typeof db === "undefined"
+        ) {
+
+            throw new Error(
+                "Firebase Firestore database is not initialized."
+            );
+
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
         }
 
 
@@ -1050,7 +1068,11 @@ function setupButtons() {
             "click",
             function () {
 
+<<<<<<< HEAD
                 refreshRTIDailyStatus();
+=======
+                window.location.reload();
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
             }
         );
@@ -1099,7 +1121,11 @@ function setupButtons() {
             function () {
 
                 window.location.href =
+<<<<<<< HEAD
                     "../../pages/module-dashboard.html?module=rti";
+=======
+                    "../../index.html";
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
             }
         );
@@ -1133,6 +1159,7 @@ function setupButtons() {
 }
 
 
+<<<<<<< HEAD
 async function refreshRTIDailyStatus() {
     try {
         const database = getRTIDailyDB();
@@ -1147,10 +1174,13 @@ async function refreshRTIDailyStatus() {
     }
 }
 
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 /* ============================================================
    WHATSAPP
 ============================================================ */
 
+<<<<<<< HEAD
 async function shareRTIWhatsApp() {
     try {
         if (window.FMSWhatsAppService) {
@@ -1166,6 +1196,90 @@ async function shareRTIWhatsApp() {
     }
 }
 
+=======
+function shareRTIWhatsApp() {
+
+    const date =
+        formatDate(
+            new Date()
+        );
+
+
+    let message = "";
+
+
+    message +=
+        "GOVERNMENT OF TELANGANA\n";
+
+
+    message +=
+        "Office of the Commissioner, Rural Development\n\n";
+
+
+    message +=
+        "RTI DAILY STATUS REPORT\n\n";
+
+
+    message +=
+        "Financial Year: " +
+        rtiSummary.financialYear +
+        "\n";
+
+
+    message +=
+        "Status as on: " +
+        date +
+        "\n\n";
+
+
+    message +=
+        "RTI APPLICATION STATUS\n";
+
+
+    message +=
+        "Total RTI Applications: " +
+        rtiSummary.totalApplications +
+        "\n";
+
+
+    message +=
+        "Pending Applications: " +
+        rtiSummary.pendingApplications +
+        "\n";
+
+
+    message +=
+        "Overdue Applications: " +
+        rtiSummary.overdueApplications +
+        "\n";
+
+
+    message +=
+        "Completed / Disposed: " +
+        rtiSummary.disposedApplications +
+        "\n\n";
+
+
+    message +=
+        "FMS - RTI Module";
+
+
+    const whatsappURL =
+        "https://wa.me/?text=" +
+        encodeURIComponent(
+            message
+        );
+
+
+    window.open(
+        whatsappURL,
+        "_blank"
+    );
+
+}
+
+
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 /* ============================================================
    ERROR
 ============================================================ */
@@ -1291,9 +1405,12 @@ window.shareRTIWhatsApp =
 window.loadRTIApplications =
     loadRTIApplications;
 
+<<<<<<< HEAD
 window.refreshRTIDailyStatus =
     refreshRTIDailyStatus;
 
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 window.calculateRTISummary =
     calculateRTISummary;
@@ -1305,9 +1422,13 @@ window.calculateRTISummary =
 
 console.log(
     "RTI Daily Status JS Ready."
+<<<<<<< HEAD
 );
 
 document.addEventListener("DOMContentLoaded", function() {
   const b=document.getElementById("btnWhatsApp");
   if(b) b.addEventListener("click", shareRTIWhatsApp);
 });
+=======
+);
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604

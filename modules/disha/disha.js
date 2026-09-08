@@ -154,6 +154,7 @@ function registerEvents() {
         goToRegister
     );
 
+<<<<<<< HEAD
     document
         .getElementById("btnWhatsApp")
         ?.addEventListener(
@@ -173,6 +174,8 @@ function registerEvents() {
             });
     }
 
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 }
 
 /* ================================================================
@@ -190,7 +193,11 @@ function goToRegister() {
    NEW RECORD
 ================================================================ */
 
+<<<<<<< HEAD
 async function prepareNewRecord() {
+=======
+function prepareNewRecord() {
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     currentRecordId = null;
 
@@ -199,9 +206,12 @@ async function prepareNewRecord() {
     setNextSlNo();
 
     clearMessage();
+<<<<<<< HEAD
     if (window.FMSDishaAttachmentUI?.refresh) {
         await window.FMSDishaAttachmentUI.refresh();
     }
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     console.log(
         "New DISHA record prepared."
@@ -228,6 +238,7 @@ function clearForm() {
         "billsForwardedMoRD",
         "proposedDateOfMeeting",
         "statusOfMeeting",
+<<<<<<< HEAD
         "remarks",
         "officeFileNo",
         "officeDateArised",
@@ -237,6 +248,9 @@ function clearForm() {
         "officeReplySection",
         "officeStatus",
         "newOfficeSection"
+=======
+        "remarks"
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     ];
 
@@ -1043,6 +1057,7 @@ function populateForm(
     );
 
 
+<<<<<<< HEAD
     /* ============================================================
        OFFICE PROCESSING
     ============================================================ */
@@ -1052,6 +1067,8 @@ function populateForm(
     }
 
 
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
     updateDISHAStatus();
 
 }
@@ -1136,6 +1153,7 @@ function getFormData() {
         remarks:
             document.getElementById(
                 "remarks"
+<<<<<<< HEAD
             )?.value || "",
 
 
@@ -1154,6 +1172,9 @@ function getFormData() {
                 officeReplyObtainedFrom: document.getElementById("officeReplySection")?.value || "",
                 officeStatus: document.getElementById("officeStatus")?.value || ""
             })
+=======
+            )?.value || ""
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     };
 
@@ -1356,9 +1377,12 @@ async function saveRecord() {
 
 
         updateDISHAStatus();
+<<<<<<< HEAD
         if (window.FMSDishaAttachmentUI?.refresh) {
             await window.FMSDishaAttachmentUI.refresh();
         }
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     }
     catch (error) {
@@ -1455,9 +1479,13 @@ async function updateRecord() {
         showMessage(
             "DISHA record updated successfully.",
             "success"
+<<<<<<< HEAD
         );        if (window.FMSDishaAttachmentUI?.refresh) {
             await window.FMSDishaAttachmentUI.refresh();
         }
+=======
+        );
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 
         console.log(
@@ -1892,6 +1920,7 @@ function printRecord() {
 
 
 /* ================================================================
+<<<<<<< HEAD
    WHATSAPP
 ================================================================ */
 
@@ -1921,13 +1950,19 @@ async function shareDishaWhatsApp() {
 }
 
 /* ================================================================
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
    HOME
 ================================================================ */
 
 function goToHome() {
 
     window.location.href =
+<<<<<<< HEAD
         "../../pages/module-dashboard.html?module=disha";
+=======
+        "../../index.html";
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 }
 

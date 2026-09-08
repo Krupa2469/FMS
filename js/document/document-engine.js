@@ -359,6 +359,7 @@
 
 
             /* ---------------------------------------------
+<<<<<<< HEAD
                IMAGE / SCANNED DOCUMENT
             --------------------------------------------- */
 
@@ -382,13 +383,19 @@
             }
 
             /* ---------------------------------------------
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
                Unsupported
             --------------------------------------------- */
 
             throw new Error(
                 "Unsupported document type: " +
+<<<<<<< HEAD
                 file.name +
                 ". Please use PDF, TXT, PNG or JPG."
+=======
+                file.name
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
             );
         },
 
@@ -998,6 +1005,7 @@
 
 
             /* ---------------------------------------------
+<<<<<<< HEAD
                Shared module parser
             --------------------------------------------- */
 
@@ -1011,6 +1019,9 @@
 
             /* ---------------------------------------------
                Legacy parser
+=======
+               Existing parser
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
             --------------------------------------------- */
 
             if (
@@ -1062,12 +1073,18 @@
                 "RTI parser routing..."
             );
 
+<<<<<<< HEAD
             if (window.FMSModuleParsers && typeof window.FMSModuleParsers.RTI === "function") {
                 return window.FMSModuleParsers.RTI(text);
             }
 
             /* ---------------------------------------------
                Legacy page-level parser connection point
+=======
+
+            /* ---------------------------------------------
+               Future RTI parser connection point
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
             --------------------------------------------- */
 
             if (
@@ -1114,11 +1131,20 @@
                 "DISHA parser routing..."
             );
 
+<<<<<<< HEAD
             if (window.FMSModuleParsers && typeof window.FMSModuleParsers.DISHA === "function") {
                 return window.FMSModuleParsers.DISHA(text);
             }
 
             return { rawText: text };
+=======
+
+            return {
+
+                rawText:
+                    text
+            };
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
         }
 
     };

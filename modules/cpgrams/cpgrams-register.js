@@ -44,8 +44,11 @@ async function initialize() {
         await loadDashboardSummary();
 
         loadDistricts();
+<<<<<<< HEAD
         initializeFinancialYearFilter();
         applyURLFilter();
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
         console.log(
             "CPGRAMS Register Version 5 Loaded."
@@ -91,8 +94,11 @@ function registerEvents() {
     // Toolbar
 
     bindClick("btnRefresh", refreshRegister);
+<<<<<<< HEAD
     bindClick("btnRefreshData", refreshRegister);
     bindChange("financialYear", applyFinancialYearFilter);
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     bindClick("btnNew", openNewGrievance);
 
@@ -220,7 +226,11 @@ async function loadRegister() {
         }
 
         grievanceList =
+<<<<<<< HEAD
     (result.data || []).filter(record => record.active !== false);
+=======
+    (result.data || []).filter(record => record.active === true);
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     console.log("========== Records Loaded ==========");
 
@@ -234,8 +244,13 @@ grievanceList.forEach((record, index) => {
 
 });
 
+<<<<<<< HEAD
         initializeFinancialYearFilter();
         applyFinancialYearFilter();
+=======
+        filteredList =
+            [...grievanceList];
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
         currentPage = 1;
 
@@ -265,6 +280,7 @@ grievanceList.forEach((record, index) => {
 }
 
 /*==========================================================
+<<<<<<< HEAD
  FINANCIAL YEAR FILTER
 ==========================================================*/
 function initializeFinancialYearFilter() {
@@ -314,6 +330,8 @@ function applyURLFilter(){
 }
 
 /*==========================================================
+=======
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
  LOAD DASHBOARD
 ==========================================================*/
 
@@ -417,9 +435,15 @@ function renderRegisterTable() {
 
         <td>${serialNo++}</td>
 
+<<<<<<< HEAD
         <td>${item.grievanceId ?? item.id ?? ""}</td>
 
         <td>${item.grievanceNumber ?? item.grievanceNo ?? item.registrationNumber ?? ""}</td>
+=======
+        <td>${item.grievanceId ?? ""}</td>
+
+        <td>${item.grievanceNumber ?? ""}</td>
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
         <td>${item.dateReceived ?? ""}</td>
 
@@ -543,6 +567,7 @@ function searchRecords() {
         .trim()
         .toLowerCase();
 
+<<<<<<< HEAD
     const category =
         document.getElementById("searchCategory")
         .value
@@ -561,10 +586,35 @@ function searchRecords() {
                 !(record.grievanceNumber || "")
                     .toLowerCase()
                     .includes(grievanceNumber)
+=======
+    filteredList =
+        grievanceList.filter(record => {
+
+            if (
+                grievanceNumber &&
+                !(record.grievanceNumber || "")
+                    .toLowerCase()
+                    .includes(grievanceNumber)
             )
                 return false;
 
             if (
+                district &&
+                (record.district || "")
+                    .toLowerCase() !== district
+            )
+                return false;
+
+            if (
+                status &&
+                (record.currentStatus || "")
+                    .toLowerCase() !== status
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
+            )
+                return false;
+
+            if (
+<<<<<<< HEAD
                 district &&
                 (record.district || "")
                     .toLowerCase() !== district
@@ -598,6 +648,16 @@ function searchRecords() {
 
             return true;
 
+=======
+                priority &&
+                (record.priority || "")
+                    .toLowerCase() !== priority
+            )
+                return false;
+
+            return true;
+
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
         });
 
     currentPage = 1;

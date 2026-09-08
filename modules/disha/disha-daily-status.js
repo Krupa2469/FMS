@@ -912,6 +912,7 @@ function generateWhatsAppReport() {
    SHARE TO WHATSAPP
    ============================================================ */
 
+<<<<<<< HEAD
 async function shareToWhatsApp() {
     try {
         const summary = typeof generateWhatsAppReport === "function"
@@ -931,6 +932,29 @@ async function shareToWhatsApp() {
     }
 }
 
+=======
+function shareToWhatsApp() {
+
+    const message =
+        generateWhatsAppReport();
+
+
+    const url =
+        "https://wa.me/?text=" +
+        encodeURIComponent(
+            message
+        );
+
+
+    window.open(
+        url,
+        "_blank"
+    );
+
+}
+
+
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 /* ============================================================
    GLOBAL FUNCTIONS
    ============================================================ */
@@ -950,9 +974,13 @@ window.shareToWhatsApp =
 
 console.log(
     "DISHA Daily Status Report Ready."
+<<<<<<< HEAD
 );
 
 document.addEventListener("DOMContentLoaded", function() {
   const b=document.getElementById("btnWhatsApp");
   if(b) b.addEventListener("click", shareToWhatsApp);
 });
+=======
+);
+>>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
