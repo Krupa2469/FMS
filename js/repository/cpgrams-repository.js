@@ -29,7 +29,6 @@ class CPGramsRepository extends BaseRepository {
       DUPLICATE CHECK
     ======================================================*/
 
-<<<<<<< HEAD
     normalizeGrievanceNumber(value) {
         return String(value ?? "")
             .trim()
@@ -56,29 +55,6 @@ class CPGramsRepository extends BaseRepository {
             console.error("CPGRAMS duplicate check failed:", error);
             throw error;
         }
-=======
-    async grievanceExists(grievanceNumber) {
-
-        try {
-
-            const snapshot =
-                await this.collection()
-                    .where("grievanceNumber", "==", grievanceNumber)
-                    .where("active", "==", true)
-                    .limit(1)
-                    .get();
-
-            return snapshot.empty === false;
-
-        }
-        catch (error) {
-
-            console.error(error);
-            return false;
-
-        }
-
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
     }
 
     /*======================================================
@@ -187,11 +163,7 @@ window.getActiveRecords =
     (limit) => repository.getActiveRecords(limit);
 
 window.grievanceExists =
-<<<<<<< HEAD
     (number, excludeId) => repository.grievanceExists(number, excludeId);
-=======
-    number => repository.grievanceExists(number);
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 window.searchRecordsRepository =
     (field, value) => repository.search(field, value);

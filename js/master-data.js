@@ -46,7 +46,7 @@ MODULES
 
 const MODULES = {
 
-    MODULE_A : "Citizen & Administrative Files",
+    CPGRAMS  : "CPGRAMS / Public Grievances",
 
     RTI      : "RTI Management",
 

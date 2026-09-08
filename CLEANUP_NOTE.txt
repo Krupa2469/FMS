@@ -21,7 +21,6 @@ Added a central document parsing architecture across the active FMS data-entry m
 3. js/services/parser/module-parsers.js - shared RTI, DISHA, CPGRAMS and generic field parsers.
 4. js/document/document-engine.js - extended to OCR image files and route module parsers centrally.
 5. pages/document-parser.html - standalone Central Document Parser Center.
-6. pages/moduleA.html - added a link to the Central Document Parser Center.
 
 Supported document inputs: PDF, TXT, PNG and JPG/JPEG. Scanned PDFs/images use Tesseract OCR when loaded.
 Existing module-specific parsing and upload code has been retained for backward compatibility.

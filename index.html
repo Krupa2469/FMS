@@ -59,11 +59,10 @@ const HOME_CATEGORIES=["CPGRAMS","Prajavani","Public Grievances","Direct Complai
 let homeRows={cpgrams:[],rti:[],disha:[]};
 let homeInitialized=false;
 
-<<<<<<< HEAD
-function goModule(m){ location.href='pages/module-dashboard.html?module='+encodeURIComponent(m); }
+function goModule(m){ const routes={cpgrams:'modules/cpgrams/cpgrams.html',rti:'modules/rti/rti.html',disha:'modules/disha/disha.html'}; location.href=routes[m]||'index.html'; }
 function openHomeCPGRAMSDashboard(category){
   const value=category||'CPGRAMS';
-  location.href='pages/module-dashboard.html?module=cpgrams&category='+encodeURIComponent(value);
+  location.href='modules/cpgrams/cpgrams.html?category='+encodeURIComponent(value);
 }
 function homeCategoryKey(value){
   return String(value||'').trim().toLowerCase().replace(/\s+/g,' ')
@@ -156,24 +155,3 @@ function initHomeDashboard(){
 window.addEventListener('fmsFirebaseReady',loadHome,{once:true});
 document.addEventListener('DOMContentLoaded',initHomeDashboard);</script>
 </body></html>
-=======
-<!-- Common JS -->
-
-<script src="js/app.js"></script>
-
-<script src="js/navigation.js"></script>
-
-<script src="js/id-generator.js"></script>
-
-<!-- =====================================================
-     FMS FIREBASE STARTUP
-====================================================== -->
-
-<script src="js/firebase/firebase-loader.js"></script>
-
-<script src="js/firebase/firebase-ready.js"></script>
-
-</body>
-
-</html>
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604

@@ -54,6 +54,10 @@ async function initializeDailyStatus() {
         "Initializing DISHA Daily Status Report..."
     );
 
+    // Bind page controls first so Back/Home still work even if
+    // Firestore is temporarily unavailable.
+    setupDailyStatusButtons();
+
     try {
 
         await loadDISHARecords();
@@ -912,7 +916,6 @@ function generateWhatsAppReport() {
    SHARE TO WHATSAPP
    ============================================================ */
 
-<<<<<<< HEAD
 async function shareToWhatsApp() {
     try {
         const summary = typeof generateWhatsAppReport === "function"
@@ -932,29 +935,68 @@ async function shareToWhatsApp() {
     }
 }
 
-=======
-function shareToWhatsApp() {
+/* ============================================================
+   PAGE BUTTONS / NAVIGATION
+   ============================================================ */
 
-    const message =
-        generateWhatsAppReport();
+function setupDailyStatusButtons() {
 
+    const btnBack = document.getElementById("btnBack");
+    if (btnBack) {
+        btnBack.addEventListener("click", function () {
+            window.location.href =
+                "disha.html";
+        });
+    }
 
-    const url =
-        "https://wa.me/?text=" +
-        encodeURIComponent(
-            message
-        );
+    const btnHome = document.getElementById("btnHome");
+    if (btnHome) {
+        btnHome.addEventListener("click", function () {
+            window.location.href = "../../index.html";
+        });
+    }
 
+    const btnRefresh = document.getElementById("btnRefresh");
+    if (btnRefresh) {
+        btnRefresh.addEventListener("click", async function () {
+            try {
+                await loadDISHARecords();
+                buildDailyStatus();
+            }
+            catch (error) {
+                console.error("DISHA refresh failed:", error);
+                alert("Unable to refresh DISHA Daily Status.");
+            }
+        });
+    }
 
-    window.open(
-        url,
-        "_blank"
-    );
+    const btnPrint = document.getElementById("btnPrint");
+    if (btnPrint) {
+        btnPrint.addEventListener("click", function () {
+            window.print();
+        });
+    }
 
+    const linkFilters = {
+        linkTotalMeetings: "total",
+        linkMeetingsHeld: "held",
+        linkMeetingsToBeHeld: "tobeheld",
+        linkMeetingsPostponed: "postponed",
+        linkPomUploaded: "uploaded",
+        linkPomAwaiting: "awaiting",
+        linkPomOverdue: "overdue"
+    };
+
+    Object.keys(linkFilters).forEach(function (id) {
+        const link = document.getElementById(id);
+        if (!link) return;
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            openDailyDetail(linkFilters[id]);
+        });
+    });
 }
 
-
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 /* ============================================================
    GLOBAL FUNCTIONS
    ============================================================ */
@@ -974,13 +1016,9 @@ window.shareToWhatsApp =
 
 console.log(
     "DISHA Daily Status Report Ready."
-<<<<<<< HEAD
 );
 
 document.addEventListener("DOMContentLoaded", function() {
   const b=document.getElementById("btnWhatsApp");
   if(b) b.addEventListener("click", shareToWhatsApp);
 });
-=======
-);
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604

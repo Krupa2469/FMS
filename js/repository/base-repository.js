@@ -198,58 +198,17 @@ class BaseRepository {
 
             let snapshot;
 
-<<<<<<< HEAD
             // Legacy records created before the active flag was introduced
             // must remain visible. Only an explicit active:false is treated
             // as soft-deleted.
             snapshot = await this.collection().get();
-=======
-            if (DEVELOPMENT_MODE) {
-
-                snapshot =
-                    await this.collection()
-
-                        .where("active", "==", true)
-
-                        .limit(limit)
-
-                        .get();
-
-            }
-            else {
-
-                snapshot =
-                    await this.collection()
-
-                        .where("active", "==", true)
-
-                        .orderBy("createdOn", "desc")
-
-                        .limit(limit)
-
-                        .get();
-
-            }
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
             const records = [];
 
             snapshot.forEach(doc => {
-<<<<<<< HEAD
                 const data = doc.data() || {};
                 if (data.active === false) return;
                 records.push({ ...data, id: doc.id });
-=======
-
-               records.push({
-
-                     ...doc.data(),
-
-                     id: doc.id
-
-               });
-
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
             });
 
             records.sort((a, b) => {

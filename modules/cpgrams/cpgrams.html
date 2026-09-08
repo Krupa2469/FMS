@@ -27,7 +27,7 @@
 
 </head>
 
-<body>
+<body data-fms-module="cpgrams">
 
 <!-- ===========================================================
      HEADER
@@ -190,6 +190,14 @@
     </div>
 
 </nav>
+
+<!-- ===========================================================
+     MODULE DASHBOARD CARDS
+============================================================ -->
+<section id="moduleDashboardPanel" class="container-fluid py-3 bg-light border-bottom">
+  <div id="moduleDashboardStatus" class="alert alert-info py-2 mb-3">Loading dashboard...</div>
+  <div id="moduleDashboardCards" class="row g-3"></div>
+</section>
 
 <!-- ===========================================================
      MAIN CONTAINER
@@ -1231,11 +1239,7 @@ SECTION 4 : ATTACHMENTS
 
                 <input
                     type="file"
-<<<<<<< HEAD
                    id="fileAttachment"
-=======
-                   id="attachmentFile"
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
                     class="form-control">
 
             </div>
@@ -1501,59 +1505,6 @@ SECTION 4 : ATTACHMENTS
 <script src="cpgrams-validator.js"></script>
 
 <script src="../../js/repository/base-repository.js"></script>
-<<<<<<< HEAD
-=======
-
-<script src="../../js/repository/cpgrams-repository.js"></script>
-
-<script src="../../js/repository/attachment-repository.js"></script>
-
-<script src="../../js/services/storage-service.js"></script>
-
-<script src="attachment.js"></script>
-
-<!-- PDF.js -->
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
-<script>
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-<script src="../../js/services/classification-engine.js"></script>
-
-<script src="../../js/services/parser/layout-detector.js"></script>
-
-<script src="../../js/services/parser/parser-utils.js"></script>
-
-<script src="../../js/services/parser/name-extractor.js"></script>
-
-<script src="../../js/services/parser/address-extractor.js"></script>
-
-<script src="../../js/services/parser/description-extractor.js"></script>
-
-<script src="../../js/services/parser/validation-engine.js"></script>
-
-<script src="../../js/services/parser/confidence-engine.js"></script>
-
-<script src="../../js/services/parser/keyword-engine.js"></script>
-
-<script src="../../js/services/parser/field-extractor.js"></script>
-
-<script src="../../js/services/parser/subject-engine.js"></script>
-
-<script src="../../js/services/parser/parser-core.js"></script>
-
-<script src="../../js/services/form-filler.js"></script>
-
-<script src="../../js/services/ocr-engine.js"></script>
-
-<script src="document-capture.js"></script>
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 <script src="../../js/repository/cpgrams-repository.js"></script>
 
@@ -1614,6 +1565,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
 <script src="../../js/services/whatsapp-service.js"></script>
 <script src="cpgrams.js"></script>
+<script src="../../js/module-inline-dashboard.js"></script>
 
 <!-- =====================================================
      FMS FIREBASE STARTUP
@@ -1623,11 +1575,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 <script src="../../js/firebase/firebase-ready.js"></script>
 
-<<<<<<< HEAD
 <script src="../../js/services/office-processing-service.js"></script>
 
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 </body>
 
 </html>

@@ -41,12 +41,11 @@ function generate(){
  const m=document.getElementById("reportModule").value;
  let rows=[];
  if(m==="all"){for(const mod of Object.keys(loaded))rows.push(...loaded[mod].filter(r=>inRange(r,mod)).map(r=>makeRow(mod,r)));}
- else if(m==="moduleA"){rows=loaded.cpgrams.filter(r=>inRange(r,"cpgrams")).map(r=>({...makeRow("cpgrams",r),Module:"MODULE A"}));}
  else rows=loaded[m].filter(r=>inRange(r,m)).map(r=>makeRow(m,r));
  reportRows=rows; render(rows,m);
 }
 function render(rows,m){
- document.getElementById("reportTitle").textContent=m==="all"?"Daily Status Report — All Modules":(m==="moduleA"?"Module A Report":FMS_REPORTS[m].title);
+ document.getElementById("reportTitle").textContent=m==="all"?"Daily Status Report — All Modules":FMS_REPORTS[m].title;
  document.getElementById("recordCount").textContent=rows.length+" records";
  const thead=document.querySelector("#reportTable thead"), tbody=document.querySelector("#reportTable tbody");
  const cols=["Module","ID","Date","DueDate","Subject","District","Status","Days Pending","Days Delayed"];
@@ -59,5 +58,5 @@ function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":
 function exportExcel(){if(!reportRows.length)return alert("Generate a report first."); const ws=XLSX.utils.json_to_sheet(reportRows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"FMS Report");XLSX.writeFile(wb,"FMS_Report.xlsx");}
 function exportPDF(){if(!reportRows.length)return alert("Generate a report first.");const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:"landscape"});doc.text(document.getElementById("reportTitle").textContent,14,15);const cols=Object.keys(reportRows[0]);doc.autoTable({head:[cols],body:reportRows.map(r=>cols.map(c=>String(r[c]??""))),startY:22,styles:{fontSize:7}});doc.save("FMS_Report.pdf");}
 function printReport(){window.print();}
-async function init(){document.getElementById("btnHome").onclick=()=>location.href="../index.html";document.getElementById("btnMasters").onclick=()=>location.href="admin/master-management.html";document.getElementById("btnRefresh").onclick=async()=>{await loadAll();generate();};document.getElementById("btnGenerate").onclick=generate;document.getElementById("btnExcel").onclick=exportExcel;document.getElementById("btnPDF").onclick=exportPDF;document.getElementById("btnPrint").onclick=printReport;try{await loadAll();const q=new URLSearchParams(location.search).get("module");if(q&&["cpgrams","rti","disha","moduleA"].includes(q))document.getElementById("reportModule").value=q;generate();}catch(e){alert("Unable to load reports: "+e.message);console.error(e);}}
+async function init(){document.getElementById("btnHome").onclick=()=>location.href="../index.html";document.getElementById("btnMasters").onclick=()=>location.href="admin/master-management.html";document.getElementById("btnRefresh").onclick=async()=>{await loadAll();generate();};document.getElementById("btnGenerate").onclick=generate;document.getElementById("btnExcel").onclick=exportExcel;document.getElementById("btnPDF").onclick=exportPDF;document.getElementById("btnPrint").onclick=printReport;try{await loadAll();const q=new URLSearchParams(location.search).get("module");if(q&&["cpgrams","rti","disha"].includes(q))document.getElementById("reportModule").value=q;generate();}catch(e){alert("Unable to load reports: "+e.message);console.error(e);}}
 document.addEventListener("DOMContentLoaded",()=>{if(window.fmsFirebaseReady)init();else window.addEventListener("fmsFirebaseReady",init,{once:true});});

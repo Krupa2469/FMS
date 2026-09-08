@@ -151,7 +151,6 @@ async function getAllDocuments(collectionName) {
 
     }
 
-<<<<<<< HEAD
 }
 
 // Shared Firebase Functions accessor used by the FMS WhatsApp custom-message service.
@@ -159,6 +158,3 @@ window.getFMSFunctions = window.getFMSFunctions || function(){
   try { return (window.firebase && window.firebase.functions) ? window.firebase.functions("asia-south1") : null; }
   catch(e){ return null; }
 };
-=======
-}
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604

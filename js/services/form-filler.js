@@ -306,7 +306,6 @@ setValue(
 
     setValue(
         "officeSubject",
-<<<<<<< HEAD
         data.officeSubject || data.subject
     );
 
@@ -356,9 +355,6 @@ setValue(
     setValue(
         "officeStatus",
         data.fileStatus || data.officeStatus
-=======
-        data.subject
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
     );
 
 

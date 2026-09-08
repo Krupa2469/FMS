@@ -44,11 +44,8 @@ async function initialize() {
         await loadDashboardSummary();
 
         loadDistricts();
-<<<<<<< HEAD
         initializeFinancialYearFilter();
         applyURLFilter();
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
         console.log(
             "CPGRAMS Register Version 5 Loaded."
@@ -94,11 +91,8 @@ function registerEvents() {
     // Toolbar
 
     bindClick("btnRefresh", refreshRegister);
-<<<<<<< HEAD
     bindClick("btnRefreshData", refreshRegister);
     bindChange("financialYear", applyFinancialYearFilter);
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     bindClick("btnNew", openNewGrievance);
 
@@ -226,11 +220,7 @@ async function loadRegister() {
         }
 
         grievanceList =
-<<<<<<< HEAD
     (result.data || []).filter(record => record.active !== false);
-=======
-    (result.data || []).filter(record => record.active === true);
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     console.log("========== Records Loaded ==========");
 
@@ -244,13 +234,8 @@ grievanceList.forEach((record, index) => {
 
 });
 
-<<<<<<< HEAD
         initializeFinancialYearFilter();
         applyFinancialYearFilter();
-=======
-        filteredList =
-            [...grievanceList];
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
         currentPage = 1;
 
@@ -280,14 +265,14 @@ grievanceList.forEach((record, index) => {
 }
 
 /*==========================================================
-<<<<<<< HEAD
  FINANCIAL YEAR FILTER
 ==========================================================*/
 function initializeFinancialYearFilter() {
     const el = document.getElementById("financialYear");
     if (!el || !window.FMSFY) return;
     const options = FMSFY.getFYOptions(grievanceList, ["dateReceived", "dateArised"]);
-    const current = FMSFY.getCurrentFY();
+    const requestedFY = new URLSearchParams(location.search).get("fy");
+    const current = requestedFY || FMSFY.getCurrentFY();
     el.innerHTML = options.map(f => `<option value="${f}" ${f === current ? "selected" : ""}>${f}</option>`).join("");
 }
 
@@ -309,6 +294,27 @@ function applyFinancialYearFilter() {
 /*==========================================================
  DASHBOARD CARD URL FILTER
 ==========================================================*/
+function parseDashboardFilterDate(value){
+ if(!value) return null;
+ if(value && typeof value.toDate === "function") return value.toDate();
+ if(value && value.seconds != null) return new Date(Number(value.seconds) * 1000);
+ if(value instanceof Date) return new Date(value.getTime());
+ const text=String(value).trim();
+ let m=text.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+ if(m) return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]));
+ m=text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+ if(m) return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]));
+ const d=new Date(value); return Number.isNaN(d.getTime())?null:d;
+}
+function cpgramsDashboardStatus(record){
+ return String(record.currentStatus||record.statusOfFile||record.officeStatus||record.status||"").trim().toLowerCase();
+}
+function cpgramsDashboardClosed(record){
+ return /closed|disposed|despatched|reply obtained|completed|reply furnished|final reply/.test(cpgramsDashboardStatus(record));
+}
+function cpgramsDashboardCirculation(record){
+ return /under circulation|circulation/.test([record.currentStatus,record.statusOfFile,record.officeStatus,record.status].map(v=>String(v||"").toLowerCase()).join(" | "));
+}
 function applyURLFilter(){
  const filter=new URLSearchParams(location.search).get("filter");
  const fy=document.getElementById("financialYear")?.value || FMSFY?.getCurrentFY();
@@ -316,22 +322,20 @@ function applyURLFilter(){
  const base=FMSFY ? FMSFY.filterFY(grievanceList,fy,["dateReceived","dateArised"]) : grievanceList;
  const today=new Date(); today.setHours(0,0,0,0);
  filteredList=base.filter(r=>{
-   const st=String(r.currentStatus||r.statusOfFile||r.status||"").toLowerCase();
-   const due=r.dueDate?new Date(r.dueDate):null; if(due) due.setHours(0,0,0,0);
+   const isClosed=cpgramsDashboardClosed(r);
+   const due=parseDashboardFilterDate(r.dueDate); if(due) due.setHours(0,0,0,0);
    if(filter==="total") return true;
-   if(filter==="pending") return !/closed|disposed|despatched|reply obtained/.test(st);
-   if(filter==="circulation") return /under circulation|circulation/.test(st);
-   if(filter==="closed") return /closed|disposed|despatched|reply obtained/.test(st);
-   if(filter==="overdue") return due && due<today && !/closed|disposed|despatched|reply obtained/.test(st);
-   if(filter==="due-today") return due && due.getTime()===today.getTime();
+   if(filter==="pending") return !isClosed;
+   if(filter==="circulation") return cpgramsDashboardCirculation(r);
+   if(filter==="closed" || filter==="completed" || filter==="disposed") return isClosed;
+   if(filter==="overdue") return !!due && due<today && !isClosed;
+   if(filter==="due-today") return !!due && due.getTime()===today.getTime() && !isClosed;
    return true;
  });
  currentPage=1; renderRegisterTable(); updateRecordCount(); updatePageInfo();
 }
 
 /*==========================================================
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
  LOAD DASHBOARD
 ==========================================================*/
 
@@ -435,15 +439,9 @@ function renderRegisterTable() {
 
         <td>${serialNo++}</td>
 
-<<<<<<< HEAD
         <td>${item.grievanceId ?? item.id ?? ""}</td>
 
         <td>${item.grievanceNumber ?? item.grievanceNo ?? item.registrationNumber ?? ""}</td>
-=======
-        <td>${item.grievanceId ?? ""}</td>
-
-        <td>${item.grievanceNumber ?? ""}</td>
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
         <td>${item.dateReceived ?? ""}</td>
 
@@ -567,7 +565,6 @@ function searchRecords() {
         .trim()
         .toLowerCase();
 
-<<<<<<< HEAD
     const category =
         document.getElementById("searchCategory")
         .value
@@ -586,35 +583,10 @@ function searchRecords() {
                 !(record.grievanceNumber || "")
                     .toLowerCase()
                     .includes(grievanceNumber)
-=======
-    filteredList =
-        grievanceList.filter(record => {
-
-            if (
-                grievanceNumber &&
-                !(record.grievanceNumber || "")
-                    .toLowerCase()
-                    .includes(grievanceNumber)
             )
                 return false;
 
             if (
-                district &&
-                (record.district || "")
-                    .toLowerCase() !== district
-            )
-                return false;
-
-            if (
-                status &&
-                (record.currentStatus || "")
-                    .toLowerCase() !== status
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
-            )
-                return false;
-
-            if (
-<<<<<<< HEAD
                 district &&
                 (record.district || "")
                     .toLowerCase() !== district
@@ -648,16 +620,6 @@ function searchRecords() {
 
             return true;
 
-=======
-                priority &&
-                (record.priority || "")
-                    .toLowerCase() !== priority
-            )
-                return false;
-
-            return true;
-
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
         });
 
     currentPage = 1;
@@ -1138,13 +1100,13 @@ function openNewGrievance() {
 function goHome() {
 
     window.location.href =
-        "../../pages/module-dashboard.html?module=cpgrams";
+        "cpgrams.html";
 
 }
 
 function openDashboard() {
 
-    window.location.href = "../../pages/dashboard.html";
+    window.location.href = "cpgrams.html";
 
 }
 

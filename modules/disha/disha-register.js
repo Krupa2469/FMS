@@ -51,12 +51,8 @@ document.addEventListener(
 
         await loadDISHAmeetings();
 
-<<<<<<< HEAD
         initializeDISHAFinancialYearFilter();
         applyDISHAFinancialYear();
-=======
-        applyURLFilter();
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     }
 );
@@ -99,7 +95,6 @@ function getFirestoreDB() {
    ============================================================ */
 
 function registerEvents() {
-<<<<<<< HEAD
     const btnWhatsApp = document.getElementById("btnWhatsApp");
     if (btnWhatsApp) btnWhatsApp.addEventListener("click", async () => {
         const visible = document.querySelector("tbody")?.innerText || "";
@@ -116,13 +111,6 @@ function registerEvents() {
     const btnNewMeeting =
         document.getElementById("btnNew") ||
         document.getElementById("btnNewMeeting");
-=======
-
-    const btnNewMeeting =
-        document.getElementById(
-            "btnNewMeeting"
-        );
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 
     const btnRefresh =
@@ -132,14 +120,8 @@ function registerEvents() {
 
 
     const btnBack =
-<<<<<<< HEAD
         document.getElementById("btnBack") ||
         document.getElementById("btnBackToDISHA");
-=======
-        document.getElementById(
-            "btnBackToDISHA"
-        );
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 
     const btnHome =
@@ -223,11 +205,7 @@ function registerEvents() {
             function () {
 
                 window.location.href =
-<<<<<<< HEAD
-                    "../../pages/module-dashboard.html?module=disha";
-=======
-                    "../../index.html";
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
+                    "disha.html";
 
             }
         );
@@ -347,14 +325,14 @@ async function loadDISHAmeetings() {
 
 
 /* ============================================================
-<<<<<<< HEAD
    FINANCIAL YEAR SELECTOR
 ============================================================ */
 function initializeDISHAFinancialYearFilter(){
  const el=document.getElementById("financialYear");
  if(!el || !window.FMSFY) return;
  const options=FMSFY.getFYOptions(dishaMeetings,["dateOfMeeting"]);
- const current=FMSFY.getCurrentFY();
+ const requestedFY=new URLSearchParams(location.search).get("fy");
+ const current=requestedFY||FMSFY.getCurrentFY();
  el.innerHTML=options.map(f=>`<option value="${f}" ${f===current?"selected":""}>${f}</option>`).join("");
  el.onchange=applyDISHAFinancialYear;
 }
@@ -367,243 +345,6 @@ function applyDISHAFinancialYear(){
  applyURLFilter();
 }
 
-=======
-   CURRENT FINANCIAL YEAR
-   ============================================================ */
-
-function getCurrentFinancialYear() {
-
-    const today =
-        new Date();
-
-
-    const year =
-        today.getFullYear();
-
-
-    const month =
-        today.getMonth() + 1;
-
-
-    if (month >= 4) {
-
-        return (
-            year +
-            "-" +
-            String(
-                year + 1
-            ).slice(-2)
-        );
-
-    }
-
-
-    return (
-        year - 1 +
-        "-" +
-        String(
-            year
-        ).slice(-2)
-    );
-
-}
-
-
-/* ============================================================
-   DATE PARSER
-   ============================================================ */
-
-function parseDate(
-    value
-) {
-
-    if (!value) {
-
-        return null;
-
-    }
-
-
-    /* Firestore Timestamp */
-
-    if (
-        typeof value === "object" &&
-        typeof value.toDate === "function"
-    ) {
-
-        return value.toDate();
-
-    }
-
-
-    /* Firestore timestamp object */
-
-    if (
-        typeof value === "object" &&
-        value.seconds !== undefined
-    ) {
-
-        return new Date(
-            Number(
-                value.seconds
-            ) * 1000
-        );
-
-    }
-
-
-    /* Firestore internal timestamp */
-
-    if (
-        typeof value === "object" &&
-        value._seconds !== undefined
-    ) {
-
-        return new Date(
-            Number(
-                value._seconds
-            ) * 1000
-        );
-
-    }
-
-
-    /* JavaScript Date */
-
-    if (
-        value instanceof Date
-    ) {
-
-        return value;
-
-    }
-
-
-    const text =
-        String(
-            value
-        ).trim();
-
-
-    /* YYYY-MM-DD */
-
-    if (
-        /^\d{4}-\d{2}-\d{2}$/.test(
-            text
-        )
-    ) {
-
-        const parts =
-            text.split("-");
-
-
-        return new Date(
-            Number(parts[0]),
-            Number(parts[1]) - 1,
-            Number(parts[2])
-        );
-
-    }
-
-
-    /* DD/MM/YYYY */
-
-    if (
-        /^\d{2}\/\d{2}\/\d{4}$/.test(
-            text
-        )
-    ) {
-
-        const parts =
-            text.split("/");
-
-
-        return new Date(
-            Number(parts[2]),
-            Number(parts[1]) - 1,
-            Number(parts[0])
-        );
-
-    }
-
-
-    const date =
-        new Date(
-            text
-        );
-
-
-    if (
-        isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return null;
-
-    }
-
-
-    return date;
-
-}
-
-
-/* ============================================================
-   FORMAT DATE
-   ============================================================ */
-
-function formatDate(
-    value
-) {
-
-    const date =
-        parseDate(
-            value
-        );
-
-
-    if (!date) {
-
-        return "";
-
-    }
-
-
-    const day =
-        String(
-            date.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const month =
-        String(
-            date.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const year =
-        date.getFullYear();
-
-
-    return (
-        day +
-        "/" +
-        month +
-        "/" +
-        year
-    );
-
-}
-
-
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 /* ============================================================
    CURRENT FINANCIAL YEAR CHECK
    ============================================================ */
@@ -719,12 +460,8 @@ function isPOMOverdue(
         );
 
 
-    if (
-        uploaded === "yes"
-    ) {
-
+    if (/yes|uploaded|completed/i.test(uploaded)) {
         return false;
-
     }
 
 
@@ -959,24 +696,9 @@ function applyURLFilter() {
      */
 
     if (!filter) {
-<<<<<<< HEAD
         filteredMeetings = getSelectedDISHAFYRecords();
         renderRegisterTable(filteredMeetings);
         return;
-=======
-
-        filteredMeetings =
-            [...dishaMeetings];
-
-
-        renderRegisterTable(
-            filteredMeetings
-        );
-
-
-        return;
-
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
     }
 
 
@@ -987,13 +709,7 @@ function applyURLFilter() {
      */
 
     const currentFYRecords =
-<<<<<<< HEAD
         getSelectedDISHAFYRecords();
-=======
-        dishaMeetings.filter(
-            isCurrentFinancialYear
-        );
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 
     switch (
@@ -1002,7 +718,6 @@ function applyURLFilter() {
 
 
         /* ----------------------------------------------------
-<<<<<<< HEAD
            DASHBOARD CARD ALIASES
         ---------------------------------------------------- */
         case "pom-pending":
@@ -1016,8 +731,9 @@ function applyURLFilter() {
         case "upcoming":
         case "tobeheld":
             filteredMeetings = currentFYRecords.filter(r => {
+                const meetingStatus=normalize(r.statusOfMeeting);
                 const d=parseDate(r.proposedDateOfMeeting || r.dateOfMeeting);
-                return d && d >= new Date();
+                return meetingStatus === "to be held" || (!!d && d >= new Date() && meetingStatus !== "held" && meetingStatus !== "postponed");
             });
             break;
         case "circulation":
@@ -1025,8 +741,6 @@ function applyURLFilter() {
             break;
 
         /* ----------------------------------------------------
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
            TOTAL MEETINGS
         ---------------------------------------------------- */
 
@@ -1063,31 +777,6 @@ function applyURLFilter() {
 
 
         /* ----------------------------------------------------
-<<<<<<< HEAD
-=======
-           MEETINGS TO BE HELD
-        ---------------------------------------------------- */
-
-        case "tobeheld":
-
-            filteredMeetings =
-                currentFYRecords.filter(
-                    function (record) {
-
-                        return (
-                            normalize(
-                                record.statusOfMeeting
-                            ) === "to be held"
-                        );
-
-                    }
-                );
-
-            break;
-
-
-        /* ----------------------------------------------------
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
            POSTPONED
         ---------------------------------------------------- */
 
@@ -1119,11 +808,7 @@ function applyURLFilter() {
                 currentFYRecords.filter(
                     function (record) {
 
-                        return (
-                            normalize(
-                                record.pomUploaded
-                            ) === "yes"
-                        );
+                        return /yes|uploaded|completed/i.test(String(record.pomUploaded || record.pomStatus || ""));
 
                     }
                 );
@@ -1132,45 +817,6 @@ function applyURLFilter() {
 
 
         /* ----------------------------------------------------
-<<<<<<< HEAD
-=======
-           PoM AWAITING
-        ---------------------------------------------------- */
-
-        case "awaiting":
-
-            filteredMeetings =
-                currentFYRecords.filter(
-                    function (record) {
-
-                        return (
-                            normalize(
-                                record.pomUploaded
-                            ) === "no"
-                        );
-
-                    }
-                );
-
-            break;
-
-
-        /* ----------------------------------------------------
-           PoM OVERDUE
-        ---------------------------------------------------- */
-
-        case "overdue":
-
-            filteredMeetings =
-                currentFYRecords.filter(
-                    isPOMOverdue
-                );
-
-            break;
-
-
-        /* ----------------------------------------------------
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
            DEFAULT
         ---------------------------------------------------- */
 
@@ -1206,7 +852,6 @@ function applySearch() {
 
 
     const meetingFrom =
-<<<<<<< HEAD
         document.getElementById("searchFromDate") ||
         document.getElementById("searchMeetingFrom");
 
@@ -1214,17 +859,6 @@ function applySearch() {
     const meetingTo =
         document.getElementById("searchToDate") ||
         document.getElementById("searchMeetingTo");
-=======
-        document.getElementById(
-            "searchMeetingFrom"
-        );
-
-
-    const meetingTo =
-        document.getElementById(
-            "searchMeetingTo"
-        );
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 
     const district =
@@ -1332,11 +966,7 @@ function renderRegisterTable(
 
     let tbody =
         document.getElementById(
-<<<<<<< HEAD
             "registerBody"
-=======
-            "dishaRegisterBody"
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
         );
 
 

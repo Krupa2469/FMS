@@ -20,7 +20,7 @@ function openModule(module) {
     switch (module) {
 
         case "cpgrams":
-            window.location.href = base + "pages/module-dashboard.html?module=cpgrams";
+            window.location.href = base + "modules/cpgrams/cpgrams.html";
             break;
 
         case "prajavani":
@@ -28,11 +28,11 @@ function openModule(module) {
             break;
 
         case "rti":
-            window.location.href = base + "pages/module-dashboard.html?module=rti";
+            window.location.href = base + "modules/rti/rti.html";
             break;
 
         case "disha":
-            window.location.href = base + "pages/module-dashboard.html?module=disha";
+            window.location.href = base + "modules/disha/disha.html";
             break;
 
         default:
@@ -58,5 +58,6 @@ function openUtilities() {
 
 function openModuleDashboard(module) {
     const root = window.location.pathname.includes("/pages/") ? "" : "pages/";
-    window.location.href = root + "module-dashboard.html?module=" + encodeURIComponent(module);
+    const routes={cpgrams:"../modules/cpgrams/cpgrams.html",rti:"../modules/rti/rti.html",disha:"../modules/disha/disha.html"};
+    window.location.href = routes[module] || "../index.html";
 }

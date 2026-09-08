@@ -53,15 +53,9 @@ async function getAllGrievances() {
 
 }
 
-<<<<<<< HEAD
 async function checkDuplicateGrievanceNumber(grievanceNumber, excludeId = null) {
 
     return await grievanceExists(grievanceNumber, excludeId);
-=======
-async function checkDuplicateGrievanceNumber(grievanceNumber) {
-
-    return await grievanceExists(grievanceNumber);
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 }
 
@@ -204,7 +198,6 @@ function registerButtonEvents() {
     document.getElementById("btnDashboard")?.addEventListener("click", openDashboard);
 
     document.getElementById("btnPrint")?.addEventListener("click", printGrievance);
-<<<<<<< HEAD
     document.getElementById("btnWhatsApp")?.addEventListener("click", async function () {
         await window.FMSWhatsAppService?.compose({
             module:"CPGRAMS",
@@ -219,9 +212,6 @@ Please type or edit your custom message.`,
         });
     });
 
-=======
-
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
     document.getElementById("btnHome")?.addEventListener("click", goHome);
 
 }
@@ -245,7 +235,6 @@ function registerFieldEvents() {
         control.addEventListener("input", markDirty);
 
     });
-<<<<<<< HEAD
 
     // Validate the Grievance Number as soon as the user leaves the field.
     // Save/Update also performs the final duplicate check.
@@ -269,8 +258,6 @@ function registerFieldEvents() {
             showMessage("danger", "Unable to validate the Grievance Number. Please try again before saving.");
         }
     });
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 }
 
@@ -385,12 +372,8 @@ function generateGrievanceId() {
         "-" +
         String(now.getHours()).padStart(2, "0") +
         String(now.getMinutes()).padStart(2, "0") +
-<<<<<<< HEAD
         String(now.getSeconds()).padStart(2, "0") +
         String(now.getMilliseconds()).padStart(3, "0");
-=======
-        String(now.getSeconds()).padStart(2, "0");
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     setControlValue(
         "grievanceId",
@@ -485,13 +468,10 @@ function populateForm(grievance) {
 
     calculateDueDateFromDisplay("");
 
-<<<<<<< HEAD
     if (window.FMSOfficeProcessing) {
         window.FMSOfficeProcessing.populateOfficeProcessing(grievance);
     }
 
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
     attachmentList =
     grievance.attachments || [];
 
@@ -689,23 +669,16 @@ function buildGrievanceObject() {
             "villageManual"
         );
 
-<<<<<<< HEAD
     grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || "")
         .trim()
         .toUpperCase()
         .replace(/\s+/g, "");
 
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
     grievance.updatedOn =
         new Date();
 
     grievance.version =
-<<<<<<< HEAD
         "5.2";
-=======
-        "5.1";
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
     return grievance;
 
@@ -802,21 +775,11 @@ async function validateDuplicate() {
 
     const exists =
         await checkDuplicateGrievanceNumber(
-<<<<<<< HEAD
             grievanceNumber,
             editMode ? currentDocumentId : null
         );
 
     if (exists) {
-=======
-            grievanceNumber
-        );
-
-    if (
-        exists &&
-        !editMode
-    ) {
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
         showMessage(
             "warning",
@@ -936,7 +899,6 @@ console.log("Before update currentDocumentId:", currentDocumentId);
         if (!validateForm())
             return;
 
-<<<<<<< HEAD
         if (!await validateDuplicate())
             return;
 
@@ -951,19 +913,6 @@ console.log("Before update currentDocumentId:", currentDocumentId);
                 grievance
             );
 
-=======
-        showLoading?.();
-
-        let grievance =
-            buildGrievanceObject();
-
-        const result =
-            await updateGrievanceToDatabase(
-                currentDocumentId,
-                grievance
-            );
-
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
         hideLoading?.();
 
         if (!result.success) {
@@ -1112,31 +1061,11 @@ function openRegister() {
 }
 
 function openDashboard() {
-
-    if (checkUnsavedChanges())
-        return;
-
-    window.location.href =
-<<<<<<< HEAD
-        "../../pages/module-dashboard.html?module=cpgrams";
-=======
-        "../../pages/dashboard.html";
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
-
+    document.getElementById("moduleDashboardPanel")?.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 function goHome() {
-
-    if (checkUnsavedChanges())
-        return;
-
-    window.location.href =
-<<<<<<< HEAD
-        "../../pages/module-dashboard.html?module=cpgrams";
-=======
-        "../../index.html";
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
-
+    window.location.href = "../../index.html";
 }
 
 /*==========================================================

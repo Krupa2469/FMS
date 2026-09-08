@@ -1,17 +1,8 @@
-<<<<<<< HEAD
 /*    FILE MANAGEMENT SYSTEM (FMS)
 
    Module    : RTI
    File      : rti-register.js
    Version   : 4.1
-=======
-/* ============================================================
-   FILE MANAGEMENT SYSTEM (FMS)
-
-   Module    : RTI
-   File      : rti-register.js
-   Version   : 4.0
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
    Developer : Lekha Technologies
 
    Purpose:
@@ -40,7 +31,6 @@ console.log("======================================");
 const RTI_COLLECTION = "rtiApplications";
 
 
-<<<<<<< HEAD
 
 
 function getRTIRegisterDB() {
@@ -59,8 +49,6 @@ function getRTIRegisterDB() {
     return null;
 }
 
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 /* ============================================================
    GLOBAL DATA
    ============================================================ */
@@ -115,7 +103,6 @@ async function initializeRTIRegister() {
 
         await loadRTIRecordsFromFirestore();
 
-<<<<<<< HEAD
         const btnWhatsApp = document.getElementById("btnWhatsApp");
         if (btnWhatsApp && !btnWhatsApp.dataset.bound) {
             btnWhatsApp.dataset.bound = "1";
@@ -134,8 +121,6 @@ async function initializeRTIRegister() {
                 }
             });
         }
-=======
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
         processURLFilter();
 
@@ -173,33 +158,17 @@ async function loadRTIRecordsFromFirestore() {
     );
 
 
-<<<<<<< HEAD
     const database = getRTIRegisterDB();
 
     if (!database) {
         throw new Error("Firebase Firestore is not available.");
-=======
-    if (
-        typeof db === "undefined" ||
-        !db
-    ) {
-
-        throw new Error(
-            "Firebase Firestore is not available."
-        );
-
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
     }
 
 
     try {
 
         const snapshot =
-<<<<<<< HEAD
             await database
-=======
-            await db
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
                 .collection(
                     RTI_COLLECTION
                 )
@@ -272,14 +241,9 @@ async function loadRTIRecordsFromFirestore() {
          * current financial year records.
          */
 
-<<<<<<< HEAD
         initializeRTIFinancialYearFilter();
         displayedRecords =
             getSelectedRTIFYRecords();
-=======
-        displayedRecords =
-            getCurrentFYRecords();
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 
         updateSummaryCards(
@@ -297,7 +261,6 @@ async function loadRTIRecordsFromFirestore() {
          * to rti-register.html.
          */
 
-<<<<<<< HEAD
         /* ============================================================
    FINANCIAL YEAR SELECTOR
 ============================================================ */
@@ -305,7 +268,8 @@ function initializeRTIFinancialYearFilter(){
  const el=document.getElementById("financialYear");
  if(!el || !window.FMSFY) return;
  const options=FMSFY.getFYOptions(rtiRecords,["applicationDate"]);
- const current=FMSFY.getCurrentFY();
+ const requestedFY=new URLSearchParams(location.search).get("fy");
+ const current=requestedFY||FMSFY.getCurrentFY();
  el.innerHTML=options.map(f=>`<option value="${f}" ${f===current?"selected":""}>${f}</option>`).join("");
  el.addEventListener("change", function(){ applyRTIFYFilter(); });
 }
@@ -342,7 +306,7 @@ function goBackToRTI() {
 }
 
 function goHome() {
-    window.location.href = "../../pages/module-dashboard.html?module=rti";
+    window.location.href = "rti.html";
 }
 
 function openSummaryFilter(filterType) {
@@ -356,9 +320,6 @@ window.goHome = goHome;
 window.openSummaryFilter = openSummaryFilter;
 
 window.loadRTIRecordsFromFirestore =
-=======
-        window.loadRTIRecordsFromFirestore =
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
             loadRTIRecordsFromFirestore;
 
 
@@ -1217,11 +1178,7 @@ function processURLFilter() {
      */
 
     const records =
-<<<<<<< HEAD
         getSelectedRTIFYRecords();
-=======
-        getCurrentFYRecords();
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
 
 
     let filtered =
@@ -1299,15 +1256,14 @@ function processURLFilter() {
      * COMPLETED / DISPOSED
      */
 
-<<<<<<< HEAD
     else if (filter === "circulation") {
-        filtered = records.filter(record => /under circulation|circulation/i.test(String(record.statusOfFile || record.currentStatus || record.presentStatus || record.officeStatus || "")));
+        filtered = records.filter(record => /under circulation|circulation/i.test([record.statusOfFile,record.currentStatus,record.presentStatus,record.officeStatus,record.status].map(v=>String(v||"")).join(" | ")));
     }
 
     else if (filter === "due-today") {
         const today=new Date(); today.setHours(0,0,0,0);
         filtered=records.filter(record=>{
-            const d=record.dueDate ? new Date(record.dueDate) : null;
+            const d=getDateValue(record.dueDate);
             if(!d || Number.isNaN(d.getTime())) return false;
             d.setHours(0,0,0,0);
             return d.getTime()===today.getTime() && calculateRTIStatus(record)!=="completed";
@@ -1318,11 +1274,6 @@ function processURLFilter() {
         filter === "completed" ||
         filter === "disposed" ||
         filter === "closed"
-=======
-    else if (
-        filter === "completed" ||
-        filter === "disposed"
->>>>>>> 5da6d8e483480b715fe7bb7b97a96f2bb945b604
     ) {
 
         filtered =
@@ -1368,17 +1319,7 @@ function processURLFilter() {
     renderRegister(
         filtered
     );
-
-
-    /*
-     * Keep URL clean.
-     */
-
-    history.replaceState(
-        {},
-        document.title,
-        "rti-register.html"
-    );
+    /* Keep the filter and FY in the URL while filtered mode is active. */
 
 }
 
