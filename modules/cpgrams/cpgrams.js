@@ -350,6 +350,16 @@ function updateGrievanceFormLayout() {
     if (questionMode) {
         const q = getControl("questionType");
         if (q && q.value !== normalized) q.value = normalized;
+
+        const numberLabel = getControl("questionNumberLabel");
+        if (numberLabel) {
+            numberLabel.innerHTML = `${normalized} No. <span class="text-danger">*</span>`;
+        }
+        const numberInput = getControl("questionSerialNo");
+        if (numberInput) {
+            numberInput.setAttribute("aria-label", `${normalized} No.`);
+            numberInput.placeholder = `Enter ${normalized} No.`;
+        }
     }
 
     const label = getControl("selectedGrievanceFormLabel");
@@ -826,7 +836,7 @@ function validateForm() {
 
     if (isQuestionGrievanceType(type)) {
         requiredFields = [
-            ["questionSerialNo", "S.No."],
+            ["questionSerialNo", `${String(type || "LAQ").toUpperCase()} No.`],
             ["questionType", "Question Type"],
             ["questionReceivedDate", "Received Date"],
             ["questionConcernedSection", "Concerned Section"],
