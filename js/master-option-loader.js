@@ -12,7 +12,9 @@
     gender:"genderMaster", officeCommunicationType:"officeCommunicationTypes",
     officeStatus:"fileStatuses", currentStatus:"statusMaster", finalStatus:"statusMaster",
     section:"sections", officeReplySection:"sections", assignedOfficer:"officers",
+    questionConcernedSection:"sections", answerFurnishedBy:"officers",
     officeLetterAddressedTo:"officers", fileLocation:"fileLocations",
+    questionCommunicationType:"officeCommunicationTypes", questionFileStatus:"fileStatuses",
     statusOfMeeting:"meetingStatuses", statusOfBills:"billStatuses"
   };
   let running=false;
@@ -22,7 +24,9 @@
     const current=select.value;
     const existing=new Set([...select.options].map(o=>String(o.value||o.textContent).trim().toLowerCase()).filter(Boolean));
     values.forEach(v=>{
-      const name=String(v||"").trim(); if(!name||existing.has(name.toLowerCase()))return;
+      const name=String(v||"").trim();
+      if(select.id==="grievanceType" && name.toLowerCase()==="assembly questions") return;
+      if(!name||existing.has(name.toLowerCase()))return;
       const o=document.createElement("option");o.value=name;o.textContent=name;select.appendChild(o);existing.add(name.toLowerCase());
     });
     if(current)select.value=current;

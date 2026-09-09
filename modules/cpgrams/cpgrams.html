@@ -200,432 +200,257 @@
 
 <div class="container-fluid mt-4 mb-5">
 
-<h4 class="text-center fw-bold mb-3">GRIEVANCE DATA ENTRY</h4>
+<h4 class="text-center fw-bold mb-3">GRIEVANCES DATA ENTRY</h4>
 
 <form id="cpgramsForm">
 
-<div class="card-header bg-primary text-white">
-
-    <h5 class="mb-0">
-        SECTION 1 : GRIEVANCE DETAILS
-    </h5>
-
-</div>
-
-<div class="card-body">
-
-    <div class="row g-3">
-
-        <!-- Grievance ID -->
-
-        <div class="col-md-4">
-
-            <label class="form-label">
-                Grievance ID
-            </label>
-
-           
-
-                <input
-                    type="text"
-                    id="grievanceId"
-                    class="form-control"
-                    readonly>
-                
-           
-
-        </div>
-
-        <!-- Grievance Number -->
-
-        <div class="col-md-4">
-
-            <label class="form-label">
-
-                Grievance Number
-
-                <span class="text-danger">*</span>
-
-            </label>
-
-            <input
-                type="text"
-                id="grievanceNumber"
-                class="form-control">
-
-        </div>
-
-
-        <!-- Date Received -->
-
-        <div class="col-md-4">
-
-            <label class="form-label">
-
-                Date Received
-
-                <span class="text-danger">*</span>
-
-            </label>
-
-            <div class="input-group">
-
-                <!-- Visible Date Received -->
-
-                <input
-                    type="text"
-                    id="dateReceived"
-                    class="form-control"
-                    placeholder="dd/mm/yyyy"
-                    maxlength="10"
-                    autocomplete="off">
-
-                <!-- Calendar Button -->
-
-                <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    id="dateReceivedPickerButton"
-                    title="Select Date">
-
-                    <i class="bi bi-calendar3"></i>
-
-                </button>
-
+<!-- ===========================================================
+     GRIEVANCE TYPE - FIRST FIELD
+============================================================ -->
+<div class="card shadow-sm mb-4" id="grievanceTypeSelectorCard">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">SELECT GRIEVANCE TYPE</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label fw-bold" for="grievanceType">
+                    Grievance Type <span class="text-danger">*</span>
+                </label>
+                <select id="grievanceType" class="form-select form-select-lg" required>
+                    <option value="" selected>Select Grievance Type</option>
+                    <option value="GRIEVANCES">GRIEVANCES</option>
+                    <option value="Prajavani">Prajavani</option>
+                    <option value="Public Grievances">Public Grievances</option>
+                    <option value="Direct Complaints">Direct Complaints</option>
+                    <option value="LAQ">LAQ</option>
+                    <option value="LCQ">LCQ</option>
+                    <option value="Court Cases">Court Cases</option>
+                    <option value="VIP References">VIP References</option>
+                    <option value="CMO References">CMO References</option>
+                    <option value="PMO References">PMO References</option>
+                    <option value="Audit Paras">Audit Paras</option>
+                    <option value="Vigilance Cases">Vigilance Cases</option>
+                </select>
             </div>
-
-            <!-- Hidden Native Calendar -->
-
-            <input
-                type="date"
-                id="dateReceivedPicker"
-                style="
-                    position:absolute;
-                    left:-9999px;
-                    width:1px;
-                    height:1px;
-                    opacity:0;
-                    pointer-events:none;
-                ">
-
+            <div class="col-md-6">
+                <div id="selectedGrievanceFormLabel" class="alert alert-primary mb-0 py-3">
+                    Select a Grievance Type to load the Data Entry Form
+                </div>
+            </div>
         </div>
-
     </div>
-
-
-    <!-- Row 2 -->
-
-    <div class="row g-3 mt-2">
-
-        <!-- Due Date -->
-
-        <div class="col-md-4">
-
-            <label class="form-label">
-                Due Date
-            </label>
-
-            <input
-                type="text"
-                id="dueDate"
-                class="form-control"
-                placeholder="dd/mm/yyyy"
-                maxlength="10"
-                readonly>
-
-        </div>
-
-
-        <!-- Priority -->
-
-        <div class="col-md-4">
-
-            <label class="form-label">
-                Priority
-            </label>
-
-            <select
-                id="priority"
-                class="form-select">
-
-                <option value="">
-                    Select
-                </option>
-
-                <option value="Normal">
-                    Normal
-                </option>
-
-                <option value="High">
-                    High
-                </option>
-
-                <option value="Urgent">
-                    Urgent
-                </option>
-
-            </select>
-
-        </div>
-
-        <!-- Grievance Type -->
-        <div class="col-md-4">
-            <label class="form-label">Grievance Type <span class="text-danger">*</span></label>
-            <select id="grievanceType" class="form-select" required>
-                <option value="">Select Grievance Type</option>
-                <option value="GRIEVANCES" selected>GRIEVANCES</option>
-                <option value="Prajavani">Prajavani</option>
-                <option value="Public Grievances">Public Grievances</option>
-                <option value="Direct Complaints">Direct Complaints</option>
-                <option value="Assembly Questions">Assembly Questions</option>
-                <option value="Court Cases">Court Cases</option>
-                <option value="VIP References">VIP References</option>
-                <option value="CMO References">CMO References</option>
-                <option value="PMO References">PMO References</option>
-                <option value="Audit Paras">Audit Paras</option>
-                <option value="Vigilance Cases">Vigilance Cases</option>
-            </select>
-        </div>
-
-    </div>
-
 </div>
 
-<!-- Continued Grievance Details -->
-        <!-- Row 1 -->
-
+<!-- ===========================================================
+     STANDARD GRIEVANCE SECTION 1
+     GRIEVANCES shows the full modified CPGRAMS section.
+     Other non-question grievance types show only the basic fields.
+============================================================ -->
+<div class="card shadow-sm d-none" id="standardSection1Card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">SECTION 1 : GRIEVANCE DETAILS</h5>
+    </div>
+    <div class="card-body">
         <div class="row g-3">
+            <div class="col-md-4 grievances-only-field">
+                <label class="form-label" for="grievanceNumber">
+                    Grievance Number <span class="text-danger">*</span>
+                </label>
+                <input type="text" id="grievanceNumber" class="form-control">
+            </div>
 
-            <!-- Subject -->
+            <div class="col-md-4">
+                <label class="form-label" for="dateReceived">
+                    Date Received <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                    <input type="text" id="dateReceived" class="form-control"
+                           placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off">
+                    <button type="button" class="btn btn-outline-secondary"
+                            id="dateReceivedPickerButton" title="Select Date">
+                        <i class="bi bi-calendar3"></i>
+                    </button>
+                </div>
+                <input type="date" id="dateReceivedPicker"
+                       style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;">
+            </div>
 
+            <div class="col-md-4">
+                <label class="form-label" for="dueDate">Due Date</label>
+                <input type="text" id="dueDate" class="form-control"
+                       placeholder="dd/mm/yyyy" maxlength="10" readonly>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-2">
             <div class="col-md-8">
-
-                <label class="form-label">
-
-                    Subject
-
-                    <span class="text-danger">*</span>
-
+                <label class="form-label" for="subject">
+                    Subject <span class="text-danger">*</span>
                 </label>
-
-                <input
-                    type="text"
-                    id="subject"
-                    class="form-control"
-                    maxlength="250">
-
+                <input type="text" id="subject" class="form-control" maxlength="250">
             </div>
 
-            <!-- Category -->
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-
-                    Category
-
-                    <span class="text-danger">*</span>
-
+            <div class="col-md-4 grievances-only-field">
+                <label class="form-label" for="category">
+                    Category <span class="text-danger">*</span>
                 </label>
-
-                <select
-                    id="category"
-                    class="form-select">
-
+                <select id="category" class="form-select">
                     <option value="">Select Category</option>
-
-                    <option>Roads</option>
-                    <option>Drinking Water</option>
-                    <option>Drainage</option>
-                    <option>Housing</option>
-                    <option>Pensions</option>
-                    <option>MGNREGS</option>
-                    <option>PMAY</option>
-                    <option>Sanitation</option>
-                    <option>Electricity</option>
-                    <option>Agriculture</option>
-                    <option>Revenue</option>
-                    <option>Education</option>
-                    <option>Health</option>
-                    <option>Others</option>
-
+                    <option>Roads</option><option>Drinking Water</option><option>Drainage</option>
+                    <option>Housing</option><option>Pensions</option><option>MGNREGS</option>
+                    <option>PMAY</option><option>Sanitation</option><option>Electricity</option>
+                    <option>Agriculture</option><option>Revenue</option><option>Education</option>
+                    <option>Health</option><option>Others</option>
                 </select>
-
             </div>
-
         </div>
 
-        <!-- Row 2 -->
-
         <div class="row g-3 mt-2">
-
             <div class="col-md-12">
-
-                <label class="form-label">
-
-                    Grievance Description
-
-                    <span class="text-danger">*</span>
-
+                <label class="form-label" for="grievanceDescription">
+                    Grievance Description <span class="text-danger">*</span>
                 </label>
-
-                <textarea
-                    id="grievanceDescription"
-                    class="form-control"
-                    rows="6"
-                    maxlength="5000"
-                    placeholder="Enter complete grievance details"></textarea>
-
-                <small class="text-muted">
-
-                    Maximum 5000 characters.
-
-                </small>
-
+                <textarea id="grievanceDescription" class="form-control" rows="6"
+                          maxlength="5000" placeholder="Enter complete grievance details"></textarea>
+                <small class="text-muted">Maximum 5000 characters.</small>
             </div>
-
         </div>
-
-        <!-- Row 3 -->
 
         <div class="row g-3 mt-2">
-
-            <!-- Upload -->
-
             <div class="col-md-6">
-
-                <label class="form-label">
-
-                    Upload Grievance Document
-
-                </label>
-
-                <input
-                    type="file"
-                    id="fileDocument"
-                    class="form-control"
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-
-                <small class="text-muted">
-
-                    Allowed Files :
-                    PDF, DOC, DOCX, JPG, JPEG, PNG
-
-                </small>
-
+                <label class="form-label" for="fileDocument">Upload Grievance Document</label>
+                <input type="file" id="fileDocument" class="form-control"
+                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                <small class="text-muted">Allowed Files: PDF, DOC, DOCX, JPG, JPEG, PNG</small>
             </div>
-
-            <!-- Source -->
-
-            <div class="col-md-6">
-
-                <label class="form-label">
-
-                    Grievance Source
-
-                </label>
-
-                <select
-                    id="source"
-                    class="form-select">
-
-                    <option value="CPGRAMS Portal">
-                        CPGRAMS Portal
-                    </option>
-
-                    <option>Prajavani</option>
-                    <option>Email</option>
-                    <option>Post</option>
-                    <option>In Person</option>
-                    <option>Telephone</option>
-                    <option>Collector Camp Office</option>
-                    <option>Other</option>
-
-                </select>
-
-            </div>
-
         </div>
 
-        <!-- Row 4 -->
+        <div class="row g-3 mt-2 grievances-only-field">
+            <div class="col-md-4">
+                <label class="form-label" for="natureOfGrievance">Nature of Grievance</label>
+                <select id="natureOfGrievance" class="form-select">
+                    <option value="">Select</option><option>Individual</option><option>Public</option><option>Community</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="priorityClassification">Priority Classification</label>
+                <select id="priorityClassification" class="form-select">
+                    <option>Normal</option><option>Urgent</option><option>Very Urgent</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="attachmentCount">Number of Attachments</label>
+                <input type="number" id="attachmentCount" class="form-control" value="0" min="0">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===========================================================
+     LAQ / LCQ DATA ENTRY
+============================================================ -->
+<div class="card shadow-sm d-none" id="questionEntryCard">
+    <div class="card-header bg-warning">
+        <h5 class="mb-0">LAQ / LCQ QUESTION DATA ENTRY</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label" for="questionSerialNo">S.No. <span class="text-danger">*</span></label>
+                <input type="number" id="questionSerialNo" class="form-control" min="1">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="questionType">Question Type <span class="text-danger">*</span></label>
+                <select id="questionType" class="form-select">
+                    <option value="LAQ">LAQ</option>
+                    <option value="LCQ">LCQ</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="questionReceivedDate">Received Date <span class="text-danger">*</span></label>
+                <input type="date" id="questionReceivedDate" class="form-control">
+            </div>
+            <div class="col-md-5">
+                <label class="form-label" for="questionConcernedSection">Concerned Section <span class="text-danger">*</span></label>
+                <select id="questionConcernedSection" class="form-select">
+                    <option value="">-- Select Section --</option>
+                </select>
+            </div>
+        </div>
 
         <div class="row g-3 mt-2">
-
-            <!-- Nature -->
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-
-                    Nature of Grievance
-
-                </label>
-
-                <select
-                    id="natureOfGrievance"
-                    class="form-select">
-
-                    <option value="">Select</option>
-
-                    <option>Individual</option>
-                    <option>Public</option>
-                    <option>Community</option>
-
-                </select>
-
+            <div class="col-md-12">
+                <label class="form-label" for="question">Question <span class="text-danger">*</span></label>
+                <textarea id="question" class="form-control" rows="5" maxlength="5000"></textarea>
             </div>
-
-            <!-- Priority Classification -->
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-
-                    Priority Classification
-
-                </label>
-
-                <select
-                    id="priorityClassification"
-                    class="form-select">
-
-                    <option>Normal</option>
-                    <option>Urgent</option>
-                    <option>Very Urgent</option>
-
-                </select>
-
-            </div>
-
-            <!-- No. of Attachments -->
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-
-                    Number of Attachments
-
-                </label>
-
-                <input
-                    type="number"
-                    id="attachmentCount"
-                    class="form-control"
-                    value="0"
-                    min="0">
-
-            </div>
-
         </div>
 
-    
+        <div class="row g-3 mt-2">
+            <div class="col-md-12">
+                <label class="form-label" for="answer">Answer</label>
+                <textarea id="answer" class="form-control" rows="5" maxlength="5000"></textarea>
+            </div>
+        </div>
 
+        <div class="row g-3 mt-2">
+            <div class="col-md-4">
+                <label class="form-label" for="answerFurnishedBy">Answer furnished by</label>
+                <select id="answerFurnishedBy" class="form-select">
+                    <option value="">-- Select Officer --</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="answerFurnishedTo">Answer furnished to</label>
+                <input type="text" id="answerFurnishedTo" class="form-control" maxlength="250">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="answerFurnishedDate">Date</label>
+                <input type="date" id="answerFurnishedDate" class="form-control">
+            </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+            <div class="col-md-4">
+                <label class="form-label" for="questionCommunicationType">Communication Type</label>
+                <select id="questionCommunicationType" class="form-select">
+                    <option value="">-- Select Communication Type --</option>
+                    <option>Letter</option><option>D.O. Letter</option><option>UO Note</option><option>Memo</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="questionFileNumber">File No.</label>
+                <input type="text" id="questionFileNumber" class="form-control" maxlength="100">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="questionCommunicationDate">Date</label>
+                <input type="date" id="questionCommunicationDate" class="form-control">
+            </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+            <div class="col-md-4">
+                <label class="form-label" for="questionFileStatus">File Status</label>
+                <select id="questionFileStatus" class="form-select">
+                    <option value="">-- Select File Status --</option>
+                    <option>Arised</option><option>Under Circulation</option><option>Despatched</option>
+                    <option>Reply Obtained</option><option>Closed</option>
+                </select>
+            </div>
+            <div class="col-md-8 d-flex align-items-end">
+                <div class="alert alert-info mb-0 w-100 py-2">
+                    Upload the supporting document in <strong>Section 4 : Attachments</strong> below.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- ===========================================================
      SECTION 2 : COMPLAINANT DETAILS
 ============================================================ -->
 
-<div class="card mt-4">
+<div class="card mt-4 d-none" id="sharedSection2Card">
 
     <div class="card-header bg-success text-white">
 
@@ -792,7 +617,7 @@
      SECTION 3 : OFFICE PROCESSING
 ============================================================ -->
 
-<div class="card shadow-sm mt-4">
+<div class="card shadow-sm mt-4 d-none" id="sharedSection3Card">
 
     <div class="card-header bg-info text-white">
 
@@ -848,53 +673,8 @@
                     class="form-control">
 
             </div>
-
-            <!-- Date Assigned -->
-
-            <div class="col-md-4">
-
-                <label class="form-label">
-
-                    Date Assigned
-
-                </label>
-
-                <input
-                    type="date"
-                    id="dateAssigned"
-                    class="form-control">
-
-            </div>
-
-        </div>
-
-        <!-- ============================================
-             ROW 2
-        ============================================= -->
-
-        <div class="row g-3 mt-2">
-
-            <!-- Office File Subject -->
-
-            <div class="col-md-12">
-
-                <label class="form-label">
-
-                    Office File Subject
-
-                </label>
-
-                <input
-                    type="text"
-                    id="officeSubject"
-                    class="form-control"
-                    maxlength="250">
-
-            </div>
-
-        </div>
-
-        <!-- ============================================
+</div>
+<!-- ============================================
              OFFICE PROCESSING: COMMUNICATION
         ============================================= -->
 
@@ -1233,11 +1013,11 @@
 SECTION 4 : ATTACHMENTS
 ======================================================= -->
 
-<div class="card mt-3">
+<div class="card mt-3 d-none" id="sharedSection4Card">
 
     <div class="card-header bg-primary text-white">
 
-        <h5 class="mb-0">
+        <h5 class="mb-0" id="section4Title">
             SECTION 4 : ATTACHMENTS
         </h5>
 

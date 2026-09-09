@@ -27,7 +27,7 @@ function f(key,label,required=false,source="",type="text"){return {key,label,req
 function s(key,label,required=false,source=""){return {key,label,required,source,type:"select"};}
 function b(key,label){return {key,label,type:"checkbox",default:true};}
 const DEFAULTS={
- grievanceTypes:["GRIEVANCES","Prajavani","Public Grievances","Direct Complaints","Assembly Questions","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"],
+ grievanceTypes:["GRIEVANCES","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"],
  districts:["Adilabad","Bhadradri Kothagudem","Hanumakonda","Hyderabad","Jagtial","Jangaon","Jayashankar Bhupalpally","Jogulamba Gadwal","Kamareddy","Karimnagar","Khammam","Komaram Bheem Asifabad","Mahabubabad","Mahabubnagar","Mancherial","Medak","Medchal-Malkajgiri","Mulugu","Nagarkurnool","Nalgonda","Narayanpet","Nirmal","Nizamabad","Peddapalli","Rajanna Sircilla","Rangareddy","Sangareddy","Siddipet","Suryapet","Vikarabad","Wanaparthy","Warangal","Yadadri Bhuvanagiri"],
  categories:["Roads","Drinking Water","Drainage","Housing","Pensions","MGNREGS","PMAY","Sanitation","Electricity","Agriculture","Revenue","Education","Health","Others"],
  sources:["CPGRAMS Portal","Prajavani","Email","Post","In Person","Telephone","Collector Camp Office","Other"],

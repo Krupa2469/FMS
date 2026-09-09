@@ -74,7 +74,7 @@ async function initializePage() {
 
         console.clear();
 
-        console.log("CPGRAMS Version 5.1 Initializing...");
+        console.log("GRIEVANCES Version 5.3 Initializing...");
 
         registerButtonEvents();
 
@@ -203,9 +203,9 @@ function registerButtonEvents() {
             module:"GRIEVANCES",
             title:"Grievance Message",
             defaultMessage:`Grievance Update
-Grievance No: ${document.getElementById("grievanceNumber")?.value||""}
-Subject: ${document.getElementById("subject")?.value||""}
-Status: ${document.getElementById("currentStatus")?.value||document.getElementById("finalStatus")?.value||""}
+Reference: ${document.getElementById("grievanceNumber")?.value || ((document.getElementById("questionType")?.value||"") + (document.getElementById("questionSerialNo")?.value ? " #"+document.getElementById("questionSerialNo").value : ""))}
+Subject / Question: ${document.getElementById("subject")?.value||document.getElementById("question")?.value||""}
+Status: ${document.getElementById("currentStatus")?.value||document.getElementById("questionFileStatus")?.value||document.getElementById("finalStatus")?.value||""}
 
 Please type or edit your custom message.`,
             message:(m,t)=>showMessage(t||"info",m)
@@ -221,6 +221,21 @@ Please type or edit your custom message.`,
 ==========================================================*/
 
 function registerFieldEvents() {
+
+    document.getElementById("grievanceType")
+        ?.addEventListener("change", function () {
+            updateGrievanceFormLayout();
+            markDirty();
+        });
+
+    document.getElementById("questionType")
+        ?.addEventListener("change", function () {
+            const type = this.value || "LAQ";
+            const grievanceType = document.getElementById("grievanceType");
+            if (grievanceType) grievanceType.value = type;
+            updateGrievanceFormLayout();
+            markDirty();
+        });
 
     document.getElementById("district")
         ?.addEventListener("change", districtChanged);
@@ -271,14 +286,20 @@ async function loadMasterData() {
 
         await loadDistricts();
 
-        await loadPriorities();
-
         loadOfficers(
             "assignedOfficer"
         );
 
-        loadSections(
+        loadOfficers(
+            "answerFurnishedBy"
+        );
+
+        await loadSections(
             "section"
+        );
+
+        await loadSections(
+            "questionConcernedSection"
         );
 
     }
@@ -289,6 +310,65 @@ async function loadMasterData() {
     }
 
 }
+/*==========================================================
+ DYNAMIC GRIEVANCE TYPE FORM
+==========================================================*/
+
+const QUESTION_GRIEVANCE_TYPES = new Set(["LAQ", "LCQ"]);
+
+function getSelectedGrievanceType() {
+    return String(getControlValue("grievanceType") || "").trim();
+}
+
+function isQuestionGrievanceType(type = getSelectedGrievanceType()) {
+    return QUESTION_GRIEVANCE_TYPES.has(String(type || "").toUpperCase());
+}
+
+function updateGrievanceFormLayout() {
+    const type = getSelectedGrievanceType();
+    const normalized = type.toUpperCase();
+    const hasType = Boolean(normalized);
+    const questionMode = hasType && isQuestionGrievanceType(normalized);
+    const fullGrievancesMode = normalized === "GRIEVANCES";
+
+    getControl("standardSection1Card")?.classList.toggle("d-none", !hasType || questionMode);
+    getControl("questionEntryCard")?.classList.toggle("d-none", !questionMode);
+    getControl("sharedSection2Card")?.classList.toggle("d-none", !hasType || questionMode);
+    getControl("sharedSection3Card")?.classList.toggle("d-none", !hasType || questionMode);
+    getControl("sharedSection4Card")?.classList.toggle("d-none", !hasType);
+
+    document.querySelectorAll(".grievances-only-field").forEach(function (el) {
+        el.classList.toggle("d-none", !fullGrievancesMode);
+    });
+
+    const due = getControl("dueDate");
+    if (due) {
+        due.readOnly = fullGrievancesMode;
+        due.placeholder = fullGrievancesMode ? "Auto calculated" : "dd/mm/yyyy";
+    }
+
+    if (questionMode) {
+        const q = getControl("questionType");
+        if (q && q.value !== normalized) q.value = normalized;
+    }
+
+    const label = getControl("selectedGrievanceFormLabel");
+    if (label) {
+        label.textContent = !hasType
+            ? "Select a Grievance Type to load the Data Entry Form"
+            : questionMode
+                ? `${normalized} Question Data Entry Form`
+                : `${type} Data Entry Form`;
+    }
+
+    const section4Title = getControl("section4Title");
+    if (section4Title) {
+        section4Title.textContent = questionMode
+            ? "UPLOAD DOCUMENT"
+            : "SECTION 4 : ATTACHMENTS";
+    }
+}
+
 /*==========================================================
  FORM HELPERS
 ==========================================================*/
@@ -426,9 +506,7 @@ function clearForm() {
 
     refreshButtons();
 
-    generateGrievanceId();
-
-    calculateDueDateFromDisplay("");
+    updateGrievanceFormLayout();
 
     clearMessage?.();
 
@@ -437,7 +515,7 @@ function clearForm() {
     renderAttachments();
 
     getControl(
-        "grievanceNumber"
+        "grievanceType"
     )?.focus();
 
 }
@@ -450,6 +528,10 @@ function populateForm(grievance) {
 
     if (!grievance)
         return;
+
+    if (!grievance.grievanceType) {
+        grievance.grievanceType = "GRIEVANCES";
+    }
 
     Object.keys(grievance)
         .forEach(key => {
@@ -466,7 +548,15 @@ function populateForm(grievance) {
 
         });
 
-    calculateDueDateFromDisplay("");
+    if (isQuestionGrievanceType(grievance.grievanceType) && !getControlValue("questionType")) {
+        setControlValue("questionType", String(grievance.grievanceType || "").toUpperCase());
+    }
+
+    updateGrievanceFormLayout();
+
+    if (getSelectedGrievanceType().toUpperCase() === "GRIEVANCES" && grievance.dateReceived) {
+        calculateDueDateFromDisplay(String(grievance.dateReceived));
+    }
 
     if (window.FMSOfficeProcessing) {
         window.FMSOfficeProcessing.populateOfficeProcessing(grievance);
@@ -651,6 +741,35 @@ function buildGrievanceObject() {
 
         });
 
+    const grievanceType = String(grievance.grievanceType || "").trim();
+    const questionMode = isQuestionGrievanceType(grievanceType);
+
+    if (questionMode) {
+        grievance.grievanceType = String(grievance.questionType || grievanceType).toUpperCase();
+        grievance.dateReceived = grievance.questionReceivedDate || "";
+        grievance.subject = grievance.question || "";
+        grievance.grievanceDescription = grievance.question || "";
+        grievance.section = grievance.questionConcernedSection || "";
+        grievance.assignedOfficer = grievance.answerFurnishedBy || "";
+        grievance.officeLetterAddressedTo = grievance.answerFurnishedTo || "";
+        grievance.officeCommunicationType = grievance.questionCommunicationType || "";
+        grievance.fileNumber = grievance.questionFileNumber || "";
+        grievance.officeStatus = grievance.questionFileStatus || "";
+        grievance.currentStatus = grievance.questionFileStatus || "";
+        grievance.grievanceNumber = "";
+        grievance.dueDate = "";
+        grievance.complainantName = "";
+        grievance.category = "";
+        grievance.natureOfGrievance = "";
+        grievance.priorityClassification = "";
+    } else if (grievanceType.toUpperCase() !== "GRIEVANCES") {
+        grievance.grievanceNumber = "";
+        grievance.category = "";
+        grievance.natureOfGrievance = "";
+        grievance.priorityClassification = "";
+        grievance.attachmentCount = "";
+    }
+
     grievance.district =
         getHybridValue(
             "district",
@@ -669,6 +788,10 @@ function buildGrievanceObject() {
             "villageManual"
         );
 
+    if (questionMode) {
+        grievance.section = grievance.questionConcernedSection || "";
+    }
+
     grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || "")
         .trim()
         .toUpperCase()
@@ -678,7 +801,7 @@ function buildGrievanceObject() {
         new Date();
 
     grievance.version =
-        "5.2";
+        "5.3";
 
     return grievance;
 
@@ -691,44 +814,50 @@ function validateForm() {
 
     clearMessage?.();
 
-    const requiredFields = [
+    const type = getSelectedGrievanceType();
 
-        ["grievanceNumber", "Grievance Number"],
-        ["dateReceived", "Date Received"],
-        ["grievanceType", "Grievance Type"],
-        ["complainantName", "Complainant Name"],
-        ["subject", "Subject"],
-        ["grievanceDescription", "Grievance Description"]
-
-    ];
-
-    for (const field of requiredFields) {
-
-        const control = getControl(field[0]);
-
-        if (!control)
-            continue;
-
-        if (control.value.trim() === "") {
-
-            showMessage(
-                "warning",
-                field[1] + " is required."
-            );
-
-            control.focus();
-
-            return false;
-
-        }
-
+    if (!type) {
+        showMessage("warning", "Grievance Type is required.");
+        getControl("grievanceType")?.focus();
+        return false;
     }
 
-    if (!validateMobile())
+    let requiredFields;
+
+    if (isQuestionGrievanceType(type)) {
+        requiredFields = [
+            ["questionSerialNo", "S.No."],
+            ["questionType", "Question Type"],
+            ["questionReceivedDate", "Received Date"],
+            ["questionConcernedSection", "Concerned Section"],
+            ["question", "Question"]
+        ];
+    } else {
+        requiredFields = [
+            ["dateReceived", "Date Received"],
+            ["complainantName", "Complainant Name"],
+            ["subject", "Subject"],
+            ["grievanceDescription", "Grievance Description"]
+        ];
+        if (type.toUpperCase() === "GRIEVANCES") {
+            requiredFields.unshift(["grievanceNumber", "Grievance Number"]);
+        }
+    }
+
+    for (const field of requiredFields) {
+        const control = getControl(field[0]);
+        if (!control) continue;
+        if (String(control.value || "").trim() === "") {
+            showMessage("warning", field[1] + " is required.");
+            control.focus();
+            return false;
+        }
+    }
+
+    if (!isQuestionGrievanceType(type) && !validateMobile())
         return false;
 
     return true;
-
 }
 
 /*==========================================================
@@ -765,6 +894,9 @@ function validateMobile() {
 ==========================================================*/
 
 async function validateDuplicate() {
+
+    if (getSelectedGrievanceType().toUpperCase() !== "GRIEVANCES")
+        return true;
 
     const grievanceNumber =
         getControlValue(
@@ -1457,6 +1589,10 @@ function initializeDateReceivedPicker() {
 function calculateDueDateFromDisplay(
     dateValue
 ) {
+
+    if (getSelectedGrievanceType().toUpperCase() !== "GRIEVANCES") {
+        return;
+    }
 
     if (!dateValue) {
         return;

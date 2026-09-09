@@ -455,17 +455,17 @@ function renderRegisterTable() {
 
         <td>${item.grievanceId ?? item.id ?? ""}</td>
 
-        <td>${item.grievanceNumber ?? item.grievanceNo ?? item.registrationNumber ?? ""}</td>
+        <td>${item.grievanceNumber ?? item.grievanceNo ?? item.registrationNumber ?? ((item.questionType && item.questionSerialNo) ? `${item.questionType}-${item.questionSerialNo}` : "")}</td>
 
-        <td>${item.dateReceived ?? ""}</td>
+        <td>${item.dateReceived ?? item.questionReceivedDate ?? ""}</td>
 
         <td>${item.complainantName ?? ""}</td>
 
         <td>${item.district ?? ""}</td>
 
-        <td>${item.subject ?? ""}</td>
+        <td>${item.subject ?? item.question ?? ""}</td>
 
-        <td>${item.currentStatus ?? ""}</td>
+        <td>${item.currentStatus ?? item.questionFileStatus ?? ""}</td>
 
         <td>${item.dueDate ?? ""}</td>
 
@@ -1132,12 +1132,12 @@ function getCPGRAMSExportRows() {
     return (filteredList || []).map((item, index) => ({
         sl: index + 1,
         grievanceId: item.grievanceId ?? item.id ?? "",
-        grievanceNumber: item.grievanceNumber ?? item.grievanceNo ?? item.registrationNumber ?? "",
+        grievanceNumber: item.grievanceNumber ?? item.grievanceNo ?? item.registrationNumber ?? ((item.questionType && item.questionSerialNo) ? `${item.questionType}-${item.questionSerialNo}` : ""),
         dateReceived: item.dateReceived ?? item.dateArised ?? "",
         complainantName: item.complainantName ?? "",
         district: item.district ?? "",
-        subject: item.subject ?? "",
-        currentStatus: item.currentStatus ?? item.statusOfFile ?? item.officeStatus ?? "",
+        subject: item.subject ?? item.question ?? "",
+        currentStatus: item.currentStatus ?? item.questionFileStatus ?? item.statusOfFile ?? item.officeStatus ?? "",
         dueDate: item.dueDate ?? "",
         priority: item.priority ?? item.priorityClassification ?? "",
         finalStatus: item.finalStatus ?? ""

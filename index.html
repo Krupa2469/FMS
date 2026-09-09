@@ -65,7 +65,7 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:22px 
 ========================================================== */
 const homeCollections={cpgrams:'cpgrams',rti:'rtiApplications',disha:'dishaMeetings'};
 const homeDateFields={cpgrams:['dateReceived','dateArised','receivedDate','date'],rti:['applicationDate','date','dateReceived'],disha:['dateOfMeeting','meetingDate','date']};
-const HOME_CATEGORIES=["GRIEVANCES","Prajavani","Public Grievances","Direct Complaints","Assembly Questions","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
+const HOME_CATEGORIES=["GRIEVANCES","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
 let homeRows={cpgrams:[],rti:[],disha:[]};
 let homeInitialized=false;
 
@@ -132,8 +132,8 @@ function updateHomeCards(){
   const cpRows=homeRows.cpgrams.filter(r=>homeRecordFY(r,homeDateFields.cpgrams)===fy);
   const rti=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti)===fy).length;
   const disha=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha)===fy).length;
-  const icons=['bi-file-earmark-text','bi-megaphone','bi-chat-left-text','bi-person-raised-hand','bi-building','bi-bank','bi-star','bi-person-badge','bi-envelope-paper','bi-clipboard-check','bi-shield-exclamation'];
-  const colors=['primary','success','info','warning','secondary','dark','danger','primary','success','warning','danger'];
+  const icons=['bi-file-earmark-text','bi-megaphone','bi-chat-left-text','bi-person-raised-hand','bi-question-square','bi-question-diamond','bi-bank','bi-star','bi-person-badge','bi-envelope-paper','bi-clipboard-check','bi-shield-exclamation'];
+  const colors=['primary','success','info','warning','secondary','dark','dark','danger','primary','success','warning','danger'];
   let html='';
   HOME_CATEGORIES.forEach((cat,i)=>{
     const count=homeCategoryKey(cat)==="grievances" ? cpRows.length : cpRows.filter(r=>categoryMatchesHome(r,cat)).length;
