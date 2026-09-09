@@ -282,16 +282,8 @@
 
             <div class="col-md-2">
 
-                <button
-                    type="button"
-                    id="btnPrint"
-                    class="btn btn-dark w-100">
+                
 
-                    <i class="bi bi-printer"></i>
-                    Print / PDF
-
-                </button>
-<button type="button" id="btnJPEG" class="btn btn-secondary"><i class="bi bi-image"></i> JPEG</button>
 
             </div>
 
@@ -854,11 +846,8 @@
 <script src="disha-daily-status.js"></script>
 
 
-<script>
-document.addEventListener("DOMContentLoaded",function fmsDailyJPEGExport(){
- document.getElementById("btnJPEG")?.addEventListener("click",async()=>{try{await window.FMSExportService.elementToJPEG({element:document.querySelector(".container-fluid")||document.body,title:"DISHA Daily Status Report",filename:"DISHA Daily Status Report"});}catch(e){alert(e.message||e);}});
-});
-</script>
+
+<script src="../../js/module-navigation.js"></script>
 </body>
 
 </html>

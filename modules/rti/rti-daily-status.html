@@ -631,17 +631,8 @@
         id="btnWhatsApp"> <i class="bi bi-whatsapp"></i> WhatsApp </button>
 
 
-    <button
-        type="button"
-        class="btn btn-dark"
-        id="btnPrint">
+    
 
-        <i class="bi bi-printer"></i>
-
-        Print / PDF
-
-    </button>
-<button type="button" id="btnJPEG" class="btn btn-secondary"><i class="bi bi-image"></i> JPEG</button>
 
 
     <button
@@ -1122,11 +1113,8 @@
 <script src="rti-daily-status.js"></script>
 
 
-<script>
-document.addEventListener("DOMContentLoaded",function fmsDailyJPEGExport(){
- document.getElementById("btnJPEG")?.addEventListener("click",async()=>{try{await window.FMSExportService.elementToJPEG({element:document.querySelector(".container-fluid")||document.body,title:"RTI Daily Status Report",filename:"RTI Daily Status Report"});}catch(e){alert(e.message||e);}});
-});
-</script>
+
+<script src="../../js/module-navigation.js"></script>
 </body>
 
 </html>

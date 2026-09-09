@@ -2,6 +2,7 @@
 "use strict";
 (function(window,document){
 const MASTER_DEFS={
+ grievanceTypes:{label:"Grievance Types",fields:[f("name","Grievance Type",true),f("code","Code"),f("description","Description",false,"","textarea"),b("active","Active")]},
  districts:{label:"Districts",fields:[f("name","District Name",true),f("code","Code"),f("description","Description",false,"","textarea"),b("active","Active")]},
  mandals:{label:"Mandals",fields:[s("district","District",true,"districts"),f("name","Mandal Name",true),f("code","Code"),f("description","Description",false,"","textarea"),b("active","Active")]},
  villages:{label:"Villages",fields:[s("district","District",true,"districts"),s("mandal","Mandal",true,"mandals"),f("name","Village Name",true),f("code","Code"),f("description","Description",false,"","textarea"),b("active","Active")]},
@@ -26,6 +27,7 @@ function f(key,label,required=false,source="",type="text"){return {key,label,req
 function s(key,label,required=false,source=""){return {key,label,required,source,type:"select"};}
 function b(key,label){return {key,label,type:"checkbox",default:true};}
 const DEFAULTS={
+ grievanceTypes:["GRIEVANCES","Prajavani","Public Grievances","Direct Complaints","Assembly Questions","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"],
  districts:["Adilabad","Bhadradri Kothagudem","Hanumakonda","Hyderabad","Jagtial","Jangaon","Jayashankar Bhupalpally","Jogulamba Gadwal","Kamareddy","Karimnagar","Khammam","Komaram Bheem Asifabad","Mahabubabad","Mahabubnagar","Mancherial","Medak","Medchal-Malkajgiri","Mulugu","Nagarkurnool","Nalgonda","Narayanpet","Nirmal","Nizamabad","Peddapalli","Rajanna Sircilla","Rangareddy","Sangareddy","Siddipet","Suryapet","Vikarabad","Wanaparthy","Warangal","Yadadri Bhuvanagiri"],
  categories:["Roads","Drinking Water","Drainage","Housing","Pensions","MGNREGS","PMAY","Sanitation","Electricity","Agriculture","Revenue","Education","Health","Others"],
  sources:["CPGRAMS Portal","Prajavani","Email","Post","In Person","Telephone","Collector Camp Office","Other"],
@@ -37,7 +39,7 @@ const DEFAULTS={
  grievanceNature:["Individual","Public","Community"],contactMethods:["Mobile","Post","Email"],genderMaster:["Male","Female","Transgender","Other"],
  meetingStatuses:["Held","To be held","Postponed"],billStatuses:["Not Submitted","Submitted","Under Process","Approved","Rejected"]
 };
-const MODULE_SOURCES={cpgrams:{collection:"cpgrams",map:{districts:["district"],mandals:["mandal"],villages:["village"],departments:["department","departmentName"],sections:["section","assignedSection","officeReplySection"],officers:["assignedOfficer","assignedTo","officeLetterAddressedTo"],designations:["designation","officerDesignation"],categories:["category","grievanceCategory"],sources:["source","grievanceSource"],priorityLevels:["priority","priorityClassification"],statusMaster:["currentStatus","finalStatus","officeStatus","statusOfFile","status"],fileLocations:["fileLocation"],officeCommunicationTypes:["officeCommunicationType"],fileStatuses:["officeStatus","statusOfFile"],grievanceNature:["natureOfGrievance"],contactMethods:["preferredContact"],genderMaster:["gender"]}},
+const MODULE_SOURCES={cpgrams:{collection:"cpgrams",map:{grievanceTypes:["grievanceType","referenceType","type"],districts:["district"],mandals:["mandal"],villages:["village"],departments:["department","departmentName"],sections:["section","assignedSection","officeReplySection"],officers:["assignedOfficer","assignedTo","officeLetterAddressedTo"],designations:["designation","officerDesignation"],categories:["category","grievanceCategory"],sources:["source","grievanceSource"],priorityLevels:["priority","priorityClassification"],statusMaster:["currentStatus","finalStatus","officeStatus","statusOfFile","status"],fileLocations:["fileLocation"],officeCommunicationTypes:["officeCommunicationType"],fileStatuses:["officeStatus","statusOfFile"],grievanceNature:["natureOfGrievance"],contactMethods:["preferredContact"],genderMaster:["gender"]}},
  rti:{collection:"rtiApplications",map:{districts:["district"],mandals:["mandal"],villages:["village"],departments:["department","departmentName"],sections:["section","officeReplySection","assignedSection"],officers:["assignedTo","assignedOfficer","officeLetterAddressedTo"],designations:["designation","officerDesignation"],statusMaster:["presentStatus","officeStatus","status"],officeCommunicationTypes:["officeCommunicationType"],fileStatuses:["officeStatus","statusOfFile"]}},
  disha:{collection:"dishaMeetings",map:{districts:["district","nameOfDistrict"],sections:["section","officeReplySection"],officers:["assignedOfficer","officeLetterAddressedTo"],statusMaster:["statusOfMeeting","statusOfBills","officeStatus","status"],officeCommunicationTypes:["officeCommunicationType"],fileStatuses:["officeStatus"],meetingStatuses:["statusOfMeeting"],billStatuses:["statusOfBills"]}}
 };
@@ -51,7 +53,7 @@ function initUI(){
  sel.onchange=()=>switchMaster(sel.value); document.querySelectorAll("[data-master]").forEach(b=>b.onclick=()=>{sel.value=b.dataset.master;switchMaster(b.dataset.master);});
  $("masterSearch").oninput=renderGrid; $("masterForm").onsubmit=e=>{e.preventDefault();saveRecord();}; $("btnNew").onclick=clearForm;$("btnClear").onclick=clearForm;$("btnUpdate").onclick=updateRecord;$("btnDelete").onclick=deleteRecord;$("btnSync").onclick=()=>syncExistingData(true);
  $("btnHome").onclick=()=>location.href="../../index.html";$("btnReports").onclick=()=>location.href="../reports.html";$("btnReportsMaster").onclick=()=>location.href="reports-master.html";
- $("btnExcel").onclick=()=>exportCurrent("excel");$("btnPDF").onclick=()=>exportCurrent("pdf");$("btnJPEG").onclick=()=>exportCurrent("jpeg");$("btnPrint").onclick=()=>exportCurrent("print");
+
 }
 async function switchMaster(type){currentType=type;selectedId=null;await renderForm();await loadGrid();}
 async function optionsFrom(collection){try{const snap=await db.collection(collection).get();return snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false&&x.name).sort((a,b)=>val(a.name).localeCompare(val(b.name)));}catch(e){console.warn("Master option load failed",collection,e);return [];}}

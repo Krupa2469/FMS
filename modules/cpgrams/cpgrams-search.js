@@ -34,7 +34,7 @@ async function refreshCPGRAMSSearch(){
         renderCPGRAMSSearch();
     }catch(error){
         console.error("CPGRAMS search load error", error);
-        alert("Unable to load CPGRAMS records. Please check the Firebase connection.");
+        alert("Unable to load grievance records. Please check the Firebase connection.");
     }
 }
 
@@ -130,7 +130,7 @@ function cpgramsSearchExportRows(){
 }
 async function exportCPGRAMSSearch(type){
     try{
-        const rows=cpgramsSearchExportRows(),columns=[{key:"sl",label:"Sl.No"},{key:"grievanceNumber",label:"Grievance No."},{key:"fileNo",label:"File No."},{key:"name",label:"Name"},{key:"district",label:"District"},{key:"status",label:"Status"},{key:"dueDate",label:"Due Date"}],title="CPGRAMS Search Results";
+        const rows=cpgramsSearchExportRows(),columns=[{key:"sl",label:"Sl.No"},{key:"grievanceNumber",label:"Grievance No."},{key:"fileNo",label:"File No."},{key:"name",label:"Name"},{key:"district",label:"District"},{key:"status",label:"Status"},{key:"dueDate",label:"Due Date"}],title="Grievance Search Results";
         if(type==="excel")await FMSExportService.toExcel({rows,columns,title});
         if(type==="pdf")await FMSExportService.toPDF({rows,columns,title});
         if(type==="jpeg")await FMSExportService.toJPEG({rows,columns,title});
