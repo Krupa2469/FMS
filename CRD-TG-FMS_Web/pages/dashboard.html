@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>FMS Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+
+<link rel="stylesheet"
+      href="../css/style.css">
+
+<link rel="stylesheet"
+      href="../css/dashboard.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+</head>
+
+<body>
+
+    <div class="text-end">
+
+    <button class="btn btn-success"
+            onclick="refreshDashboard()">
+
+        Refresh
+
+    </button>
+
+    <button class="btn btn-success ms-2"
+            id="btnWhatsAppDashboard">
+
+        <i class="bi bi-whatsapp"></i> WhatsApp
+
+    </button>
+
+</div>
+<!-- HEADER -->
+
+<header class="bg-primary text-white text-center py-3 shadow">
+
+    <h5 class="mb-1">
+        GOVERNMENT OF TELANGANA
+    </h5>
+
+    <h6 class="mb-1">
+        OFFICE OF THE COMMISSIONER,RURAL DEVELOPMENT
+    </h6>
+
+    <h2 class="fw-bold">
+        FILE MANAGEMENT SYSTEM (FMS)
+    </h2>
+
+</header>
+
+<div class="container-fluid mt-4">
+
+    <!-- PAGE TITLE -->
+
+    <div class="row mb-4">
+
+        <div class="col">
+
+            <h3>
+                Dashboard
+            </h3>
+
+        </div>
+
+    </div>
+
+    <!-- STATISTICS -->
+
+    <div class="row g-3">
+
+        <div class="col-md-2">
+
+            <div class="card dashboard-card text-center">
+
+                <div class="card-body">
+
+                    <h6>Total Files</h6>
+
+                    <h2 id="totalFiles">0</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-2">
+
+            <div class="card dashboard-card text-center">
+
+                <div class="card-body">
+
+                    <h6>Pending</h6>
+
+                    <h2 id="pendingFiles">0</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-2">
+
+            <div class="card dashboard-card text-center">
+
+                <div class="card-body">
+
+                    <h6>Disposed</h6>
+
+                    <h2 id="disposedFiles">0</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-2">
+
+            <div class="card dashboard-card text-center">
+
+                <div class="card-body">
+
+                    <h6>Overdue</h6>
+
+                    <h2 id="overdueFiles">0</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-2">
+
+            <div class="card dashboard-card text-center">
+
+                <div class="card-body">
+
+                    <h6>Today's Receipts</h6>
+
+                    <h2 id="todayReceipts">0</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-2">
+
+            <div class="card dashboard-card text-center">
+
+                <div class="card-body">
+
+                    <h6>Today's Disposal</h6>
+
+                    <h2 id="todayDisposals">0</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+
+<div class="row mt-5">
+
+    <div class="col">
+
+        <h4>Quick Actions</h4>
+
+    </div>
+
+</div>
+
+<div class="row g-3">
+
+    <div class="col-md-3">
+
+        <button class="btn btn-success btn-module"
+                onclick="newCPGRAMS()">
+
+            ➕ New CPGRAMS
+
+        </button>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <button class="btn btn-primary btn-module"
+                onclick="openSearch()">
+
+            🔍 Search Files
+
+        </button>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <button class="btn btn-warning btn-module"
+                onclick="openReports()">
+
+            📊 Reports
+
+        </button>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <button class="btn btn-secondary btn-module"
+                onclick="openMasters()">
+
+            ⚙ Masters
+
+        </button>
+
+    </div>
+
+</div>
+
+   <!-- MODULES -->
+
+<div class="row mt-5">
+    <div class="col">
+        <h4>Modules</h4>
+    </div>
+</div>
+
+<div class="row g-3">
+
+    <div class="col-md-3">
+        <button class="btn btn-primary btn-module w-100"
+                onclick="openModule('cpgrams')">
+            <h3>CPGRAMS</h3>
+        </button>
+    </div>
+
+    <div class="col-md-3">
+        <button class="btn btn-success btn-module w-100"
+                onclick="openModule('prajavani')">
+            <h3>Prajavani</h3>
+        </button>
+    </div>
+
+    <div class="col-md-3">
+        <button class="btn btn-warning btn-module w-100"
+                onclick="openModule('rti')">
+            <h3>RTI</h3>
+        </button>
+    </div>
+
+    <div class="col-md-3">
+        <button class="btn btn-danger btn-module w-100"
+                onclick="openModule('reports')">
+            <h3>Reports</h3>
+        </button>
+    </div>
+
+</div>
+
+    <!-- RECENT FILES -->
+
+    <div class="row mt-5">
+
+        <div class="col">
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h5 class="mb-0">
+
+                        Recent Files
+
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table table-bordered table-hover">
+
+                        <thead>
+
+<tr>
+
+    <th width="150">File No</th>
+
+    <th width="120">Date</th>
+
+    <th>Subject</th>
+
+    <th width="180">District</th>
+
+    <th width="150">Status</th>
+
+</tr>
+
+</thead>
+
+                        <tbody id="recentFiles">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+<!-- ======================================================
+     SYSTEM INFORMATION
+======================================================= -->
+
+<div class="row mt-5">
+
+    <div class="col-md-12">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-dark text-white">
+
+                <h5 class="mb-0">System Information</h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <strong>Application</strong><br>
+                        File Management System
+                    </div>
+
+                    <div class="col-md-3">
+                        <strong>Version</strong><br>
+                        <span id="appVersion">1.0.0</span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <strong>Storage</strong><br>
+                        Local Storage
+                    </div>
+
+                    <div class="col-md-3">
+                        <strong>Total Records</strong><br>
+                        <span id="totalRecords">0</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================
+     FOOTER
+======================================================= -->
+
+<footer class="text-center mt-4 mb-3">
+
+    <hr>
+
+    <small>
+
+        © 2026 Lekha Technologies |
+        File Management System (FMS) |
+        Version 1.0.0
+
+    </small>
+
+</footer>
+
+<script src="../js/storage.js"></script>
+<script src="../js/master-data.js"></script>
+<script src="../js/report-engine.js"></script>
+<script src="../js/navigation.js"></script>
+<script src="dashboard-recent.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
+<script src="../js/services/whatsapp-service.js"></script>
+<script src="../js/dashboard.js"></script>
+<script src="../modules/cpgrams/cpgrams-register.js"></script>
+
+</body>
+
+</html>

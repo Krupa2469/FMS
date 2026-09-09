@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Firebase Test</title>
+</head>
+<body>
+
+<h2>Firebase Connection Test</h2>
+
+<button id="btnTest">Test Firestore</button>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+
+<script src="js/firebase/firebase-config.js"></script>
+
+<script>
+
+document.getElementById("btnTest").addEventListener("click", async () => {
+
+    try {
+
+        await db.collection("test")
+            .doc("connection")
+            .set({
+
+                status: "Connected",
+
+                date: new Date().toISOString()
+
+            });
+
+        alert("✅ Firestore Connected Successfully");
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert("❌ " + error.message);
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
