@@ -79,9 +79,9 @@ function registerEvents() {
     if (btnWhatsApp) btnWhatsApp.addEventListener("click", async () => {
         const visible = document.querySelector("tbody")?.innerText || "";
         await window.FMSWhatsAppService?.compose({
-            module:"CPGRAMS",
-            title:"CPGRAMS Register Message",
-            defaultMessage:`CPGRAMS Register Update\nStatus as on: ${new Date().toLocaleDateString("en-IN")}\n\n${visible.slice(0,2800)}\n\nPlease type or edit your custom message.`,
+            module:"GRIEVANCES",
+            title:"Grievance Register Message",
+            defaultMessage:`Grievance Register Update\nStatus as on: ${new Date().toLocaleDateString("en-IN")}\n\n${visible.slice(0,2800)}\n\nPlease type or edit your custom message.`,
             message:(m)=>typeof showMessage==="function" ? showMessage("info",m) : typeof showRTIMessage==="function" ? showRTIMessage(m,"info") : typeof showDishaMessage==="function" ? showDishaMessage(m,"info") : null
         });
     });
@@ -329,8 +329,8 @@ function applyURLFilter(){
  if(category){
    const selected=String(category).trim().toLowerCase().replace(/\s+/g," ").replace(/\bcomplaint\b/g,"complaints").replace(/\breference\b/g,"references").replace(/\bpara\b/g,"paras");
    base=base.filter(r=>{
-     const actual=String(r.category||r.grievanceType||r.referenceType||r.source||r.type||"").trim().toLowerCase().replace(/\s+/g," ").replace(/\bcomplaint\b/g,"complaints").replace(/\breference\b/g,"references").replace(/\bpara\b/g,"paras");
-     if(selected==="cpgrams") return !actual || ["cpgrams","cpgrams portal","cpgram"].includes(actual);
+     const actual=String(r.grievanceType||r.referenceType||r.type||r.grievanceSource||r.source||r.category||"").trim().toLowerCase().replace(/\s+/g," ").replace(/\bcomplaint\b/g,"complaints").replace(/\breference\b/g,"references").replace(/\bpara\b/g,"paras");
+     if(selected==="grievances" || selected==="cpgrams") return true;
      return actual===selected;
    });
  }

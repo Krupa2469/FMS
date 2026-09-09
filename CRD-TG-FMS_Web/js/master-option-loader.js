@@ -6,7 +6,7 @@
 (function(window,document){
   "use strict";
   const MAP={
-    district:"districts", category:"categories", source:"sources",
+    district:"districts", grievanceType:"grievanceTypes", category:"categories", source:"sources",
     priority:"priorityLevels", priorityClassification:"priorityLevels",
     natureOfGrievance:"grievanceNature", preferredContact:"contactMethods",
     gender:"genderMaster", officeCommunicationType:"officeCommunicationTypes",

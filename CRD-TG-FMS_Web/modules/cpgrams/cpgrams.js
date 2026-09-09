@@ -200,9 +200,9 @@ function registerButtonEvents() {
     document.getElementById("btnPrint")?.addEventListener("click", printGrievance);
     document.getElementById("btnWhatsApp")?.addEventListener("click", async function () {
         await window.FMSWhatsAppService?.compose({
-            module:"CPGRAMS",
-            title:"CPGRAMS Grievance Message",
-            defaultMessage:`CPGRAMS Update
+            module:"GRIEVANCES",
+            title:"Grievance Message",
+            defaultMessage:`Grievance Update
 Grievance No: ${document.getElementById("grievanceNumber")?.value||""}
 Subject: ${document.getElementById("subject")?.value||""}
 Status: ${document.getElementById("currentStatus")?.value||document.getElementById("finalStatus")?.value||""}
@@ -365,7 +365,7 @@ function generateGrievanceId() {
     const now = new Date();
 
     const id =
-        "CPG-" +
+        "GRV-" +
         now.getFullYear() +
         String(now.getMonth() + 1).padStart(2, "0") +
         String(now.getDate()).padStart(2, "0") +
@@ -695,6 +695,7 @@ function validateForm() {
 
         ["grievanceNumber", "Grievance Number"],
         ["dateReceived", "Date Received"],
+        ["grievanceType", "Grievance Type"],
         ["complainantName", "Complainant Name"],
         ["subject", "Subject"],
         ["grievanceDescription", "Grievance Description"]

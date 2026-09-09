@@ -9,7 +9,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <title>
-        CPGRAMS - File Management System
+        Grievances - File Management System
     </title>
 
     <!-- Bootstrap -->
@@ -64,7 +64,7 @@
                 </h3>
 
                 <h5 class="mb-0">
-                    CPGRAMS MODULE
+                    GRIEVANCES MODULE
                 </h5>
 
             </div>
@@ -155,15 +155,7 @@
 
             </button>
 
-            <button
-                id="btnPrint"
-                class="btn btn-dark">
-
-                <i class="bi bi-printer"></i>
-
-                Print
-
-            </button>
+            
 
             <button
                 id="btnWhatsApp"
@@ -207,6 +199,8 @@
 ============================================================ -->
 
 <div class="container-fluid mt-4 mb-5">
+
+<h4 class="text-center fw-bold mb-3">GRIEVANCE DATA ENTRY</h4>
 
 <form id="cpgramsForm">
 
@@ -372,6 +366,25 @@
 
             </select>
 
+        </div>
+
+        <!-- Grievance Type -->
+        <div class="col-md-4">
+            <label class="form-label">Grievance Type <span class="text-danger">*</span></label>
+            <select id="grievanceType" class="form-select" required>
+                <option value="">Select Grievance Type</option>
+                <option value="GRIEVANCES" selected>GRIEVANCES</option>
+                <option value="Prajavani">Prajavani</option>
+                <option value="Public Grievances">Public Grievances</option>
+                <option value="Direct Complaints">Direct Complaints</option>
+                <option value="Assembly Questions">Assembly Questions</option>
+                <option value="Court Cases">Court Cases</option>
+                <option value="VIP References">VIP References</option>
+                <option value="CMO References">CMO References</option>
+                <option value="PMO References">PMO References</option>
+                <option value="Audit Paras">Audit Paras</option>
+                <option value="Vigilance Cases">Vigilance Cases</option>
+            </select>
         </div>
 
     </div>
@@ -1333,7 +1346,7 @@ SECTION 4 : ATTACHMENTS
                 <small class="text-muted">
 
                     File Management System |
-                    CPGRAMS Module |
+                    GRIEVANCES Module |
                     Version 4.0
 
                 </small>
@@ -1581,6 +1594,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <script src="../../js/services/office-processing-service.js"></script>
 
 <script src="../../js/master-option-loader.js"></script>
+<script src="../../js/module-navigation.js"></script>
 </body>
 
 </html>
