@@ -1,7 +1,7 @@
 /* =========================================================
    FMS CENTRAL EXPORT SERVICE
-   Version 1.0
-   Excel / PDF / JPEG / Print exports for registers and reports.
+   Version 1.1
+   Excel / PDF / JPEG / Print + native device sharing.
 ========================================================= */
 (function(window, document){
   "use strict";
@@ -29,23 +29,31 @@
   function ensureRows(rows){if(!Array.isArray(rows)||!rows.length) throw new Error("No records are available to export.");}
   function saveBlob(blob,filename){
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click();
-    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
   }
-  async function toExcel(opts={}){
+  function fileFromBlob(blob,filename,type){
+    try{return new File([blob],filename,{type:type||blob.type||"application/octet-stream",lastModified:Date.now()});}
+    catch(e){blob.name=filename;return blob;}
+  }
+
+  function buildExcelFile(opts={}){
     const rows=opts.rows||[]; ensureRows(rows);
     if(!window.XLSX) throw new Error("Excel export library is not loaded.");
     const data=exportRows(rows,opts.columns), ws=window.XLSX.utils.json_to_sheet(data);
     const wb=window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb,ws,String(opts.sheetName||"FMS Report").slice(0,31));
-    window.XLSX.writeFile(wb,slug(opts.filename||opts.title||"FMS_Report")+".xlsx");
+    const bytes=window.XLSX.write(wb,{bookType:"xlsx",type:"array"});
+    const blob=new Blob([bytes],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+    return fileFromBlob(blob,slug(opts.filename||opts.title||"FMS_Report")+".xlsx",blob.type);
   }
-  async function toPDF(opts={}){
+
+  function buildPDFDocument(opts={}){
     const rows=opts.rows||[]; ensureRows(rows);
     if(!window.jspdf?.jsPDF) throw new Error("PDF export library is not loaded.");
     const cols=normalizeColumns(rows,opts.columns), {jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:opts.orientation||"landscape",unit:"mm",format:"a4"});
     const title=String(opts.title||"FMS Report");
     doc.setFontSize(14); doc.text(title,14,14);
-    doc.setFontSize(9); doc.text(`Generated: ${new Date().toLocaleString("en-IN")}`,14,20);
+    doc.setFontSize(9); doc.text(`Generated: ${new Date().toLocaleString("en-IN")} • Records: ${rows.length}`,14,20);
     if(typeof doc.autoTable!=="function") throw new Error("PDF table library is not loaded.");
     doc.autoTable({
       head:[cols.map(c=>c.label||c.key)],
@@ -55,8 +63,15 @@
       headStyles:{fontStyle:"bold"},
       margin:{left:8,right:8}
     });
-    doc.save(slug(opts.filename||title)+".pdf");
+    return doc;
   }
+
+  function buildPDFFile(opts={}){
+    const doc=buildPDFDocument(opts);
+    const blob=doc.output("blob");
+    return fileFromBlob(blob,slug(opts.filename||opts.title||"FMS_Report")+".pdf","application/pdf");
+  }
+
   function buildExportSheet(opts={}){
     const rows=opts.rows||[], cols=normalizeColumns(rows,opts.columns);
     const wrap=document.createElement("div");
@@ -68,21 +83,64 @@
     const thead=document.createElement("thead");thead.appendChild(trh);table.appendChild(thead);
     const tbody=document.createElement("tbody"); rows.forEach(r=>{const tr=document.createElement("tr");cols.forEach(c=>{const td=document.createElement("td");td.textContent=clean(r?.[c.key]);td.style.cssText="border:1px solid #777;padding:5px;vertical-align:top;max-width:300px;white-space:pre-wrap";tr.appendChild(td);});tbody.appendChild(tr);});table.appendChild(tbody);wrap.appendChild(table);document.body.appendChild(wrap);return wrap;
   }
-  async function elementToJPEG(opts={}){
-    const element=opts.element; if(!element) throw new Error("Nothing is available to export as JPEG.");
+
+  async function jpegBlobFromElement(element){
+    if(!element) throw new Error("Nothing is available to export as JPEG.");
     if(!window.html2canvas) throw new Error("JPEG export library is not loaded.");
     const canvas=await window.html2canvas(element,{backgroundColor:"#ffffff",scale:1.5,useCORS:true,logging:false,width:element.scrollWidth,height:element.scrollHeight,windowWidth:element.scrollWidth,windowHeight:element.scrollHeight});
-    await new Promise((resolve,reject)=>canvas.toBlob(blob=>{if(!blob)return reject(new Error("Unable to create JPEG image."));saveBlob(blob,slug(opts.filename||opts.title||"FMS_Report")+".jpg");resolve();},"image/jpeg",0.92));
+    return await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error("Unable to create JPEG image.")),"image/jpeg",0.92));
   }
-  async function toJPEG(opts={}){
+
+  async function buildJPEGFile(opts={}){
     const rows=opts.rows||[]; ensureRows(rows);
-    if(!window.html2canvas) throw new Error("JPEG export library is not loaded.");
     const sheet=buildExportSheet(opts);
     try{
-      const canvas=await window.html2canvas(sheet,{backgroundColor:"#ffffff",scale:1.5,useCORS:true,logging:false,width:sheet.scrollWidth,height:sheet.scrollHeight,windowWidth:sheet.scrollWidth,windowHeight:sheet.scrollHeight});
-      await new Promise((resolve,reject)=>canvas.toBlob(blob=>{if(!blob)return reject(new Error("Unable to create JPEG image."));saveBlob(blob,slug(opts.filename||opts.title||"FMS_Report")+".jpg");resolve();},"image/jpeg",0.92));
+      const blob=await jpegBlobFromElement(sheet);
+      return fileFromBlob(blob,slug(opts.filename||opts.title||"FMS_Report")+".jpg","image/jpeg");
     }finally{sheet.remove();}
   }
+
+  async function buildFile(type,opts={}){
+    const kind=String(type||"").toLowerCase();
+    if(kind==="excel"||kind==="xlsx") return buildExcelFile(opts);
+    if(kind==="pdf") return buildPDFFile(opts);
+    if(kind==="jpeg"||kind==="jpg") return await buildJPEGFile(opts);
+    throw new Error("Unsupported share/export format: "+type);
+  }
+
+  async function toExcel(opts={}){const file=buildExcelFile(opts);saveBlob(file,file.name);return file;}
+  async function toPDF(opts={}){const file=buildPDFFile(opts);saveBlob(file,file.name);return file;}
+  async function elementToJPEG(opts={}){
+    const blob=await jpegBlobFromElement(opts.element);
+    const file=fileFromBlob(blob,slug(opts.filename||opts.title||"FMS_Report")+".jpg","image/jpeg");
+    saveBlob(file,file.name);return file;
+  }
+  async function toJPEG(opts={}){const file=await buildJPEGFile(opts);saveBlob(file,file.name);return file;}
+
+  async function shareFile(type,opts={}){
+    const rows=opts.rows||[]; ensureRows(rows);
+    const file=await buildFile(type,opts);
+    const title=String(opts.title||"FMS Report");
+    const text=String(opts.shareText||`${title}\nRecords: ${rows.length}\nGenerated: ${new Date().toLocaleString("en-IN")}`);
+
+    if(navigator.share){
+      const data={title,text};
+      let canShareFile=false;
+      try{canShareFile=typeof navigator.canShare==="function" && navigator.canShare({files:[file]});}catch(e){canShareFile=false;}
+      if(canShareFile) data.files=[file];
+      try{
+        await navigator.share(data);
+        return {shared:true,fileShared:canShareFile,file};
+      }catch(error){
+        if(error&&error.name==="AbortError") return {shared:false,cancelled:true,file};
+        throw error;
+      }
+    }
+
+    saveBlob(file,file.name);
+    throw new Error("This browser does not provide the device share menu. The report file has been downloaded instead.");
+  }
+
   async function printRows(opts={}){
     const rows=opts.rows||[]; ensureRows(rows); const cols=normalizeColumns(rows,opts.columns);
     const w=window.open("","_blank","width=1200,height=800"); if(!w) throw new Error("Popup blocked. Please allow popups for printing.");
@@ -96,5 +154,5 @@
     if(options.dropLastColumn&&headers.length){headers.pop();rows.forEach(r=>delete r[`c${headers.length}`]);}
     return {rows,columns:headers};
   }
-  window.FMSExportService={toExcel,toPDF,toJPEG,elementToJPEG,printRows,fromTable,exportRows,slug};
+  window.FMSExportService={toExcel,toPDF,toJPEG,elementToJPEG,printRows,fromTable,exportRows,slug,buildFile,shareFile,buildExcelFile,buildPDFFile,buildJPEGFile};
 })(window,document);
