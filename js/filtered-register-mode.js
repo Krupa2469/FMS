@@ -53,7 +53,9 @@
     const banner=document.createElement("div");
     banner.className="alert alert-primary rounded-0 mb-2 d-flex justify-content-between align-items-center flex-wrap gap-2";
     banner.id="filteredRegisterBanner";
-    banner.innerHTML=`<span><strong>Filtered Register:</strong> ${String(filter).replace(/-/g," ")}</span><button type="button" class="btn btn-sm btn-outline-primary" id="btnClearDashboardFilter">Show Full Register</button>`;
+    const category=params.get("category"), fy=params.get("fy");
+    const details=[String(filter).replace(/-/g," "), category?`Category: ${category}`:"", fy?`FY: ${fy}`:""].filter(Boolean).join(" • ");
+    banner.innerHTML=`<span><strong>Filtered Register:</strong> ${details}</span><button type="button" class="btn btn-sm btn-outline-primary" id="btnClearDashboardFilter">Show Full Register</button>`;
     const anchor=dataBlock || document.body.firstElementChild;
     anchor?.parentNode?.insertBefore(banner,anchor);
     document.getElementById("btnClearDashboardFilter")?.addEventListener("click",()=>{

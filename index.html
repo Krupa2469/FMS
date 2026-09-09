@@ -36,9 +36,10 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:22px 
 <div class="row g-4" id="homeModuleCards"></div>
 <div class="card mt-4"><div class="card-body text-center"><div id="dashboardReady" class="fw-bold text-success">Dashboard ready — CPGRAMS: 0, RTI: 0, DISHA: 0 | Financial Year: 2026-27.</div></div></div>
 <div class="row mt-4 g-3">
-<div class="col-md-4"><button class="btn btn-outline-secondary w-100" onclick="openReports()"><i class="bi bi-bar-chart"></i> Reports</button></div>
-<div class="col-md-4"><button class="btn btn-outline-secondary w-100" onclick="openMasters()"><i class="bi bi-database"></i> Masters</button></div>
-<div class="col-md-4"><button class="btn btn-outline-secondary w-100" onclick="openUtilities()"><i class="bi bi-tools"></i> Utilities</button></div>
+<div class="col-md-3"><button class="btn btn-outline-secondary w-100" onclick="openReports()"><i class="bi bi-bar-chart"></i> Reports</button></div>
+<div class="col-md-3"><button class="btn btn-outline-secondary w-100" onclick="openMasters()"><i class="bi bi-database"></i> Masters</button></div>
+<div class="col-md-3"><button class="btn btn-outline-secondary w-100" onclick="location.href='pages/admin/reports-master.html'"><i class="bi bi-sliders"></i> Reports Master</button></div>
+<div class="col-md-3"><button class="btn btn-outline-secondary w-100" onclick="openUtilities()"><i class="bi bi-tools"></i> Utilities</button></div>
 </div>
 </main>
 <footer class="bg-light text-center p-3"><small>© <span id="currentYear"></span> File Management System (FMS) | Version <span id="appVersion"></span></small></footer>
@@ -104,8 +105,12 @@ function homeCard(title,value,icon,color,target){
   return `<div class="col-xl-3 col-lg-4 col-md-6"><div class="card metric-card h-100 dashboard-home-card" role="button" tabindex="0" onclick="openHomeCard('${safe}','${target}')" onkeydown="if(event.key==='Enter'||event.key===' ')openHomeCard('${safe}','${target}')"><div class="card-body text-center"><i class="bi ${icon} fs-1 text-${color}"></i><h5 class="mt-3">${title}</h5><div class="metric-value text-${color}">${value}</div><div class="small text-muted mt-1">Selected FY</div></div></div></div>`;
 }
 function openHomeCard(category,target){
-  if(target==='cpgrams') openHomeCPGRAMSDashboard(category);
-  else goModule(target);
+  const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'');
+  const p=new URLSearchParams();p.set('filter','total');if(fy)p.set('fy',fy);
+  if(target==='cpgrams'){if(category)p.set('category',category);location.href='modules/cpgrams/cpgrams-register.html?'+p.toString();return;}
+  if(target==='rti'){location.href='modules/rti/rti-register.html?'+p.toString();return;}
+  if(target==='disha'){location.href='modules/disha/disha-register.html?'+p.toString();return;}
+  goModule(target);
 }
 function updateHomeCards(){
   const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'2026-27');

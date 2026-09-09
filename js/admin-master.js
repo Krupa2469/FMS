@@ -123,7 +123,7 @@ function openFileLocationMaster() {
 
 function importMasterData() {
 
-    alert("Excel Import Module - Coming Soon");
+    window.location.href = "master-management.html";
 
 }
 
@@ -133,6 +133,6 @@ function importMasterData() {
 
 function exportMasterData() {
 
-    alert("Excel Export Module - Coming Soon");
+    window.location.href = "master-management.html";
 
 }

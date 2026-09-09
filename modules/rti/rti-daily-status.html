@@ -641,6 +641,7 @@
         Print / PDF
 
     </button>
+<button type="button" id="btnJPEG" class="btn btn-secondary"><i class="bi bi-image"></i> JPEG</button>
 
 
     <button
@@ -1105,6 +1106,8 @@
     Lekha Technologies
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="../../js/services/export-service.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
@@ -1119,6 +1122,11 @@
 <script src="rti-daily-status.js"></script>
 
 
+<script>
+document.addEventListener("DOMContentLoaded",function fmsDailyJPEGExport(){
+ document.getElementById("btnJPEG")?.addEventListener("click",async()=>{try{await window.FMSExportService.elementToJPEG({element:document.querySelector(".container-fluid")||document.body,title:"RTI Daily Status Report",filename:"RTI Daily Status Report"});}catch(e){alert(e.message||e);}});
+});
+</script>
 </body>
 
 </html>

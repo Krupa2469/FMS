@@ -148,6 +148,13 @@ Home
 
 <div class="d-flex align-items-center gap-2 ms-2"><label class="fw-bold mb-0">FY</label><select id="financialYear" class="form-select form-select-sm" style="min-width:120px"></select></div>
 <button id="btnWhatsApp" class="btn btn-success"><i class="bi bi-whatsapp"></i> WhatsApp</button>
+<a href="../../pages/admin/master-management.html" class="btn btn-outline-secondary"><i class="bi bi-database"></i> Master Tables</a>
+<a href="../../pages/reports.html" class="btn btn-outline-primary"><i class="bi bi-bar-chart"></i> Central Reports</a>
+
+<button id="btnExcelTop" class="btn btn-outline-success"><i class="bi bi-file-earmark-excel"></i> Excel</button>
+<button id="btnPDFTop" class="btn btn-outline-danger"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+<button id="btnJPEG" class="btn btn-outline-secondary"><i class="bi bi-image"></i> JPEG</button>
+<button id="btnPrintTop" class="btn btn-outline-dark"><i class="bi bi-printer"></i> Print</button>
 </nav>
 
 <!-- ==========================================
@@ -500,6 +507,8 @@ SUMMARY DASHBOARD
 
                 <h2
                     id="totalRecords"
+                    onclick="openCPGRAMSSummaryFilter('total')"
+                    style="cursor:pointer"
                     class="text-primary">
 
                     0
@@ -526,6 +535,8 @@ SUMMARY DASHBOARD
 
                 <h2
                     id="pendingRecords"
+                    onclick="openCPGRAMSSummaryFilter('pending')"
+                    style="cursor:pointer"
                     class="text-warning">
 
                     0
@@ -552,6 +563,8 @@ SUMMARY DASHBOARD
 
                 <h2
                     id="disposedRecords"
+                    onclick="openCPGRAMSSummaryFilter('closed')"
+                    style="cursor:pointer"
                     class="text-success">
 
                     0
@@ -578,6 +591,8 @@ SUMMARY DASHBOARD
 
                 <h2
                     id="overdueRecords"
+                    onclick="openCPGRAMSSummaryFilter('overdue')"
+                    style="cursor:pointer"
                     class="text-danger">
 
                     0
@@ -631,6 +646,8 @@ EXPORT OPTIONS
                 Export to PDF
 
             </button>
+
+            <button id="btnJPEGLower" class="btn btn-secondary"><i class="bi bi-image"></i> Export to JPEG</button>
 
             <button
                 id="btnPrintRegister"
@@ -1039,6 +1056,11 @@ APPLICATION SCRIPTS
 
 <!-- Firebase -->
 <script src="../../js/fms-financial-year.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="../../js/services/export-service.js"></script>
 <script src="../../js/firebase/firebase-config.js"></script>
 <script src="../../js/firebase/firebase-service.js"></script>
 
@@ -1086,6 +1108,13 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="../../js/services/whatsapp-service.js"></script>
 <script src="../../js/services/excel-report-service.js"></script>
 <script src="../../js/filtered-register-mode.js"></script>
+<script>
+window.openCPGRAMSSummaryFilter=function(filter){
+  const p=new URLSearchParams();p.set("filter",filter||"total");
+  const fy=document.getElementById("financialYear")?.value || window.FMSFY?.getCurrentFY?.();if(fy)p.set("fy",fy);
+  location.href="cpgrams-register.html?"+p.toString();
+};
+</script>
 </body>
 
 </html>

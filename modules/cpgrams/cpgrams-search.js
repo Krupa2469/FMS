@@ -18,7 +18,10 @@ async function initializeCPGRAMSSearch(){
 function bindCPGRAMSSearchEvents(){
     document.getElementById("btnSearch")?.addEventListener("click", applyCPGRAMSSearch);
     document.getElementById("btnClear")?.addEventListener("click", clearCPGRAMSSearch);
-    document.getElementById("btnExport")?.addEventListener("click", exportCPGRAMSSearchCSV);
+    document.getElementById("btnExport")?.addEventListener("click", ()=>exportCPGRAMSSearch("excel"));
+    document.getElementById("btnExportPDF")?.addEventListener("click", ()=>exportCPGRAMSSearch("pdf"));
+    document.getElementById("btnExportJPEG")?.addEventListener("click", ()=>exportCPGRAMSSearch("jpeg"));
+    document.getElementById("btnPrintSearch")?.addEventListener("click", ()=>exportCPGRAMSSearch("print"));
 }
 
 async function refreshCPGRAMSSearch(){
@@ -122,21 +125,15 @@ function renderCPGRAMSSearch(){
     }).join("");
 }
 
-function exportCPGRAMSSearchCSV(){
-    if(!cpgramsSearchFiltered.length){ alert("No records to export."); return; }
-    const headers=["Grievance No.","File No.","Name","District","Status","Due Date"];
-    const rows=cpgramsSearchFiltered.map(row=>[
-        row.grievanceNumber||row.grievanceNo||row.registrationNumber||"",
-        row.fileNumber||row.fileNo||"",
-        row.complainantName||row.applicantName||"",
-        row.district||"",
-        row.currentStatus||row.statusOfFile||row.finalStatus||row.status||"",
-        row.dueDate||""
-    ]);
-    const quote=x=>'"'+String(x??"").replace(/"/g,'""')+'"';
-    const csv=[headers,...rows].map(r=>r.map(quote).join(",")).join("\r\n");
-    const blob=new Blob(["\ufeff",csv],{type:"text/csv;charset=utf-8"});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement("a"); a.href=url; a.download="CPGRAMS_Search.csv"; a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
+function cpgramsSearchExportRows(){
+    return cpgramsSearchFiltered.map((row,i)=>({sl:i+1,grievanceNumber:row.grievanceNumber||row.grievanceNo||row.registrationNumber||"",fileNo:row.fileNumber||row.fileNo||"",name:row.complainantName||row.applicantName||"",district:row.district||"",status:row.currentStatus||row.statusOfFile||row.finalStatus||row.status||"",dueDate:row.dueDate||""}));
+}
+async function exportCPGRAMSSearch(type){
+    try{
+        const rows=cpgramsSearchExportRows(),columns=[{key:"sl",label:"Sl.No"},{key:"grievanceNumber",label:"Grievance No."},{key:"fileNo",label:"File No."},{key:"name",label:"Name"},{key:"district",label:"District"},{key:"status",label:"Status"},{key:"dueDate",label:"Due Date"}],title="CPGRAMS Search Results";
+        if(type==="excel")await FMSExportService.toExcel({rows,columns,title});
+        if(type==="pdf")await FMSExportService.toPDF({rows,columns,title});
+        if(type==="jpeg")await FMSExportService.toJPEG({rows,columns,title});
+        if(type==="print")await FMSExportService.printRows({rows,columns,title});
+    }catch(e){alert(e.message||e);}
 }

@@ -377,6 +377,13 @@
 
 <div class="navigation-bar">
         <button id="btnWhatsApp" class="btn btn-success"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+<a href="../../pages/admin/master-management.html" class="btn btn-outline-secondary"><i class="bi bi-database"></i> Master Tables</a>
+<a href="../../pages/reports.html" class="btn btn-outline-primary"><i class="bi bi-bar-chart"></i> Central Reports</a>
+
+    <button id="btnExcel" class="btn btn-outline-success"><i class="fa-solid fa-file-excel"></i> Excel</button>
+    <button id="btnPDF" class="btn btn-outline-danger"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+    <button id="btnJPEG" class="btn btn-outline-secondary"><i class="fa-solid fa-image"></i> JPEG</button>
+    <button id="btnPrintRegister" class="btn btn-outline-dark"><i class="fa-solid fa-print"></i> Print</button>
 
 
     <button
@@ -669,6 +676,10 @@
      FIREBASE
 ========================================================= -->
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
@@ -686,6 +697,7 @@
      RTI REGISTER JAVASCRIPT
 ========================================================= -->
 
+<script src="../../js/services/export-service.js"></script>
 <script src="rti-register.js"></script>
 
 <!-- =========================================================
@@ -789,16 +801,12 @@ window.clearSearch = function () {
    SUMMARY FILTER
 ========================================================= */
 
-window.openSummaryFilter = function (
-    filterType
-) {
-
-    window.location.href =
-        "rti-register.html?filter=" +
-        encodeURIComponent(
-            filterType
-        );
-
+window.openSummaryFilter = function (filterType) {
+    const params = new URLSearchParams();
+    params.set("filter", filterType || "total");
+    const fy = document.getElementById("financialYear")?.value || new URLSearchParams(location.search).get("fy") || window.FMSFY?.getCurrentFY?.();
+    if (fy) params.set("fy", fy);
+    window.location.href = "rti-register.html?" + params.toString();
 };
 
 </script>

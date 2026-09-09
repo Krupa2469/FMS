@@ -1,62 +1,36 @@
 "use strict";
-/* FMS Central Report Engine — all module reports and daily status */
-const FMS_REPORTS = {
-  cpgrams:{collection:"cpgrams", dateFields:["dateReceived","dateArised"], dueFields:["dueDate"], title:"CPGRAMS Report"},
-  rti:{collection:"rtiApplications", dateFields:["applicationDate","dateReceived"], dueFields:["dueDate"], title:"RTI Report"},
-  disha:{collection:"dishaMeetings", dateFields:["dateOfMeeting"], dueFields:["pomDueDate"], title:"DISHA Report"}
-};
-let reportRows=[], loaded={cpgrams:[],rti:[],disha:[]};
-
-function fmtDate(v){ if(!v)return ""; if(v&&typeof v.toDate==="function") v=v.toDate(); const d=new Date(v); return isNaN(d)?"":d.toLocaleDateString("en-GB"); }
-function isoDate(v){ if(!v)return ""; if(v&&typeof v.toDate==="function")v=v.toDate(); const d=new Date(v); return isNaN(d)?"":d.toISOString().slice(0,10); }
-function first(r,keys){ for(const k of keys){if(r[k]!==undefined&&r[k]!==null&&String(r[k]).trim()!=="")return r[k];} return ""; }
-function statusOf(r,module){
- if(module==="cpgrams") return first(r,["officeStatus","currentStatus","finalStatus","status"]) || "Pending";
- if(module==="rti") return first(r,["officeStatus","presentStatus","status","finalStatus"]) || "Pending";
- return first(r,["officeStatus","statusOfMeeting","pomUploaded","status"]) || "Pending";
+/* Central reports + custom report definitions */
+(function(window,document){
+const CFG={cpgrams:{collection:"cpgrams",dateFields:["dateReceived","dateArised","receivedDate"],dueFields:["dueDate"],title:"CPGRAMS Report"},rti:{collection:"rtiApplications",dateFields:["applicationDate","dateReceived"],dueFields:["dueDate"],title:"RTI Report"},disha:{collection:"dishaMeetings",dateFields:["dateOfMeeting"],dueFields:["pomDueDate"],title:"DISHA Report"}};
+const LABELS={grievanceNumber:"Grievance No.",dateReceived:"Date Received",applicationNumber:"Application No.",applicationDate:"Application Date",dateOfMeeting:"Meeting Date",pomDueDate:"PoM Due Date",pomUploaded:"PoM Uploaded",statusOfMeeting:"Meeting Status",statusOfBills:"Bill Status",meetingExpenditure:"Meeting Expenditure",complainantName:"Complainant Name",applicantName:"Applicant Name",informationSought:"Information Sought",assignedTo:"Assigned To",assignedOfficer:"Assigned Officer",officeCommunicationType:"Communication Type",presentStatus:"Present Status",currentStatus:"Current Status",finalStatus:"Final Status",officeStatus:"Office Status",fileLocation:"File Location",priorityClassification:"Priority Classification",natureOfGrievance:"Grievance Nature"};
+let loaded={cpgrams:[],rti:[],disha:[]},definitions=[],reportRows=[],reportColumns=[],activeDefinition=null,started=false;const $=id=>document.getElementById(id);const label=k=>LABELS[k]||String(k).replace(/([A-Z])/g," $1").replace(/^./,c=>c.toUpperCase());
+function parseDate(v){if(!v)return null;if(v&&typeof v.toDate==="function")v=v.toDate();if(v&&v.seconds!=null)v=new Date(Number(v.seconds)*1000);const s=String(v);let m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);const d=v instanceof Date?v:new Date(v);return Number.isNaN(d.getTime())?null:d;}
+function fmt(v){const d=parseDate(v);return d?d.toLocaleDateString("en-GB"):String(v??"");}function iso(v){const d=parseDate(v);return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`:"";}function first(r,keys){for(const k of keys||[]){if(r[k]!==undefined&&r[k]!==null&&String(r[k]).trim()!=="")return r[k];}return "";}
+function statusOf(r,m){if(m==="cpgrams")return first(r,["officeStatus","currentStatus","finalStatus","status"])||"Pending";if(m==="rti")return first(r,["officeStatus","presentStatus","status","finalStatus"])||"Pending";return first(r,["officeStatus","statusOfMeeting","pomUploaded","status"])||"Pending";}
+function subjectOf(r,m){if(m==="cpgrams")return first(r,["subject","grievanceDescription","grievanceNumber"]);if(m==="rti")return first(r,["subject","informationSought","applicationNumber"]);return first(r,["remarks","statusOfMeeting","district"]);}
+function dateOf(r,m){return first(r,CFG[m].dateFields);}function dueOf(r,m){return first(r,CFG[m].dueFields);}
+function standardRow(m,r){const due=dueOf(r,m),status=statusOf(r,m),today=new Date();today.setHours(0,0,0,0);let delay="",pending="";const dd=parseDate(due);if(dd){dd.setHours(0,0,0,0);if(dd<today&&!/closed|disposed|reply obtained|despatched|held|completed/i.test(String(status)))delay=Math.floor((today-dd)/86400000);}const bd=parseDate(dateOf(r,m));if(bd&&!/closed|disposed|reply obtained|despatched|held|completed/i.test(String(status))){bd.setHours(0,0,0,0);if(bd<=today)pending=Math.floor((today-bd)/86400000);}return {Module:m.toUpperCase(),ID:first(r,["grievanceNumber","applicationNumber","fileNo","officeFileNo","id"]),Date:fmt(dateOf(r,m)),DueDate:fmt(due),Subject:subjectOf(r,m),District:first(r,["district","nameOfDistrict"]),Status:status,"Days Pending":pending,"Days Delayed":delay};}
+async function loadAll(){if(!window.db)throw new Error("Firestore is not ready.");for(const m of Object.keys(CFG)){const snap=await db.collection(CFG[m].collection).get();loaded[m]=snap.docs.map(d=>({id:d.id,...d.data()}));}try{const snap=await db.collection("reportDefinitions").get();definitions=snap.docs.map(d=>({id:d.id,...d.data()})).filter(d=>d.active!==false).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));}catch(e){console.warn("Report definitions unavailable",e);definitions=[];}populateDefinitions();}
+function populateDefinitions(){const sel=$("customReport"),current=sel.value;sel.innerHTML='<option value="">— Standard report —</option>'+definitions.map(d=>`<option value="${d.id}">${escapeHtml(d.name)} (${String(d.module||"").toUpperCase()})</option>`).join("");if(definitions.some(d=>d.id===current))sel.value=current;}
+function dateRangePreset(def){if(!def||def.datePreset==="none")return;const now=new Date(),to=new Date(now),from=new Date(now);if(def.datePreset==="currentFY"){const y=now.getMonth()>=3?now.getFullYear():now.getFullYear()-1;from.setFullYear(y,3,1);to.setFullYear(y+1,2,31);}else if(def.datePreset==="last7")from.setDate(now.getDate()-6);else if(def.datePreset==="last30")from.setDate(now.getDate()-29);else if(def.datePreset==="today"){}else return;const f=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;$("fromDate").value=f(from);$("toDate").value=f(to);}
+function inRange(r,m){const from=$("fromDate").value,to=$("toDate").value,d=iso(dateOf(r,m));return (!from||!d||d>=from)&&(!to||!d||d<=to);}
+function passesDef(r,def){if(!def?.filterField)return true;let v=r?.[def.filterField];if(v&&typeof v.toDate==="function")v=fmt(v);v=String(v??"");const q=String(def.filterValue??"");switch(def.operator){case"equals":return v.toLowerCase()===q.toLowerCase();case"notEquals":return v.toLowerCase()!==q.toLowerCase();case"gt":return Number(v)>Number(q);case"gte":return Number(v)>=Number(q);case"lt":return Number(v)<Number(q);case"lte":return Number(v)<=Number(q);case"isEmpty":return !v.trim();case"notEmpty":return !!v.trim();default:return v.toLowerCase().includes(q.toLowerCase());}}
+function customValue(r,k){const v=r?.[k];if(v&&typeof v.toDate==="function")return fmt(v);if(k.toLowerCase().includes("date")||k.toLowerCase().includes("due")){const d=parseDate(v);if(d)return fmt(v);}return v??"";}
+function generate(){activeDefinition=definitions.find(d=>d.id===$("customReport").value)||null;if(activeDefinition){generateCustom(activeDefinition);return;}const m=$("reportModule").value;let out=[];if(m==="all")for(const mod of Object.keys(loaded))out.push(...loaded[mod].filter(r=>inRange(r,mod)).map(r=>standardRow(mod,r)));else out=loaded[m].filter(r=>inRange(r,m)).map(r=>standardRow(m,r));reportRows=out;reportColumns=["Module","ID","Date","DueDate","Subject","District","Status","Days Pending","Days Delayed"].map(k=>({key:k,label:k}));render(m==="all"?"Daily Status Report — All Modules":CFG[m].title);}
+function generateCustom(def){const modules=def.module==="all"?Object.keys(loaded):[def.module];let out=[];if(def.module==="all"){
+  for(const m of modules){for(const r of loaded[m].filter(x=>inRange(x,m))){const sr=standardRow(m,r);if(passesDef(sr,def))out.push(sr);}}
+  reportColumns=(def.fields||Object.keys(out[0]||{})).map(k=>({key:k,label:label(k)}));
+}else{
+  let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module)).filter(x=>passesDef(x,def));
+  if(def.sortField){source.sort((a,b)=>String(customValue(a,def.sortField)??"").localeCompare(String(customValue(b,def.sortField)??""),undefined,{numeric:true})*(def.sortDirection==="desc"?-1:1));}
+  for(const r of source){const o={};(def.fields||[]).forEach(k=>o[k]=customValue(r,k));out.push(o);}
+  reportColumns=(def.fields||[]).map(k=>({key:k,label:label(k)}));
 }
-function dueOf(r,module){return first(r,FMS_REPORTS[module].dueFields);}
-function dateOf(r,module){return first(r,FMS_REPORTS[module].dateFields);}
-function subjectOf(r,module){
- if(module==="cpgrams")return first(r,["subject","grievanceDescription","grievanceNumber"]);
- if(module==="rti")return first(r,["subject","informationSought","applicationNumber"]);
- return first(r,["remarks","statusOfMeeting","district"]);
-}
-function makeRow(module,r){
- const due=dueOf(r,module), status=statusOf(r,module), today=new Date(); today.setHours(0,0,0,0);
- let delay="",pendingDays="";
- if(due){const d=new Date(due);d.setHours(0,0,0,0); if(d<today && !/closed|disposed|reply obtained|despatched|held/i.test(String(status))) delay=Math.floor((today-d)/86400000);}
- const baseDate=dateOf(r,module); if(baseDate&&!/closed|disposed|reply obtained|despatched|held/i.test(String(status))){const bd=new Date(baseDate);bd.setHours(0,0,0,0);if(!isNaN(bd)&&bd<=today) pendingDays=Math.floor((today-bd)/86400000);}
- return {Module:module.toUpperCase(),ID:first(r,["grievanceNumber","applicationNumber","fileNo","officeFileNo","id"]),Date:fmtDate(dateOf(r,module)),DueDate:fmtDate(due),Subject:subjectOf(r,module),District:first(r,["district","nameOfDistrict"]),Status:status,"Days Pending":pendingDays,"Days Delayed":delay};
-}
-async function loadAll(){
- if(!window.db) throw new Error("Firestore is not ready. Please wait and try again.");
- for(const m of Object.keys(FMS_REPORTS)){const snap=await db.collection(FMS_REPORTS[m].collection).get();loaded[m]=snap.docs.map(d=>({id:d.id,...d.data()}));}
-}
-function inRange(r,module){
- const from=document.getElementById("fromDate").value, to=document.getElementById("toDate").value, d=isoDate(dateOf(r,module));
- return (!from||d>=from)&&(!to||d<=to);
-}
-function generate(){
- const m=document.getElementById("reportModule").value;
- let rows=[];
- if(m==="all"){for(const mod of Object.keys(loaded))rows.push(...loaded[mod].filter(r=>inRange(r,mod)).map(r=>makeRow(mod,r)));}
- else rows=loaded[m].filter(r=>inRange(r,m)).map(r=>makeRow(m,r));
- reportRows=rows; render(rows,m);
-}
-function render(rows,m){
- document.getElementById("reportTitle").textContent=m==="all"?"Daily Status Report — All Modules":FMS_REPORTS[m].title;
- document.getElementById("recordCount").textContent=rows.length+" records";
- const thead=document.querySelector("#reportTable thead"), tbody=document.querySelector("#reportTable tbody");
- const cols=["Module","ID","Date","DueDate","Subject","District","Status","Days Pending","Days Delayed"];
- thead.innerHTML="<tr>"+cols.map(c=>`<th>${c}</th>`).join("")+"</tr>";
- tbody.innerHTML=rows.length?rows.map(r=>"<tr>"+cols.map(c=>`<td>${escapeHtml(r[c]??"")}</td>`).join("")+"</tr>").join(""):'<tr><td colspan="9" class="text-center p-5 text-muted">No records found</td></tr>';
- const total=rows.length, delayed=rows.filter(r=>r["Days Delayed"]!=="").length, closed=rows.filter(r=>/closed|disposed|reply obtained/i.test(String(r.Status))).length, pending=total-closed;
- document.getElementById("summaryCards").innerHTML=[["Total",total,"primary"],["Pending",pending,"warning"],["Closed/Disposed",closed,"success"],["Overdue",delayed,"danger"]].map(x=>`<div class="col-md-3"><div class="card border-${x[2]}"><div class="card-body text-center"><div class="text-muted">${x[0]}</div><h3 class="text-${x[2]}">${x[1]}</h3></div></div></div>`).join("");
-}
+if(def.module==="all"&&def.sortField){out.sort((a,b)=>String(a[def.sortField]??"").localeCompare(String(b[def.sortField]??""),undefined,{numeric:true})*(def.sortDirection==="desc"?-1:1));}reportRows=out;render(def.name||"Custom Report");}
+function render(title){$("reportTitle").textContent=title;$("recordCount").textContent=reportRows.length+" records";const th=$("reportTable").querySelector("thead"),tb=$("reportTable").querySelector("tbody");th.innerHTML='<tr>'+reportColumns.map(c=>`<th>${escapeHtml(c.label)}</th>`).join('')+'</tr>';tb.innerHTML=reportRows.length?reportRows.map(r=>'<tr>'+reportColumns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join('')+'</tr>'):`<tr><td colspan="${Math.max(reportColumns.length,1)}" class="text-center p-5 text-muted">No records found.</td></tr>`;const total=reportRows.length,delayed=reportRows.filter(r=>Number(r["Days Delayed"]||0)>0).length,closed=reportRows.filter(r=>/closed|disposed|reply obtained|completed|held/i.test(String(r.Status||r.presentStatus||r.currentStatus||r.statusOfMeeting||""))).length,pending=Math.max(total-closed,0);$("summaryCards").innerHTML=[["Total",total,"primary"],["Pending / Open",pending,"warning"],["Closed / Completed",closed,"success"],["Overdue",delayed,"danger"]].map(x=>`<div class="col-md-3"><div class="card border-${x[2]} summary-card"><div class="card-body text-center"><div class="text-muted">${x[0]}</div><h3 class="text-${x[2]}">${x[1]}</h3></div></div></div>`).join("");$("reportStatus").textContent=`Generated ${new Date().toLocaleString("en-IN")}`;}
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function exportExcel(){if(!reportRows.length)return alert("Generate a report first."); const ws=XLSX.utils.json_to_sheet(reportRows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"FMS Report");XLSX.writeFile(wb,"FMS_Report.xlsx");}
-function exportPDF(){if(!reportRows.length)return alert("Generate a report first.");const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:"landscape"});doc.text(document.getElementById("reportTitle").textContent,14,15);const cols=Object.keys(reportRows[0]);doc.autoTable({head:[cols],body:reportRows.map(r=>cols.map(c=>String(r[c]??""))),startY:22,styles:{fontSize:7}});doc.save("FMS_Report.pdf");}
-function printReport(){window.print();}
-async function init(){document.getElementById("btnHome").onclick=()=>location.href="../index.html";document.getElementById("btnMasters").onclick=()=>location.href="admin/master-management.html";document.getElementById("btnRefresh").onclick=async()=>{await loadAll();generate();};document.getElementById("btnGenerate").onclick=generate;document.getElementById("btnExcel").onclick=exportExcel;document.getElementById("btnPDF").onclick=exportPDF;document.getElementById("btnPrint").onclick=printReport;try{await loadAll();const q=new URLSearchParams(location.search).get("module");if(q&&["cpgrams","rti","disha"].includes(q))document.getElementById("reportModule").value=q;generate();}catch(e){alert("Unable to load reports: "+e.message);console.error(e);}}
-document.addEventListener("DOMContentLoaded",()=>{if(window.fmsFirebaseReady)init();else window.addEventListener("fmsFirebaseReady",init,{once:true});});
+async function doExport(type){try{const opts={rows:reportRows,columns:reportColumns,title:$("reportTitle").textContent,filename:$("reportTitle").textContent};if(type==="excel")await FMSExportService.toExcel(opts);if(type==="pdf")await FMSExportService.toPDF(opts);if(type==="jpeg")await FMSExportService.toJPEG(opts);if(type==="print")await FMSExportService.printRows(opts);}catch(e){alert(e.message||e);}}
+async function shareWhatsApp(){const preview=reportRows.slice(0,15).map((r,i)=>`${i+1}. ${reportColumns.slice(0,4).map(c=>`${c.label}: ${r[c.key]??""}`).join(" | ")}`).join("\n");await window.FMSWhatsAppService?.compose({module:"REPORTS",title:$("reportTitle").textContent,summaryText:`Records: ${reportRows.length}\n${preview}`});}
+async function init(){if(started)return;started=true;$("btnHome").onclick=()=>location.href="../index.html";$("btnMasters").onclick=()=>location.href="admin/master-management.html";$("btnReportsMaster").onclick=()=>location.href="admin/reports-master.html";$("btnRefresh").onclick=async()=>{await loadAll();generate();};$("btnGenerate").onclick=generate;$("btnExcel").onclick=()=>doExport("excel");$("btnPDF").onclick=()=>doExport("pdf");$("btnJPEG").onclick=()=>doExport("jpeg");$("btnPrint").onclick=()=>doExport("print");$("btnWhatsApp").onclick=shareWhatsApp;$("customReport").onchange=()=>{activeDefinition=definitions.find(d=>d.id===$("customReport").value)||null;if(activeDefinition){$("reportModule").value=activeDefinition.module==="all"?"all":activeDefinition.module;dateRangePreset(activeDefinition);}};try{await loadAll();const q=new URLSearchParams(location.search).get("module");if(q&&CFG[q])$("reportModule").value=q;generate();}catch(e){$("reportStatus").textContent="Unable to load reports: "+(e.message||e);console.error(e);}}
+document.addEventListener("DOMContentLoaded",()=>{if(window.fmsFirebaseReady&&window.db)init();else{window.addEventListener("fmsFirebaseReady",init,{once:true});setTimeout(()=>{if(window.db)init();},1600);}});
+})(window,document);

@@ -122,6 +122,8 @@ async function initializeRTIRegister() {
             });
         }
 
+        bindRTIExportButtons();
+
         processURLFilter();
 
 
@@ -261,66 +263,7 @@ async function loadRTIRecordsFromFirestore() {
          * to rti-register.html.
          */
 
-        /* ============================================================
-   FINANCIAL YEAR SELECTOR
-============================================================ */
-function initializeRTIFinancialYearFilter(){
- const el=document.getElementById("financialYear");
- if(!el || !window.FMSFY) return;
- const options=FMSFY.getFYOptions(rtiRecords,["applicationDate"]);
- const requestedFY=new URLSearchParams(location.search).get("fy");
- const current=requestedFY||FMSFY.getCurrentFY();
- el.innerHTML=options.map(f=>`<option value="${f}" ${f===current?"selected":""}>${f}</option>`).join("");
- el.addEventListener("change", function(){ applyRTIFYFilter(); });
-}
-function getSelectedRTIFYRecords(){
- const fy=document.getElementById("financialYear")?.value || FMSFY?.getCurrentFY();
- return FMSFY ? FMSFY.filterFY(rtiRecords,fy,["applicationDate"]) : getCurrentFYRecords();
-}
-function applyRTIFYFilter(){
- const records=getSelectedRTIFYRecords();
- displayedRecords=records;
- updateSummaryCards(records);
- renderRegister(records);
- const params=new URLSearchParams(location.search);
- params.delete("filter");
- history.replaceState({},document.title,location.pathname+(params.toString()?"?"+params.toString():""));
-}
-/* ============================================================
-   FINANCIAL YEAR SELECTOR
-============================================================ */
-/* ============================================================
-   REGISTER PAGE NAVIGATION / ACTIONS
-============================================================ */
-
-function newRTI() {
-    window.location.href = "rti.html";
-}
-
-function loadRTIRecords() {
-    initializeRTIRegister();
-}
-
-function goBackToRTI() {
-    window.location.href = "rti.html";
-}
-
-function goHome() {
-    window.location.href = "rti.html";
-}
-
-function openSummaryFilter(filterType) {
-    openRTIRegisterFilter(filterType);
-}
-
-window.newRTI = newRTI;
-window.loadRTIRecords = loadRTIRecords;
-window.goBackToRTI = goBackToRTI;
-window.goHome = goHome;
-window.openSummaryFilter = openSummaryFilter;
-
-window.loadRTIRecordsFromFirestore =
-            loadRTIRecordsFromFirestore;
+        window.loadRTIRecordsFromFirestore = loadRTIRecordsFromFirestore;
 
 
         console.log(
@@ -346,6 +289,58 @@ window.loadRTIRecordsFromFirestore =
 
 }
 
+
+/* ============================================================
+   FINANCIAL YEAR SELECTOR / FILTER HELPERS
+   These helpers are intentionally global so URL-filter mode can use them.
+============================================================ */
+function initializeRTIFinancialYearFilter(){
+    const el=document.getElementById("financialYear");
+    if(!el || !window.FMSFY) return;
+    const options=FMSFY.getFYOptions(rtiRecords,["applicationDate"]);
+    const params=new URLSearchParams(location.search);
+    const requestedFY=params.get("fy");
+    const current=requestedFY || FMSFY.getCurrentFY();
+    el.innerHTML=options.map(f=>`<option value="${f}" ${f===current?"selected":""}>${f}</option>`).join("");
+    if(options.includes(current)) el.value=current;
+    el.onchange=function(){
+        const p=new URLSearchParams(location.search);
+        p.set("fy",el.value);
+        p.delete("filter");
+        history.replaceState({},document.title,location.pathname+"?"+p.toString());
+        applyRTIFYFilter();
+    };
+}
+function getSelectedRTIFYRecords(){
+    const params=new URLSearchParams(location.search);
+    const fy=params.get("fy") || document.getElementById("financialYear")?.value || window.FMSFY?.getCurrentFY?.() || "";
+    return window.FMSFY ? window.FMSFY.filterFY(rtiRecords,fy,["applicationDate"]) : getCurrentFYRecords();
+}
+function applyRTIFYFilter(){
+    const records=getSelectedRTIFYRecords();
+    displayedRecords=records;
+    updateSummaryCards(records);
+    renderRegister(records);
+}
+function newRTI(){ window.location.href="rti.html"; }
+function loadRTIRecords(){ initializeRTIRegister(); }
+function goBackToRTI(){ window.location.href="rti.html"; }
+function goHome(){ window.location.href="../../index.html"; }
+function openSummaryFilter(filterType){
+    const params=new URLSearchParams();
+    params.set("filter",filterType||"total");
+    const fy=document.getElementById("financialYear")?.value || new URLSearchParams(location.search).get("fy") || window.FMSFY?.getCurrentFY?.();
+    if(fy) params.set("fy",fy);
+    window.location.href="rti-register.html?"+params.toString();
+}
+window.initializeRTIFinancialYearFilter=initializeRTIFinancialYearFilter;
+window.getSelectedRTIFYRecords=getSelectedRTIFYRecords;
+window.applyRTIFYFilter=applyRTIFYFilter;
+window.newRTI=newRTI;
+window.loadRTIRecords=loadRTIRecords;
+window.goBackToRTI=goBackToRTI;
+window.goHome=goHome;
+window.openSummaryFilter=openSummaryFilter;
 
 /* ============================================================
    CURRENT FINANCIAL YEAR
@@ -1323,6 +1318,45 @@ function processURLFilter() {
 
 }
 
+
+/* ============================================================
+   REGISTER EXPORTS
+============================================================ */
+function getRTIExportRows(){
+    return (displayedRecords||[]).map((record,index)=>({
+        sl:index+1,
+        applicationNumber:record.applicationNumber||"",
+        applicationDate:formatDate(record.applicationDate),
+        dueDate:formatDate(record.dueDate),
+        applicantName:record.applicantName||"",
+        district:record.district||"",
+        assignedTo:record.assignedTo||record.assignedOfficer||"",
+        presentStatus:(()=>{const s=calculateRTIStatus(record);return s==="completed"?"Completed / Disposed":s==="overdue"?"Overdue":"Pending";})()
+    }));
+}
+const RTI_EXPORT_COLUMNS=[
+    {key:"sl",label:"Sl.No"},{key:"applicationNumber",label:"Application No."},{key:"applicationDate",label:"Application Date"},{key:"dueDate",label:"Due Date"},{key:"applicantName",label:"Applicant Name"},{key:"district",label:"District"},{key:"assignedTo",label:"Assigned To"},{key:"presentStatus",label:"Present Status"}
+];
+async function exportRTIRegister(type){
+    try{
+        if(!window.FMSExportService) throw new Error("Export service is not loaded.");
+        const rows=getRTIExportRows();
+        const filter=new URLSearchParams(location.search).get("filter");
+        const title=`RTI Application Register${filter?" - "+filter.replace(/-/g," "):""}`;
+        const opts={rows,columns:RTI_EXPORT_COLUMNS,title,filename:title};
+        if(type==="excel") await FMSExportService.toExcel(opts);
+        if(type==="pdf") await FMSExportService.toPDF(opts);
+        if(type==="jpeg") await FMSExportService.toJPEG(opts);
+        if(type==="print") await FMSExportService.printRows(opts);
+    }catch(e){ alert(e.message||e); }
+}
+function bindRTIExportButtons(){
+    document.getElementById("btnExcel")?.addEventListener("click",()=>exportRTIRegister("excel"));
+    document.getElementById("btnPDF")?.addEventListener("click",()=>exportRTIRegister("pdf"));
+    document.getElementById("btnJPEG")?.addEventListener("click",()=>exportRTIRegister("jpeg"));
+    document.getElementById("btnPrintRegister")?.addEventListener("click",()=>exportRTIRegister("print"));
+}
+window.exportRTIRegister=exportRTIRegister;
 
 /* ============================================================
    DATE UTILITIES

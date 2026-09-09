@@ -138,8 +138,13 @@ function registerEvents() {
     // Export
 
     bindClick("btnExcel", exportExcel);
+    bindClick("btnExcelTop", exportExcel);
 
     bindClick("btnPDF", exportPDF);
+    bindClick("btnPDFTop", exportPDF);
+    bindClick("btnJPEG", exportJPEG);
+    bindClick("btnJPEGLower", exportJPEG);
+    bindClick("btnPrintTop", printRegister);
 
     bindClick("btnPrintRegister", printRegister);
 
@@ -319,7 +324,16 @@ function applyURLFilter(){
  const filter=new URLSearchParams(location.search).get("filter");
  const fy=document.getElementById("financialYear")?.value || FMSFY?.getCurrentFY();
  if(!filter){ applyFinancialYearFilter(); return; }
- const base=FMSFY ? FMSFY.filterFY(grievanceList,fy,["dateReceived","dateArised"]) : grievanceList;
+ let base=FMSFY ? FMSFY.filterFY(grievanceList,fy,["dateReceived","dateArised"]) : grievanceList;
+ const category=new URLSearchParams(location.search).get("category");
+ if(category){
+   const selected=String(category).trim().toLowerCase().replace(/\s+/g," ").replace(/\bcomplaint\b/g,"complaints").replace(/\breference\b/g,"references").replace(/\bpara\b/g,"paras");
+   base=base.filter(r=>{
+     const actual=String(r.category||r.grievanceType||r.referenceType||r.source||r.type||"").trim().toLowerCase().replace(/\s+/g," ").replace(/\bcomplaint\b/g,"complaints").replace(/\breference\b/g,"references").replace(/\bpara\b/g,"paras");
+     if(selected==="cpgrams") return !actual || ["cpgrams","cpgrams portal","cpgram"].includes(actual);
+     return actual===selected;
+   });
+ }
  const today=new Date(); today.setHours(0,0,0,0);
  filteredList=base.filter(r=>{
    const isClosed=cpgramsDashboardClosed(r);
@@ -1114,29 +1128,29 @@ function openDashboard() {
  EXPORT
 ==========================================================*/
 
-function exportExcel() {
-
-    showMessage(
-        "info",
-        "Excel Export will be available in Version 5.1"
-    );
-
+function getCPGRAMSExportRows() {
+    return (filteredList || []).map((item, index) => ({
+        sl: index + 1,
+        grievanceId: item.grievanceId ?? item.id ?? "",
+        grievanceNumber: item.grievanceNumber ?? item.grievanceNo ?? item.registrationNumber ?? "",
+        dateReceived: item.dateReceived ?? item.dateArised ?? "",
+        complainantName: item.complainantName ?? "",
+        district: item.district ?? "",
+        subject: item.subject ?? "",
+        currentStatus: item.currentStatus ?? item.statusOfFile ?? item.officeStatus ?? "",
+        dueDate: item.dueDate ?? "",
+        priority: item.priority ?? item.priorityClassification ?? "",
+        finalStatus: item.finalStatus ?? ""
+    }));
 }
-
-function exportPDF() {
-
-    showMessage(
-        "info",
-        "PDF Export will be available in Version 5.1"
-    );
-
-}
-
-function printRegister() {
-
-    window.print();
-
-}
+const CPGRAMS_EXPORT_COLUMNS = [
+    {key:"sl",label:"Sl.No"},{key:"grievanceId",label:"Grievance ID"},{key:"grievanceNumber",label:"Grievance Number"},{key:"dateReceived",label:"Date Received"},{key:"complainantName",label:"Complainant Name"},{key:"district",label:"District"},{key:"subject",label:"Subject"},{key:"currentStatus",label:"Current Status"},{key:"dueDate",label:"Due Date"},{key:"priority",label:"Priority"},{key:"finalStatus",label:"Final Status"}
+];
+function exportTitle(){const f=new URLSearchParams(location.search).get("filter");return `CPGRAMS Register${f?" - "+f.replace(/-/g," "):""}`;}
+async function exportExcel() {try{await window.FMSExportService.toExcel({rows:getCPGRAMSExportRows(),columns:CPGRAMS_EXPORT_COLUMNS,title:exportTitle(),filename:exportTitle()});}catch(e){showMessage("danger",e.message||String(e));}}
+async function exportPDF() {try{await window.FMSExportService.toPDF({rows:getCPGRAMSExportRows(),columns:CPGRAMS_EXPORT_COLUMNS,title:exportTitle(),filename:exportTitle()});}catch(e){showMessage("danger",e.message||String(e));}}
+async function exportJPEG() {try{await window.FMSExportService.toJPEG({rows:getCPGRAMSExportRows(),columns:CPGRAMS_EXPORT_COLUMNS,title:exportTitle(),filename:exportTitle()});}catch(e){showMessage("danger",e.message||String(e));}}
+async function printRegister() {try{await window.FMSExportService.printRows({rows:getCPGRAMSExportRows(),columns:CPGRAMS_EXPORT_COLUMNS,title:exportTitle()});}catch(e){showMessage("danger",e.message||String(e));}}
 
 /*==========================================================
  LOADING

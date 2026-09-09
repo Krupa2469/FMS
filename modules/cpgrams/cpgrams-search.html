@@ -154,11 +154,10 @@ Clear
 
 </button>
 
-<button id="btnExport">
-
-Export Excel
-
-</button>
+<button id="btnExport">Export Excel</button>
+<button id="btnExportPDF">Export PDF</button>
+<button id="btnExportJPEG">Export JPEG</button>
+<button id="btnPrintSearch">Print</button>
 
 </div>
 
@@ -204,6 +203,11 @@ class="grid">
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="../../js/services/export-service.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>

@@ -108,6 +108,11 @@ function registerEvents() {
 
 
 
+    document.getElementById("btnExcel")?.addEventListener("click",()=>exportDISHARegister("excel"));
+    document.getElementById("btnPDF")?.addEventListener("click",()=>exportDISHARegister("pdf"));
+    document.getElementById("btnJPEG")?.addEventListener("click",()=>exportDISHARegister("jpeg"));
+    document.getElementById("btnPrintRegister")?.addEventListener("click",()=>exportDISHARegister("print"));
+
     const btnNewMeeting =
         document.getElementById("btnNew") ||
         document.getElementById("btnNewMeeting");
@@ -955,6 +960,39 @@ function applySearch() {
 
 }
 
+
+/* ============================================================
+   REGISTER EXPORTS
+============================================================ */
+function getDISHAExportRows(){
+    return (filteredMeetings||[]).map((m,index)=>({
+        sl:index+1,
+        district:m.district||m.nameOfDistrict||"",
+        dateOfMeeting:formatDate(m.dateOfMeeting),
+        pomDueDate:formatDate(m.pomDueDate),
+        pomUploaded:m.pomUploaded||m.pomStatus||"",
+        meetingExpenditure:formatAmount(m.meetingExpenditure),
+        statusOfBills:m.statusOfBills||"",
+        statusOfMeeting:m.statusOfMeeting||"",
+        officeStatus:m.officeStatus||""
+    }));
+}
+const DISHA_EXPORT_COLUMNS=[
+    {key:"sl",label:"Sl.No"},{key:"district",label:"District"},{key:"dateOfMeeting",label:"Date of Meeting"},{key:"pomDueDate",label:"PoM Due Date"},{key:"pomUploaded",label:"PoM Uploaded"},{key:"meetingExpenditure",label:"Meeting Expenditure"},{key:"statusOfBills",label:"Status of Bills"},{key:"statusOfMeeting",label:"Meeting Status"},{key:"officeStatus",label:"Office Status"}
+];
+async function exportDISHARegister(type){
+    try{
+        if(!window.FMSExportService) throw new Error("Export service is not loaded.");
+        const f=new URLSearchParams(location.search).get("filter");
+        const title=`DISHA Meeting Register${f?" - "+f.replace(/-/g," "):""}`;
+        const opts={rows:getDISHAExportRows(),columns:DISHA_EXPORT_COLUMNS,title,filename:title};
+        if(type==="excel")await FMSExportService.toExcel(opts);
+        if(type==="pdf")await FMSExportService.toPDF(opts);
+        if(type==="jpeg")await FMSExportService.toJPEG(opts);
+        if(type==="print")await FMSExportService.printRows(opts);
+    }catch(e){alert(e.message||e);}
+}
+window.exportDISHARegister=exportDISHARegister;
 
 /* ============================================================
    RENDER REGISTER TABLE

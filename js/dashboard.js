@@ -137,17 +137,17 @@ function newCPGRAMS()
 
 function openSearch()
 {
-    alert("Search Module - Coming Soon");
+    window.location.href = "../modules/cpgrams/cpgrams-search.html";
 }
 
 function openReports()
 {
-    alert("Reports Module - Coming Soon");
+    window.location.href = "reports.html";
 }
 
 function openMasters()
 {
-    alert("Masters Module - Coming Soon");
+    window.location.href = "admin/master-management.html";
 }
 
 /*==========================================================
