@@ -57,6 +57,7 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:22px 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase/firebase-bootstrap.js"></script>
+<script src="js/record-consistency.js"></script>
 <script>
 /* ==========================================================
    FMS HOME DASHBOARD - ROBUST FY + FIRESTORE LOADING
@@ -64,7 +65,7 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:22px 
    Grievance-type cards open the corresponding filtered register.
 ========================================================== */
 const homeCollections={cpgrams:'cpgrams',rti:'rtiApplications',disha:'dishaMeetings'};
-const homeDateFields={cpgrams:['dateReceived','dateArised','receivedDate','date'],rti:['applicationDate','date','dateReceived'],disha:['dateOfMeeting','meetingDate','date']};
+const homeDateFields={cpgrams:['dateReceived','dateArised','receivedDate','questionReceivedDate','date'],rti:['applicationDate','dateReceived','date'],disha:['dateOfMeeting','meetingDate','proposedDateOfMeeting','date']};
 const HOME_CATEGORIES=["GRIEVANCES","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
 let homeRows={cpgrams:[],rti:[],disha:[]};
 let homeInitialized=false;
@@ -151,7 +152,7 @@ async function readCollectionSafely(name){
   try{
     if(!window.db) throw new Error('Firebase database is not ready');
     const snap=await window.db.collection(name).get();
-    return {rows:snap.docs.map(x=>({id:x.id,...x.data()})),error:null};
+    return {rows:snap.docs.map(x=>({id:x.id,...x.data()})).filter(r=>r.active!==false),error:null};
   }catch(error){console.error(`FMS Home: unable to read ${name}`,error);return {rows:[],error};}
 }
 async function loadHome(){

@@ -15,6 +15,7 @@ let filteredList = [];
 let currentPage = 1;
 
 const pageSize = 25;
+const CPGRAMS_FY_FIELDS = ["dateReceived","dateArised","receivedDate","questionReceivedDate","date"];
 
 let selectedDocumentId = null;
 
@@ -275,7 +276,7 @@ grievanceList.forEach((record, index) => {
 function initializeFinancialYearFilter() {
     const el = document.getElementById("financialYear");
     if (!el || !window.FMSFY) return;
-    const options = FMSFY.getFYOptions(grievanceList, ["dateReceived", "dateArised"]);
+    const options = FMSFY.getFYOptions(grievanceList, CPGRAMS_FY_FIELDS);
     const requestedFY = new URLSearchParams(location.search).get("fy");
     const current = requestedFY || FMSFY.getCurrentFY();
     el.innerHTML = options.map(f => `<option value="${f}" ${f === current ? "selected" : ""}>${f}</option>`).join("");
@@ -283,7 +284,7 @@ function initializeFinancialYearFilter() {
 
 function applyFinancialYearFilter() {
     const fy = document.getElementById("financialYear")?.value || (window.FMSFY ? FMSFY.getCurrentFY() : "");
-    const base = window.FMSFY ? FMSFY.filterFY(grievanceList, fy, ["dateReceived", "dateArised"]) : grievanceList;
+    const base = window.FMSFY ? FMSFY.filterFY(grievanceList, fy, CPGRAMS_FY_FIELDS) : grievanceList;
     filteredList = base.slice();
     const filter = new URLSearchParams(location.search).get("filter");
     if (filter) {
@@ -324,7 +325,7 @@ function applyURLFilter(){
  const filter=new URLSearchParams(location.search).get("filter");
  const fy=document.getElementById("financialYear")?.value || FMSFY?.getCurrentFY();
  if(!filter){ applyFinancialYearFilter(); return; }
- let base=FMSFY ? FMSFY.filterFY(grievanceList,fy,["dateReceived","dateArised"]) : grievanceList;
+ let base=FMSFY ? FMSFY.filterFY(grievanceList,fy,CPGRAMS_FY_FIELDS) : grievanceList;
  const category=new URLSearchParams(location.search).get("category");
  if(category){
    const selected=String(category).trim().toLowerCase().replace(/\s+/g," ").replace(/\bcomplaint\b/g,"complaints").replace(/\breference\b/g,"references").replace(/\bpara\b/g,"paras");
@@ -354,45 +355,20 @@ function applyURLFilter(){
 ==========================================================*/
 
 async function loadDashboardSummary() {
-
     try {
-
-        const result =
-            await getDashboardSummary();
-
-        if (!result.success)
-            return;
-
-        const summary =
-            result.data;
-
-        document.getElementById(
-            "totalRecords"
-        ).textContent =
-            summary.total;
-
-        document.getElementById(
-            "pendingRecords"
-        ).textContent =
-            summary.pending;
-
-        document.getElementById(
-            "disposedRecords"
-        ).textContent =
-            summary.disposed;
-
-        document.getElementById(
-            "overdueRecords"
-        ).textContent =
-            summary.overdue;
-
-    }
-    catch (error) {
-
-        console.error(error);
-
-    }
-
+        const fy=document.getElementById("financialYear")?.value || window.FMSFY?.getCurrentFY?.() || "";
+        const records=window.FMSRecordPolicy
+          ? window.FMSRecordPolicy.filterFY("cpgrams",grievanceList,fy)
+          : (window.FMSFY?window.FMSFY.filterFY(grievanceList,fy,CPGRAMS_FY_FIELDS):grievanceList.filter(r=>r.active!==false));
+        let pending=0,disposed=0,overdue=0;
+        records.forEach(r=>{
+          const done=window.FMSRecordPolicy?window.FMSRecordPolicy.closed("cpgrams",r):cpgramsDashboardClosed(r);
+          if(done)disposed++;else pending++;
+          if(window.FMSRecordPolicy?window.FMSRecordPolicy.overdue("cpgrams",r):false)overdue++;
+        });
+        const values={totalRecords:records.length,pendingRecords:pending,disposedRecords:disposed,overdueRecords:overdue};
+        Object.entries(values).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.textContent=value;});
+    } catch(error){console.error("Grievance summary error:",error);}
 }
 
 /*==========================================================
@@ -588,7 +564,7 @@ function searchRecords() {
     const fromDate = document.getElementById("fromDate")?.value || "";
     const toDate = document.getElementById("toDate")?.value || "";
 
-    const baseList = FMSFY ? FMSFY.filterFY(grievanceList, document.getElementById("financialYear")?.value || FMSFY.getCurrentFY(), ["dateReceived","dateArised"]) : grievanceList;
+    const baseList = FMSFY ? FMSFY.filterFY(grievanceList, document.getElementById("financialYear")?.value || FMSFY.getCurrentFY(), CPGRAMS_FY_FIELDS) : grievanceList;
     filteredList =
         baseList.filter(record => {
 

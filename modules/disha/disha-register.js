@@ -24,6 +24,7 @@ console.log("DISHA Meeting Register JS Loaded...");
    ============================================================ */
 
 const DISHA_COLLECTION = "dishaMeetings";
+const DISHA_FY_FIELDS = ["dateOfMeeting","meetingDate","proposedDateOfMeeting","date"];
 
 
 /* ============================================================
@@ -275,13 +276,9 @@ async function loadDISHAmeetings() {
         snapshot.forEach(
             function (doc) {
 
-                dishaMeetings.push({
-
-                    id: doc.id,
-
-                    ...doc.data()
-
-                });
+                const data=doc.data()||{};
+                if(data.active===false)return;
+                dishaMeetings.push({id:doc.id,...data});
 
             }
         );
@@ -289,13 +286,6 @@ async function loadDISHAmeetings() {
 
         console.log(
             "DISHA meetings loaded:",
-            dishaMeetings
-        );
-
-
-        /* Update FY summary cards */
-
-        updateSummaryCards(
             dishaMeetings
         );
 
@@ -335,7 +325,7 @@ async function loadDISHAmeetings() {
 function initializeDISHAFinancialYearFilter(){
  const el=document.getElementById("financialYear");
  if(!el || !window.FMSFY) return;
- const options=FMSFY.getFYOptions(dishaMeetings,["dateOfMeeting"]);
+ const options=FMSFY.getFYOptions(dishaMeetings,DISHA_FY_FIELDS);
  const requestedFY=new URLSearchParams(location.search).get("fy");
  const current=requestedFY||FMSFY.getCurrentFY();
  el.innerHTML=options.map(f=>`<option value="${f}" ${f===current?"selected":""}>${f}</option>`).join("");
@@ -343,10 +333,11 @@ function initializeDISHAFinancialYearFilter(){
 }
 function getSelectedDISHAFYRecords(){
  const fy=document.getElementById("financialYear")?.value || FMSFY?.getCurrentFY();
- return FMSFY ? FMSFY.filterFY(dishaMeetings,fy,["dateOfMeeting"]) : dishaMeetings.filter(isCurrentFinancialYear);
+ return FMSFY ? FMSFY.filterFY(dishaMeetings,fy,DISHA_FY_FIELDS) : dishaMeetings.filter(isCurrentFinancialYear);
 }
 function applyDISHAFinancialYear(){
  filteredMeetings=getSelectedDISHAFYRecords();
+ updateSummaryCards(filteredMeetings);
  applyURLFilter();
 }
 
@@ -525,8 +516,7 @@ function updateSummaryCards(records) {
     // CURRENT FINANCIAL YEAR RECORDS
     // ---------------------------------------------------------
 
-    const currentFYRecords =
-        records.filter(isCurrentFinancialYear);
+    const currentFYRecords=(records||[]).filter(record=>record.active!==false);
 
     // ---------------------------------------------------------
     // MEETING COUNTS

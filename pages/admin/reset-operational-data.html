@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reset Operational Data - FMS</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<body class="bg-light"><div class="container py-5"><div class="card shadow"><div class="card-header bg-danger text-white"><h3 class="mb-0">Reset FMS Operational Data</h3></div>
+<div class="card-body"><div class="alert alert-warning">This permanently deletes operational records from <strong>GRIEVANCES, RTI and DISHA</strong>, plus attachment metadata. Master Tables and Report Definitions are preserved.</div>
+<div id="status" class="alert alert-info">Loading current record counts...</div><div id="counts" class="mb-4"></div>
+<label class="form-label fw-bold">Type <code>DELETE ALL OPERATIONAL DATA</code> to enable reset</label>
+<input id="confirmation" class="form-control mb-3" autocomplete="off"><button id="btnReset" class="btn btn-danger" disabled>Delete All Operational Records</button>
+<a href="../../index.html" class="btn btn-secondary ms-2">Cancel / Home</a></div></div></div>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../../js/firebase/firebase-bootstrap.js"></script><script>
+"use strict";
+const COLLECTIONS=["cpgrams","rtiApplications","dishaMeetings","attachments","fmsAttachments"];
+const statusEl=document.getElementById("status"),countsEl=document.getElementById("counts"),input=document.getElementById("confirmation"),btn=document.getElementById("btnReset");
+function database(){return window.db||window.fmsFirebase?.db||(typeof firebase!=="undefined"&&firebase.firestore?firebase.firestore():null);}
+async function countAll(){const db=database();if(!db)throw new Error("Firestore is not ready.");const rows=[];for(const name of COLLECTIONS){try{const snap=await db.collection(name).get();rows.push([name,snap.size]);}catch(e){rows.push([name,"Unable to read"]);console.warn(name,e);}}countsEl.innerHTML='<table class="table table-bordered"><thead><tr><th>Collection</th><th>Records</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")+'</tbody></table>';return rows;}
+async function deleteCollection(name){const db=database();let deleted=0;while(true){const snap=await db.collection(name).limit(400).get();if(snap.empty)break;const batch=db.batch();snap.docs.forEach(doc=>batch.delete(doc.ref));await batch.commit();deleted+=snap.size;statusEl.className="alert alert-warning";statusEl.textContent=`Deleting ${name}... ${deleted} record(s) deleted`; }return deleted;}
+async function start(){if(!database()){statusEl.textContent="Waiting for Firebase...";return;}try{await countAll();statusEl.className="alert alert-info";statusEl.textContent="Review the counts, then type the confirmation phrase if you want to reset operational data.";}catch(e){statusEl.className="alert alert-danger";statusEl.textContent=e.message||e;}}
+input.addEventListener("input",()=>btn.disabled=input.value.trim()!=="DELETE ALL OPERATIONAL DATA");
+btn.addEventListener("click",async()=>{if(input.value.trim()!=="DELETE ALL OPERATIONAL DATA")return;if(!confirm("This will permanently delete all GRIEVANCES, RTI and DISHA operational records. Continue?"))return;btn.disabled=true;input.disabled=true;try{let total=0;for(const name of COLLECTIONS)total+=await deleteCollection(name);await countAll();statusEl.className="alert alert-success";statusEl.textContent=`Reset complete. ${total} operational record(s) deleted. Dashboard counts should now be zero after refresh.`;}catch(e){console.error(e);statusEl.className="alert alert-danger";statusEl.textContent="Reset failed: "+(e.message||e);input.disabled=false;btn.disabled=false;}});
+window.addEventListener("fmsFirebaseReady",start,{once:true});document.addEventListener("DOMContentLoaded",()=>{if(database())start();else setTimeout(start,1500);});
+</script></body></html>

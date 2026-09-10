@@ -29,6 +29,7 @@ console.log("======================================");
    ============================================================ */
 
 const RTI_COLLECTION = "rtiApplications";
+const RTI_FY_FIELDS = ["applicationDate","dateReceived","date"];
 
 
 
@@ -183,13 +184,9 @@ async function loadRTIRecordsFromFirestore() {
         snapshot.forEach(
             function (doc) {
 
-                rtiRecords.push({
-
-                    id: doc.id,
-
-                    ...doc.data()
-
-                });
+                const data=doc.data()||{};
+                if(data.active===false)return;
+                rtiRecords.push({id:doc.id,...data});
 
             }
         );
@@ -297,7 +294,7 @@ async function loadRTIRecordsFromFirestore() {
 function initializeRTIFinancialYearFilter(){
     const el=document.getElementById("financialYear");
     if(!el || !window.FMSFY) return;
-    const options=FMSFY.getFYOptions(rtiRecords,["applicationDate"]);
+    const options=FMSFY.getFYOptions(rtiRecords,RTI_FY_FIELDS);
     const params=new URLSearchParams(location.search);
     const requestedFY=params.get("fy");
     const current=requestedFY || FMSFY.getCurrentFY();
@@ -314,7 +311,7 @@ function initializeRTIFinancialYearFilter(){
 function getSelectedRTIFYRecords(){
     const params=new URLSearchParams(location.search);
     const fy=params.get("fy") || document.getElementById("financialYear")?.value || window.FMSFY?.getCurrentFY?.() || "";
-    return window.FMSFY ? window.FMSFY.filterFY(rtiRecords,fy,["applicationDate"]) : getCurrentFYRecords();
+    return window.FMSFY ? window.FMSFY.filterFY(rtiRecords,fy,RTI_FY_FIELDS) : getCurrentFYRecords();
 }
 function applyRTIFYFilter(){
     const records=getSelectedRTIFYRecords();
@@ -629,6 +626,12 @@ function updateSummaryCards(records) {
 function calculateRTIStatus(
     record
 ) {
+    if(window.FMSRecordPolicy){
+        if(window.FMSRecordPolicy.closed("rti",record))return "completed";
+        if(window.FMSRecordPolicy.overdue("rti",record))return "overdue";
+        return "pending";
+    }
+
 
     const presentStatus =
         String(
