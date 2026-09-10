@@ -234,6 +234,7 @@ function registerFieldEvents() {
             const grievanceType = document.getElementById("grievanceType");
             if (grievanceType) grievanceType.value = type;
             updateGrievanceFormLayout();
+            window.FMSGrievanceWorkspace?.syncContext?.();
             markDirty();
         });
 
@@ -316,6 +317,11 @@ async function loadMasterData() {
 
 const QUESTION_GRIEVANCE_TYPES = new Set(["LAQ", "LCQ"]);
 
+function isCPGRAMSType(type = getSelectedGrievanceType()) {
+    const v = String(type || "").trim().toUpperCase();
+    return v === "CPGRAMS" || v === "GRIEVANCES"; // legacy GRIEVANCES records remain compatible
+}
+
 function getSelectedGrievanceType() {
     return String(getControlValue("grievanceType") || "").trim();
 }
@@ -329,7 +335,7 @@ function updateGrievanceFormLayout() {
     const normalized = type.toUpperCase();
     const hasType = Boolean(normalized);
     const questionMode = hasType && isQuestionGrievanceType(normalized);
-    const fullGrievancesMode = normalized === "GRIEVANCES";
+    const fullGrievancesMode = isCPGRAMSType(normalized);
 
     getControl("standardSection1Card")?.classList.toggle("d-none", !hasType || questionMode);
     getControl("questionEntryCard")?.classList.toggle("d-none", !questionMode);
@@ -540,7 +546,11 @@ function populateForm(grievance) {
         return;
 
     if (!grievance.grievanceType) {
-        grievance.grievanceType = "GRIEVANCES";
+        const legacyQuestionType = String(grievance.questionType || "").toUpperCase();
+        grievance.grievanceType = QUESTION_GRIEVANCE_TYPES.has(legacyQuestionType) ? legacyQuestionType : "CPGRAMS";
+    }
+    if (String(grievance.grievanceType).toUpperCase() === "GRIEVANCES") {
+        grievance.grievanceType = "CPGRAMS";
     }
 
     Object.keys(grievance)
@@ -563,8 +573,9 @@ function populateForm(grievance) {
     }
 
     updateGrievanceFormLayout();
+    window.FMSGrievanceWorkspace?.syncContext?.();
 
-    if (getSelectedGrievanceType().toUpperCase() === "GRIEVANCES" && grievance.dateReceived) {
+    if (isCPGRAMSType(getSelectedGrievanceType()) && grievance.dateReceived) {
         calculateDueDateFromDisplay(String(grievance.dateReceived));
     }
 
@@ -751,6 +762,9 @@ function buildGrievanceObject() {
 
         });
 
+    // Grievance Type selector is intentionally above/outside the data-entry form.
+    grievance.grievanceType = getSelectedGrievanceType();
+
     const grievanceType = String(grievance.grievanceType || "").trim();
     const questionMode = isQuestionGrievanceType(grievanceType);
 
@@ -772,7 +786,7 @@ function buildGrievanceObject() {
         grievance.category = "";
         grievance.natureOfGrievance = "";
         grievance.priorityClassification = "";
-    } else if (grievanceType.toUpperCase() !== "GRIEVANCES") {
+    } else if (!isCPGRAMSType(grievanceType)) {
         grievance.grievanceNumber = "";
         grievance.category = "";
         grievance.natureOfGrievance = "";
@@ -849,7 +863,7 @@ function validateForm() {
             ["subject", "Subject"],
             ["grievanceDescription", "Grievance Description"]
         ];
-        if (type.toUpperCase() === "GRIEVANCES") {
+        if (isCPGRAMSType(type)) {
             requiredFields.unshift(["grievanceNumber", "Grievance Number"]);
         }
     }
@@ -905,7 +919,7 @@ function validateMobile() {
 
 async function validateDuplicate() {
 
-    if (getSelectedGrievanceType().toUpperCase() !== "GRIEVANCES")
+    if (!isCPGRAMSType(getSelectedGrievanceType()))
         return true;
 
     const grievanceNumber =
@@ -983,6 +997,7 @@ async function saveGrievance() {
         }
 
         currentDocumentId = result.data.id;
+        window.FMSGrievanceWorkspace?.refresh?.();
 
         editMode = true;
 
@@ -1070,6 +1085,7 @@ console.log("Before update currentDocumentId:", currentDocumentId);
         }
 
         formDirty = false;
+        window.FMSGrievanceWorkspace?.refresh?.();
 
         showMessage(
             "success",
@@ -1138,6 +1154,7 @@ async function deleteGrievance() {
             "success",
             "Grievance deleted successfully."
         );
+        window.FMSGrievanceWorkspace?.refresh?.();
 
         clearForm();
 
@@ -1600,7 +1617,7 @@ function calculateDueDateFromDisplay(
     dateValue
 ) {
 
-    if (getSelectedGrievanceType().toUpperCase() !== "GRIEVANCES") {
+    if (!isCPGRAMSType(getSelectedGrievanceType())) {
         return;
     }
 

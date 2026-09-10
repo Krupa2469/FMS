@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Import All Grievances - FMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+body{background:#f4f6f9}.hero{background:#0d6efd;color:#fff;padding:18px}.metric{border:0;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}.table-wrap{max-height:55vh;overflow:auto}.sticky-head th{position:sticky;top:0;background:#212529;color:#fff;z-index:2}.mono{font-family:Consolas,monospace}
+</style>
+</head>
+<body>
+<header class="hero text-center">
+<div class="fw-semibold">GOVERNMENT OF TELANGANA</div>
+<div>Office of the Commissioner, Rural Development</div>
+<h2 class="mb-0 mt-1">ALL GRIEVANCES DATA IMPORT</h2>
+</header>
+
+<nav class="navbar bg-white border-bottom shadow-sm"><div class="container-fluid d-flex gap-2 flex-wrap p-2">
+<a class="btn btn-dark" href="../../index.html"><i class="bi bi-house"></i> Home</a>
+<a class="btn btn-outline-secondary" href="master-management.html"><i class="bi bi-database"></i> Master Tables</a>
+<a class="btn btn-outline-primary" href="../../modules/cpgrams/cpgrams.html"><i class="bi bi-inbox"></i> Grievances</a>
+<span id="dbState" class="ms-auto align-self-center small text-muted">Connecting to Firebase...</span>
+</div></nav>
+
+<main class="container-fluid py-3">
+<div class="alert alert-info">
+<strong>Source:</strong> All Grievances.pdf &nbsp; • &nbsp;
+<strong>Source report date:</strong> 10/09/2026 &nbsp; • &nbsp;
+<strong>Records prepared:</strong> 106
+<br><span class="small">Only fields available in the supplied report are imported. Other Grievance Data Entry fields are left untouched/blank for later completion.</span>
+</div>
+
+<div class="row g-3 mb-3">
+<div class="col-md-3"><div class="card metric"><div class="card-body text-center"><div class="text-muted">Prepared</div><div id="preparedCount" class="display-6 fw-bold text-primary">106</div></div></div></div>
+<div class="col-md-3"><div class="card metric"><div class="card-body text-center"><div class="text-muted">Existing CPGRAMS</div><div id="existingCount" class="display-6 fw-bold">-</div></div></div></div>
+<div class="col-md-3"><div class="card metric"><div class="card-body text-center"><div class="text-muted">Created</div><div id="createdCount" class="display-6 fw-bold text-success">0</div></div></div></div>
+<div class="col-md-3"><div class="card metric"><div class="card-body text-center"><div class="text-muted">Updated / Matched</div><div id="updatedCount" class="display-6 fw-bold text-warning">0</div></div></div></div>
+</div>
+
+<div class="card shadow-sm mb-3">
+<div class="card-header bg-dark text-white fw-bold">Field Mapping</div>
+<div class="card-body">
+<div class="row g-2">
+<div class="col-md-4"><span class="fw-bold">Grievance Type</span><br>CPGRAMS</div>
+<div class="col-md-4"><span class="fw-bold">Registration Number</span><br><span class="mono">grievanceNumber</span></div>
+<div class="col-md-4"><span class="fw-bold">Name</span><br><span class="mono">complainantName</span></div>
+<div class="col-md-4"><span class="fw-bold">Org Received Date</span><br><span class="mono">dateReceived</span></div>
+<div class="col-md-4"><span class="fw-bold">Dairy Date</span><br><span class="mono">diaryDate</span></div>
+<div class="col-md-4"><span class="fw-bold">Other fields</span><br>Not overwritten</div>
+</div>
+</div>
+</div>
+
+<div class="d-flex gap-2 flex-wrap mb-3">
+<button id="btnImport" class="btn btn-success btn-lg"><i class="bi bi-cloud-arrow-up"></i> Import / Update 106 Records</button>
+<button id="btnVerify" class="btn btn-primary"><i class="bi bi-check2-circle"></i> Verify Database</button>
+<button id="btnReload" class="btn btn-outline-secondary"><i class="bi bi-arrow-repeat"></i> Reload Preview</button>
+</div>
+<div id="statusBox" class="alert alert-secondary">Ready. Review the preview, then click <strong>Import / Update 106 Records</strong>.</div>
+
+<div class="card shadow-sm">
+<div class="card-header d-flex justify-content-between align-items-center"><strong>Prepared Records Preview</strong><span id="previewCount" class="badge bg-primary">0</span></div>
+<div class="table-wrap">
+<table class="table table-bordered table-striped table-hover mb-0">
+<thead class="sticky-head"><tr><th>S.No.</th><th>Grievance Type</th><th>Registration Number</th><th>Name</th><th>Org Received Date</th><th>Dairy Date</th></tr></thead>
+<tbody id="previewBody"></tbody>
+</table>
+</div>
+</div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
+<script src="../../js/firebase/firebase-bootstrap.js"></script>
+<script>
+"use strict";
+let prepared=[];
+const COLLECTION="cpgrams";
+const statusBox=document.getElementById("statusBox");
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function normalizeNumber(v){return String(v||"").trim().toUpperCase().replace(/\s+/g,"");}
+function getDb(){return window.db||window.fmsFirebase?.db||(typeof firebase!=="undefined"&&firebase.firestore?firebase.firestore():null);}
+function setStatus(type,msg){statusBox.className="alert alert-"+type;statusBox.innerHTML=msg;}
+async function loadPrepared(){
+  const res=await fetch("../../data/all-grievances-2026-09-10.json",{cache:"no-store"});
+  if(!res.ok) throw new Error("Unable to load prepared data file.");
+  const payload=await res.json();
+  prepared=payload.records||[];
+  document.getElementById("preparedCount").textContent=prepared.length;
+  document.getElementById("previewCount").textContent=prepared.length+" records";
+  document.getElementById("previewBody").innerHTML=prepared.map(r=>`<tr><td>${r.sourceSerialNo}</td><td>${esc(r.grievanceType)}</td><td>${esc(r.grievanceNumber)}</td><td>${esc(r.complainantName)}</td><td>${esc(r.dateReceived)}</td><td>${esc(r.diaryDate)}</td></tr>`).join("");
+}
+async function getExisting(){
+  const db=getDb(); if(!db) throw new Error("Firestore is not ready.");
+  const snap=await db.collection(COLLECTION).get();
+  const docs=snap.docs.map(d=>({id:d.id,ref:d.ref,...d.data()}));
+  document.getElementById("existingCount").textContent=docs.filter(x=>x.active!==false).length;
+  return docs;
+}
+async function verify(){
+  try{
+    setStatus("info","Verifying the CPGRAMS collection...");
+    const existing=await getExisting();
+    const map=new Map();
+    existing.forEach(d=>{const k=normalizeNumber(d.grievanceNumber||d.registrationNumber);if(k&&!map.has(k))map.set(k,d);});
+    const missing=prepared.filter(r=>!map.has(normalizeNumber(r.grievanceNumber)));
+    const matched=prepared.length-missing.length;
+    document.getElementById("updatedCount").textContent=matched;
+    if(missing.length===0){
+      setStatus("success",`Verification complete. <strong>All ${prepared.length} supplied registration numbers are present in Firestore.</strong>`);
+    }else{
+      setStatus("warning",`Verification complete. ${matched} of ${prepared.length} supplied records are present; <strong>${missing.length} are missing</strong>.`);
+    }
+  }catch(e){console.error(e);setStatus("danger",esc(e.message||e));}
+}
+async function importData(){
+  if(!prepared.length){setStatus("danger","Prepared data is not loaded.");return;}
+  if(!confirm(`Import / update ${prepared.length} CPGRAMS records in Firestore? Existing records with the same Registration Number will be updated only for the supplied fields. Other fields will be preserved.`)) return;
+  const btn=document.getElementById("btnImport");btn.disabled=true;
+  try{
+    setStatus("info","Reading existing CPGRAMS records...");
+    const db=getDb(); if(!db) throw new Error("Firestore is not ready.");
+    const existing=await getExisting();
+    const byNo=new Map();
+    existing.forEach(d=>{
+      const k=normalizeNumber(d.grievanceNumber||d.registrationNumber);
+      if(k&&!byNo.has(k)) byNo.set(k,d);
+    });
+    let created=0,updated=0;
+    const ts=firebase.firestore.FieldValue.serverTimestamp();
+    let batch=db.batch(),ops=0;
+    async function flush(){if(ops){await batch.commit();batch=db.batch();ops=0;}}
+    for(const r of prepared){
+      const k=normalizeNumber(r.grievanceNumber);
+      const found=byNo.get(k);
+      const payload={
+        sourceSerialNo:r.sourceSerialNo,
+        grievanceType:"CPGRAMS",
+        grievanceNumber:r.grievanceNumber,
+        registrationNumber:r.registrationNumber||r.grievanceNumber,
+        grievanceNumberNormalized:k,
+        complainantName:r.complainantName,
+        dateReceived:r.dateReceived,
+        diaryDate:r.diaryDate,
+        active:true,
+        dataEntryComplete:false,
+        importBatch:"all-grievances-2026-09-10",
+        importSource:"All Grievances.pdf",
+        updatedOn:ts
+      };
+      if(found){
+        batch.set(found.ref,payload,{merge:true});updated++;
+      }else{
+        const ref=db.collection(COLLECTION).doc();
+        batch.set(ref,{...payload,createdOn:ts});created++;
+      }
+      ops++;
+      if(ops>=400) await flush();
+    }
+    await flush();
+    await db.collection("systemMigrations").doc("all-grievances-2026-09-10").set({
+      source:"All Grievances.pdf",recordCount:prepared.length,created,updated,completedOn:ts
+    },{merge:true});
+    document.getElementById("createdCount").textContent=created;
+    document.getElementById("updatedCount").textContent=updated;
+    await getExisting();
+    setStatus("success",`Import completed. <strong>${created} created</strong> and <strong>${updated} updated/matched</strong>. Other existing fields were preserved.`);
+  }catch(e){
+    console.error(e);
+    setStatus("danger",`Import failed: ${esc(e.message||e)}. No source file was changed.`);
+  }finally{btn.disabled=false;}
+}
+async function init(){
+  try{await loadPrepared();}catch(e){setStatus("danger",esc(e.message||e));}
+  const connect=async()=>{try{await getExisting();document.getElementById("dbState").textContent="Firestore connected";}catch(e){document.getElementById("dbState").textContent="Firestore not ready";}};
+  if(getDb())connect();else window.addEventListener("fmsFirebaseReady",connect,{once:true});
+}
+document.getElementById("btnImport").addEventListener("click",importData);
+document.getElementById("btnVerify").addEventListener("click",verify);
+document.getElementById("btnReload").addEventListener("click",()=>location.reload());
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>

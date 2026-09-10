@@ -12,6 +12,8 @@
     let dataBlock=null;
 
     if(path.includes("cpgrams-register")){
+      // Dashboard-card drill-down: show only the filtered Grievances register.
+      document.querySelectorAll("header, nav, footer").forEach(hide);
       const table=document.getElementById("registerTable");
       dataBlock=table?.closest(".card") || table?.parentElement;
       document.querySelectorAll(".card").forEach(el=>{
@@ -19,6 +21,7 @@
       });
       // Hide search/summary/export/advanced panels even when their markup changes.
       ["searchFilters","summaryDashboard","exportOptions","advancedSearch"].forEach(id=>hide(document.getElementById(id)));
+      document.querySelectorAll(".container-fluid > .row.mt-3, .container-fluid > .row.mt-4, .container-fluid > .card.shadow-sm.mt-4").forEach(el=>{ if(!el.contains(table)) hide(el); });
     }
     else if(path.includes("rti-register")){
       dataBlock=document.querySelector(".register-container");
