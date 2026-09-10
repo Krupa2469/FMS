@@ -1,40 +1,499 @@
 "use strict";
+
 /* ============================================================
-   GRIEVANCES REGISTER - v1.2.7
-   One source of truth: active + Grievance Type + FY + status filter.
-   Columns mirror the selected Grievance Type data-entry form.
+   GRIEVANCES REGISTER CONTROLLER - v1.2.9
+   Loads Firestore records consistently by Grievance Type + FY.
+   This replaces the old Grievance Number search dependency.
 ============================================================ */
-let grievanceList=[],filteredList=[],currentPage=1,selectedDocumentId=null;const pageSize=25;
-const TYPES=["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
-const $=id=>document.getElementById(id);const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function normType(v){const s=String(v||"").trim().toLowerCase().replace(/\s+/g," ").replace(/\bcomplaint\b/g,"complaints").replace(/\breference\b/g,"references").replace(/\bpara\b/g,"paras");if(["grievances","cpgrams","cpgrams portal","cpgram"].includes(s))return"cpgrams";return s;}
-function rowType(r){if(String(r?.questionType||"").toUpperCase()==="LAQ")return"laq";if(String(r?.questionType||"").toUpperCase()==="LCQ")return"lcq";for(const v of [r?.grievanceType,r?.referenceType,r?.type,r?.sourceType,r?.grievanceSource,r?.source]){const n=normType(v);if(n)return n;}return"cpgrams";}
-function selectedType(){return $("searchGrievanceType")?.value||new URLSearchParams(location.search).get("grievanceType")||new URLSearchParams(location.search).get("category")||"";}
-function selectedFY(){return $("financialYear")?.value||new URLSearchParams(location.search).get("fy")||window.FMSRecordPolicy?.currentFY?.()||window.FMSFY?.getCurrentFY?.()||"";}
-function populateType(){const el=$("searchGrievanceType");if(!el)return;const q=new URLSearchParams(location.search).get("grievanceType")||new URLSearchParams(location.search).get("category")||"";el.innerHTML=`<option value="">All Grievance Types</option>`+TYPES.map(t=>`<option value="${t}">${t}</option>`).join("");if(q){const mapped=normType(q)==="cpgrams"?"CPGRAMS":TYPES.find(t=>normType(t)===normType(q))||q;el.value=mapped;}}
-function populateFY(){const el=$("financialYear");if(!el)return;const req=new URLSearchParams(location.search).get("fy");const cur=window.FMSRecordPolicy?.currentFY?.()||window.FMSFY?.getCurrentFY?.();const y0=new Date().getFullYear()-(new Date().getMonth()<3?1:0);let a=[];for(let y=y0;y>=2014;y--)a.push(`${y}-${String(y+1).slice(-2)}`);el.innerHTML=a.map(f=>`<option value="${f}">${f}</option>`).join("");el.value=req&&a.includes(req)?req:(cur&&a.includes(cur)?cur:a[0]);}
-function contextBase(){let rows=grievanceList.filter(r=>r.active!==false);const type=selectedType();if(type)rows=rows.filter(r=>rowType(r)===normType(type));const fy=selectedFY();return window.FMSRecordPolicy?window.FMSRecordPolicy.filterFY("cpgrams",rows,fy):(window.FMSFY?window.FMSFY.filterFY(rows,fy,["dateReceived","dateArised","receivedDate","questionReceivedDate","date"]):rows);}
-function closed(r){return window.FMSRecordPolicy?window.FMSRecordPolicy.closed("cpgrams",r):/closed|disposed|completed/i.test(String(r.finalStatus||r.currentStatus||r.officeStatus||""));}
-function circulation(r){return window.FMSRecordPolicy?window.FMSRecordPolicy.circulation("cpgrams",r):/circulation/i.test(String(r.officeStatus||r.currentStatus||""));}
-function statusFilter(rows){const f=new URLSearchParams(location.search).get("filter");if(!f)return rows;return rows.filter(r=>{if(f==="total")return true;if(f==="pending")return!closed(r);if(["closed","completed","disposed"].includes(f))return closed(r);if(f==="circulation")return circulation(r);if(f==="overdue")return window.FMSRecordPolicy?.overdue("cpgrams",r);if(f==="due-today")return window.FMSRecordPolicy?.dueToday("cpgrams",r);return true;});}
-const common2=[["complainantName","Complainant Name"],["mobileNumber","Mobile Number"],["gender","Gender"],["district","District"],["mandal","Mandal"],["village","Village"],["address","Address"],["preferredContact","Preferred Contact"]];
-const common3=[["fileNumber","File Number"],["dateArised","Date Arised"],["officeCommunicationType","Type of communication"],["officeLetterAddressedTo","Letter addressed to"],["officeReplySection","Reply obtained from"],["officeStatus","Status of file"],["assignedOfficer","Assigned Officer"],["section","Concerned Section"],["fileLocation","File Location"],["currentStatus","Current File Status"],["finalStatus","Final Status"],["atrReceived","ATR Received"],["atrDate","ATR Date"],["atrDueDate","ATR Due Date"],["disposalDate","Disposal Date"],["fileClosed","File Closed"],["remarks","Remarks"]];
-const basic1=[["dateReceived","Date Received"],["dueDate","Due Date"],["subject","Subject"],["grievanceDescription","Grievance Description"],["grievanceDocument","Upload Grievance Document"]];
-const cp1=[["grievanceNumber","Grievance Number"],["dateReceived","Date Received"],["dueDate","Due Date"],["subject","Subject"],["category","Category"],["grievanceDescription","Grievance Description"],["grievanceDocument","Upload Grievance Document"],["natureOfGrievance","Nature of Grievance"],["priorityClassification","Priority Classification"],["attachmentCount","Number of Attachments"]];
-const qcols=[["questionSerialNo","Question No."],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer furnished by"],["answerFurnishedTo","Answer furnished to"],["answerFurnishedDate","Answer furnished Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"],["attachments","Upload Document"]];
-function columns(){const n=normType(selectedType());if(n==="laq"||n==="lcq")return qcols.map(c=>c[0]==="questionSerialNo"?[c[0],`${n.toUpperCase()} No.`]:c);if(!n)return [["grievanceType","Grievance Type"],["dateReceived","Date Received"],["subject","Subject"],["currentStatus","Current File Status"]];return(n==="cpgrams"?cp1:basic1).concat(common2,common3,[["attachments","Upload Document"]]);}
-function value(r,k){let v=r?.[k];if(k==="grievanceDocument")v=r?.grievanceDocumentName||r?.fileDocumentName||r?.fileDocument||r?.grievanceDocument||"";if(k==="attachments"){const a=r?.attachments;if(Array.isArray(a))return a.map(x=>x?.name||x?.fileName||x?.filename||"Document").join(", ");return r?.fileAttachmentName||r?.attachmentName||r?.attachmentCount||"";}if(["district","mandal","village"].includes(k)&&!v)v=r?.[k+"Manual"]||"";return v??"";}
-function updateTitle(){const t=selectedType();const title=t?`${t} Register`:"Grievances Register";if($("registerTitle"))$("registerTitle").textContent=title;const h=document.querySelector("header h3");if(h)h.textContent=title.toUpperCase();document.title=title;}
-function render(){const cols=columns(),head=$("registerHeaderRow"),body=$("registerBody");if(head)head.innerHTML=cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")+"<th>Action</th>";if(!body)return;const start=(currentPage-1)*pageSize,end=Math.min(start+pageSize,filteredList.length);if(!filteredList.length){body.innerHTML=`<tr><td colspan="${cols.length+1}" class="text-center text-muted py-5">No Records Available</td></tr>`;}else{body.innerHTML=filteredList.slice(start,end).map(r=>`<tr>${cols.map(c=>`<td>${esc(value(r,c[0]))}</td>`).join("")}<td class="text-nowrap"><button class="btn btn-sm btn-info" onclick="viewRecord('${esc(r.id)}')">View</button> <button class="btn btn-sm btn-warning" onclick="editRecord('${esc(r.id)}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteRecordFromGrid('${esc(r.id)}')">Delete</button></td></tr>`).join("");}updateRecordCount();updatePageInfo();updateTitle();}
-function applyAll(){let rows=contextBase();const district=$("searchDistrict")?.value?.trim().toLowerCase()||"";const st=$("searchStatus")?.value?.trim().toLowerCase()||"";const cat=$("searchCategory")?.value?.trim().toLowerCase()||"";const pri=$("searchPriority")?.value?.trim().toLowerCase()||"";const from=$("fromDate")?.value||"",to=$("toDate")?.value||"";rows=rows.filter(r=>{if(district&&String(r.district||"").toLowerCase()!==district)return false;if(st&&!String(r.currentStatus||r.finalStatus||r.officeStatus||r.questionFileStatus||"").toLowerCase().includes(st))return false;if(cat&&!String(r.category||"").toLowerCase().includes(cat))return false;if(pri&&!String(r.priorityClassification||r.priority||"").toLowerCase().includes(pri))return false;const d=window.FMSRecordPolicy?.recordDate("cpgrams",r);if(from&&d&&d<new Date(from+"T00:00:00"))return false;if(to&&d&&d>new Date(to+"T23:59:59"))return false;return true;});filteredList=statusFilter(rows);currentPage=1;render();updateSummary(contextBase());}
-function updateSummary(rows){let p=0,d=0,o=0;rows.forEach(r=>{if(closed(r))d++;else p++;if(window.FMSRecordPolicy?.overdue("cpgrams",r))o++;});[["totalRecords",rows.length],["pendingRecords",p],["disposedRecords",d],["overdueRecords",o]].forEach(([id,v])=>{if($(id))$(id).textContent=v;});}
-async function initialize(){showLoading?.();try{populateType();populateFY();bind();const res=await getActiveRecords(500);if(!res.success)throw new Error(res.message||"Unable to load records");grievanceList=(res.data||[]).filter(r=>r.active!==false);loadDistricts?.();applyAll();}catch(e){console.error(e);showMessage?.("danger",e.message||String(e));}finally{hideLoading?.();}}
-function bind(){$("btnRefresh")?.addEventListener("click",initialize);$("financialYear")?.addEventListener("change",applyAll);$("searchGrievanceType")?.addEventListener("change",applyAll);$("searchDistrict")?.addEventListener("change",applyAll);$("searchStatus")?.addEventListener("change",applyAll);$("btnSearch")?.addEventListener("click",applyAll);$("searchCategory")?.addEventListener("change",applyAll);$("searchPriority")?.addEventListener("change",applyAll);$("fromDate")?.addEventListener("change",applyAll);$("toDate")?.addEventListener("change",applyAll);$("btnNew")?.addEventListener("click",openNewGrievance);$("btnHome")?.addEventListener("click",()=>location.href="../../index.html");$("btnDashboard")?.addEventListener("click",()=>location.href="cpgrams.html");$("btnFirst")?.addEventListener("click",()=>{currentPage=1;render()});$("btnPrevious")?.addEventListener("click",()=>{if(currentPage>1)currentPage--;render()});$("btnNext")?.addEventListener("click",()=>{if(currentPage<Math.ceil(filteredList.length/pageSize))currentPage++;render()});$("btnLast")?.addEventListener("click",()=>{currentPage=Math.max(1,Math.ceil(filteredList.length/pageSize));render()});}
-function updateRecordCount(){if($("recordCount"))$("recordCount").textContent=`Total Records : ${filteredList.length}`;}
-function updatePageInfo(){if(!$("pageInfo"))return;if(!filteredList.length){$("pageInfo").textContent="Showing 0 to 0 of 0 records";return;}const s=(currentPage-1)*pageSize+1,e=Math.min(currentPage*pageSize,filteredList.length);$("pageInfo").textContent=`Showing ${s} to ${e} of ${filteredList.length} records`;}
-function openNewGrievance(){sessionStorage.removeItem("selectedGrievance");const p=new URLSearchParams();if(selectedType())p.set("grievanceType",selectedType());location.href="cpgrams.html?mode=new&"+p;}
-function viewRecord(id){const r=grievanceList.find(x=>x.id===id);if(!r)return;sessionStorage.setItem("selectedGrievance",JSON.stringify(r));location.href="cpgrams.html?mode=view";}
-function editRecord(id){const r=grievanceList.find(x=>x.id===id);if(!r)return;sessionStorage.setItem("selectedGrievance",JSON.stringify(r));location.href="cpgrams.html?mode=edit";}
-async function deleteRecordFromGrid(id){if(!confirm("Delete this record?"))return;const res=await deleteRecord(id);if(!res.success){showMessage?.("danger",res.message||"Delete failed");return;}await initialize();}
-window.viewRecord=viewRecord;window.editRecord=editRecord;window.deleteRecordFromGrid=deleteRecordFromGrid;window.searchRecords=applyAll;window.applyFinancialYearFilter=applyAll;window.applyURLFilter=applyAll;window.openNewGrievance=openNewGrievance;window.goHome=()=>location.href="../../index.html";window.openDashboard=()=>location.href="cpgrams.html";
-document.addEventListener("DOMContentLoaded",initialize);
+
+const GRIEVANCE_COLLECTION = "cpgrams";
+const GRIEVANCE_TYPES = [
+  "CPGRAMS", "Prajavani", "Public Grievances", "Direct Complaints",
+  "LAQ", "LCQ", "Court Cases", "VIP References", "CMO References",
+  "PMO References", "Audit Paras", "Vigilance Cases"
+];
+
+let grievanceList = [];
+let filteredList = [];
+let currentPage = 1;
+let selectedDocumentId = null;
+const pageSize = 25;
+
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? "").replace(/[&<>\"']/g, ch => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+}[ch]));
+
+function getFirestoreDB() {
+  if (window.db) return window.db;
+  if (window.fmsFirebase && window.fmsFirebase.db) return window.fmsFirebase.db;
+  try {
+    if (typeof firebase !== "undefined" && firebase.firestore) return firebase.firestore();
+  } catch (_error) {}
+  return null;
+}
+
+function normalizeType(value) {
+  const text = String(value || "").trim().toLowerCase().replace(/\s+/g, " ")
+    .replace(/\bcomplaint\b/g, "complaints")
+    .replace(/\breference\b/g, "references")
+    .replace(/\bpara\b/g, "paras");
+  if (["grievances", "cpgrams", "cpgrams portal", "cpgram", "direct from complainant"].includes(text)) return "cpgrams";
+  return text;
+}
+
+function getRowType(record) {
+  const qType = String(record?.questionType || "").trim().toUpperCase();
+  if (qType === "LAQ") return "laq";
+  if (qType === "LCQ") return "lcq";
+  for (const key of ["grievanceType", "referenceType", "type", "sourceType", "grievanceSource", "source", "category"]) {
+    const normalized = normalizeType(record?.[key]);
+    if (normalized) return normalized;
+  }
+  return "cpgrams";
+}
+
+function parseDate(value) {
+  if (!value) return null;
+  if (value && typeof value.toDate === "function") return value.toDate();
+  if (value && value.seconds != null) return new Date(Number(value.seconds) * 1000);
+  if (value && value._seconds != null) return new Date(Number(value._seconds) * 1000);
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : new Date(value.getTime());
+  const text = String(value).trim();
+  let match = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (match) return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+  match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (match) return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const date = new Date(text);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function fyStartYear(date = new Date()) {
+  return date.getMonth() >= 3 ? date.getFullYear() : date.getFullYear() - 1;
+}
+
+function fyLabel(startYear) {
+  return `${startYear}-${String(startYear + 1).slice(-2)}`;
+}
+
+function currentFY() {
+  return window.FMSRecordPolicy?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || fyLabel(fyStartYear(new Date()));
+}
+
+function getRecordDate(record) {
+  for (const key of ["dateReceived", "questionReceivedDate", "dateArised", "receivedDate", "diaryDate", "applicationDate", "date"]) {
+    const date = parseDate(record?.[key]);
+    if (date) return date;
+  }
+  return null;
+}
+
+function getRecordFY(record) {
+  const date = getRecordDate(record);
+  return date ? fyLabel(fyStartYear(date)) : "";
+}
+
+function selectedType() {
+  return $("searchGrievanceType")?.value || new URLSearchParams(location.search).get("grievanceType") || new URLSearchParams(location.search).get("category") || "CPGRAMS";
+}
+
+function selectedFY() {
+  return $("financialYear")?.value || new URLSearchParams(location.search).get("fy") || currentFY();
+}
+
+function getStatus(record) {
+  for (const key of ["officeStatus", "currentStatus", "finalStatus", "statusOfFile", "questionFileStatus", "presentStatus", "status"]) {
+    const value = record?.[key];
+    if (value !== undefined && value !== null && String(value).trim()) return String(value).trim();
+  }
+  return "Pending";
+}
+
+function statusKey(record) {
+  return getStatus(record).toLowerCase();
+}
+
+function isClosed(record) {
+  return /closed|disposed|reply obtained|despatched|completed|reply furnished|final reply|replied/.test(statusKey(record));
+}
+
+function isCirculation(record) {
+  return /under circulation|circulation/.test([
+    record?.officeStatus, record?.statusOfFile, record?.currentStatus,
+    record?.presentStatus, record?.questionFileStatus, record?.status
+  ].map(value => String(value || "").toLowerCase()).join(" | "));
+}
+
+function getDueDate(record) {
+  return parseDate(record?.dueDate || record?.questionDueDate || record?.atrDueDate);
+}
+
+function isOverdue(record) {
+  if (isClosed(record)) return false;
+  const due = getDueDate(record);
+  if (!due) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
+  return due < today;
+}
+
+function isDueToday(record) {
+  if (isClosed(record)) return false;
+  const due = getDueDate(record);
+  if (!due) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
+  return due.getTime() === today.getTime();
+}
+
+function setMessage(type, message) {
+  const area = $("messageArea");
+  if (!area) return;
+  area.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+}
+
+function showLoading() {
+  const overlay = $("loadingOverlay");
+  if (overlay) overlay.classList.remove("d-none");
+}
+
+function hideLoading() {
+  const overlay = $("loadingOverlay");
+  if (overlay) overlay.classList.add("d-none");
+}
+
+function populateTypeDropdown() {
+  const select = $("searchGrievanceType");
+  if (!select) return;
+  const requested = new URLSearchParams(location.search).get("grievanceType") || new URLSearchParams(location.search).get("category") || "";
+  select.innerHTML = `<option value="">All Grievance Types</option>` + GRIEVANCE_TYPES.map(type => `<option value="${esc(type)}">${esc(type)}</option>`).join("");
+  if (requested) {
+    const mapped = normalizeType(requested) === "cpgrams" ? "CPGRAMS" : GRIEVANCE_TYPES.find(type => normalizeType(type) === normalizeType(requested));
+    if (mapped) select.value = mapped;
+  }
+  if (!requested && !select.value) select.value = "CPGRAMS";
+}
+
+function populateFinancialYearDropdown() {
+  const select = $("financialYear");
+  if (!select) return;
+  const requested = new URLSearchParams(location.search).get("fy");
+  const preferred = requested || select.value || currentFY();
+  const years = new Set();
+  const currentStart = fyStartYear(new Date());
+  for (let year = currentStart; year >= 2014; year--) years.add(fyLabel(year));
+  grievanceList.forEach(record => {
+    const fy = getRecordFY(record);
+    if (fy) years.add(fy);
+  });
+  const options = Array.from(years).sort((a, b) => Number(b.slice(0, 4)) - Number(a.slice(0, 4)));
+  select.innerHTML = options.map(fy => `<option value="${esc(fy)}">${esc(fy)}</option>`).join("");
+  select.value = options.includes(preferred) ? preferred : (options.includes(currentFY()) ? currentFY() : options[0] || "");
+}
+
+function baseRowsForSelectedContext() {
+  const type = selectedType();
+  const fy = selectedFY();
+  const normalizedType = normalizeType(type);
+  return grievanceList
+    .filter(record => record && record.active !== false)
+    .filter(record => !normalizedType || getRowType(record) === normalizedType)
+    .filter(record => getRecordFY(record) === fy);
+}
+
+function applyDashboardStatusFilter(rows) {
+  const filter = new URLSearchParams(location.search).get("filter");
+  if (!filter) return rows;
+  return rows.filter(record => {
+    if (filter === "total") return true;
+    if (filter === "pending") return !isClosed(record);
+    if (filter === "circulation") return isCirculation(record);
+    if (["closed", "completed", "disposed"].includes(filter)) return isClosed(record);
+    if (filter === "overdue") return isOverdue(record);
+    if (filter === "due-today") return isDueToday(record);
+    return true;
+  });
+}
+
+function applySearchFilters(rows) {
+  const district = String($("searchDistrict")?.value || "").trim().toLowerCase();
+  const status = String($("searchStatus")?.value || "").trim().toLowerCase();
+  const category = String($("searchCategory")?.value || "").trim().toLowerCase();
+  const priority = String($("searchPriority")?.value || "").trim().toLowerCase();
+  const fromDate = parseDate($("fromDate")?.value || "");
+  const toDate = parseDate($("toDate")?.value || "");
+
+  return rows.filter(record => {
+    if (district && String(record.district || record.districtManual || "").trim().toLowerCase() !== district) return false;
+    if (status && !statusKey(record).includes(status)) return false;
+    if (category && !String(record.category || record.grievanceCategory || "").trim().toLowerCase().includes(category)) return false;
+    if (priority && !String(record.priorityClassification || record.priority || "").trim().toLowerCase().includes(priority)) return false;
+    const recordDate = getRecordDate(record);
+    if (fromDate && recordDate && recordDate < fromDate) return false;
+    if (toDate && recordDate) {
+      const end = new Date(toDate.getTime());
+      end.setHours(23, 59, 59, 999);
+      if (recordDate > end) return false;
+    }
+    return true;
+  });
+}
+
+const COMMON_SECTION_2 = [
+  ["complainantName", "Complainant Name"], ["mobileNumber", "Mobile Number"], ["gender", "Gender"],
+  ["district", "District"], ["mandal", "Mandal"], ["village", "Village"],
+  ["address", "Address"], ["preferredContact", "Preferred Contact"]
+];
+const COMMON_SECTION_3 = [
+  ["fileNumber", "File Number"], ["dateArised", "Date Arised"], ["officeCommunicationType", "Type of communication"],
+  ["officeLetterAddressedTo", "Letter addressed to"], ["officeReplySection", "Reply obtained from"],
+  ["officeStatus", "Status of file"], ["assignedOfficer", "Assigned Officer"], ["section", "Concerned Section"],
+  ["fileLocation", "File Location"], ["currentStatus", "Current File Status"], ["finalStatus", "Final Status"],
+  ["atrReceived", "ATR Received"], ["atrDate", "ATR Date"], ["atrDueDate", "ATR Due Date"],
+  ["disposalDate", "Disposal Date"], ["fileClosed", "File Closed"], ["remarks", "Remarks"]
+];
+const BASIC_SECTION_1 = [
+  ["dateReceived", "Date Received"], ["dueDate", "Due Date"], ["subject", "Subject"],
+  ["grievanceDescription", "Grievance Description"], ["grievanceDocument", "Upload Grievance Document"]
+];
+const CPGRAMS_SECTION_1 = [
+  ["grievanceNumber", "Grievance Number"], ["dateReceived", "Date Received"], ["dueDate", "Due Date"],
+  ["subject", "Subject"], ["category", "Category"], ["grievanceDescription", "Grievance Description"],
+  ["grievanceDocument", "Upload Grievance Document"], ["natureOfGrievance", "Nature of Grievance"],
+  ["priorityClassification", "Priority Classification"], ["attachmentCount", "Number of Attachments"]
+];
+const QUESTION_COLUMNS = [
+  ["questionSerialNo", "Question No."], ["questionType", "Question Type"], ["questionReceivedDate", "Received Date"],
+  ["questionConcernedSection", "Concerned Section"], ["question", "Question"], ["answer", "Answer"],
+  ["answerFurnishedBy", "Answer furnished by"], ["answerFurnishedTo", "Answer furnished to"], ["answerFurnishedDate", "Answer furnished Date"],
+  ["questionCommunicationType", "Communication Type"], ["questionFileNumber", "File No."],
+  ["questionCommunicationDate", "Communication Date"], ["questionFileStatus", "File Status"], ["attachments", "Upload Document"]
+];
+
+function getColumns() {
+  const normalized = normalizeType(selectedType());
+  if (normalized === "laq" || normalized === "lcq") {
+    const label = `${selectedType().toUpperCase()} No.`;
+    return QUESTION_COLUMNS.map(col => col[0] === "questionSerialNo" ? [col[0], label] : col);
+  }
+  const section1 = normalized === "cpgrams" ? CPGRAMS_SECTION_1 : BASIC_SECTION_1;
+  return section1.concat(COMMON_SECTION_2, COMMON_SECTION_3, [["attachments", "Upload Document"]]);
+}
+
+function getDisplayValue(record, key) {
+  let value = record?.[key];
+  if (key === "grievanceDocument") value = record?.grievanceDocumentName || record?.fileDocumentName || record?.fileDocument || record?.grievanceDocument || "";
+  if (key === "attachments") {
+    const attachments = record?.attachments;
+    if (Array.isArray(attachments)) return attachments.map(item => item?.name || item?.fileName || item?.filename || "Document").join(", ");
+    return record?.fileAttachmentName || record?.attachmentName || record?.attachmentCount || "";
+  }
+  if (["district", "mandal", "village"].includes(key) && !value) value = record?.[key + "Manual"] || "";
+  if (key === "dueDate" && !value) value = record?.atrDueDate || "";
+  return value ?? "";
+}
+
+function updateRegisterTitle() {
+  const filter = new URLSearchParams(location.search).get("filter");
+  const suffix = filter && filter !== "total" ? ` - ${filter.replace(/-/g, " ").toUpperCase()}` : "";
+  const title = `${selectedType().toUpperCase()} REGISTER${suffix}`;
+  if ($("registerTitle")) $("registerTitle").textContent = title;
+  const headerTitle = document.querySelector("header h3");
+  if (headerTitle) headerTitle.textContent = title;
+  document.title = title;
+}
+
+function updateRecordCount() {
+  if ($("recordCount")) $("recordCount").textContent = `Total Records : ${filteredList.length}`;
+}
+
+function updatePageInfo() {
+  const pageInfo = $("pageInfo");
+  if (!pageInfo) return;
+  if (!filteredList.length) {
+    pageInfo.textContent = "Showing 0 to 0 of 0 records";
+    return;
+  }
+  const start = (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, filteredList.length);
+  pageInfo.textContent = `Showing ${start} to ${end} of ${filteredList.length} records`;
+}
+
+function updateSummary(baseRows) {
+  const values = {
+    totalRecords: baseRows.length,
+    pendingRecords: baseRows.filter(record => !isClosed(record)).length,
+    disposedRecords: baseRows.filter(isClosed).length,
+    overdueRecords: baseRows.filter(isOverdue).length
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const element = $(id);
+    if (element) element.textContent = value;
+  });
+}
+
+function renderRegisterTable() {
+  const header = $("registerHeaderRow");
+  const body = $("registerBody");
+  const columns = getColumns();
+  if (header) {
+    header.innerHTML = columns.map(column => `<th class="text-nowrap">${esc(column[1])}</th>`).join("") + `<th class="text-nowrap">Action</th>`;
+  }
+  if (!body) return;
+
+  if (!filteredList.length) {
+    body.innerHTML = `<tr><td colspan="${columns.length + 1}" class="text-center text-muted py-5">No ${esc(selectedType())} records available for Financial Year ${esc(selectedFY())}.</td></tr>`;
+    updateRecordCount();
+    updatePageInfo();
+    updateRegisterTitle();
+    return;
+  }
+
+  const start = (currentPage - 1) * pageSize;
+  const rows = filteredList.slice(start, start + pageSize);
+  body.innerHTML = rows.map(record => `
+    <tr>
+      ${columns.map(column => `<td>${esc(getDisplayValue(record, column[0]))}</td>`).join("")}
+      <td class="text-nowrap">
+        <button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(record.id)}">View</button>
+        <button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(record.id)}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger" data-delete="${esc(record.id)}">Delete</button>
+      </td>
+    </tr>
+  `).join("");
+
+  body.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => openRecord(button.dataset.view, "view")));
+  body.querySelectorAll("[data-edit]").forEach(button => button.addEventListener("click", () => openRecord(button.dataset.edit, "edit")));
+  body.querySelectorAll("[data-delete]").forEach(button => button.addEventListener("click", () => deleteRecordFromGrid(button.dataset.delete)));
+
+  updateRecordCount();
+  updatePageInfo();
+  updateRegisterTitle();
+}
+
+function applyAllFilters() {
+  const baseRows = baseRowsForSelectedContext();
+  updateSummary(baseRows);
+  filteredList = applySearchFilters(applyDashboardStatusFilter(baseRows));
+  currentPage = 1;
+  renderRegisterTable();
+}
+
+async function loadRegister() {
+  const body = $("registerBody");
+  if (body) body.innerHTML = `<tr><td colspan="20" class="text-center text-muted py-5">Loading Grievances from Firestore...</td></tr>`;
+  const db = getFirestoreDB();
+  if (!db) {
+    if (body) body.innerHTML = `<tr><td colspan="20" class="text-center text-warning py-5">Firestore is not ready. Please refresh after the Firebase connection message appears.</td></tr>`;
+    return false;
+  }
+  try {
+    showLoading();
+    const snapshot = await db.collection(GRIEVANCE_COLLECTION).get();
+    grievanceList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(record => record.active !== false);
+    populateFinancialYearDropdown();
+    applyAllFilters();
+    return true;
+  } catch (error) {
+    console.error("Grievances register load failed:", error);
+    if (body) body.innerHTML = `<tr><td colspan="20" class="text-center text-danger py-5">Unable to load Grievances Register: ${esc(error.message || error)}</td></tr>`;
+    setMessage("danger", `Unable to load Grievances Register: ${esc(error.message || error)}`);
+    return false;
+  } finally {
+    hideLoading();
+  }
+}
+
+function openRecord(id, mode) {
+  const record = grievanceList.find(item => item.id === id);
+  if (!record) return;
+  sessionStorage.setItem("selectedGrievance", JSON.stringify(record));
+  location.href = `cpgrams.html?mode=${encodeURIComponent(mode)}&grievanceType=${encodeURIComponent(selectedType())}`;
+}
+
+async function deleteRecordFromGrid(id) {
+  if (!id || !confirm("Delete this record?")) return;
+  const db = getFirestoreDB();
+  if (!db) {
+    alert("Firestore is not ready.");
+    return;
+  }
+  try {
+    await db.collection(GRIEVANCE_COLLECTION).doc(id).update({
+      active: false,
+      deletedOn: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedOn: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await loadRegister();
+  } catch (error) {
+    alert("Unable to delete record: " + (error.message || error));
+  }
+}
+
+function openNewGrievance() {
+  sessionStorage.removeItem("selectedGrievance");
+  location.href = `cpgrams.html?mode=new&grievanceType=${encodeURIComponent(selectedType())}`;
+}
+
+function bindEvents() {
+  ["searchGrievanceType", "financialYear", "searchDistrict", "searchStatus", "searchCategory", "searchPriority", "fromDate", "toDate"].forEach(id => {
+    const element = $(id);
+    if (!element || element.dataset.fmsBound) return;
+    element.dataset.fmsBound = "1";
+    element.addEventListener("change", applyAllFilters);
+    element.addEventListener("keyup", applyAllFilters);
+  });
+
+  $("btnSearch")?.addEventListener("click", applyAllFilters);
+  $("btnRefresh")?.addEventListener("click", loadRegister);
+  $("btnRefreshData")?.addEventListener("click", loadRegister);
+  $("btnNew")?.addEventListener("click", openNewGrievance);
+  $("btnHome")?.addEventListener("click", () => location.href = "../../index.html");
+  $("btnDashboard")?.addEventListener("click", () => location.href = `cpgrams.html?grievanceType=${encodeURIComponent(selectedType())}`);
+  $("btnFirst")?.addEventListener("click", () => { currentPage = 1; renderRegisterTable(); });
+  $("btnPrevious")?.addEventListener("click", () => { currentPage = Math.max(1, currentPage - 1); renderRegisterTable(); });
+  $("btnNext")?.addEventListener("click", () => {
+    currentPage = Math.min(Math.ceil(filteredList.length / pageSize) || 1, currentPage + 1);
+    renderRegisterTable();
+  });
+  $("btnLast")?.addEventListener("click", () => {
+    currentPage = Math.ceil(filteredList.length / pageSize) || 1;
+    renderRegisterTable();
+  });
+}
+
+window.openCPGRAMSSummaryFilter = function(filter) {
+  const params = new URLSearchParams();
+  params.set("filter", filter || "total");
+  params.set("fy", selectedFY());
+  params.set("grievanceType", selectedType() || "CPGRAMS");
+  location.href = "cpgrams-register.html?" + params.toString();
+};
+
+window.viewRecord = id => openRecord(id, "view");
+window.editRecord = id => openRecord(id, "edit");
+window.deleteRecordFromGrid = deleteRecordFromGrid;
+window.searchRecords = applyAllFilters;
+window.applyFinancialYearFilter = applyAllFilters;
+window.applyURLFilter = applyAllFilters;
+window.refreshRegister = loadRegister;
+window.openNewGrievance = openNewGrievance;
+window.goHome = () => location.href = "../../index.html";
+window.openDashboard = () => location.href = `cpgrams.html?grievanceType=${encodeURIComponent(selectedType())}`;
+
+function initialize() {
+  populateTypeDropdown();
+  populateFinancialYearDropdown();
+  bindEvents();
+  if (getFirestoreDB()) {
+    loadRegister();
+  } else {
+    window.addEventListener("fmsFirebaseReady", loadRegister, { once: true });
+    setTimeout(() => { if (getFirestoreDB()) loadRegister(); }, 1500);
+    setTimeout(() => { if (getFirestoreDB()) loadRegister(); }, 3500);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", initialize);

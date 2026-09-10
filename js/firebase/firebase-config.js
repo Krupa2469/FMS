@@ -71,8 +71,15 @@ const auth = firebase.auth();
 // Make Authentication globally available
 window.auth = auth;
 
-// const storage = firebase.storage();
-const storage = firebase.storage();
+// Storage is optional. Some pages load only Firebase App/Auth/Firestore.
+// Do not throw when storage-compat.js is not present, otherwise register pages stop early.
+let storage = null;
+try {
+    storage = (typeof firebase.storage === "function") ? firebase.storage() : null;
+} catch (error) {
+    console.warn("Firebase Storage is not available on this page:", error);
+    storage = null;
+}
 
 // Make Storage globally available
 window.storage = storage;
@@ -85,6 +92,6 @@ console.log("========================================");
 console.log("crd-tg-fms-2026 Connected Successfully");
 console.log("Firestore  : Connected");
 console.log("Authentication : Ready");
-console.log("Storage : Connected");
-console.log("Bucket :", storage.app.options.storageBucket);
+console.log("Storage :", storage ? "Connected" : "Unavailable");
+if (storage) console.log("Bucket :", storage.app.options.storageBucket);
 console.log("========================================");

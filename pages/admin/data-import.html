@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FMS Data Import Utility</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+body{background:#f4f6f9}.hero{background:#0d6efd;color:#fff;padding:18px}.metric{border:0;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}.table-wrap{max-height:52vh;overflow:auto}.sticky-head th{position:sticky;top:0;background:#212529;color:#fff;z-index:2}.mono{font-family:Consolas,monospace}.step-card{border-left:4px solid #0d6efd}.preview-cell{min-width:140px}.ocr-log{height:110px;overflow:auto;font-size:.9rem;background:#111;color:#e6e6e6;border-radius:6px;padding:8px}.small-help{font-size:.86rem}.required-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc3545;margin-right:5px}.optional-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#6c757d;margin-right:5px}
+</style>
+</head>
+<body>
+<header class="hero text-center">
+<div class="fw-semibold">GOVERNMENT OF TELANGANA</div>
+<div>OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT</div>
+<div>#6-3-607, Anand Nagar Colony, Khairatabad,Hyderabad-500 004</div>
+<h2 class="mb-0 mt-2">FMS DATA IMPORT UTILITY</h2>
+<div class="small opacity-75">Upload document → extract required fields → preview → import/update Firestore</div>
+</header>
+
+<nav class="navbar bg-white border-bottom shadow-sm"><div class="container-fluid d-flex gap-2 flex-wrap p-2">
+<a class="btn btn-dark" href="../../index.html"><i class="bi bi-house"></i> Home</a>
+<a class="btn btn-outline-primary" href="../../modules/cpgrams/cpgrams.html"><i class="bi bi-inbox"></i> Grievances</a>
+<a class="btn btn-outline-warning" href="../../modules/rti/rti.html"><i class="bi bi-journal-text"></i> RTI</a>
+<a class="btn btn-outline-info" href="../../modules/disha/disha.html"><i class="bi bi-people"></i> DISHA</a>
+<a class="btn btn-outline-secondary" href="master-management.html"><i class="bi bi-database"></i> Master Tables</a>
+<a class="btn btn-outline-success" href="../../pages/utilities.html"><i class="bi bi-tools"></i> Utilities</a>
+<span id="dbState" class="ms-auto align-self-center small text-muted">Connecting to Firebase...</span>
+</div></nav>
+
+<main class="container-fluid py-3">
+<div class="row g-3">
+<div class="col-lg-4">
+<div class="card shadow-sm step-card mb-3">
+<div class="card-header bg-white fw-bold"><i class="bi bi-1-circle"></i> Select Import Type</div>
+<div class="card-body">
+<label for="importType" class="form-label fw-bold">Record / Grievance Type</label>
+<select id="importType" class="form-select form-select-lg">
+<option value="CPGRAMS" selected>CPGRAMS</option>
+<option value="Prajavani">Prajavani</option>
+<option value="Public Grievances">Public Grievances</option>
+<option value="Direct Complaints">Direct Complaints</option>
+<option value="LAQ">LAQ</option>
+<option value="LCQ">LCQ</option>
+<option value="Court Cases">Court Cases</option>
+<option value="VIP References">VIP References</option>
+<option value="CMO References">CMO References</option>
+<option value="PMO References">PMO References</option>
+<option value="Audit Paras">Audit Paras</option>
+<option value="Vigilance Cases">Vigilance Cases</option>
+<option value="RTI">RTI</option>
+<option value="DISHA">DISHA</option>
+</select>
+<div id="fieldHint" class="alert alert-light border mt-3 small-help mb-0"></div>
+</div>
+</div>
+
+<div class="card shadow-sm step-card mb-3">
+<div class="card-header bg-white fw-bold"><i class="bi bi-2-circle"></i> Upload / Paste Document Data</div>
+<div class="card-body">
+<label for="sourceFile" class="form-label fw-bold">Upload document</label>
+<input id="sourceFile" type="file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.csv,.tsv,.json,.xlsx,.xls">
+<div class="form-text">Supported: PDF, image, CSV, Excel, JSON and text. Scanned PDFs/images are processed with browser OCR.</div>
+<label for="rawText" class="form-label fw-bold mt-3">Extracted / pasted text</label>
+<textarea id="rawText" class="form-control" rows="8" placeholder="You can also paste table text here and click Extract Fields."></textarea>
+<div class="d-flex gap-2 flex-wrap mt-3">
+<button id="btnExtract" class="btn btn-primary"><i class="bi bi-magic"></i> Extract Fields</button>
+<button id="btnClear" class="btn btn-outline-secondary"><i class="bi bi-eraser"></i> Clear</button>
+</div>
+</div>
+</div>
+
+<div class="card shadow-sm step-card">
+<div class="card-header bg-white fw-bold"><i class="bi bi-terminal"></i> Extraction Status</div>
+<div class="card-body">
+<div id="ocrLog" class="ocr-log">Ready.</div>
+</div>
+</div>
+</div>
+
+<div class="col-lg-8">
+<div class="row g-3 mb-3">
+<div class="col-md-3"><div class="card metric"><div class="card-body text-center"><div class="text-muted">Extracted</div><div id="extractedCount" class="display-6 fw-bold text-primary">0</div></div></div></div>
+<div class="col-md-3"><div class="card metric"><div class="card-body text-center"><div class="text-muted">Existing</div><div id="existingCount" class="display-6 fw-bold">-</div></div></div></div>
+<div class="col-md-3"><div class="card metric"><div class="card-body text-center"><div class="text-muted">Created</div><div id="createdCount" class="display-6 fw-bold text-success">0</div></div></div></div>
+<div class="col-md-3"><div class="card metric"><div class="card-body text-center"><div class="text-muted">Updated / Matched</div><div id="updatedCount" class="display-6 fw-bold text-warning">0</div></div></div></div>
+</div>
+
+<div id="statusBox" class="alert alert-info">Upload or paste a document, then click <strong>Extract Fields</strong>. Review the preview before importing.</div>
+
+<div class="card shadow-sm mb-3">
+<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+<strong>Import Preview</strong>
+<div class="d-flex gap-2 flex-wrap">
+<button id="btnVerify" class="btn btn-outline-primary btn-sm"><i class="bi bi-check2-circle"></i> Verify Database</button>
+<button id="btnImport" class="btn btn-success btn-sm" disabled><i class="bi bi-cloud-arrow-up"></i> Import / Update</button>
+<button id="btnDownloadJson" class="btn btn-outline-secondary btn-sm" disabled><i class="bi bi-download"></i> Download JSON</button>
+</div>
+</div>
+<div class="table-wrap">
+<table class="table table-bordered table-striped table-hover mb-0">
+<thead class="sticky-head" id="previewHead"></thead>
+<tbody id="previewBody"><tr><td class="text-center text-muted py-5">No extracted records yet.</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<div class="alert alert-warning small-help">
+<strong>Safety:</strong> Import/update matches existing records by normalized registration/question/application number. Existing additional fields are preserved through merge updates. Review the preview before clicking Import / Update.
+</div>
+</div>
+</div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="../../js/firebase/firebase-bootstrap.js"></script>
+<script>
+"use strict";
+
+const COLLECTIONS={grievance:"cpgrams",rti:"rtiApplications",disha:"dishaMeetings"};
+const GRIEVANCE_TYPES=["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
+const QUESTION_TYPES=["LAQ","LCQ"];
+let extractedRecords=[];
+let lastRows=[];
+
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]));}
+function log(msg){const box=$("ocrLog");box.innerHTML += "\n"+esc(msg);box.scrollTop=box.scrollHeight;}
+function resetLog(msg="Ready."){ $("ocrLog").textContent=msg; }
+function setStatus(type,msg){const box=$("statusBox");box.className="alert alert-"+type;box.innerHTML=msg;}
+function normalizeKey(v){return String(v||"").trim().toUpperCase().replace(/\s+/g,"");}
+function typeKind(type){if(QUESTION_TYPES.includes(type))return "question";if(type==="RTI")return "rti";if(type==="DISHA")return "disha";return "grievance";}
+function collectionForType(type){const kind=typeKind(type);return kind==="rti"?COLLECTIONS.rti:kind==="disha"?COLLECTIONS.disha:COLLECTIONS.grievance;}
+function getDb(){return window.db||window.fmsFirebase?.db||(typeof firebase!=="undefined"&&firebase.firestore?firebase.firestore():null);}
+function convertDate(value){
+  if(value==null||value==="")return "";
+  if(typeof value==="number"&&window.XLSX?.SSF){try{return convertDate(window.XLSX.SSF.format("dd/mm/yyyy",value));}catch(_e){}}
+  const s=String(value).trim();
+  let m=s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2}|\d{4})$/);
+  if(m){const yyyy=m[3].length===2?"20"+m[3]:m[3];return `${String(m[1]).padStart(2,"0")}/${String(m[2]).padStart(2,"0")}/${yyyy}`;}
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m)return `${String(m[3]).padStart(2,"0")}/${String(m[2]).padStart(2,"0")}/${m[1]}`;
+  return s;
+}
+function todayISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+function todayDisplay(){const d=new Date();return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;}
+
+const FIELD_SETS={
+  grievance:[
+    ["sourceSerialNo","S.No."],["grievanceType","Grievance Type"],["grievanceNumber","Registration / Grievance No."],["complainantName","Name"],["dateReceived","Org Received Date"],["diaryDate","Diary Date"],["subject","Subject"],["grievanceDescription","Description"]
+  ],
+  question:[
+    ["questionSerialNo","LAQ / LCQ No."],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer Furnished By"],["answerFurnishedTo","Answer Furnished To"],["answerFurnishedDate","Answer Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"]
+  ],
+  rti:[
+    ["sourceSerialNo","S.No."],["applicationNumber","Application No."],["applicationDate","Application Date"],["dueDate","Due Date"],["applicantName","Applicant Name"],["district","District"],["assignedTo","Assigned To"],["presentStatus","Present Status"]
+  ],
+  disha:[
+    ["sourceSerialNo","S.No."],["meetingNumber","Meeting No."],["dateOfMeeting","Meeting Date"],["subject","Subject"],["venue","Venue"],["statusOfMeeting","Meeting Status"],["pomStatus","PoM Status"],["pomDueDate","PoM Due Date"]
+  ]
+};
+
+const HEADER_ALIASES={
+  sourceSerialNo:["sno","s no","slno","sl no","serial","serial no","s.no."],
+  grievanceNumber:["registration number","registration no","grievance number","grievance no","reg no","regn no"],
+  complainantName:["name","complainant name","applicant name"],
+  dateReceived:["org received date","received date","date received","receipt date"],
+  diaryDate:["diary date","dairy date"],
+  subject:["subject","file subject","meeting subject"],
+  grievanceDescription:["grievance description","description","details"],
+  district:["district"],
+  questionSerialNo:["laq no","lcq no","question no","sno","s no","serial no"],
+  questionType:["question type","type"],
+  questionReceivedDate:["received date","date received"],
+  questionConcernedSection:["concerned section","section"],
+  question:["question"],answer:["answer"],answerFurnishedBy:["answer furnished by","furnished by"],answerFurnishedTo:["answer furnished to","furnished to"],answerFurnishedDate:["date","answer date"],
+  questionCommunicationType:["communication type"],questionFileNumber:["file no","file number"],questionCommunicationDate:["communication date"],questionFileStatus:["file status"],
+  applicationNumber:["application no","application number","rti no"],applicationDate:["application date","received date"],dueDate:["due date"],applicantName:["applicant name","name"],assignedTo:["assigned to"],presentStatus:["present status","status"],
+  meetingNumber:["meeting no","meeting number"],dateOfMeeting:["meeting date","date of meeting"],venue:["venue"],statusOfMeeting:["meeting status","status"],pomStatus:["pom status","pom uploaded"],pomDueDate:["pom due date","pom due"]
+};
+function normalizeHeader(h){return String(h||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();}
+function findHeaderIndex(headers,field){
+  const aliases=HEADER_ALIASES[field]||[field];
+  const normalized=headers.map(normalizeHeader);
+  for(const alias of aliases){const idx=normalized.indexOf(normalizeHeader(alias));if(idx>=0)return idx;}
+  for(const alias of aliases){const key=normalizeHeader(alias);const idx=normalized.findIndex(h=>h.includes(key)||key.includes(h));if(idx>=0)return idx;}
+  return -1;
+}
+function mapRowsByHeader(rows,type){
+  const kind=typeKind(type); const fields=FIELD_SETS[kind];
+  if(!rows.length)return [];
+  const headerRowIndex=rows.findIndex(r=>r.some(c=>/(registration|grievance|received|diary|dairy|question|application|meeting|name)/i.test(String(c||""))));
+  const headerIndex=headerRowIndex>=0?headerRowIndex:0;
+  const headers=rows[headerIndex]||[];
+  const indexes={}; fields.forEach(([field])=>indexes[field]=findHeaderIndex(headers,field));
+  const dataRows=rows.slice(headerIndex+1).filter(r=>r.some(c=>String(c||"").trim()));
+  return dataRows.map((row,i)=>{
+    const obj={};
+    fields.forEach(([field])=>{const idx=indexes[field]; if(idx>=0)obj[field]=String(row[idx]??"").trim();});
+    return normalizeImportedRecord(obj,type,i+1);
+  }).filter(Boolean);
+}
+function parseDelimited(text){
+  const lines=String(text||"").split(/\r?\n/).filter(l=>l.trim());
+  const delimiter=(lines[0]||"").includes("\t")?"\t":",";
+  return lines.map(line=>{
+    const out=[]; let cur="",q=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'&&line[i+1]==='"'){cur+='"';i++;continue;}
+      if(ch==='"'){q=!q;continue;}
+      if(ch===delimiter&&!q){out.push(cur.trim());cur="";continue;}
+      cur+=ch;
+    }
+    out.push(cur.trim());return out;
+  });
+}
+function parseTextTable(text,type){
+  const kind=typeKind(type);
+  const lines=String(text||"").replace(/\u00a0/g," ").split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const rows=[];
+  for(const line of lines){
+    if(/^(s\s*no|sno|registration|do?rd\s+telangana|progress report|date\s*:)/i.test(line)) continue;
+    let m=line.match(/^(\d{1,5})\s+([A-Z0-9]+\/[A-Z]+\/\d{4}\/\d{3,8})\s+(.+?)\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})$/i);
+    if(kind==="grievance" && m){
+      rows.push(normalizeImportedRecord({sourceSerialNo:m[1],grievanceNumber:m[2],complainantName:m[3],dateReceived:m[4],diaryDate:m[5]},type,rows.length+1));
+      continue;
+    }
+    m=line.match(/^(\d{1,5})\s+(LAQ|LCQ)\s+(.+?)\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\s+(.+)$/i);
+    if(kind==="question" && m){
+      rows.push(normalizeImportedRecord({questionSerialNo:m[1],questionType:m[2].toUpperCase(),questionReceivedDate:m[4],question:m[5]},type,rows.length+1));
+      continue;
+    }
+    m=line.match(/^(\d{1,5})\s+([^\s]+\/[^\s]+)\s+(.+?)\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})(?:\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4}))?$/i);
+    if(kind==="rti" && m){rows.push(normalizeImportedRecord({sourceSerialNo:m[1],applicationNumber:m[2],applicantName:m[3],applicationDate:m[4],dueDate:m[5]||""},type,rows.length+1));}
+  }
+  return rows.filter(Boolean);
+}
+function normalizeImportedRecord(row,type,index){
+  const kind=typeKind(type); const out={};
+  Object.keys(row||{}).forEach(k=>{out[k]=String(row[k]??"").trim();});
+  if(kind==="grievance"){
+    out.sourceSerialNo=out.sourceSerialNo||String(index);
+    out.grievanceType=type;
+    out.grievanceNumber=out.grievanceNumber||out.registrationNumber||out["Registration Number"]||"";
+    out.registrationNumber=out.registrationNumber||out.grievanceNumber;
+    out.complainantName=out.complainantName||out.name||"";
+    out.dateReceived=convertDate(out.dateReceived||out.orgReceivedDate||out.receivedDate);
+    out.diaryDate=convertDate(out.diaryDate||out.dairyDate);
+    if(!out.grievanceNumber && !out.complainantName && !out.subject)return null;
+    out.currentStatus=out.currentStatus||"Pending";
+  }else if(kind==="question"){
+    out.questionType=String(type).toUpperCase();
+    out.grievanceType=out.questionType;
+    out.questionSerialNo=out.questionSerialNo||out.sourceSerialNo||String(index);
+    out.questionReceivedDate=convertDate(out.questionReceivedDate||out.receivedDate||out.dateReceived);
+    out.dateReceived=out.questionReceivedDate;
+    out.grievanceNumber=out.grievanceNumber||`${out.questionType}-${out.questionSerialNo}`;
+    out.registrationNumber=out.grievanceNumber;
+    out.subject=out.subject||out.question||`${out.questionType} Question ${out.questionSerialNo}`;
+    if(!out.questionSerialNo && !out.question)return null;
+    out.currentStatus=out.questionFileStatus||out.currentStatus||"Pending";
+  }else if(kind==="rti"){
+    out.sourceSerialNo=out.sourceSerialNo||String(index);
+    out.applicationDate=convertDate(out.applicationDate||out.dateReceived);
+    out.dueDate=convertDate(out.dueDate);
+    out.presentStatus=out.presentStatus||"Pending";
+    if(!out.applicationNumber && !out.applicantName)return null;
+  }else if(kind==="disha"){
+    out.sourceSerialNo=out.sourceSerialNo||String(index);
+    out.dateOfMeeting=convertDate(out.dateOfMeeting||out.meetingDate);
+    out.statusOfMeeting=out.statusOfMeeting||"To be held";
+    if(!out.dateOfMeeting && !out.subject)return null;
+  }
+  return out;
+}
+function parseJsonPayload(text,type){
+  const parsed=JSON.parse(text);
+  const arr=Array.isArray(parsed)?parsed:(parsed.records||parsed.data||[]);
+  if(!Array.isArray(arr))throw new Error("JSON must be an array or contain records/data array.");
+  return arr.map((r,i)=>normalizeImportedRecord(r,type,i+1)).filter(Boolean);
+}
+function recordsToRows(records,type){
+  const fields=FIELD_SETS[typeKind(type)];
+  return records.map(r=>fields.map(([field])=>r[field]??""));
+}
+function renderPreview(){
+  const type=$("importType").value; const kind=typeKind(type); const fields=FIELD_SETS[kind];
+  $("previewHead").innerHTML="<tr>"+fields.map(([_,label])=>`<th>${esc(label)}</th>`).join("")+"</tr>";
+  $("extractedCount").textContent=extractedRecords.length;
+  $("btnImport").disabled=extractedRecords.length===0;
+  $("btnDownloadJson").disabled=extractedRecords.length===0;
+  if(!extractedRecords.length){$("previewBody").innerHTML=`<tr><td colspan="${fields.length}" class="text-center text-muted py-5">No extracted records yet.</td></tr>`;return;}
+  $("previewBody").innerHTML=extractedRecords.map(r=>"<tr>"+fields.map(([field])=>`<td class="preview-cell">${esc(r[field]||"")}</td>`).join("")+"</tr>").join("");
+}
+function updateFieldHint(){
+  const type=$("importType").value; const kind=typeKind(type); const fields=FIELD_SETS[kind];
+  let required=[];
+  if(kind==="grievance") required=["Registration / Grievance No.","Name","Org Received Date","Diary Date"];
+  else if(kind==="question") required=[`${type} No.`,"Question Type","Received Date","Concerned Section","Question"];
+  else if(kind==="rti") required=["Application No.","Application Date","Applicant Name"];
+  else required=["Meeting Date","Subject"];
+  $("fieldHint").innerHTML=`<div class="fw-bold mb-1">Required fields expected from uploaded document:</div>${required.map(x=>`<div><span class="required-dot"></span>${esc(x)}</div>`).join("")}<hr class="my-2"><div class="text-muted">Preview columns: ${fields.map(x=>esc(x[1])).join(", ")}</div>`;
+  renderPreview();
+}
+
+async function readFileAsText(file){return await file.text();}
+async function readExcel(file){
+  if(!window.XLSX)throw new Error("Excel parser library is not loaded. Please check internet connection and retry.");
+  const buf=await file.arrayBuffer();
+  const wb=XLSX.read(buf,{type:"array",cellDates:false});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+}
+async function readPdf(file){
+  if(!window.pdfjsLib)throw new Error("PDF parser library is not loaded. Please check internet connection and retry.");
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const arr=new Uint8Array(await file.arrayBuffer());
+  const pdf=await pdfjsLib.getDocument({data:arr}).promise;
+  log(`PDF loaded: ${pdf.numPages} page(s). Extracting text...`);
+  let text="";
+  for(let p=1;p<=pdf.numPages;p++){
+    const page=await pdf.getPage(p);
+    const content=await page.getTextContent();
+    const pageText=content.items.map(i=>i.str).join(" ");
+    text += `\n--- PAGE ${p} ---\n`+pageText;
+  }
+  if(text.replace(/\s/g,"").length>120){log("PDF text extracted without OCR.");return text;}
+  if(!window.Tesseract)throw new Error("This PDF appears scanned and OCR library is not loaded.");
+  log("PDF has little/no text. Starting OCR; this may take a few minutes...");
+  text="";
+  for(let p=1;p<=pdf.numPages;p++){
+    log(`OCR page ${p} of ${pdf.numPages}...`);
+    const page=await pdf.getPage(p);
+    const viewport=page.getViewport({scale:2.0});
+    const canvas=document.createElement("canvas");
+    canvas.width=viewport.width; canvas.height=viewport.height;
+    await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
+    const result=await Tesseract.recognize(canvas,"eng",{logger:m=>{if(m.status&&m.progress)log(`${m.status} ${(m.progress*100).toFixed(0)}%`);}});
+    text += `\n--- PAGE ${p} ---\n`+result.data.text;
+  }
+  return text;
+}
+async function readImage(file){
+  if(!window.Tesseract)throw new Error("OCR library is not loaded. Please check internet connection and retry.");
+  log("Starting image OCR...");
+  const result=await Tesseract.recognize(file,"eng",{logger:m=>{if(m.status&&m.progress)log(`${m.status} ${(m.progress*100).toFixed(0)}%`);}});
+  return result.data.text;
+}
+async function extract(){
+  const type=$("importType").value; const file=$("sourceFile").files[0];
+  resetLog("Extract started."); setStatus("info","Extracting data. Please wait..."); extractedRecords=[]; lastRows=[]; renderPreview();
+  try{
+    let text=$("rawText").value.trim(); let rows=[];
+    if(file){
+      const name=file.name.toLowerCase(); log(`Selected file: ${file.name}`);
+      if(/\.xlsx?$/.test(name)){rows=await readExcel(file); log(`Excel rows found: ${rows.length}`);}
+      else if(/\.json$/.test(name)){text=await readFileAsText(file);}
+      else if(/\.(csv|tsv)$/.test(name)){text=await readFileAsText(file);rows=parseDelimited(text);}
+      else if(/\.pdf$/.test(name)){text=await readPdf(file);}
+      else if(/^image\//.test(file.type)||/\.(png|jpe?g|webp)$/.test(name)){text=await readImage(file);}
+      else{text=await readFileAsText(file);}
+      if(text)$("rawText").value=text;
+    }
+    if(text && /^[\s\r\n]*[\[{]/.test(text)) extractedRecords=parseJsonPayload(text,type);
+    else{
+      if(!rows.length && text && (text.includes(",")||text.includes("\t"))) rows=parseDelimited(text);
+      if(rows.length>=2) extractedRecords=mapRowsByHeader(rows,type);
+      if(!extractedRecords.length && text) extractedRecords=parseTextTable(text,type);
+    }
+    extractedRecords=extractedRecords.map((r,i)=>normalizeImportedRecord(r,type,i+1)).filter(Boolean);
+    renderPreview();
+    if(extractedRecords.length){setStatus("success",`Extracted <strong>${extractedRecords.length}</strong> record(s). Review the preview, then click Import / Update.`);log(`Extraction completed: ${extractedRecords.length} record(s).`);}
+    else{setStatus("warning","No records were extracted. Paste clearer table text, use CSV/Excel, or check whether the PDF/image OCR text is readable.");log("No records extracted.");}
+  }catch(e){console.error(e);setStatus("danger",esc(e.message||e));log("ERROR: "+(e.message||e));}
+}
+async function getExistingDocs(type){
+  const db=getDb(); if(!db)throw new Error("Firestore is not ready.");
+  const snap=await db.collection(collectionForType(type)).get();
+  const docs=snap.docs.map(d=>({id:d.id,ref:d.ref,...d.data()}));
+  $("existingCount").textContent=docs.filter(x=>x.active!==false).length;
+  return docs;
+}
+function recordKey(record,type){
+  const kind=typeKind(type);
+  if(kind==="question")return normalizeKey(record.grievanceNumber||`${record.questionType}-${record.questionSerialNo}`);
+  if(kind==="rti")return normalizeKey(record.applicationNumber);
+  if(kind==="disha")return normalizeKey(record.meetingNumber||`${record.dateOfMeeting}-${record.subject}`);
+  return normalizeKey(record.grievanceNumber||record.registrationNumber);
+}
+function existingKey(doc,type){
+  const kind=typeKind(type);
+  if(kind==="question")return normalizeKey(doc.grievanceNumber||doc.registrationNumber||`${doc.questionType}-${doc.questionSerialNo}`);
+  if(kind==="rti")return normalizeKey(doc.applicationNumber||doc.rtiNumber);
+  if(kind==="disha")return normalizeKey(doc.meetingNumber||`${doc.dateOfMeeting||doc.meetingDate}-${doc.subject||doc.meetingSubject}`);
+  return normalizeKey(doc.grievanceNumber||doc.registrationNumber||doc.grievanceNo);
+}
+async function verify(){
+  try{
+    const type=$("importType").value;
+    setStatus("info","Verifying database records...");
+    const existing=await getExistingDocs(type);
+    const map=new Map(); existing.forEach(d=>{const k=existingKey(d,type);if(k&&!map.has(k))map.set(k,d);});
+    const matched=extractedRecords.filter(r=>map.has(recordKey(r,type))).length;
+    $("updatedCount").textContent=matched;
+    setStatus(matched===extractedRecords.length&&extractedRecords.length?"success":"warning",`Verification complete. <strong>${matched}</strong> matched and <strong>${Math.max(0,extractedRecords.length-matched)}</strong> will be created.`);
+  }catch(e){console.error(e);setStatus("danger",esc(e.message||e));}
+}
+function cleanPayload(record,type){
+  const kind=typeKind(type); const payload={};
+  const fields=FIELD_SETS[kind].map(x=>x[0]);
+  fields.forEach(f=>{if(record[f]!==undefined&&record[f]!=="")payload[f]=record[f];});
+  if(kind==="grievance"||kind==="question"){
+    payload.grievanceType=record.grievanceType||type;
+    payload.grievanceNumber=record.grievanceNumber||record.registrationNumber||"";
+    payload.registrationNumber=record.registrationNumber||payload.grievanceNumber;
+    payload.grievanceNumberNormalized=normalizeKey(payload.grievanceNumber);
+    payload.currentStatus=record.currentStatus||payload.currentStatus||"Pending";
+    if(kind==="question"){
+      payload.questionType=record.questionType||type;
+      payload.questionSerialNo=record.questionSerialNo||"";
+      payload.dateReceived=record.dateReceived||record.questionReceivedDate||"";
+      payload.subject=record.subject||record.question||`${type} Question ${record.questionSerialNo||""}`.trim();
+    }
+  }else if(kind==="rti"){
+    payload.applicationNumberNormalized=normalizeKey(record.applicationNumber);
+  }else if(kind==="disha"){
+    payload.importKey=recordKey(record,type);
+  }
+  payload.active=true;
+  payload.dataEntryComplete=false;
+  payload.importSource=$("sourceFile").files[0]?.name||"Manual/Pasted data";
+  payload.importedThrough="FMS Data Import Utility";
+  payload.importedOnDisplay=todayDisplay();
+  return payload;
+}
+async function importData(){
+  const type=$("importType").value;
+  if(!extractedRecords.length){setStatus("warning","No records to import.");return;}
+  if(!confirm(`Import / update ${extractedRecords.length} ${type} record(s) into Firestore? Existing matching records will be updated with supplied fields and other fields will be preserved.`))return;
+  const btn=$("btnImport");btn.disabled=true;
+  try{
+    setStatus("info","Preparing Firestore import...");
+    const db=getDb(); if(!db)throw new Error("Firestore is not ready.");
+    const existing=await getExistingDocs(type);
+    const map=new Map(); existing.forEach(d=>{const k=existingKey(d,type);if(k&&!map.has(k))map.set(k,d);});
+    let batch=db.batch(),ops=0,created=0,updated=0,failed=0;
+    const ts=firebase.firestore.FieldValue.serverTimestamp();
+    async function flush(){if(ops){await batch.commit();batch=db.batch();ops=0;}}
+    for(const raw of extractedRecords){
+      try{
+        const key=recordKey(raw,type); if(!key){failed++;continue;}
+        const payload={...cleanPayload(raw,type),updatedOn:ts};
+        const found=map.get(key);
+        if(found){batch.set(found.ref,payload,{merge:true});updated++;}
+        else{const ref=db.collection(collectionForType(type)).doc();batch.set(ref,{...payload,createdOn:ts});created++;}
+        ops++; if(ops>=400)await flush();
+      }catch(_e){failed++;}
+    }
+    await flush();
+    await db.collection("systemImports").add({type,collection:collectionForType(type),recordCount:extractedRecords.length,created,updated,failed,source:$("sourceFile").files[0]?.name||"Manual/Pasted data",createdOn:ts});
+    $("createdCount").textContent=created;$("updatedCount").textContent=updated;
+    await getExistingDocs(type);
+    setStatus(failed?"warning":"success",`Import completed. <strong>${created}</strong> created, <strong>${updated}</strong> updated/matched${failed?`, <strong>${failed}</strong> failed`:""}.`);
+  }catch(e){console.error(e);setStatus("danger",`Import failed: ${esc(e.message||e)}`);}finally{btn.disabled=false;}
+}
+function downloadJson(){
+  const blob=new Blob([JSON.stringify({generatedOn:new Date().toISOString(),type:$("importType").value,records:extractedRecords},null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`fms-import-${$("importType").value.toLowerCase().replace(/[^a-z0-9]+/g,"-")}-${todayISO()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function clearAll(){extractedRecords=[];$("rawText").value="";$("sourceFile").value="";resetLog();setStatus("info","Upload or paste a document, then click <strong>Extract Fields</strong>.");renderPreview();$("createdCount").textContent="0";$("updatedCount").textContent="0";}
+async function connect(){try{await getExistingDocs($("importType").value);$("dbState").textContent="Firestore connected";}catch(e){$("dbState").textContent="Firestore not ready";}}
+$("btnExtract").addEventListener("click",extract);
+$("btnImport").addEventListener("click",importData);
+$("btnVerify").addEventListener("click",verify);
+$("btnDownloadJson").addEventListener("click",downloadJson);
+$("btnClear").addEventListener("click",clearAll);
+$("importType").addEventListener("change",()=>{extractedRecords=[];updateFieldHint();connect();});
+document.addEventListener("DOMContentLoaded",()=>{updateFieldHint();if(getDb())connect();else window.addEventListener("fmsFirebaseReady",connect,{once:true});});
+</script>
+</body>
+</html>
