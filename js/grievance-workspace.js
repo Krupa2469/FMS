@@ -1,8 +1,7 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.2.7
-   Order: Grievance Type -> FY -> Dashboard -> Register -> Data Entry
-   Dashboard and register use the exact same active/type/FY record set.
+   FMS GRIEVANCES WORKSPACE - v1.3.5
+   Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
   const COLLECTION="cpgrams";
@@ -10,147 +9,155 @@
   const FY_SELECT="grievanceFinancialYear";
   const TYPES=["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
   let allRows=[];
-
   const $=id=>document.getElementById(id);
-  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const P=()=>window.FMSRecordPolicy;
+  const esc=v=>String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]));
   const pretty=v=>String(v||"").trim();
-  const TYPE_MAP=new Map([
-    ["grievances","cpgrams"],["grievance","cpgrams"],["cpgrams","cpgrams"],["cpgram","cpgrams"],["cpgrams portal","cpgrams"],
-    ["prajavani","prajavani"],["public grievances","public grievances"],["public grievance","public grievances"],
-    ["direct complaints","direct complaints"],["direct complaint","direct complaints"],
-    ["laq","laq"],["lcq","lcq"],["court cases","court cases"],["court case","court cases"],
-    ["vip references","vip references"],["vip reference","vip references"],["cmo references","cmo references"],["cmo reference","cmo references"],
-    ["pmo references","pmo references"],["pmo reference","pmo references"],["audit paras","audit paras"],["audit para","audit paras"],
-    ["vigilance cases","vigilance cases"],["vigilance case","vigilance cases"]
-  ]);
-  function normType(v){
-    const s=String(v||"").trim().toLowerCase().replace(/[_-]+/g," ").replace(/\s+/g," ")
-      .replace(/\bcomplaint\b/g,"complaints").replace(/\breference\b/g,"references").replace(/\bpara\b/g,"paras");
-    return TYPE_MAP.get(s)||"";
-  }
-  function rowType(r){
-    if(String(r?.questionType||"").toUpperCase()==="LAQ") return "laq";
-    if(String(r?.questionType||"").toUpperCase()==="LCQ") return "lcq";
-    const candidates=[r?.grievanceType,r?.referenceType,r?.type,r?.sourceType,r?.grievanceSource,r?.source];
-    for(const v of candidates){const n=normType(v);if(n)return n;}
-    return "cpgrams"; // old CPGRAMS records without a specific Grievance Type
-  }
-  function currentType(){return pretty($(TYPE_SELECT)?.value);}
-  function currentFY(){return $(FY_SELECT)?.value || window.FMSRecordPolicy?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";}
-  function activeRows(){return allRows.filter(r=>window.FMSRecordPolicy?window.FMSRecordPolicy.active(r):r?.active!==false);}
+  function normType(v){return P()?.normalizeType?.(v)||"";}
+  function rowType(r){return P()?.rowType?.(r)||"cpgrams";}
+  function currentType(){return pretty($(TYPE_SELECT)?.value);}  
+  function currentTypeKey(){return normType(currentType())||"cpgrams";}
+  function currentFY(){return $(FY_SELECT)?.value || P()?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";}
+  function activeRows(){return allRows.filter(r=>P()?P().active(r):r?.active!==false);}
   function rowsForContext(){
     const type=currentType();if(!type)return [];
-    const nt=normType(type), fy=currentFY();
-    let rows=activeRows().filter(r=>rowType(r)===nt);
-    if(window.FMSRecordPolicy) rows=window.FMSRecordPolicy.filterFY("cpgrams",rows,fy);
-    else if(window.FMSFY) rows=window.FMSFY.filterFY(rows,fy,["dateReceived","dateArised","receivedDate","questionReceivedDate","date"]);
+    const key=currentTypeKey(),fy=currentFY();
+    let rows=activeRows().filter(r=>rowType(r)===key);
+    if(P()) rows=P().filterFY("cpgrams",rows,fy);
+    else if(window.FMSFY) rows=FMSFY.filterFY(rows,fy,["dateReceived","dateArised","receivedDate","questionReceivedDate","date"]);
     return rows;
   }
   function populateFY(){
     const el=$(FY_SELECT);if(!el)return;
-    const keep=el.value; const current=window.FMSRecordPolicy?.currentFY?.() || window.FMSFY?.getCurrentFY?.();
+    const keep=el.value;const current=P()?.currentFY?.()||window.FMSFY?.getCurrentFY?.();
     let startYear=new Date().getFullYear()-(new Date().getMonth()<3?1:0);
     const opts=[];for(let y=startYear;y>=2014;y--)opts.push(`${y}-${String(y+1).slice(-2)}`);
     el.innerHTML=opts.map(f=>`<option value="${f}">${f}</option>`).join("");
     el.value=(keep&&opts.includes(keep))?keep:(current&&opts.includes(current)?current:opts[0]);
   }
-  function isClosed(r){return window.FMSRecordPolicy?window.FMSRecordPolicy.closed("cpgrams",r):/closed|disposed|completed/i.test(String(r.finalStatus||r.currentStatus||r.officeStatus||""));}
-  function isCirculation(r){return window.FMSRecordPolicy?window.FMSRecordPolicy.circulation("cpgrams",r):/circulation/i.test(String(r.officeStatus||r.currentStatus||""));}
-  function isOverdue(r){return window.FMSRecordPolicy?window.FMSRecordPolicy.overdue("cpgrams",r):false;}
-  function isDueToday(r){return window.FMSRecordPolicy?window.FMSRecordPolicy.dueToday("cpgrams",r):false;}
+  function w(r){return P()?.workflow?.("cpgrams",r)||{};}
+  function isClosed(r){return P()?.closed?.("cpgrams",r)||false;}
+  function isOverdue(r){return P()?.overdue?.("cpgrams",r)||false;}
+  function isDueToday(r){return P()?.dueToday?.("cpgrams",r)||false;}
+  function withinDue(r){return P()?.withinDue?.("cpgrams",r)||(!isClosed(r)&&!isOverdue(r)&&!isDueToday(r));}
   function fullRegisterUrl(filter="total"){
     const p=new URLSearchParams();p.set("filter",filter);p.set("grievanceType",currentType());p.set("fy",currentFY());
     return `cpgrams-register.html?${p}`;
   }
+  function card(label,value,filter,icon,theme){
+    return `<div class="col-12 col-sm-6 col-lg-4 col-xl-2"><a class="text-decoration-none text-reset" href="${fullRegisterUrl(filter)}"><div class="card h-100 shadow-sm border-0"><div class="card-body text-center"><div class="fs-2 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-2">${esc(label)}</div><div class="display-6 fw-bold text-${theme}">${esc(value)}</div><div class="small text-primary mt-2">View filtered data <i class="bi bi-arrows-fullscreen"></i></div></div></div></a></div>`;
+  }
   function renderDashboard(rows){
     const host=$("moduleDashboardCards"), status=$("moduleDashboardStatus");if(!host)return;
-    let pending=0,circ=0,done=0,over=0,today=0;
-    rows.forEach(r=>{if(isClosed(r))done++;else pending++;if(isCirculation(r))circ++;if(isOverdue(r))over++;if(isDueToday(r))today++;});
-    const cards=[
-      ["Total",rows.length,"total","bi-collection","primary"],
-      ["Pending",pending,"pending","bi-hourglass-split","warning"],
-      ["Under Circulation",circ,"circulation","bi-arrow-repeat","info"],
-      ["Disposed / Closed",done,"closed","bi-check-circle","success"],
-      ["Overdue",over,"overdue","bi-exclamation-triangle","danger"],
-      ["Due Today",today,"due-today","bi-calendar-event","secondary"]
-    ];
-    host.innerHTML=cards.map(([label,value,filter,icon,theme])=>`<div class="col-12 col-sm-6 col-lg-4 col-xl-2"><a class="text-decoration-none text-reset" href="${fullRegisterUrl(filter)}"><div class="card h-100 shadow-sm border-0"><div class="card-body text-center"><div class="fs-2 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-2">${esc(label)}</div><div class="display-6 fw-bold text-${theme}">${value}</div><div class="small text-primary mt-2">View filtered data <i class="bi bi-arrows-fullscreen"></i></div></div></div></a></div>`).join("");
-    if(status){status.className="alert alert-success py-2 mb-3";status.textContent=`${currentType()} Dashboard • Financial Year ${currentFY()} • ${rows.length} record(s)`;}
-  }
-
-  const common2=[
-    ["complainantName","Complainant Name"],["mobileNumber","Mobile Number"],["gender","Gender"],["district","District"],["mandal","Mandal"],["village","Village"],["address","Address"],["preferredContact","Preferred Contact"]
-  ];
-  const common3=[
-    ["fileNumber","File Number"],["dateArised","Date Arised"],["officeCommunicationType","Type of communication"],["officeLetterAddressedTo","Letter addressed to"],["officeReplySection","Reply obtained from"],["officeStatus","Status of file"],["assignedOfficer","Assigned Officer"],["section","Concerned Section"],["fileLocation","File Location"],["currentStatus","Current File Status"],["finalStatus","Final Status"],["atrReceived","ATR Received"],["atrDate","ATR Date"],["atrDueDate","ATR Due Date"],["disposalDate","Disposal Date"],["fileClosed","File Closed"],["remarks","Remarks"]
-  ];
-  const docs=[["grievanceDocument","Grievance Document"],["attachments","Upload Document"]];
-  const basic1=[["dateReceived","Date Received"],["dueDate","Due Date"],["subject","Subject"],["grievanceDescription","Grievance Description"],["grievanceDocument","Upload Grievance Document"]];
-  const cp1=[["grievanceNumber","Grievance Number"],["dateReceived","Date Received"],["dueDate","Due Date"],["subject","Subject"],["category","Category"],["grievanceDescription","Grievance Description"],["grievanceDocument","Upload Grievance Document"],["natureOfGrievance","Nature of Grievance"],["priorityClassification","Priority Classification"],["attachmentCount","Number of Attachments"]];
-  const questionCols=[["questionSerialNo","Question No."],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer furnished by"],["answerFurnishedTo","Answer furnished to"],["answerFurnishedDate","Answer furnished Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"],["attachments","Upload Document"]];
-  function columns(){
-    const nt=normType(currentType());
-    if(nt==="laq"||nt==="lcq") return questionCols.map(c=>c[0]==="questionSerialNo"?[c[0],`${currentType().toUpperCase()} No.`]:c);
-    return (nt==="cpgrams"?cp1:basic1).concat(common2,common3,[["attachments","Upload Document"]]);
-  }
-  function displayValue(r,key){
-    let v=r?.[key];
-    if(key==="grievanceDocument") v=r?.grievanceDocumentName||r?.fileDocumentName||r?.fileDocument||r?.grievanceDocument||"";
-    if(key==="attachments"){
-      const a=r?.attachments;
-      if(Array.isArray(a)) return a.map(x=>x?.name||x?.fileName||x?.filename||"Document").join(", ");
-      return r?.fileAttachmentName||r?.attachmentName||r?.attachmentCount||"";
+    const key=currentTypeKey();let cards=[];
+    if(key==="cpgrams"){
+      cards=[
+        ["Total CPGRAMS",rows.length,"total","bi-collection","primary"],
+        ["Within Due Date",rows.filter(withinDue).length,"within-due","bi-calendar-check","success"],
+        ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
+        ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
+        ["Memo / Letter Issued",rows.filter(r=>w(r).memoIssued).length,"memo-issued","bi-envelope-paper","info"],
+        ["ATR Awaited",rows.filter(r=>w(r).memoIssued&&!w(r).atrReceived&&!isClosed(r)).length,"atr-awaited","bi-hourglass-split","warning"],
+        ["ATR Received",rows.filter(r=>w(r).atrReceived).length,"atr-received","bi-inbox","success"],
+        ["Pending JC / EGS Approval",rows.filter(r=>/Pending JC|EGS/i.test(w(r).stage||"")).length,"approval-pending","bi-person-check","warning"],
+        ["Portal Upload Pending",rows.filter(r=>/Portal Upload Pending/i.test(w(r).stage||"")).length,"portal-pending","bi-cloud-arrow-up","danger"],
+        ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
+      ];
+    }else if(key==="prajavani"){
+      cards=[
+        ["Total Prajavani",rows.length,"total","bi-collection","primary"],
+        ["Received from JC Admin",rows.filter(r=>/Received from JC/i.test(w(r).stage||"")).length,"received","bi-inbox","primary"],
+        ["Sent to Section",rows.filter(r=>/Sent to concerned section/i.test(w(r).stage||"")).length,"sent-section","bi-send","info"],
+        ["Reply Awaited",rows.filter(r=>/Reply Awaited|Sent to concerned/i.test(w(r).stage||"")).length,"reply-awaited","bi-hourglass-split","warning"],
+        ["Reply Received",rows.filter(r=>/Reply received/i.test(w(r).stage||"")).length,"reply-received","bi-inbox","success"],
+        ["Reply Sent to JC Admin",rows.filter(r=>/Reply sent to JC/i.test(w(r).stage||"")).length,"reply-sent","bi-send-check","success"],
+        ["Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"],
+        ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"]
+      ];
+    }else if(key==="laq"||key==="lcq"){
+      cards=[
+        [`Total ${currentType().toUpperCase()}`,rows.length,"total","bi-collection","primary"],
+        ["With Section",rows.filter(r=>/With concerned section/i.test(w(r).stage||"")).length,"with-section","bi-building","info"],
+        ["Answer Furnished",rows.filter(r=>/Answer furnished/i.test(w(r).stage||"")).length,"answer-furnished","bi-chat-square-text","success"],
+        ["Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
+      ];
+    }else{
+      cards=[
+        [`Total ${currentType()}`,rows.length,"total","bi-collection","primary"],
+        ["Within Due Date",rows.filter(withinDue).length,"within-due","bi-calendar-check","success"],
+        ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
+        ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
+        ["Memo / Letter Issued",rows.filter(r=>w(r).memoIssued).length,"memo-issued","bi-envelope-paper","info"],
+        ["Reply Awaited",rows.filter(r=>w(r).memoIssued&&!w(r).atrReceived&&!isClosed(r)).length,"reply-awaited","bi-hourglass-split","warning"],
+        ["Reply Received",rows.filter(r=>w(r).atrReceived).length,"reply-received","bi-inbox","success"],
+        ["Pending Approval",rows.filter(r=>/Pending Approval|Reply to Government Pending/i.test(w(r).stage||"")).length,"approval-pending","bi-person-check","warning"],
+        ["Reply to Government Pending",rows.filter(r=>/Reply to Government Pending/i.test(w(r).stage||"")).length,"govt-pending","bi-send-exclamation","danger"],
+        ["Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
+      ];
     }
-    if((key==="district"||key==="mandal"||key==="village")&&!v) v=r?.[key+"Manual"]||"";
-    return v??"";
+    host.innerHTML=cards.map(x=>card(...x)).join("");
+    if(status){status.className="alert alert-success py-2 mb-3";status.textContent=`${currentType()} Dashboard • Financial Year ${currentFY()} • ${rows.length} active record(s)`;}
+  }
+  function fv(r,key){return P()?.first?.(r,[key])||r?.[key]||"";}
+  function displayValue(r,key){
+    const wf=w(r);
+    switch(key){
+      case "serial":return "";
+      case "registrationNo":return fv(r,"grievanceNumber")||fv(r,"registrationNumber")||fv(r,"grievanceNo")||"";
+      case "dateReceived":return P()?.formatDMY?.(fv(r,"dateReceived")||fv(r,"orgReceivedDate")||fv(r,"receivedDate")||fv(r,"questionReceivedDate"))||"";
+      case "dueDate":return P()?.formatDMY?.(fv(r,"dueDate"))||"";
+      case "daysStatus":return wf.dueLabel||"";
+      case "memoStatus":return wf.memoIssued?"Issued":"Not issued";
+      case "atrStatusView":return wf.atrReceived?"Received":"Awaited";
+      case "approvalStatusView":return wf.approvalDone?"Approved / Put up":"Pending";
+      case "portalUploadStatus":return wf.portalUploaded?"Uploaded":"Pending";
+      case "workflowStage":return wf.stage||"";
+      case "finalStatusView":return wf.finalStatus||fv(r,"finalStatus")||"Pending";
+      case "replyGovtStatus":return wf.replySentToGovernment?"Sent":"Pending";
+      case "replyComplainantStatus":return wf.replySentToComplainant?"Sent":"Pending";
+      case "questionNo":return fv(r,"questionSerialNo")||"";
+      case "questionReceivedDate":return P()?.formatDMY?.(fv(r,"questionReceivedDate"))||"";
+      case "questionFileStatus":return fv(r,"questionFileStatus")||fv(r,"officeStatus")||"";
+      case "attachments":{
+        const a=r?.attachments;if(Array.isArray(a))return a.map(x=>x?.name||x?.fileName||x?.filename||"Document").join(", ");return fv(r,"attachmentCount")||"";
+      }
+      default:{
+        let v=fv(r,key);
+        if((key||"").toLowerCase().includes("date"))v=P()?.formatDMY?.(v)||v;
+        return v;
+      }
+    }
+  }
+  function columns(){
+    const key=currentTypeKey();
+    if(key==="laq"||key==="lcq")return [["questionNo",`${currentType().toUpperCase()} No.`],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer furnished by"],["answerFurnishedTo","Answer furnished to"],["answerFurnishedDate","Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"],["attachments","Upload Document"]];
+    if(key==="cpgrams")return [["registrationNo","Registration No."],["dateReceived","Date Received"],["dueDate","Due Date"],["daysStatus","Days Left / Overdue Days"],["complainantName","Complainant Name"],["district","District"],["subject","Subject"],["memoStatus","Memo / Letter Status"],["atrStatusView","ATR Status"],["approvalStatusView","JC / EGS Approval Status"],["portalUploadStatus","Portal Upload Status"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
+    if(key==="prajavani")return [["registrationNo","Prajavani No."],["dateReceived","Received Date"],["receivedFrom","Received From"],["section","Concerned Section"],["sentToSectionDate","Sent to Section Date"],["subject","Subject"],["atrStatusView","Reply Status"],["atrDate","Reply Received Date"],["replyGovtStatus","Reply Sent to JC Admin"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
+    return [["registrationNo","Reference / Memo No."],["dateReceived","Date Received"],["dueDate","Due Date"],["daysStatus","Days Left / Overdue Days"],["receivedFrom","From Whom Received"],["section","Concerned Section"],["subject","Subject"],["memoStatus","Communication Status"],["atrStatusView","Reply / ATR Status"],["approvalStatusView","Approval Status"],["replyGovtStatus","Reply to Government Status"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
   }
   function renderRegister(rows){
-    const head=$("grievanceInlineRegisterHead"), body=$("grievanceInlineRegisterBody"), title=$("grievanceInlineRegisterTitle"), count=$("grievanceInlineRecordCount");
-    if(!head||!body)return;const cols=columns();
-    title.textContent=`${currentType()} Register`;
-    count.textContent=`Total Records : ${rows.length}`;
-    head.innerHTML=`<tr>${cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")}<th>Action</th></tr>`;
-    if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+1}" class="text-center text-muted py-4">No ${esc(currentType())} records available for Financial Year ${esc(currentFY())}.</td></tr>`;return;}
-    body.innerHTML=rows.map(r=>`<tr>${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td></tr>`).join("");
+    const head=$("grievanceInlineRegisterHead"), body=$("grievanceInlineRegisterBody"), title=$("grievanceInlineRegisterTitle"), count=$("grievanceInlineRecordCount");if(!head||!body)return;
+    const cols=columns();title.textContent=`${currentType()} Register`;count.textContent=`Total Records : ${rows.length}`;
+    head.innerHTML=`<tr><th>Sl.No.</th>${cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")}<th>Action</th></tr>`;
+    if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+2}" class="text-center text-muted py-4">No ${esc(currentType())} records available for Financial Year ${esc(currentFY())}.</td></tr>`;return;}
+    body.innerHTML=rows.map((r,i)=>`<tr><td>${i+1}</td>${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td></tr>`).join("");
     body.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.view,"view")));
     body.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.edit,"edit")));
     body.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>deleteRecord(b.dataset.delete)));
   }
-  function openRecord(id,mode){
-    const r=allRows.find(x=>x.id===id);if(!r)return;sessionStorage.setItem("selectedGrievance",JSON.stringify(r));location.href=`cpgrams.html?mode=${encodeURIComponent(mode)}`;
-  }
-  async function deleteRecord(id){
-    if(!confirm("Delete this record?"))return;
-    try{const db=getDb();await db.collection(COLLECTION).doc(id).update({active:false,deletedOn:firebase.firestore.FieldValue.serverTimestamp(),updatedOn:firebase.firestore.FieldValue.serverTimestamp()});await refresh();}
-    catch(e){alert("Unable to delete record: "+(e.message||e));}
-  }
+  function openRecord(id,mode){const r=allRows.find(x=>x.id===id);if(!r)return;sessionStorage.setItem("selectedGrievance",JSON.stringify(r));location.href=`cpgrams.html?mode=${encodeURIComponent(mode)}&id=${encodeURIComponent(id)}&grievanceType=${encodeURIComponent(currentType())}`;}
+  async function deleteRecord(id){if(!confirm("Delete this record?"))return;try{const db=getDb();await db.collection(COLLECTION).doc(id).update({active:false,deletedOn:firebase.firestore.FieldValue.serverTimestamp(),updatedOn:firebase.firestore.FieldValue.serverTimestamp()});await refresh();}catch(e){alert("Unable to delete record: "+(e.message||e));}}
   function getDb(){if(window.db)return window.db;if(window.fmsFirebase?.db)return window.fmsFirebase.db;try{if(typeof firebase!=="undefined"&&firebase.firestore)return firebase.firestore();}catch(_e){}return null;}
-  function showContext(hasType){
-    ["grievanceFYPanel","moduleDashboardPanel","grievanceInlineRegisterPanel","cpgramsForm"].forEach(id=>$(id)?.classList.toggle("d-none",!hasType));
-    const dataTitle=[...document.querySelectorAll("h4")].find(h=>h.textContent.includes("GRIEVANCES DATA ENTRY FORM"));if(dataTitle)dataTitle.classList.toggle("d-none",!hasType);
-  }
-  function syncContext(){
-    const type=currentType();showContext(!!type);if(!type)return;
-    populateFY();const rows=rowsForContext();renderDashboard(rows);renderRegister(rows);
-    const s=$("grievanceContextStatus");if(s){s.className="alert alert-success mb-0 py-3";s.textContent=`${type} • Financial Year ${currentFY()} • Dashboard and Register use the same ${rows.length} active record(s).`;}
-  }
-  async function refresh(){
-    const db=getDb();if(!db)return false;
-    try{const snap=await db.collection(COLLECTION).get();allRows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.active!==false);syncContext();return true;}
-    catch(e){console.error("Grievances workspace load error",e);const s=$("grievanceContextStatus");if(s){s.className="alert alert-danger mb-0";s.textContent="Unable to load Grievances: "+(e.message||e);}return false;}
-  }
+  function showContext(hasType){["grievanceFYPanel","moduleDashboardPanel","grievanceInlineRegisterPanel","cpgramsForm"].forEach(id=>$(id)?.classList.toggle("d-none",!hasType));const dataTitle=[...document.querySelectorAll("h4")].find(h=>h.textContent.includes("GRIEVANCES DATA ENTRY"));if(dataTitle)dataTitle.classList.toggle("d-none",!hasType);}
+  function syncContext(){const type=currentType();showContext(!!type);if(!type)return;populateFY();const rows=rowsForContext();renderDashboard(rows);renderRegister(rows);const s=$("grievanceContextStatus");if(s){s.className="alert alert-success mb-0 py-3";s.textContent=`${type} • Financial Year ${currentFY()} • workflow dashboard and register use ${rows.length} active record(s).`;}}
+  async function refresh(){const db=getDb();if(!db)return false;try{const snap=await db.collection(COLLECTION).get();allRows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>P()?P().active(r):r.active!==false);syncContext();return true;}catch(e){console.error("Grievances workspace load error",e);const s=$("grievanceContextStatus");if(s){s.className="alert alert-danger mb-0";s.textContent="Unable to load Grievances: "+(e.message||e);}return false;}}
   function start(){
     const type=$(TYPE_SELECT),fy=$(FY_SELECT);if(!type)return;
     const requestedType=new URLSearchParams(location.search).get("grievanceType");
-    if(requestedType && !type.value){
-      const mapped=normType(requestedType)==="cpgrams" ? "CPGRAMS" : TYPES.find(t=>normType(t)===normType(requestedType));
-      if(mapped) type.value=mapped;
-    }
-    populateFY();type.addEventListener("change",syncContext);fy?.addEventListener("change",syncContext);
-    if(type.value && typeof window.updateGrievanceFormLayout==="function") window.updateGrievanceFormLayout();
+    if(requestedType&&!type.value){const k=normType(requestedType);const mapped=TYPES.find(t=>normType(t)===k);if(mapped)type.value=mapped;}
+    populateFY();type.addEventListener("change",()=>{if(typeof window.updateGrievanceFormLayout==="function")window.updateGrievanceFormLayout();syncContext();});fy?.addEventListener("change",syncContext);
     $("btnOpenFullGrievanceRegister")?.addEventListener("click",()=>{location.href=fullRegisterUrl("total");});
-    showContext(!!currentType());
-    if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
+    showContext(!!currentType());if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
   window.FMSGrievanceWorkspace={refresh,syncContext,rowsForContext,normType,rowType};

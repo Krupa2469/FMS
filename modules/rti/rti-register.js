@@ -722,83 +722,48 @@ function calculateRTIStatus(
    RENDER REGISTER
    ============================================================ */
 
-function renderRegister(
-    records
-) {
-
-    const tbody =
-        document.getElementById(
-            "rtiRegisterBody"
-        );
-
-
-    const recordCount =
-        document.getElementById(
-            "recordCount"
-        );
-
-
-    if (!tbody) {
-
-        console.error(
-            "rtiRegisterBody not found."
-        );
-
-        return;
-
-    }
-
-
-    if (recordCount) {
-
-        recordCount.textContent =
-            `Records : ${records.length}`;
-
-    }
-
-
+function renderRegister(records) {
+    const tbody = document.getElementById("rtiRegisterBody");
+    const recordCount = document.getElementById("recordCount");
+    const headerRow = document.querySelector("thead tr");
+    const columns = [
+        ["applicationNumber", "RTI Application No."],
+        ["applicationDate", "Application Date"],
+        ["dueDate", "Due Date"],
+        ["daysStatus", "Days Left / Overdue Days"],
+        ["applicantName", "Applicant Name"],
+        ["subject", "Subject"],
+        ["concernedSection", "Concerned Section"],
+        ["replyStatusView", "Reply Status"],
+        ["replySentStatus", "Reply Sent Status"],
+        ["workflowStage", "Present Workflow Stage"],
+        ["finalStatusView", "Final Status"]
+    ];
+    if (headerRow) headerRow.innerHTML = `<th>Sl.No</th>${columns.map(c=>`<th>${escapeHTML(c[1])}</th>`).join("")}<th>Action</th>`;
+    if (!tbody) return;
+    if (recordCount) recordCount.textContent = `Records : ${records.length}`;
     tbody.innerHTML = "";
-
-
     if (!records.length) {
-
-        tbody.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="9"
-                    class="empty-message"
-                >
-                    No RTI applications found.
-                </td>
-
-            </tr>
-
-        `;
-
+        tbody.innerHTML = `<tr><td colspan="${columns.length+2}" class="empty-message">No RTI applications found.</td></tr>`;
         return;
-
     }
-
-
-    records.forEach(
-        function (record, index) {
-
-            const row =
-                createRegisterRow(
-                    record,
-                    index
-                );
-
-
-            tbody.appendChild(
-                row
-            );
-
-        }
-    );
-
+    records.forEach(function(record,index){
+        const wf = window.FMSRecordPolicy?.workflow?.("rti", record) || {};
+        const value = key => {
+            if (key === "applicationDate" || key === "dueDate") return formatDate(record[key]);
+            if (key === "daysStatus") return wf.dueLabel || "";
+            if (key === "subject") return escapeHTML(record.subject || record.officeSubject || record.informationSought || "-");
+            if (key === "concernedSection") return escapeHTML(record.concernedSection || record.officeReplySection || record.officeReplyObtainedFrom || "-");
+            if (key === "replyStatusView") return wf.replyReceived ? "Received" : "Awaited";
+            if (key === "replySentStatus") return wf.replySent ? "Sent" : "Pending";
+            if (key === "workflowStage") return escapeHTML(wf.stage || record.workflowStage || "RTI application received");
+            if (key === "finalStatusView") return escapeHTML(wf.finalStatus || record.finalStatus || record.presentStatus || "Pending");
+            return escapeHTML(record[key] || "-");
+        };
+        const tr=document.createElement("tr");
+        tr.innerHTML = `<td>${index+1}</td>${columns.map(c=>`<td>${value(c[0])}</td>`).join("")}<td><button type="button" class="btn-open" onclick="viewRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-eye"></i> View</button><button type="button" class="btn-open" style="background:#ffc107;color:#111;margin-left:4px;" onclick="editRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button><button type="button" class="btn-open" style="background:#dc3545;color:white;margin-left:4px;" onclick="deleteRTIRecordFromRegister('${escapeHTML(record.id)}')"><i class="fa-solid fa-trash"></i> Delete</button></td>`;
+        tbody.appendChild(tr);
+    });
 }
 
 
@@ -1187,183 +1152,30 @@ window.clearRTISearch =
    SUMMARY FILTER
    ============================================================ */
 function processURLFilter() {
-
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
-    const filter =
-        params.get(
-            "filter"
-        );
-
-
-    console.log(
-        "RTI register URL filter:",
-        filter
-    );
-
-
-    if (!filter) {
-
-        return;
-
-    }
-
-
-    /*
-     * IMPORTANT:
-     * Always get ALL current FY records.
-     * Summary cards must use these records,
-     * NOT the filtered records.
-     */
-
-    const records =
-        getSelectedRTIFYRecords();
-
-
-    let filtered =
-        records;
-
-
-    /*
-     * TOTAL
-     */
-
-    if (
-        filter === "total"
-    ) {
-
-        filtered =
-            records;
-
-    }
-
-
-    /*
-     * PENDING
-     */
-
-    else if (
-        filter === "pending"
-    ) {
-
-        filtered =
-            records.filter(
-                function (record) {
-
-                    const status =
-                        calculateRTIStatus(
-                            record
-                        );
-
-
-                    return (
-                        status === "pending" ||
-                        status === "overdue"
-                    );
-
-                }
-            );
-
-    }
-
-
-    /*
-     * OVERDUE
-     */
-
-    else if (
-        filter === "overdue"
-    ) {
-
-        filtered =
-            records.filter(
-                function (record) {
-
-                    return (
-                        calculateRTIStatus(
-                            record
-                        ) === "overdue"
-                    );
-
-                }
-            );
-
-    }
-
-
-    /*
-     * COMPLETED / DISPOSED
-     */
-
-    else if (filter === "circulation") {
-        filtered = records.filter(record => /under circulation|circulation/i.test([record.statusOfFile,record.currentStatus,record.presentStatus,record.officeStatus,record.status].map(v=>String(v||"")).join(" | ")));
-    }
-
-    else if (filter === "due-today") {
-        const today=new Date(); today.setHours(0,0,0,0);
-        filtered=records.filter(record=>{
-            const d=getDateValue(record.dueDate);
-            if(!d || Number.isNaN(d.getTime())) return false;
-            d.setHours(0,0,0,0);
-            return d.getTime()===today.getTime() && calculateRTIStatus(record)!=="completed";
-        });
-    }
-
-    else if (
-        filter === "completed" ||
-        filter === "disposed" ||
-        filter === "closed"
-    ) {
-
-        filtered =
-            records.filter(
-                function (record) {
-
-                    return (
-                        calculateRTIStatus(
-                            record
-                        ) === "completed"
-                    );
-
-                }
-            );
-
-    }
-
-
-    /*
-     * Store only the filtered records
-     * for displaying the register table.
-     */
-
-    displayedRecords =
-        filtered;
-
-
-    /*
-     * IMPORTANT:
-     * Summary cards MUST always show
-     * the complete RTI summary.
-     */
-
-    updateSummaryCards(
-        records
-    );
-
-
-    /*
-     * Only the register table is filtered.
-     */
-
-    renderRegister(
-        filtered
-    );
-    /* Keep the filter and FY in the URL while filtered mode is active. */
-
+    const params = new URLSearchParams(window.location.search);
+    const filter = params.get("filter");
+    if (!filter) return;
+    const records = getSelectedRTIFYRecords();
+    let filtered = records;
+    filtered = records.filter(record => {
+        const wf = window.FMSRecordPolicy?.workflow?.("rti", record) || {};
+        const closed = window.FMSRecordPolicy?.closed?.("rti", record) || calculateRTIStatus(record) === "completed";
+        if (filter === "total") return true;
+        if (filter === "pending") return !closed;
+        if (filter === "within-due") return window.FMSRecordPolicy?.withinDue?.("rti", record);
+        if (filter === "due-today") return window.FMSRecordPolicy?.dueToday?.("rti", record);
+        if (filter === "overdue") return window.FMSRecordPolicy?.overdue?.("rti", record);
+        if (["completed","disposed","closed"].includes(filter)) return closed;
+        if (filter === "sent-section") return wf.sentToSection;
+        if (filter === "reply-awaited") return wf.sentToSection && !wf.replyReceived && !closed;
+        if (filter === "reply-received") return wf.replyReceived;
+        if (filter === "reply-sent") return wf.replySent;
+        if (filter === "circulation") return window.FMSRecordPolicy?.circulation?.("rti", record);
+        return true;
+    });
+    displayedRecords = filtered;
+    updateSummaryCards(records);
+    renderRegister(filtered);
 }
 
 

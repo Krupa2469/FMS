@@ -485,175 +485,28 @@ function calculatePomDueDate(
 ================================================================ */
 
 function updateDISHAStatus() {
-
-    const meetingDate =
-        document.getElementById(
-            "dateOfMeeting"
-        )?.value || "";
-
-
-    const pomUploaded =
-        document.getElementById(
-            "pomUploaded"
-        )?.value || "";
-
-
-    const pomDueDate =
-        document.getElementById(
-            "pomDueDate"
-        )?.value || "";
-
-
-    const meetingStatus =
-        document.getElementById(
-            "statusOfMeeting"
-        )?.value || "";
-
-
-    setElementText(
-        "meetingStatusSummary",
-        meetingStatus || "-"
-    );
-
-
-    setElementText(
-        "pomStatus",
-        pomUploaded || "-"
-    );
-
-
-    if (
-        !meetingDate ||
-        !pomDueDate
-    ) {
-
-        setElementText(
-            "daysLeft",
-            "-"
-        );
-
-        setElementText(
-            "daysDelayed",
-            "-"
-        );
-
+    const meetingDate = document.getElementById("dateOfMeeting")?.value || "";
+    const pomUploaded = document.getElementById("pomUploaded")?.value || "";
+    const meetingStatus = document.getElementById("statusOfMeeting")?.value || "";
+    setElementText("meetingStatusSummary", meetingStatus || "-");
+    if (String(pomUploaded).toLowerCase() === "yes") {
+        setElementText("pomStatus", "Yes");
+        setElementText("daysLeft", "Yes");
+        setElementText("daysDelayed", "0");
         return;
-
     }
-
-
-    const dueDate =
-        parseFlexibleDate(
-            pomDueDate
-        );
-
-
-    if (
-        !dueDate ||
-        isNaN(
-            dueDate.getTime()
-        )
-    ) {
-
-        setElementText(
-            "daysLeft",
-            "-"
-        );
-
-        setElementText(
-            "daysDelayed",
-            "-"
-        );
-
+    const meeting = window.FMSRecordPolicy?.parseDate?.(meetingDate) || parseFlexibleDate(meetingDate);
+    if (!meeting || isNaN(meeting.getTime())) {
+        setElementText("pomStatus", pomUploaded || "No");
+        setElementText("daysLeft", "-");
+        setElementText("daysDelayed", "-");
         return;
-
     }
-
-
-    const today =
-        new Date();
-
-
-    today.setHours(
-        0,
-        0,
-        0,
-        0
-    );
-
-
-    dueDate.setHours(
-        0,
-        0,
-        0,
-        0
-    );
-
-
-    const difference =
-        Math.ceil(
-            (
-                dueDate.getTime() -
-                today.getTime()
-            ) /
-            (
-                1000 *
-                60 *
-                60 *
-                24
-            )
-        );
-
-
-    if (
-        pomUploaded === "Yes"
-    ) {
-
-        setElementText(
-            "daysLeft",
-            "Completed"
-        );
-
-        setElementText(
-            "daysDelayed",
-            "0"
-        );
-
-        return;
-
-    }
-
-
-    if (
-        difference >= 0
-    ) {
-
-        setElementText(
-            "daysLeft",
-            difference
-        );
-
-        setElementText(
-            "daysDelayed",
-            "0"
-        );
-
-    } else {
-
-        setElementText(
-            "daysLeft",
-            "0"
-        );
-
-        setElementText(
-            "daysDelayed",
-            Math.abs(
-                difference
-            )
-        );
-
-    }
-
+    const days = window.FMSRecordPolicy?.diffDays?.(meeting, new Date());
+    const elapsed = days == null ? 0 : Math.max(days, 0);
+    setElementText("pomStatus", "No");
+    setElementText("daysLeft", `${elapsed} day(s) elapsed`);
+    setElementText("daysDelayed", elapsed);
 }
 
 
@@ -966,94 +819,17 @@ async function loadRecordById(
    POPULATE FORM
 ================================================================ */
 
-function populateForm(
-    record
-) {
-
-    setControlValue(
-        "slNo",
-        record.slNo
-    );
-
-
-    setControlValue(
-        "district",
-        record.district
-    );
-
-
-    setDateControlValue(
-        "dateOfMeeting",
-        record.dateOfMeeting
-    );
-
-
-    setDateControlValue(
-        "pomDueDate",
-        record.pomDueDate
-    );
-
-
-    setControlValue(
-        "pomUploaded",
-        record.pomUploaded
-    );
-
-
-    setControlValue(
-        "meetingExpenditure",
-        record.meetingExpenditure ??
-        0
-    );
-
-
-    setControlValue(
-        "statusOfBills",
-        record.statusOfBills
-    );
-
-
-    setDateControlValue(
-        "billsSubmittedCRD",
-        record.billsSubmittedCRD
-    );
-
-
-    setDateControlValue(
-        "billsForwardedMoRD",
-        record.billsForwardedMoRD
-    );
-
-
-    setDateControlValue(
-        "proposedDateOfMeeting",
-        record.proposedDateOfMeeting
-    );
-
-
-    setControlValue(
-        "statusOfMeeting",
-        record.statusOfMeeting
-    );
-
-
-    setControlValue(
-        "remarks",
-        record.remarks
-    );
-
-
-    /* ============================================================
-       OFFICE PROCESSING
-    ============================================================ */
-
-    if (window.FMSOfficeProcessing) {
-        window.FMSOfficeProcessing.populateOfficeProcessing(record);
-    }
-
-
+function populateForm(record) {
+    if (!record) return;
+    Object.keys(record).forEach(key => {
+        const element = document.getElementById(key);
+        if (!element || element.type === "file") return;
+        if ((key || "").toLowerCase().includes("date") || key === "pomDueDate") setDateControlValue(key, record[key]);
+        else setControlValue(key, record[key]);
+    });
+    if (record.district) setControlValue("district", record.district);
+    if (window.FMSOfficeProcessing) window.FMSOfficeProcessing.populateOfficeProcessing(record);
     updateDISHAStatus();
-
 }
 
 
@@ -1062,101 +838,20 @@ function populateForm(
 ================================================================ */
 
 function getFormData() {
-
-    return {
-
-        slNo:
-            Number(
-                document.getElementById(
-                    "slNo"
-                )?.value || 0
-            ),
-
-
-        district:
-            document.getElementById(
-                "district"
-            )?.value || "",
-
-
-        dateOfMeeting:
-            document.getElementById(
-                "dateOfMeeting"
-            )?.value || "",
-
-
-        pomDueDate:
-            getPomDueDateInternal(),
-
-
-        pomUploaded:
-            document.getElementById(
-                "pomUploaded"
-            )?.value || "",
-
-
-        meetingExpenditure:
-            Number(
-                document.getElementById(
-                    "meetingExpenditure"
-                )?.value || 0
-            ),
-
-
-        statusOfBills:
-            document.getElementById(
-                "statusOfBills"
-            )?.value || "",
-
-
-        billsSubmittedCRD:
-            document.getElementById(
-                "billsSubmittedCRD"
-            )?.value || "",
-
-
-        billsForwardedMoRD:
-            document.getElementById(
-                "billsForwardedMoRD"
-            )?.value || "",
-
-
-        proposedDateOfMeeting:
-            document.getElementById(
-                "proposedDateOfMeeting"
-            )?.value || "",
-
-
-        statusOfMeeting:
-            document.getElementById(
-                "statusOfMeeting"
-            )?.value || "",
-
-
-        remarks:
-            document.getElementById(
-                "remarks"
-            )?.value || "",
-
-
-        /* ========================================================
-           OFFICE PROCESSING
-        ======================================================== */
-
-        ...(window.FMSOfficeProcessing
-            ? window.FMSOfficeProcessing.getOfficeProcessingData()
-            : {
-                officeFileNo: document.getElementById("officeFileNo")?.value || "",
-                officeDateArised: document.getElementById("officeDateArised")?.value || "",
-                officeSubject: document.getElementById("officeSubject")?.value || "",
-                officeCommunicationType: document.getElementById("officeCommunicationType")?.value || "",
-                officeLetterAddressedTo: document.getElementById("officeLetterAddressedTo")?.value || "",
-                officeReplyObtainedFrom: document.getElementById("officeReplySection")?.value || "",
-                officeStatus: document.getElementById("officeStatus")?.value || ""
-            })
-
-    };
-
+    const data = {};
+    document.querySelectorAll("input,select,textarea").forEach(el => {
+        if (!el.id || el.type === "file") return;
+        const formArea = el.closest("form") || el.closest(".container-fluid") || document.body;
+        if (!document.body.contains(formArea)) return;
+        data[el.id] = String(el.value || "").trim();
+    });
+    data.slNo = Number(data.slNo || 0);
+    data.meetingExpenditure = Number(data.meetingExpenditure || 0);
+    data.pomDueDate = getPomDueDateInternal();
+    const workflow = window.FMSRecordPolicy?.workflow?.("disha", data) || {};
+    data.workflowStage = workflow.stage || "Meeting recorded";
+    data.pomDisplay = workflow.pomDisplay || "";
+    return data;
 }
 
 

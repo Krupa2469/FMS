@@ -988,333 +988,50 @@ window.exportDISHARegister=exportDISHARegister;
    RENDER REGISTER TABLE
    ============================================================ */
 
-function renderRegisterTable(
-    records
-) {
-
-    let tbody =
-        document.getElementById(
-            "registerBody"
-        );
-
-
-    /*
-     * Fallback:
-     * Find first table tbody.
-     */
-
-    if (!tbody) {
-
-        const table =
-            document.querySelector(
-                "table"
-            );
-
-
-        if (table) {
-
-            tbody =
-                table.querySelector(
-                    "tbody"
-                );
-
-        }
-
-    }
-
-
-    if (!tbody) {
-
-        console.error(
-            "DISHA Register table tbody not found."
-        );
-
-        return;
-
-    }
-
-
+function renderRegisterTable(records) {
+    let tbody = document.getElementById("registerBody");
+    if (!tbody) tbody = document.querySelector("table tbody");
+    if (!tbody) { console.error("DISHA Register table tbody not found."); return; }
+    const headerRow = document.querySelector("thead tr");
+    const columns = [
+        ["district", "District"],
+        ["dateOfMeeting", "Meeting Date"],
+        ["meetingSubject", "Meeting Subject"],
+        ["statusOfMeeting", "Meeting Status"],
+        ["pomUploaded", "PoM Uploaded"],
+        ["pomDisplay", "Days Elapsed / Yes"],
+        ["pomUploadDate", "PoM Upload Date"],
+        ["meetingExpenditure", "Expenditure"],
+        ["statusOfBills", "Bill Status"]
+    ];
+    if (headerRow) headerRow.innerHTML = `<th>Sl.No</th>${columns.map(c=>`<th>${safe(c[1])}</th>`).join("")}<th>Action</th>`;
     tbody.innerHTML = "";
-
-
-    /*
-     * No records
-     */
-
-    if (
-        !records ||
-        records.length === 0
-    ) {
-
-        const row =
-            document.createElement(
-                "tr"
-            );
-
-
-        row.innerHTML = `
-
-            <td
-                colspan="9"
-                class="text-center text-muted py-4">
-
-                No DISHA meetings found.
-
-            </td>
-
-        `;
-
-
-        tbody.appendChild(
-            row
-        );
-
-
-        updateRecordCount(
-            0
-        );
-
-
+    if (!records || records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${columns.length + 2}" class="text-center text-muted py-4">No DISHA meetings found.</td></tr>`;
+        updateRecordCount(0);
         return;
-
     }
-
-
-    /*
-     * Sort newest meeting first.
-     */
-
-    const sortedRecords =
-        [
-            ...records
-        ].sort(
-            function (a, b) {
-
-                const dateA =
-                    parseDate(
-                        a.dateOfMeeting
-                    );
-
-
-                const dateB =
-                    parseDate(
-                        b.dateOfMeeting
-                    );
-
-
-                if (
-                    !dateA &&
-                    !dateB
-                ) {
-
-                    return 0;
-
-                }
-
-
-                if (!dateA) {
-
-                    return 1;
-
-                }
-
-
-                if (!dateB) {
-
-                    return -1;
-
-                }
-
-
-                return (
-                    dateB -
-                    dateA
-                );
-
-            }
-        );
-
-
-    /*
-     * Render records.
-     */
-
-    sortedRecords.forEach(
-        function (meeting) {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            const overdue =
-                isPOMOverdue(
-                    meeting
-                );
-
-
-            const pomStatus =
-                normalize(
-                    meeting.pomUploaded
-                );
-
-
-            let pomBadge;
-
-
-            if (
-                pomStatus === "yes"
-            ) {
-
-                pomBadge = `
-
-                    <span
-                        class="badge bg-success">
-
-                        Yes
-
-                    </span>
-
-                `;
-
-            }
-
-            else if (
-                overdue
-            ) {
-
-                pomBadge = `
-
-                    <span
-                        class="badge bg-danger">
-
-                        Overdue
-
-                    </span>
-
-                `;
-
-            }
-
-            else {
-
-                pomBadge = `
-
-                    <span
-                        class="badge bg-warning text-dark">
-
-                        No
-
-                    </span>
-
-                `;
-
-            }
-
-
-            row.innerHTML = `
-
-                <td>
-                    ${safe(
-                        meeting.slNo
-                    )}
-                </td>
-
-
-                <td>
-                    ${safe(
-                        meeting.district
-                    )}
-                </td>
-
-
-                <td>
-                    ${formatDate(
-                        meeting.dateOfMeeting
-                    )}
-                </td>
-
-
-                <td>
-                    ${formatDate(
-                        meeting.pomDueDate
-                    )}
-                </td>
-
-
-                <td>
-                    ${pomBadge}
-                </td>
-
-
-                <td class="text-end">
-                    ₹${formatAmount(
-                        meeting.meetingExpenditure
-                    )}
-                </td>
-
-
-                <td>
-                    ${safe(
-                        meeting.statusOfBills
-                    )}
-                </td>
-
-
-                <td>
-                    ${safe(
-                        meeting.statusOfMeeting
-                    )}
-                </td>
-
-
-                <td>
-
-                    <button
-                        type="button"
-                        class="btn btn-info btn-sm me-1"
-                        onclick="viewDISHARecord('${safeJS(
-                            meeting.id
-                        )}')">
-                        <i class="bi bi-eye"></i> View
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-warning btn-sm me-1"
-                        onclick="editDISHARecord('${safeJS(
-                            meeting.id
-                        )}')">
-                        <i class="bi bi-pencil-square"></i> Edit
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-sm"
-                        onclick="deleteDISHARecordFromRegister('${safeJS(
-                            meeting.id
-                        )}')">
-                        <i class="bi bi-trash"></i> Delete
-                    </button>
-
-                </td>
-
-            `;
-
-
-            tbody.appendChild(
-                row
-            );
-
-        }
-    );
-
-
-    updateRecordCount(
-        sortedRecords.length
-    );
-
+    const sortedRecords = [...records].sort(function(a,b){
+        const da = parseDate(a.dateOfMeeting || a.meetingDate || a.proposedDateOfMeeting);
+        const db = parseDate(b.dateOfMeeting || b.meetingDate || b.proposedDateOfMeeting);
+        return (db?.getTime?.() || 0) - (da?.getTime?.() || 0);
+    });
+    sortedRecords.forEach(function(meeting, index) {
+        const wf = window.FMSRecordPolicy?.workflow?.("disha", meeting) || {};
+        const val = key => {
+            if (key === "dateOfMeeting") return formatDate(meeting.dateOfMeeting || meeting.meetingDate || meeting.proposedDateOfMeeting);
+            if (key === "meetingSubject") return safe(meeting.meetingSubject || meeting.subject || meeting.remarks || "");
+            if (key === "pomUploaded") return wf.pomUploaded ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-warning text-dark">No</span>';
+            if (key === "pomDisplay") return safe(wf.pomDisplay || meeting.pomDisplay || "");
+            if (key === "pomUploadDate") return formatDate(meeting.pomUploadDate || meeting.uploadedDate || "");
+            if (key === "meetingExpenditure") return "₹" + formatAmount(meeting.meetingExpenditure || meeting.expenditureAmount || 0);
+            return safe(meeting[key] || meeting.nameOfDistrict || "");
+        };
+        const row=document.createElement("tr");
+        row.innerHTML = `<td>${index+1}</td>${columns.map(c=>`<td>${val(c[0])}</td>`).join("")}<td><button type="button" class="btn btn-info btn-sm me-1" onclick="viewDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-eye"></i> View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="editDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-pencil-square"></i> Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDISHARecordFromRegister('${safeJS(meeting.id)}')"><i class="bi bi-trash"></i> Delete</button></td>`;
+        tbody.appendChild(row);
+    });
+    updateRecordCount(sortedRecords.length);
 }
 
 

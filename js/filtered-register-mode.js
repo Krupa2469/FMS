@@ -24,6 +24,7 @@
       document.querySelectorAll(".container-fluid > .row.mt-3, .container-fluid > .row.mt-4, .container-fluid > .card.shadow-sm.mt-4").forEach(el=>{ if(!el.contains(table)) hide(el); });
     }
     else if(path.includes("rti-register")){
+      document.querySelectorAll("header, nav, footer, .main-header, .navigation-bar").forEach(hide);
       dataBlock=document.querySelector(".register-container");
       hide(document.querySelector(".search-panel"));
       hide(document.querySelector(".summary-container"));
@@ -32,6 +33,7 @@
       });
     }
     else if(path.includes("disha-register")){
+      document.querySelectorAll("header, nav, footer, .page-header, .navigation-bar, .fms-action-toolbar").forEach(hide);
       const tbody=document.getElementById("registerBody");
       dataBlock=tbody?.closest(".card") || tbody?.closest(".table-responsive")?.parentElement;
       document.querySelectorAll(".card").forEach(el=>{

@@ -456,257 +456,96 @@
 </div>
 </div>
 <!-- ===========================================================
-     SECTION 3 : OFFICE PROCESSING
+     SECTION 3 : WORKFLOW PROCESSING
 ============================================================ -->
 <div class="card shadow-sm mt-4 d-none" id="sharedSection3Card">
-<div class="card-header bg-info text-white">
-<h5 class="mb-0">
+  <div class="card-header bg-info text-white">
+    <h5 class="mb-0">SECTION 3 : WORKFLOW PROCESSING</h5>
+  </div>
+  <div class="card-body">
+    <div class="alert alert-light border mb-3" id="workflowStagePreview">
+      Present Workflow Stage: <strong>Grievance Received</strong>
+    </div>
 
-            SECTION 3 : OFFICE PROCESSING
+    <div class="row g-3">
+      <div class="col-md-3"><label class="form-label" for="fileNumber">File No.</label><input class="form-control" id="fileNumber" maxlength="80" type="text"/></div>
+      <div class="col-md-3"><label class="form-label" for="putUpToJC">Put up to JC?</label><select class="form-select" id="putUpToJC"><option>No</option><option>Yes</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="putUpThroughAO">Put up through AO?</label><select class="form-select" id="putUpThroughAO"><option>No</option><option>Yes</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="putUpDate">Put-up Date</label><input class="form-control" id="putUpDate" type="date"/></div>
+    </div>
 
-        </h5>
-</div>
-<div class="card-body">
-<!-- ============================================
-             ROW 1
-        ============================================= -->
-<div class="row g-3">
-<!-- File Number -->
-<div class="col-md-4">
-<label class="form-label">
+    <div class="row g-3 mt-2 other-grievance-workflow-field prajavani-workflow-field">
+      <div class="col-md-4"><label class="form-label" for="receivedFrom">Received From</label><input class="form-control" id="receivedFrom" maxlength="150" placeholder="Government / JC, Admin / Referring authority" type="text"/></div>
+      <div class="col-md-4"><label class="form-label" for="sentToSectionDate">Sent to Section Date</label><input class="form-control" id="sentToSectionDate" type="date"/></div>
+      <div class="col-md-4"><label class="form-label" for="section">Concerned Section</label><select class="form-select" id="section"><option value="">Select Section</option></select></div>
+    </div>
 
-                    File Number
+    <hr class="my-4"/>
+    <h6 class="fw-bold text-primary cpgrams-workflow-field">Memo / Letter to Concerned Officer / DRDO</h6>
+    <h6 class="fw-bold text-primary other-grievance-workflow-field">Memo / Letter / UO Note to Concerned Section or Officer</h6>
+    <div class="row g-3">
+      <div class="col-md-3"><label class="form-label" for="officeCommunicationType">Communication Type</label><select class="form-select" id="officeCommunicationType"><option value="">-- Select Type --</option><option>Memo</option><option>Letter</option><option>D.O. Letter</option><option>UO Note</option></select></div>
+      <div class="col-md-3 cpgrams-workflow-field"><label class="form-label" for="addressedToRole">Addressed To</label><select class="form-select" id="addressedToRole"><option value="Concerned Officer">Concerned Officer</option><option value="DRDO">DRDO</option></select></div>
+      <div class="col-md-6"><label class="form-label" for="officeLetterAddressedTo">Officer / DRDO / Section Name</label><input class="form-control" id="officeLetterAddressedTo" maxlength="250" type="text"/></div>
+      <div class="col-md-3"><label class="form-label" for="memoNumber">Memo / Letter No.</label><input class="form-control" id="memoNumber" maxlength="100" type="text"/></div>
+      <div class="col-md-3"><label class="form-label" for="memoDate">Memo / Letter Date</label><input class="form-control" id="memoDate" type="date"/></div>
+      <div class="col-md-6"><label class="form-label" for="memoDocument">Upload Memo / Letter</label><input class="form-control" id="memoDocument" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" type="file"/></div>
+    </div>
 
-                    <span class="text-danger">*</span>
-</label>
-<input class="form-control" id="fileNumber" maxlength="50" type="text"/>
+    <hr class="my-4"/>
+    <h6 class="fw-bold text-success cpgrams-workflow-field">ATR Details</h6>
+    <h6 class="fw-bold text-success other-grievance-workflow-field">Reply / ATR Details</h6>
+    <div class="row g-3">
+      <div class="col-md-3"><label class="form-label" for="atrStatus">ATR / Reply Status</label><select class="form-select" id="atrStatus"><option>Awaited</option><option>Received</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="atrDate">ATR / Reply Received Date</label><input class="form-control" id="atrDate" type="date"/></div>
+      <div class="col-md-3"><label class="form-label" for="atrReceivedFrom">ATR / Reply Received From</label><input class="form-control" id="atrReceivedFrom" maxlength="200" type="text"/></div>
+      <div class="col-md-3"><label class="form-label" for="atrDueDate">ATR Due Date</label><input class="form-control" id="atrDueDate" type="date"/></div>
+      <div class="col-md-8"><label class="form-label" for="atrSummary">ATR / Reply Summary</label><textarea class="form-control" id="atrSummary" maxlength="3000" rows="3"></textarea></div>
+      <div class="col-md-4"><label class="form-label" for="atrDocument">Upload ATR / Reply</label><input class="form-control" id="atrDocument" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" type="file"/></div>
+    </div>
+  </div>
 </div>
-<!-- Date Arised -->
-<div class="col-md-4">
-<label class="form-label">
 
-                    Date Arised
+<!-- ===========================================================
+     SECTION 4 : FINAL APPROVAL / CLOSURE
+============================================================ -->
+<div class="card shadow-sm mt-4 d-none" id="workflowClosureCard">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">SECTION 4 : FINAL APPROVAL / CLOSURE</h5>
+  </div>
+  <div class="card-body">
+    <div class="row g-3 cpgrams-workflow-field">
+      <div class="col-md-3"><label class="form-label" for="putUpForJCApproval">Put up for JC Approval?</label><select class="form-select" id="putUpForJCApproval"><option>No</option><option>Yes</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="jcApprovalDate">JC Approval Date</label><input class="form-control" id="jcApprovalDate" type="date"/></div>
+      <div class="col-md-3"><label class="form-label" for="putUpForEGSApproval">Put up for EGS Approval?</label><select class="form-select" id="putUpForEGSApproval"><option>No</option><option>Yes</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="egsApprovalDate">EGS Approval Date</label><input class="form-control" id="egsApprovalDate" type="date"/></div>
+      <div class="col-md-3"><label class="form-label" for="finalReplySentToComplainant">ATR sent to complainant?</label><select class="form-select" id="finalReplySentToComplainant"><option>No</option><option>Yes</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="replySentDate">Reply Sent Date</label><input class="form-control" id="replySentDate" type="date"/></div>
+      <div class="col-md-3"><label class="form-label" for="uploadedInCPGRAMSPortal">Uploaded in CPGRAMS Portal?</label><select class="form-select" id="uploadedInCPGRAMSPortal"><option>No</option><option>Yes</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="portalUploadDate">Portal Upload Date</label><input class="form-control" id="portalUploadDate" type="date"/></div>
+    </div>
 
-                </label>
-<input class="form-control" id="dateArised" type="date"/>
-</div>
-</div>
-<!-- ============================================
-             OFFICE PROCESSING: COMMUNICATION
-        ============================================= -->
-<div class="row g-3 mt-2">
-<div class="col-md-3">
-<label class="form-label" for="officeCommunicationType">
-                    Type of communication
-                </label>
-<select class="form-select" id="officeCommunicationType">
-<option value="">-- Select Type --</option>
-<option value="Letter">Letter</option>
-<option value="D.O. Letter">D.O. Letter</option>
-<option value="UO Note">UO Note</option>
-<option value="Memo">Memo</option>
-</select>
-</div>
-<div class="col-md-5">
-<label class="form-label" for="officeLetterAddressedTo">
-                    Letter addressed to
-                </label>
-<input class="form-control" id="officeLetterAddressedTo" maxlength="250" type="text"/>
-</div>
-<div class="col-md-4">
-<label class="form-label" for="officeReplySection">
-                    Reply obtained from
-                </label>
-<div class="input-group">
-<select class="form-select" id="officeReplySection">
-<option value="">-- Select Section --</option>
-</select>
-<button class="btn btn-outline-primary" id="btnAddOfficeSection" type="button">
-<i class="bi bi-plus-circle"></i> Add
-                    </button>
-</div>
-</div>
-</div>
-<div class="row g-3 mt-2">
-<div class="col-md-4">
-<label class="form-label" for="newOfficeSection">
-                    Add New Section to Section Master
-                </label>
-<input class="form-control" id="newOfficeSection" maxlength="100" placeholder="New section name" type="text"/>
-</div>
-<div class="col-md-4">
-<label class="form-label" for="officeStatus">Status of file</label>
-<select class="form-select" id="officeStatus">
-<option value="">-- Select Status --</option>
-<option value="Arised">Arised</option>
-<option value="Under Circulation">Under Circulation</option>
-<option value="Despatched">Despatched</option>
-<option value="Reply Obtained">Reply Obtained</option>
-<option value="Closed">Closed</option>
-</select>
-</div>
-</div>
-<!-- ============================================
-             ROW 3
-        ============================================= -->
-<div class="row g-3 mt-2">
-<!-- Assigned Officer -->
-<div class="col-md-4">
-<label class="form-label">
+    <div class="row g-3 other-grievance-workflow-field">
+      <div class="col-md-3"><label class="form-label" for="approvalStatus">Approval Status</label><select class="form-select" id="approvalStatus"><option>Pending</option><option>Approved</option><option>Returned</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="approvalDate">Approval Date</label><input class="form-control" id="approvalDate" type="date"/></div>
+      <div class="col-md-3"><label class="form-label" for="replySentToGovernment">Reply sent to Government / Referring Authority?</label><select class="form-select" id="replySentToGovernment"><option>No</option><option>Yes</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="replyToGovernmentDate">Reply Sent Date</label><input class="form-control" id="replyToGovernmentDate" type="date"/></div>
+    </div>
 
-                    Assigned Officer
-
-                </label>
-<select class="form-select" id="assignedOfficer">
-<option value="">Select Officer</option>
-</select>
-</div>
-<!-- Concerned Section -->
-<div class="col-md-4">
-<label class="form-label">
-
-                    Concerned Section
-
-                </label>
-<select class="form-select" id="section">
-<option value="">Select Section</option>
-</select>
-</div>
-<!-- File Location -->
-<div class="col-md-4">
-<label class="form-label">
-
-                    File Location
-
-                </label>
-<select class="form-select" id="fileLocation">
-<option value="">Select Location</option>
-<option>Section</option>
-<option>Officer</option>
-<option>Superintendent</option>
-<option>Assistant Director</option>
-<option>Deputy Commissioner</option>
-<option>Commissioner</option>
-<option>Record Room</option>
-</select>
-</div>
-</div>
-<!-- ============================================
-             ROW 4
-        ============================================= -->
-<div class="row g-3 mt-2">
-<!-- Current File Status -->
-<div class="col-md-4">
-<label class="form-label">
-
-                    Current File Status
-
-                </label>
-<select class="form-select" id="currentStatus">
-<option value="">Select Status</option>
-<option>Received</option>
-<option>Under Process</option>
-<option>Pending Clarification</option>
-<option>ATR Awaited</option>
-<option>Ready for Disposal</option>
-<option>Disposed</option>
-</select>
-</div>
-<!-- Final Status -->
-<div class="col-md-4">
-<label class="form-label">
-
-                    Final Status
-
-                </label>
-<select class="form-select" id="finalStatus">
-<option value="">Select</option>
-<option>Pending</option>
-<option>Disposed</option>
-<option>Closed</option>
-<option>Rejected</option>
-</select>
-</div>
-<!-- ATR Received -->
-<div class="col-md-4">
-<label class="form-label">
-
-                    ATR Received
-
-                </label>
-<select class="form-select" id="atrReceived">
-<option>No</option>
-<option>Yes</option>
-</select>
-</div>
-</div>
-<!-- ============================================
-             ROW 5
-        ============================================= -->
-<div class="row g-3 mt-2">
-<!-- ATR Date -->
-<div class="col-md-4">
-<label class="form-label">
-
-                    ATR Date
-
-                </label>
-<input class="form-control" id="atrDate" type="date"/>
-</div>
-<!-- ATR Due Date -->
-<div class="col-md-4">
-<label class="form-label">
-
-                    ATR Due Date
-
-                </label>
-<input class="form-control" id="atrDueDate" type="date"/>
-</div>
-<!-- Disposal Date -->
-<div class="col-md-4">
-<label class="form-label">
-
-                    Disposal Date
-
-                </label>
-<input class="form-control" id="disposalDate" type="date"/>
-</div>
-</div>
-<!-- ============================================
-             ROW 6
-        ============================================= -->
-<div class="row g-3 mt-2">
-<!-- File Closed -->
-<div class="col-md-3">
-<label class="form-label">
-
-                    File Closed
-
-                </label>
-<select class="form-select" id="fileClosed">
-<option>No</option>
-<option>Yes</option>
-</select>
-</div>
-<!-- Remarks -->
-<div class="col-md-9">
-<label class="form-label">
-
-                    Remarks
-
-                </label>
-<textarea class="form-control" id="remarks" maxlength="1000" placeholder="Enter remarks..." rows="4"></textarea>
-</div>
-</div>
-</div>
+    <div class="row g-3 mt-2">
+      <div class="col-md-3"><label class="form-label" for="finalStatus">Final Status</label><select class="form-select" id="finalStatus"><option>Pending</option><option>Disposed</option><option>Closed</option><option>Rejected</option></select></div>
+      <div class="col-md-3"><label class="form-label" for="fileClosed">File Closed</label><select class="form-select" id="fileClosed"><option>No</option><option>Yes</option></select></div>
+      <div class="col-md-6"><label class="form-label" for="remarks">Remarks</label><textarea class="form-control" id="remarks" maxlength="1000" rows="3"></textarea></div>
+    </div>
+  </div>
 </div>
 <!-- ======================================================
-SECTION 4 : ATTACHMENTS
+SECTION 5 : ATTACHMENTS
 ======================================================= -->
 <div class="card mt-3 d-none" id="sharedSection4Card">
 <div class="card-header bg-primary text-white">
 <h5 class="mb-0" id="section4Title">
-            SECTION 4 : ATTACHMENTS
+            SECTION 5 : ATTACHMENTS
         </h5>
 </div>
 <div class="card-body">

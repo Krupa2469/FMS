@@ -354,32 +354,41 @@ function updateGrievanceFormLayout() {
     const normalized = type.toUpperCase();
     const hasType = Boolean(normalized);
     const questionMode = hasType && isQuestionGrievanceType(normalized);
-    const fullGrievancesMode = isCPGRAMSType(normalized);
+    const cpgramsMode = isCPGRAMSType(normalized);
+    const prajavaniMode = normalized === "PRAJAVANI";
+    const otherMode = hasType && !questionMode && !cpgramsMode;
 
     getControl("standardSection1Card")?.classList.toggle("d-none", !hasType || questionMode);
     getControl("questionEntryCard")?.classList.toggle("d-none", !questionMode);
     getControl("sharedSection2Card")?.classList.toggle("d-none", !hasType || questionMode);
     getControl("sharedSection3Card")?.classList.toggle("d-none", !hasType || questionMode);
+    getControl("workflowClosureCard")?.classList.toggle("d-none", !hasType || questionMode);
     getControl("sharedSection4Card")?.classList.toggle("d-none", !hasType);
 
     document.querySelectorAll(".grievances-only-field").forEach(function (el) {
-        el.classList.toggle("d-none", !fullGrievancesMode);
+        el.classList.toggle("d-none", !cpgramsMode);
+    });
+    document.querySelectorAll(".cpgrams-workflow-field").forEach(function (el) {
+        el.classList.toggle("d-none", !cpgramsMode);
+    });
+    document.querySelectorAll(".other-grievance-workflow-field").forEach(function (el) {
+        el.classList.toggle("d-none", !otherMode);
+    });
+    document.querySelectorAll(".prajavani-workflow-field").forEach(function (el) {
+        el.classList.toggle("d-none", !prajavaniMode);
     });
 
     const due = getControl("dueDate");
     if (due) {
-        due.readOnly = fullGrievancesMode;
-        due.placeholder = fullGrievancesMode ? "Auto calculated" : "dd/mm/yyyy";
+        due.readOnly = !questionMode;
+        due.placeholder = questionMode ? "" : "Auto calculated";
     }
 
     if (questionMode) {
         const q = getControl("questionType");
         if (q && q.value !== normalized) q.value = normalized;
-
         const numberLabel = getControl("questionNumberLabel");
-        if (numberLabel) {
-            numberLabel.innerHTML = `${normalized} No. <span class="text-danger">*</span>`;
-        }
+        if (numberLabel) numberLabel.innerHTML = `${normalized} No. <span class="text-danger">*</span>`;
         const numberInput = getControl("questionSerialNo");
         if (numberInput) {
             numberInput.setAttribute("aria-label", `${normalized} No.`);
@@ -393,15 +402,18 @@ function updateGrievanceFormLayout() {
             ? "Select a Grievance Type to load the Data Entry Form"
             : questionMode
                 ? `${normalized} Question Data Entry Form`
-                : `${type} Data Entry Form`;
+                : `${type} Workflow Data Entry Form`;
     }
 
     const section4Title = getControl("section4Title");
     if (section4Title) {
-        section4Title.textContent = questionMode
-            ? "UPLOAD DOCUMENT"
-            : "SECTION 4 : ATTACHMENTS";
+        section4Title.textContent = questionMode ? "UPLOAD DOCUMENT" : "SECTION 5 : ATTACHMENTS";
     }
+
+    if (hasType && !questionMode && getControlValue("dateReceived")) {
+        calculateDueDateFromDisplay(getControlValue("dateReceived"));
+    }
+    updateWorkflowStagePreview();
 }
 
 /*==========================================================
@@ -764,24 +776,20 @@ function getHybridValue(
 ==========================================================*/
 
 function buildGrievanceObject() {
-
     const grievance = {};
 
     document
-        .querySelectorAll(
-            "#cpgramsForm input,#cpgramsForm select,#cpgramsForm textarea"
-        )
+        .querySelectorAll("#cpgramsForm input,#cpgramsForm select,#cpgramsForm textarea")
         .forEach(control => {
-
-            grievance[
-                control.id
-            ] = control.value.trim();
-
+            if (!control.id) return;
+            if (control.type === "file") {
+                if (control.files && control.files[0]) grievance[control.id + "Name"] = control.files[0].name;
+                return;
+            }
+            grievance[control.id] = String(control.value || "").trim();
         });
 
-    // Grievance Type selector is intentionally above/outside the data-entry form.
     grievance.grievanceType = getSelectedGrievanceType();
-
     const grievanceType = String(grievance.grievanceType || "").trim();
     const questionMode = isQuestionGrievanceType(grievanceType);
 
@@ -804,57 +812,42 @@ function buildGrievanceObject() {
         grievance.natureOfGrievance = "";
         grievance.priorityClassification = "";
     } else if (!isCPGRAMSType(grievanceType)) {
-        grievance.grievanceNumber = "";
+        grievance.grievanceNumber = grievance.referenceMemoNo || grievance.grievanceNumber || "";
         grievance.category = "";
         grievance.natureOfGrievance = "";
         grievance.priorityClassification = "";
         grievance.attachmentCount = "";
     }
 
-    grievance.district =
-        getHybridValue(
-            "district",
-            "districtManual"
-        );
+    grievance.district = getHybridValue("district", "districtManual");
+    grievance.mandal = getHybridValue("mandal", "mandalManual");
+    grievance.village = getHybridValue("village", "villageManual");
 
-    grievance.mandal =
-        getHybridValue(
-            "mandal",
-            "mandalManual"
-        );
+    if (questionMode) grievance.section = grievance.questionConcernedSection || "";
 
-    grievance.village =
-        getHybridValue(
-            "village",
-            "villageManual"
-        );
-
-    if (questionMode) {
-        grievance.section = grievance.questionConcernedSection || "";
+    if (!questionMode && grievance.dateReceived && !grievance.dueDate) {
+        const dueDays = isCPGRAMSType(grievanceType) ? 21 : 21;
+        grievance.dueDate = window.FMSRecordPolicy?.addDays?.(grievance.dateReceived, dueDays, "dmy") || grievance.dueDate;
     }
 
-    grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || "")
-        .trim()
-        .toUpperCase()
-        .replace(/\s+/g, "");
+    const workflow = window.FMSRecordPolicy?.workflow?.("cpgrams", grievance) || {};
+    grievance.workflowStage = workflow.stage || "Grievance Received";
+    grievance.presentWorkflowStage = grievance.workflowStage;
+    if (workflow.finalStatus && !grievance.finalStatus) grievance.finalStatus = workflow.finalStatus;
+    grievance.daysStatus = workflow.dueLabel || "";
 
-    grievance.updatedOn =
-        new Date();
-
-    grievance.version =
-        "5.3";
-
+    grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || grievance.registrationNumber || "")
+        .trim().toUpperCase().replace(/\s+/g, "");
+    grievance.updatedOn = new Date();
+    grievance.version = "5.5";
     return grievance;
-
 }
 /*==========================================================
  VALIDATION
 ==========================================================*/
 
 function validateForm() {
-
     clearMessage?.();
-
     const type = getSelectedGrievanceType();
 
     if (!type) {
@@ -864,7 +857,6 @@ function validateForm() {
     }
 
     let requiredFields;
-
     if (isQuestionGrievanceType(type)) {
         requiredFields = [
             ["questionSerialNo", `${String(type || "LAQ").toUpperCase()} No.`],
@@ -873,16 +865,21 @@ function validateForm() {
             ["questionConcernedSection", "Concerned Section"],
             ["question", "Question"]
         ];
-    } else {
+    } else if (isCPGRAMSType(type)) {
         requiredFields = [
+            ["grievanceNumber", "Registration / Grievance No."],
             ["dateReceived", "Date Received"],
             ["complainantName", "Complainant Name"],
+            ["district", "District"],
             ["subject", "Subject"],
             ["grievanceDescription", "Grievance Description"]
         ];
-        if (isCPGRAMSType(type)) {
-            requiredFields.unshift(["grievanceNumber", "Grievance Number"]);
-        }
+    } else {
+        requiredFields = [
+            ["dateReceived", "Date Received"],
+            ["subject", "Subject"],
+            ["grievanceDescription", "Grievance Description"]
+        ];
     }
 
     for (const field of requiredFields) {
@@ -895,9 +892,7 @@ function validateForm() {
         }
     }
 
-    if (!isQuestionGrievanceType(type) && !validateMobile())
-        return false;
-
+    if (!isQuestionGrievanceType(type) && !validateMobile()) return false;
     return true;
 }
 
@@ -1635,102 +1630,40 @@ function initializeDateReceivedPicker() {
    CALCULATE CPGRAMS DUE DATE
    ============================================================ */
 
-function calculateDueDateFromDisplay(
-    dateValue
-) {
-
-    if (!isCPGRAMSType(getSelectedGrievanceType())) {
-        return;
-    }
-
-    if (!dateValue) {
-        return;
-    }
-
-
-    const parts =
-        dateValue.split("/");
-
-
-    if (parts.length !== 3) {
-        return;
-    }
-
-
-    const dd =
-        parseInt(parts[0], 10);
-
-    const mm =
-        parseInt(parts[1], 10);
-
-    const yyyy =
-        parseInt(parts[2], 10);
-
-
-    const receivedDate =
-        new Date(
-            yyyy,
-            mm - 1,
-            dd
-        );
-
-
-    if (
-        isNaN(
-            receivedDate.getTime()
-        )
-    ) {
-        return;
-    }
-
-
-    /* CPGRAMS = 21 days */
-
-    receivedDate.setDate(
-        receivedDate.getDate() + 21
-    );
-
-
-    const dueDD =
-        String(
-            receivedDate.getDate()
-        ).padStart(2, "0");
-
-    const dueMM =
-        String(
-            receivedDate.getMonth() + 1
-        ).padStart(2, "0");
-
-    const dueYYYY =
-        receivedDate.getFullYear();
-
-
-    const dueDate =
-        document.getElementById(
-            "dueDate"
-        );
-
-
-    if (dueDate) {
-
-        dueDate.value =
-            `${dueDD}/${dueMM}/${dueYYYY}`;
-    }
-
-
-    console.log(
-        "Date Received:",
-        dateValue
-    );
-
-    console.log(
-        "Due Date:",
-        dueDate
-            ? dueDate.value
-            : ""
-    );
+function calculateDueDateFromDisplay(dateValue) {
+    if (isQuestionGrievanceType(getSelectedGrievanceType())) return;
+    if (!dateValue) return;
+    const dueValue = window.FMSRecordPolicy?.addDays?.(dateValue, 21, "dmy");
+    const dueDate = document.getElementById("dueDate");
+    if (dueDate && dueValue) dueDate.value = dueValue;
+    updateWorkflowStagePreview();
 }
 
+
+
+
+/* ============================================================
+   WORKFLOW STAGE PREVIEW
+   ============================================================ */
+function updateWorkflowStagePreview() {
+    const preview = getControl("workflowStagePreview");
+    if (!preview || !window.FMSRecordPolicy) return;
+    const data = {};
+    document.querySelectorAll("#cpgramsForm input,#cpgramsForm select,#cpgramsForm textarea").forEach(control => {
+        if (!control.id || control.type === "file") return;
+        data[control.id] = String(control.value || "").trim();
+    });
+    data.grievanceType = getSelectedGrievanceType();
+    const workflow = window.FMSRecordPolicy.workflow("cpgrams", data);
+    preview.innerHTML = `Present Workflow Stage: <strong>${workflow.stage || "Grievance Received"}</strong>${workflow.dueLabel ? ` <span class="badge bg-secondary ms-2">${workflow.dueLabel}</span>` : ""}`;
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll("#cpgramsForm input,#cpgramsForm select,#cpgramsForm textarea").forEach(function(control){
+        control.addEventListener("change", updateWorkflowStagePreview);
+        control.addEventListener("input", updateWorkflowStagePreview);
+    });
+});
 
 /* ============================================================
    START

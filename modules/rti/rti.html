@@ -127,8 +127,32 @@ body{background:#f4f6f9;font-family:Arial,sans-serif;margin:0}.page-header{backg
 <div class="col-12"><small class="text-muted">Sections are maintained centrally in Section Master. A new section added here is stored in Firestore and becomes available across FMS modules.</small></div>
 </div></div>
 
-<!-- 4 ATTACHMENTS -->
-<div class="section-header mt-4"><i class="bi bi-paperclip"></i> 4. ATTACHMENTS UPLOAD — SAVED TO FIRESTORE</div>
+
+<!-- 4 REPLY DETAILS -->
+<div class="section-header mt-4"><i class="bi bi-reply"></i> 4. REPLY DETAILS</div>
+<div class="sub-card"><div class="row g-3">
+<div class="col-md-4"><label class="form-label" for="concernedSection">Concerned Section</label><select class="form-select" id="concernedSection"><option value="">-- Select Section --</option></select></div>
+<div class="col-md-4"><label class="form-label" for="sentToSectionDate">Sent to Section Date</label><input class="form-control" id="sentToSectionDate" type="date"></div>
+<div class="col-md-4"><label class="form-label" for="assignedOfficer">Assigned Officer</label><select class="form-select" id="assignedOfficer"><option value="">-- Select Officer --</option></select></div>
+<div class="col-md-4"><label class="form-label" for="replyStatus">Reply Status</label><select class="form-select" id="replyStatus"><option>Awaited</option><option>Received</option></select></div>
+<div class="col-md-4"><label class="form-label" for="replyReceivedDate">Reply Received Date</label><input class="form-control" id="replyReceivedDate" type="date"></div>
+<div class="col-md-4"><label class="form-label" for="replyReceivedFrom">Reply Received From</label><input class="form-control" id="replyReceivedFrom" type="text" maxlength="200"></div>
+<div class="col-12"><label class="form-label" for="replySummary">Reply Summary</label><textarea class="form-control" id="replySummary" rows="3" maxlength="3000"></textarea></div>
+<div class="col-md-6"><label class="form-label" for="sectionReplyFile">Upload Section Reply</label><input class="form-control" id="sectionReplyFile" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div>
+</div></div>
+
+<!-- 5 DISPOSAL -->
+<div class="section-header mt-4"><i class="bi bi-check-circle"></i> 5. DISPOSAL</div>
+<div class="sub-card"><div class="row g-3">
+<div class="col-md-4"><label class="form-label" for="replySentToApplicant">Reply Sent to Applicant?</label><select class="form-select" id="replySentToApplicant"><option>No</option><option>Yes</option></select></div>
+<div class="col-md-4"><label class="form-label" for="replySentDate">Reply Sent Date</label><input class="form-control" id="replySentDate" type="date"></div>
+<div class="col-md-4"><label class="form-label" for="finalStatus">Final Status</label><select class="form-select" id="finalStatus"><option>Pending</option><option>Disposed</option><option>Closed</option><option>Rejected</option></select></div>
+<div class="col-md-6"><label class="form-label" for="finalReplyFile">Upload Final Reply</label><input class="form-control" id="finalReplyFile" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div>
+<div class="col-md-6"><label class="form-label" for="remarks">Remarks</label><textarea class="form-control" id="remarks" rows="3" maxlength="1000"></textarea></div>
+</div></div>
+
+<!-- 6 ATTACHMENTS -->
+<div class="section-header mt-4"><i class="bi bi-paperclip"></i> 6. ATTACHMENTS UPLOAD — SAVED TO FIRESTORE</div>
 <div class="attachment-box">
 <div class="d-flex align-items-center gap-3 flex-wrap">
 <input class="form-control" id="attachmentFile" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.webp" style="max-width:650px;">

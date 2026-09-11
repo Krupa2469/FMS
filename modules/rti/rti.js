@@ -102,10 +102,8 @@ function calculateRTIDueDate(){
     const source=val("applicationDate"), target=document.getElementById("dueDate");
     if(!target) return;
     if(!source){ target.value=""; return; }
-    const d=new Date(source+"T00:00:00");
-    if(isNaN(d.getTime())) return;
-    d.setDate(d.getDate()+30);
-    target.value=d.toISOString().slice(0,10);
+    const calculated = window.FMSRecordPolicy?.addDays?.(source, 30, "iso");
+    if (calculated) target.value = calculated;
 }
 
 function addSelectOption(select,value,text=value){
@@ -150,6 +148,10 @@ function loadRTIMasters(){
 
     loadRTIOfficeSection();
     loadRTIOfficers();
+    if (window.FMSOfficeProcessing) {
+        window.FMSOfficeProcessing.loadSectionDropdown?.("concernedSection");
+        window.FMSOfficeProcessing.loadOfficerDropdown?.("assignedOfficer");
+    }
 }
 
 async function loadRTIOfficers(selected=""){
@@ -249,16 +251,24 @@ function prepareNewRTI(){
 }
 
 function getRTIFormData(){
-    return {
-        applicationNumber:val("applicationNumber"), applicationDate:val("applicationDate"), dueDate:val("dueDate"),
-        informationSought:val("informationSought"),
-        applicantName:val("applicantName"), mobileNumber:val("mobileNumber"), applicantAddress:val("applicantAddress"),
-        district:val("district"), mandal:val("mandal"), village:val("village"),
-        officeFileNo:val("officeFileNo"), officeDateArised:val("officeDateArised"), officeSubject:val("officeSubject"),
-        officeCommunicationType:val("officeCommunicationType"), officeLetterAddressedTo:val("officeLetterAddressedTo"),
-        officeReplyObtainedFrom:val("officeReplySection"), officeStatus:val("officeStatus"),
-        parsedText:val("parsedText")
-    };
+    const data = {};
+    document.querySelectorAll("#rtiForm input,#rtiForm select,#rtiForm textarea").forEach(el => {
+        if (!el.id) return;
+        if (el.type === "file") {
+            if (el.files && el.files[0]) data[el.id + "Name"] = el.files[0].name;
+            return;
+        }
+        data[el.id] = String(el.value || "").trim();
+    });
+    // Keep legacy aliases used by existing registers/reports.
+    data.officeReplyObtainedFrom = data.officeReplySection || data.officeReplyObtainedFrom || data.concernedSection || "";
+    data.subject = data.officeSubject || data.informationSought || "";
+    if (!data.dueDate && data.applicationDate) data.dueDate = window.FMSRecordPolicy?.addDays?.(data.applicationDate, 30, "iso") || data.dueDate;
+    const workflow = window.FMSRecordPolicy?.workflow?.("rti", data) || {};
+    data.workflowStage = workflow.stage || "RTI application received";
+    data.presentStatus = workflow.finalStatus || data.finalStatus || data.officeStatus || "Pending";
+    data.daysStatus = workflow.dueLabel || "";
+    return data;
 }
 
 function validateRTIForm(data){
@@ -448,24 +458,18 @@ async function loadRTIRecordFromURL(){
 async function populateRTIForm(data){
     if(!data) return;
 
-    const basic={
-        applicationNumber:data.applicationNumber,
-        informationSought:data.informationSought,
-        applicantName:data.applicantName,
-        mobileNumber:data.mobileNumber,
-        applicantAddress:data.applicantAddress,
-        officeFileNo:data.officeFileNo,
-        officeSubject:data.officeSubject,
-        officeCommunicationType:data.officeCommunicationType,
-        officeLetterAddressedTo:data.officeLetterAddressedTo,
-        officeReplySection:data.officeReplySection||data.officeReplyObtainedFrom||data.replyObtainedFrom,
-        officeStatus:data.officeStatus
-    };
-    Object.entries(basic).forEach(([id,v])=>setVal(id,v||""));
-    setVal("applicationDate",fmtDate(data.applicationDate));
-    setVal("dueDate",fmtDate(data.dueDate));
-    setVal("officeDateArised",fmtDate(data.officeDateArised));
-    setVal("parsedText",data.parsedText||"");
+    Object.keys(data).forEach(key => {
+        const element = document.getElementById(key);
+        if (!element || element.type === "file") return;
+        if ((key || "").toLowerCase().includes("date") || key === "dueDate") setVal(key, fmtDate(data[key]));
+        else setVal(key, data[key] || "");
+    });
+
+    // Legacy aliases.
+    setVal("officeReplySection", data.officeReplySection || data.officeReplyObtainedFrom || data.replyObtainedFrom || data.concernedSection || "");
+    setVal("concernedSection", data.concernedSection || data.officeReplySection || data.officeReplyObtainedFrom || "");
+    setVal("officeSubject", data.officeSubject || data.subject || "");
+    setVal("finalStatus", data.finalStatus || data.presentStatus || "Pending");
 
     const district=data.district||"";
     setVal("district",district);
@@ -475,7 +479,7 @@ async function populateRTIForm(data){
         if(district && data.mandal){
             await window.FMSRTIMasterService.loadVillages(district,data.mandal,data.village||"");
         }
-        await loadRTIOfficers(data.officeLetterAddressedTo||"");
+        await loadRTIOfficers(data.officeLetterAddressedTo||data.assignedOfficer||"");
     }else{
         if(typeof loadMandals==="function" && district) loadMandals(district);
         setTimeout(()=>{
@@ -485,19 +489,37 @@ async function populateRTIForm(data){
         },100);
     }
 
-    if(data.officeReplySection||data.officeReplyObtainedFrom||data.replyObtainedFrom){
-        await loadRTIOfficeSection(data.officeReplySection||data.officeReplyObtainedFrom||data.replyObtainedFrom);
+    if(data.officeReplySection||data.officeReplyObtainedFrom||data.replyObtainedFrom||data.concernedSection){
+        await loadRTIOfficeSection(data.officeReplySection||data.officeReplyObtainedFrom||data.replyObtainedFrom||data.concernedSection);
     }
     setVal("mandal",data.mandal||"");
     setVal("village",data.village||"");
+
+    const sectionSelect=document.getElementById("concernedSection");
+    if(sectionSelect && (data.concernedSection || data.officeReplySection)){
+        const value=data.concernedSection || data.officeReplySection;
+        if(![...sectionSelect.options].some(o=>o.value===value)) addSelectOption(sectionSelect,value,value);
+        sectionSelect.value=value;
+    }
+    const officerSelect=document.getElementById("assignedOfficer");
+    if(officerSelect && data.assignedOfficer){
+        if(![...officerSelect.options].some(o=>o.value===data.assignedOfficer)) addSelectOption(officerSelect,data.assignedOfficer,data.assignedOfficer);
+        officerSelect.value=data.assignedOfficer;
+    }
 
     rtiDocuments=Array.isArray(data.documents)?data.documents:(Array.isArray(data.attachments)?data.attachments:[]);
     renderRTIAttachments();
 }
 
 function clearRTIForm(){
-    ["applicationNumber","applicationDate","dueDate","informationSought","applicantName","mobileNumber","applicantAddress","district","mandal","village","officeFileNo","officeDateArised","officeSubject","officeCommunicationType","officeLetterAddressedTo","officeReplySection","officeStatus","parsedText"].forEach(id=>setVal(id,""));
-    const m=document.getElementById("mandal"),v=document.getElementById("village"); if(m){m.disabled=true;m.innerHTML='<option value="">-- Select Mandal --</option>';} if(v){v.disabled=true;v.innerHTML='<option value="">-- Select Village --</option>';}
+    document.querySelectorAll("#rtiForm input,#rtiForm select,#rtiForm textarea").forEach(el => {
+        if (!el.id || el.type === "file") return;
+        if (el.tagName === "SELECT") el.selectedIndex = 0;
+        else el.value = "";
+    });
+    const m=document.getElementById("mandal"),v=document.getElementById("village");
+    if(m){m.disabled=true;m.innerHTML='<option value="">-- Select Mandal --</option>';}
+    if(v){v.disabled=true;v.innerHTML='<option value="">-- Select Village --</option>';}
 }
 
 async function handleRTIApplicationSelection(){
