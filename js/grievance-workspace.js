@@ -14,18 +14,26 @@
   const $=id=>document.getElementById(id);
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const pretty=v=>String(v||"").trim();
+  const TYPE_MAP=new Map([
+    ["grievances","cpgrams"],["grievance","cpgrams"],["cpgrams","cpgrams"],["cpgram","cpgrams"],["cpgrams portal","cpgrams"],
+    ["prajavani","prajavani"],["public grievances","public grievances"],["public grievance","public grievances"],
+    ["direct complaints","direct complaints"],["direct complaint","direct complaints"],
+    ["laq","laq"],["lcq","lcq"],["court cases","court cases"],["court case","court cases"],
+    ["vip references","vip references"],["vip reference","vip references"],["cmo references","cmo references"],["cmo reference","cmo references"],
+    ["pmo references","pmo references"],["pmo reference","pmo references"],["audit paras","audit paras"],["audit para","audit paras"],
+    ["vigilance cases","vigilance cases"],["vigilance case","vigilance cases"]
+  ]);
   function normType(v){
-    const s=String(v||"").trim().toLowerCase().replace(/\s+/g," ")
+    const s=String(v||"").trim().toLowerCase().replace(/[_-]+/g," ").replace(/\s+/g," ")
       .replace(/\bcomplaint\b/g,"complaints").replace(/\breference\b/g,"references").replace(/\bpara\b/g,"paras");
-    if(["grievances","cpgrams","cpgrams portal","cpgram"].includes(s)) return "cpgrams";
-    return s;
+    return TYPE_MAP.get(s)||"";
   }
   function rowType(r){
     if(String(r?.questionType||"").toUpperCase()==="LAQ") return "laq";
     if(String(r?.questionType||"").toUpperCase()==="LCQ") return "lcq";
     const candidates=[r?.grievanceType,r?.referenceType,r?.type,r?.sourceType,r?.grievanceSource,r?.source];
     for(const v of candidates){const n=normType(v);if(n)return n;}
-    return "cpgrams"; // old CPGRAMS records without grievanceType
+    return "cpgrams"; // old CPGRAMS records without a specific Grievance Type
   }
   function currentType(){return pretty($(TYPE_SELECT)?.value);}
   function currentFY(){return $(FY_SELECT)?.value || window.FMSRecordPolicy?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";}

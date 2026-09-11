@@ -63,6 +63,24 @@ body{background:#f4f6f9}.hero{background:#0d6efd;color:#fff;padding:18px}.metric
 <label for="sourceFile" class="form-label fw-bold">Upload document</label>
 <input id="sourceFile" type="file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.csv,.tsv,.json,.xlsx,.xls">
 <div class="form-text">Supported: PDF, image, CSV, Excel, JSON and text. Scanned PDFs/images are processed with browser OCR.</div>
+<div class="row g-2 mt-3">
+  <div class="col-md-6">
+    <label for="precisionMode" class="form-label fw-bold">Document Parser Precision</label>
+    <select id="precisionMode" class="form-select">
+      <option value="fast">Fast</option>
+      <option value="accurate" selected>Accurate</option>
+      <option value="high">High precision OCR</option>
+    </select>
+    <div class="form-text">Use High precision for scanned PDFs, blurred images or misread table columns.</div>
+  </div>
+  <div class="col-md-6 d-flex align-items-center pt-4">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="normalizeText" checked>
+      <label class="form-check-label fw-bold" for="normalizeText">Normalise extracted text before field mapping</label>
+      <div class="form-text">Fixes OCR spacing, common date variants and registration-number errors before preview.</div>
+    </div>
+  </div>
+</div>
 <label for="rawText" class="form-label fw-bold mt-3">Extracted / pasted text</label>
 <textarea id="rawText" class="form-control" rows="8" placeholder="You can also paste table text here and click Extract Fields."></textarea>
 <div class="d-flex gap-2 flex-wrap mt-3">
@@ -224,22 +242,35 @@ function parseDelimited(text){
 }
 function parseTextTable(text,type){
   const kind=typeKind(type);
-  const lines=String(text||"").replace(/\u00a0/g," ").split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const normalText=shouldNormalizeText()?normaliseDocumentText(text):String(text||"");
   const rows=[];
+
+  if(kind==="grievance"){
+    const regex=/(?:^|\n)\s*(\d{1,5})\s+([A-Z0-9]{2,8}\/[A-Z]\/\d{4}\/\d{3,8})\s+(.+?)\s+(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})\s+(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})(?=\s*(?:\n|$))/gmi;
+    let m;
+    while((m=regex.exec(normalText))!==null){
+      rows.push(normalizeImportedRecord({sourceSerialNo:m[1],grievanceNumber:m[2],complainantName:m[3].trim(),dateReceived:m[4],diaryDate:m[5]},type,rows.length+1));
+    }
+    if(rows.length)return rows.filter(Boolean);
+  }
+
+  const lines=normalText.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
   for(const line of lines){
-    if(/^(s\s*no|sno|registration|do?rd\s+telangana|progress report|date\s*:)/i.test(line)) continue;
-    let m=line.match(/^(\d{1,5})\s+([A-Z0-9]+\/[A-Z]+\/\d{4}\/\d{3,8})\s+(.+?)\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})$/i);
+    if(/^(s\s*no|sno|registration|do?rd\s+telangana|progress report|date\s*:|name\s+org)/i.test(line)) continue;
+    let m=line.match(/^(\d{1,5})\s+([A-Z0-9]{2,8}\/[A-Z]\/\d{4}\/\d{3,8})\s+(.+?)\s+(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})\s+(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})$/i);
     if(kind==="grievance" && m){
       rows.push(normalizeImportedRecord({sourceSerialNo:m[1],grievanceNumber:m[2],complainantName:m[3],dateReceived:m[4],diaryDate:m[5]},type,rows.length+1));
       continue;
     }
-    m=line.match(/^(\d{1,5})\s+(LAQ|LCQ)\s+(.+?)\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\s+(.+)$/i);
+    m=line.match(/^(\d{1,5})\s+(LAQ|LCQ)\s+(.+?)\s+(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})\s+(.+)$/i);
     if(kind==="question" && m){
       rows.push(normalizeImportedRecord({questionSerialNo:m[1],questionType:m[2].toUpperCase(),questionReceivedDate:m[4],question:m[5]},type,rows.length+1));
       continue;
     }
-    m=line.match(/^(\d{1,5})\s+([^\s]+\/[^\s]+)\s+(.+?)\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})(?:\s+(\d{1,2}[-/]\d{1,2}[-/]\d{2,4}))?$/i);
-    if(kind==="rti" && m){rows.push(normalizeImportedRecord({sourceSerialNo:m[1],applicationNumber:m[2],applicantName:m[3],applicationDate:m[4],dueDate:m[5]||""},type,rows.length+1));}
+    m=line.match(/^(\d{1,5})\s+([^\s]+\/[^\s]+)\s+(.+?)\s+(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})(?:\s+(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}))?$/i);
+    if(kind==="rti" && m){
+      rows.push(normalizeImportedRecord({sourceSerialNo:m[1],applicationNumber:m[2],applicantName:m[3],applicationDate:m[4],dueDate:m[5]||""},type,rows.length+1));
+    }
   }
   return rows.filter(Boolean);
 }
@@ -311,6 +342,89 @@ function updateFieldHint(){
   renderPreview();
 }
 
+function parserPrecision(){
+  const mode=$("precisionMode")?.value || "accurate";
+  if(mode==="high")return {mode,scale:4.0,ocr:true,threshold:true};
+  if(mode==="fast")return {mode,scale:1.8,ocr:false,threshold:false};
+  return {mode,scale:3.0,ocr:true,threshold:false};
+}
+function shouldNormalizeText(){return $("normalizeText")?.checked !== false;}
+function normaliseDocumentText(text){
+  let out=String(text||"");
+  out=out.normalize("NFKC")
+    .replace(/[\u00a0\u2007\u202f]/g," ")
+    .replace(/[“”]/g,'"').replace(/[‘’]/g,"'")
+    .replace(/[|]/g,"/")
+    .replace(/\bDairy\s+Date\b/gi,"Diary Date")
+    .replace(/\bOrg\s+Rec(?:ei|ie)?ved\s+Date\b/gi,"Org Received Date")
+    .replace(/\bRegistration\s+No\.?\b/gi,"Registration Number")
+    .replace(/\bS\s*No\.?\b/gi,"SNo.");
+
+  // Correct common OCR confusions only when the token looks like a file/registration number.
+  out=out.replace(/\b([A-Z0-9]{2,8})\s*\/\s*([A-Z])\s*\/\s*(\d{4})\s*\/\s*(\d{3,8})\b/gi,(_,a,b,y,n)=>{
+    const prefix=String(a).toUpperCase()
+      .replace(/^D0RLD$/,"DORLD").replace(/^DOR1D$/,"DORLD").replace(/^D0R1D$/,"DORLD")
+      .replace(/^M0PRJ$/,"MOPRJ").replace(/^MOPR1$/,"MOPRJ").replace(/^M0PR1$/,"MOPRJ")
+      .replace(/^M0LBR$/,"MOLBR").replace(/^MOL8R$/,"MOLBR")
+      .replace(/^RE7PG$/,"RE7PG");
+    return `${prefix}/${String(b).toUpperCase()}/${y}/${n}`;
+  });
+
+  // Normalise dates to dd/mm/yyyy while preserving text table order.
+  out=out.replace(/\b(\d{1,2})[.\-](\d{1,2})[.\-](\d{2}|\d{4})\b/g,(_,d,m,y)=>`${String(d).padStart(2,"0")}/${String(m).padStart(2,"0")}/${y.length===2?"20"+y:y}`);
+
+  // Put each detected table row on its own line even if PDF text extraction collapsed the table.
+  out=out.replace(/\s+(?=\d{1,5}\s+[A-Z0-9]{2,8}\/[A-Z]\/\d{4}\/\d{3,8}\s+)/g,"\n");
+  out=out.replace(/[ \t]+/g," ").replace(/\s+\n/g,"\n").replace(/\n\s+/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+  return out;
+}
+function pdfItemsToLines(items){
+  const rows=[];
+  (items||[]).forEach(item=>{
+    const text=String(item.str||"").trim(); if(!text)return;
+    const tr=item.transform||[0,0,0,0,0,0];
+    const x=tr[4]||0, y=tr[5]||0;
+    let row=rows.find(r=>Math.abs(r.y-y)<3);
+    if(!row){row={y,items:[]};rows.push(row);}
+    row.items.push({x,text});
+  });
+  rows.sort((a,b)=>b.y-a.y);
+  return rows.map(row=>row.items.sort((a,b)=>a.x-b.x).map(cell=>cell.text).join(" ")).join("\n");
+}
+function preprocessCanvasForOCR(canvas, cfg){
+  if(!cfg.threshold && cfg.mode!=="high")return canvas;
+  const output=document.createElement("canvas");
+  output.width=canvas.width; output.height=canvas.height;
+  const ctx=output.getContext("2d");
+  ctx.drawImage(canvas,0,0);
+  const img=ctx.getImageData(0,0,output.width,output.height);
+  for(let i=0;i<img.data.length;i+=4){
+    let gray=0.299*img.data[i]+0.587*img.data[i+1]+0.114*img.data[i+2];
+    if(cfg.mode==="high") gray=gray<185?0:255;
+    else gray=Math.max(0,Math.min(255,(gray-128)*1.35+128));
+    img.data[i]=img.data[i+1]=img.data[i+2]=gray;
+  }
+  ctx.putImageData(img,0,0);
+  return output;
+}
+async function runOCR(target,label){
+  if(!window.Tesseract)throw new Error("OCR library is not loaded. Please check internet connection and retry.");
+  let lastProgress=-1;
+  const result=await Tesseract.recognize(target,"eng",{
+    tessedit_pageseg_mode:"6",
+    preserve_interword_spaces:"1",
+    logger:m=>{
+      if(!m.status)return;
+      const pct=m.progress?Math.round(m.progress*100):0;
+      if(pct!==lastProgress && pct%10===0){lastProgress=pct;log(`${label}: ${m.status} ${pct}%`);}
+    }
+  });
+  const confidence=Math.round(result?.data?.confidence ?? 0);
+  log(`${label}: OCR confidence ${confidence}%`);
+  if(confidence && confidence<70)log(`${label}: Low OCR confidence. Try High precision OCR or upload a clearer document.`);
+  return result.data.text || "";
+}
+
 async function readFileAsText(file){return await file.text();}
 async function readExcel(file){
   if(!window.XLSX)throw new Error("Excel parser library is not loaded. Please check internet connection and retry.");
@@ -322,53 +436,84 @@ async function readExcel(file){
 async function readPdf(file){
   if(!window.pdfjsLib)throw new Error("PDF parser library is not loaded. Please check internet connection and retry.");
   pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const cfg=parserPrecision();
   const arr=new Uint8Array(await file.arrayBuffer());
   const pdf=await pdfjsLib.getDocument({data:arr}).promise;
-  log(`PDF loaded: ${pdf.numPages} page(s). Extracting text...`);
+  log(`PDF loaded: ${pdf.numPages} page(s). Precision: ${cfg.mode}. Extracting table text...`);
   let text="";
   for(let p=1;p<=pdf.numPages;p++){
     const page=await pdf.getPage(p);
-    const content=await page.getTextContent();
-    const pageText=content.items.map(i=>i.str).join(" ");
-    text += `\n--- PAGE ${p} ---\n`+pageText;
+    const content=await page.getTextContent({normalizeWhitespace:true,disableCombineTextItems:false});
+    const pageText=pdfItemsToLines(content.items);
+    text += `\n--- PAGE ${p} ---\n` + pageText;
   }
-  if(text.replace(/\s/g,"").length>120){log("PDF text extracted without OCR.");return text;}
+  let normalized=shouldNormalizeText()?normaliseDocumentText(text):text;
+  const rowHits=(normalized.match(/\b\d{1,5}\s+[A-Z0-9]{2,8}\/[A-Z]\/\d{4}\/\d{3,8}\b/g)||[]).length;
+  if(normalized.replace(/\s/g,"").length>120 && (rowHits>0 || !cfg.ocr)){
+    log(`PDF text extracted without OCR. Detected table row markers: ${rowHits}.`);
+    return normalized;
+  }
   if(!window.Tesseract)throw new Error("This PDF appears scanned and OCR library is not loaded.");
-  log("PDF has little/no text. Starting OCR; this may take a few minutes...");
+  log("PDF has little/no reliable embedded text. Starting OCR; this may take a few minutes...");
   text="";
   for(let p=1;p<=pdf.numPages;p++){
-    log(`OCR page ${p} of ${pdf.numPages}...`);
+    log(`Rendering OCR page ${p} of ${pdf.numPages} at scale ${cfg.scale}...`);
     const page=await pdf.getPage(p);
-    const viewport=page.getViewport({scale:2.0});
+    const viewport=page.getViewport({scale:cfg.scale});
     const canvas=document.createElement("canvas");
-    canvas.width=viewport.width; canvas.height=viewport.height;
+    canvas.width=Math.ceil(viewport.width); canvas.height=Math.ceil(viewport.height);
     await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
-    const result=await Tesseract.recognize(canvas,"eng",{logger:m=>{if(m.status&&m.progress)log(`${m.status} ${(m.progress*100).toFixed(0)}%`);}});
-    text += `\n--- PAGE ${p} ---\n`+result.data.text;
+    const cleanCanvas=preprocessCanvasForOCR(canvas,cfg);
+    text += `\n--- PAGE ${p} ---\n` + await runOCR(cleanCanvas,`Page ${p}`);
   }
-  return text;
+  return shouldNormalizeText()?normaliseDocumentText(text):text;
 }
 async function readImage(file){
-  if(!window.Tesseract)throw new Error("OCR library is not loaded. Please check internet connection and retry.");
-  log("Starting image OCR...");
-  const result=await Tesseract.recognize(file,"eng",{logger:m=>{if(m.status&&m.progress)log(`${m.status} ${(m.progress*100).toFixed(0)}%`);}});
-  return result.data.text;
+  const cfg=parserPrecision();
+  log(`Starting image OCR. Precision: ${cfg.mode}.`);
+  let target=file;
+  if(cfg.mode==="high"){
+    const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=URL.createObjectURL(file);});
+    const canvas=document.createElement("canvas");
+    canvas.width=img.naturalWidth*2; canvas.height=img.naturalHeight*2;
+    const ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    target=preprocessCanvasForOCR(canvas,cfg);
+  }
+  const text=await runOCR(target,"Image");
+  return shouldNormalizeText()?normaliseDocumentText(text):text;
 }
 async function extract(){
-  const type=$("importType").value; const file=$("sourceFile").files[0];
-  resetLog("Extract started."); setStatus("info","Extracting data. Please wait..."); extractedRecords=[]; lastRows=[]; renderPreview();
+  const type=$("importType").value;
+  const file=$("sourceFile").files[0];
+  resetLog("Extract started.");
+  setStatus("info","Extracting data. Please wait...");
+  extractedRecords=[]; lastRows=[]; renderPreview();
   try{
-    let text=$("rawText").value.trim(); let rows=[];
+    let text=$("rawText").value.trim();
+    let rows=[];
     if(file){
-      const name=file.name.toLowerCase(); log(`Selected file: ${file.name}`);
-      if(/\.xlsx?$/.test(name)){rows=await readExcel(file); log(`Excel rows found: ${rows.length}`);}
-      else if(/\.json$/.test(name)){text=await readFileAsText(file);}
-      else if(/\.(csv|tsv)$/.test(name)){text=await readFileAsText(file);rows=parseDelimited(text);}
-      else if(/\.pdf$/.test(name)){text=await readPdf(file);}
-      else if(/^image\//.test(file.type)||/\.(png|jpe?g|webp)$/.test(name)){text=await readImage(file);}
-      else{text=await readFileAsText(file);}
-      if(text)$("rawText").value=text;
+      const name=file.name.toLowerCase();
+      log(`Selected file: ${file.name}`);
+      if(/\.xlsx?$/.test(name)){
+        rows=await readExcel(file);
+        log(`Excel rows found: ${rows.length}`);
+      } else if(/\.json$/.test(name)) {
+        text=await readFileAsText(file);
+      } else if(/\.(csv|tsv)$/.test(name)) {
+        text=await readFileAsText(file);
+        if(shouldNormalizeText()) text=normaliseDocumentText(text);
+        rows=parseDelimited(text);
+      } else if(/\.pdf$/.test(name)) {
+        text=await readPdf(file);
+      } else if(/^image\//.test(file.type)||/\.(png|jpe?g|webp)$/.test(name)) {
+        text=await readImage(file);
+      } else {
+        text=await readFileAsText(file);
+      }
     }
+    if(text && shouldNormalizeText()) text=normaliseDocumentText(text);
+    if(text) $("rawText").value=text;
+
     if(text && /^[\s\r\n]*[\[{]/.test(text)) extractedRecords=parseJsonPayload(text,type);
     else{
       if(!rows.length && text && (text.includes(",")||text.includes("\t"))) rows=parseDelimited(text);
@@ -377,9 +522,18 @@ async function extract(){
     }
     extractedRecords=extractedRecords.map((r,i)=>normalizeImportedRecord(r,type,i+1)).filter(Boolean);
     renderPreview();
-    if(extractedRecords.length){setStatus("success",`Extracted <strong>${extractedRecords.length}</strong> record(s). Review the preview, then click Import / Update.`);log(`Extraction completed: ${extractedRecords.length} record(s).`);}
-    else{setStatus("warning","No records were extracted. Paste clearer table text, use CSV/Excel, or check whether the PDF/image OCR text is readable.");log("No records extracted.");}
-  }catch(e){console.error(e);setStatus("danger",esc(e.message||e));log("ERROR: "+(e.message||e));}
+    if(extractedRecords.length){
+      setStatus("success",`Extracted <strong>${extractedRecords.length}</strong> record(s). Review the preview, then click Import / Update.`);
+      log(`Extraction completed: ${extractedRecords.length} record(s).`);
+    } else {
+      setStatus("warning","No records were extracted. Use High precision OCR, paste clearer table text, or upload CSV/Excel for best accuracy.");
+      log("No records extracted.");
+    }
+  }catch(e){
+    console.error(e);
+    setStatus("danger",esc(e.message||e));
+    log("ERROR: "+(e.message||e));
+  }
 }
 async function getExistingDocs(type){
   const db=getDb(); if(!db)throw new Error("Firestore is not ready.");

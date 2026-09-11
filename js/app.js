@@ -17,7 +17,7 @@ const APP = {
 
     SHORT_NAME: "FMS",
 
-    VERSION: "1.3.0",
+    VERSION: "1.3.2",
 
     DEPARTMENT: "Office of the Commissioner, Rural Development",
 
