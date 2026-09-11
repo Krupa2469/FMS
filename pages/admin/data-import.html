@@ -172,16 +172,35 @@ function todayDisplay(){const d=new Date();return `${String(d.getDate()).padStar
 
 const FIELD_SETS={
   grievance:[
-    ["sourceSerialNo","S.No."],["grievanceType","Grievance Type"],["grievanceNumber","Registration / Grievance No."],["complainantName","Name"],["dateReceived","Org Received Date"],["diaryDate","Diary Date"],["subject","Subject"],["grievanceDescription","Description"]
+    ["sourceSerialNo","S.No."],
+    ["grievanceType","Grievance Type"],
+    ["grievanceNumber","Registration / Grievance No."],
+    ["complainantName","Name / Complainant Name"],
+    ["dateReceived","Received Date"],
+    ["diaryDate","Diary Date"]
   ],
   question:[
-    ["questionSerialNo","LAQ / LCQ No."],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer Furnished By"],["answerFurnishedTo","Answer Furnished To"],["answerFurnishedDate","Answer Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"]
+    ["questionSerialNo","LAQ / LCQ No."],
+    ["questionType","Question Type"],
+    ["questionReceivedDate","Received Date"],
+    ["questionConcernedSection","Concerned Section"],
+    ["question","Question"],
+    ["answer","Answer"]
   ],
   rti:[
-    ["sourceSerialNo","S.No."],["applicationNumber","Application No."],["applicationDate","Application Date"],["dueDate","Due Date"],["applicantName","Applicant Name"],["district","District"],["assignedTo","Assigned To"],["presentStatus","Present Status"]
+    ["sourceSerialNo","S.No."],
+    ["applicationNumber","Application No."],
+    ["applicationDate","Application Date"],
+    ["dueDate","Due Date"],
+    ["applicantName","Applicant Name"]
   ],
   disha:[
-    ["sourceSerialNo","S.No."],["meetingNumber","Meeting No."],["dateOfMeeting","Meeting Date"],["subject","Subject"],["venue","Venue"],["statusOfMeeting","Meeting Status"],["pomStatus","PoM Status"],["pomDueDate","PoM Due Date"]
+    ["sourceSerialNo","S.No."],
+    ["meetingNumber","Meeting No."],
+    ["dateOfMeeting","Meeting Date"],
+    ["subject","Subject"],
+    ["venue","Venue"],
+    ["statusOfMeeting","Meeting Status"]
   ]
 };
 
@@ -219,11 +238,12 @@ function mapRowsByHeader(rows,type){
   const headers=rows[headerIndex]||[];
   const indexes={}; fields.forEach(([field])=>indexes[field]=findHeaderIndex(headers,field));
   const dataRows=rows.slice(headerIndex+1).filter(r=>r.some(c=>String(c||"").trim()));
-  return dataRows.map((row,i)=>{
+  const mapped=dataRows.map((row,i)=>{
     const obj={};
     fields.forEach(([field])=>{const idx=indexes[field]; if(idx>=0)obj[field]=String(row[idx]??"").trim();});
     return normalizeImportedRecord(obj,type,i+1);
-  }).filter(Boolean);
+  });
+  return filterValidImportedRecords(mapped,type);
 }
 function parseDelimited(text){
   const lines=String(text||"").split(/\r?\n/).filter(l=>l.trim());
@@ -251,7 +271,7 @@ function parseTextTable(text,type){
     while((m=regex.exec(normalText))!==null){
       rows.push(normalizeImportedRecord({sourceSerialNo:m[1],grievanceNumber:m[2],complainantName:m[3].trim(),dateReceived:m[4],diaryDate:m[5]},type,rows.length+1));
     }
-    if(rows.length)return rows.filter(Boolean);
+    if(rows.length)return filterValidImportedRecords(rows,type);
   }
 
   const lines=normalText.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
@@ -272,7 +292,7 @@ function parseTextTable(text,type){
       rows.push(normalizeImportedRecord({sourceSerialNo:m[1],applicationNumber:m[2],applicantName:m[3],applicationDate:m[4],dueDate:m[5]||""},type,rows.length+1));
     }
   }
-  return rows.filter(Boolean);
+  return filterValidImportedRecords(rows,type);
 }
 function normalizeImportedRecord(row,type,index){
   const kind=typeKind(type); const out={};
@@ -312,18 +332,76 @@ function normalizeImportedRecord(row,type,index){
   }
   return out;
 }
+
+function hasDateLike(value){
+  return /\b\d{1,2}[\/\-.]\d{1,2}[\/\-.](?:\d{2}|\d{4})\b/.test(String(value||""));
+}
+
+function isValidImportedRecord(record,type){
+  if(!record) return false;
+  const kind=typeKind(type);
+  if(kind==="grievance"){
+    const no=String(record.grievanceNumber||record.registrationNumber||"").trim();
+    const name=String(record.complainantName||"").trim();
+    const received=String(record.dateReceived||"").trim();
+    const subject=String(record.subject||"").trim();
+    if(!no || no.length>80) return false;
+    if(!received || !hasDateLike(received)) return false;
+    if(!name && !subject) return false;
+    if(/terms & conditions|privacy policy|copyright policy|website guidelines|contact us|cyfuture/i.test(no+" "+name+" "+subject)) return false;
+    return true;
+  }
+  if(kind==="question"){
+    const qno=String(record.questionSerialNo||"").trim();
+    return !!(qno && (record.question || record.questionReceivedDate));
+  }
+  if(kind==="rti"){
+    return !!(record.applicationNumber && record.applicationDate);
+  }
+  if(kind==="disha"){
+    return !!(record.dateOfMeeting && (record.subject || record.meetingNumber));
+  }
+  return false;
+}
+
+function filterValidImportedRecords(records,type){
+  const seen=new Set();
+  return (records||[]).filter(r=>isValidImportedRecord(r,type)).filter(r=>{
+    const key=recordKey(r,type);
+    if(!key) return false;
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function escapeRegExp(value){
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+}
+function looksLikeDelimitedTable(text,type){
+  const sample=String(text||"").split(/\r?\n/).slice(0,10).join("\n");
+  const headerWords=Object.values(HEADER_ALIASES).flat().map(escapeRegExp).join("|");
+  return (sample.includes("\t") || (sample.match(/,/g)||[]).length>=3) && new RegExp(headerWords,"i").test(sample);
+}
 function parseJsonPayload(text,type){
   const parsed=JSON.parse(text);
   const arr=Array.isArray(parsed)?parsed:(parsed.records||parsed.data||[]);
   if(!Array.isArray(arr))throw new Error("JSON must be an array or contain records/data array.");
-  return arr.map((r,i)=>normalizeImportedRecord(r,type,i+1)).filter(Boolean);
+  return filterValidImportedRecords(arr.map((r,i)=>normalizeImportedRecord(r,type,i+1)),type);
 }
 function recordsToRows(records,type){
   const fields=FIELD_SETS[typeKind(type)];
   return records.map(r=>fields.map(([field])=>r[field]??""));
 }
+function previewFieldsForType(type){
+  const kind=typeKind(type);
+  return FIELD_SETS[kind].map(([field,label])=>{
+    if(kind==="question" && field==="questionSerialNo") return [field, `${type} No.`];
+    return [field,label];
+  });
+}
 function renderPreview(){
-  const type=$("importType").value; const kind=typeKind(type); const fields=FIELD_SETS[kind];
+  const type=$("importType").value; const kind=typeKind(type); const fields=previewFieldsForType(type);
   $("previewHead").innerHTML="<tr>"+fields.map(([_,label])=>`<th>${esc(label)}</th>`).join("")+"</tr>";
   $("extractedCount").textContent=extractedRecords.length;
   $("btnImport").disabled=extractedRecords.length===0;
@@ -332,10 +410,10 @@ function renderPreview(){
   $("previewBody").innerHTML=extractedRecords.map(r=>"<tr>"+fields.map(([field])=>`<td class="preview-cell">${esc(r[field]||"")}</td>`).join("")+"</tr>").join("");
 }
 function updateFieldHint(){
-  const type=$("importType").value; const kind=typeKind(type); const fields=FIELD_SETS[kind];
+  const type=$("importType").value; const kind=typeKind(type); const fields=previewFieldsForType(type);
   let required=[];
-  if(kind==="grievance") required=["Registration / Grievance No.","Name","Org Received Date","Diary Date"];
-  else if(kind==="question") required=[`${type} No.`,"Question Type","Received Date","Concerned Section","Question"];
+  if(kind==="grievance") required=["Grievance Type","Registration / Grievance No.","Name / Complainant Name","Received Date","Diary Date"];
+  else if(kind==="question") required=[`${type} No.`,"Question Type","Received Date","Concerned Section","Question","Answer if available"];
   else if(kind==="rti") required=["Application No.","Application Date","Applicant Name"];
   else required=["Meeting Date","Subject"];
   $("fieldHint").innerHTML=`<div class="fw-bold mb-1">Required fields expected from uploaded document:</div>${required.map(x=>`<div><span class="required-dot"></span>${esc(x)}</div>`).join("")}<hr class="my-2"><div class="text-muted">Preview columns: ${fields.map(x=>esc(x[1])).join(", ")}</div>`;
@@ -491,6 +569,7 @@ async function extract(){
   try{
     let text=$("rawText").value.trim();
     let rows=[];
+    let allowDelimited=false;
     if(file){
       const name=file.name.toLowerCase();
       log(`Selected file: ${file.name}`);
@@ -503,6 +582,7 @@ async function extract(){
         text=await readFileAsText(file);
         if(shouldNormalizeText()) text=normaliseDocumentText(text);
         rows=parseDelimited(text);
+        allowDelimited=true;
       } else if(/\.pdf$/.test(name)) {
         text=await readPdf(file);
       } else if(/^image\//.test(file.type)||/\.(png|jpe?g|webp)$/.test(name)) {
@@ -516,11 +596,14 @@ async function extract(){
 
     if(text && /^[\s\r\n]*[\[{]/.test(text)) extractedRecords=parseJsonPayload(text,type);
     else{
-      if(!rows.length && text && (text.includes(",")||text.includes("\t"))) rows=parseDelimited(text);
-      if(rows.length>=2) extractedRecords=mapRowsByHeader(rows,type);
+      if(!rows.length && text && looksLikeDelimitedTable(text,type)) {
+        rows=parseDelimited(text);
+        allowDelimited=true;
+      }
+      if(rows.length>=2 && allowDelimited) extractedRecords=mapRowsByHeader(rows,type);
       if(!extractedRecords.length && text) extractedRecords=parseTextTable(text,type);
     }
-    extractedRecords=extractedRecords.map((r,i)=>normalizeImportedRecord(r,type,i+1)).filter(Boolean);
+    extractedRecords=filterValidImportedRecords(extractedRecords.map((r,i)=>normalizeImportedRecord(r,type,i+1)),type);
     renderPreview();
     if(extractedRecords.length){
       setStatus("success",`Extracted <strong>${extractedRecords.length}</strong> record(s). Review the preview, then click Import / Update.`);

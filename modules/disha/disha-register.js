@@ -1273,17 +1273,29 @@ function renderRegisterTable(
 
                     <button
                         type="button"
-                        class="btn btn-primary btn-sm"
-                        onclick="openDISHARecord('${safeJS(
+                        class="btn btn-info btn-sm me-1"
+                        onclick="viewDISHARecord('${safeJS(
                             meeting.id
                         )}')">
+                        <i class="bi bi-eye"></i> View
+                    </button>
 
-                        <i
-                            class="bi bi-folder2-open">
-                        </i>
+                    <button
+                        type="button"
+                        class="btn btn-warning btn-sm me-1"
+                        onclick="editDISHARecord('${safeJS(
+                            meeting.id
+                        )}')">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>
 
-                        Open
-
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm"
+                        onclick="deleteDISHARecordFromRegister('${safeJS(
+                            meeting.id
+                        )}')">
+                        <i class="bi bi-trash"></i> Delete
                     </button>
 
                 </td>
@@ -1531,8 +1543,38 @@ function openSummaryFilter(filter) {
    GLOBAL FUNCTIONS
    ============================================================ */
 
+
+
+function viewDISHARecord(id) {
+    openDISHARecord(id);
+}
+
+function editDISHARecord(id) {
+    openDISHARecord(id);
+}
+
+async function deleteDISHARecordFromRegister(id) {
+    if (!id) return;
+    if (!confirm("Delete this DISHA record from the register?")) return;
+    try {
+        const database = getFirestoreDB();
+        if (!database) throw new Error("Firebase Firestore is not available.");
+        const ts = firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();
+        await database.collection(DISHA_COLLECTION).doc(id).set({ active: false, deletedOn: ts, updatedAt: ts, updatedOn: ts }, { merge: true });
+        await loadDISHAmeetings();
+        applyURLFilter();
+    } catch (error) {
+        console.error("Unable to delete DISHA record:", error);
+        showError("Unable to delete DISHA record: " + (error.message || error));
+    }
+}
+
+
 window.openDISHARecord =
     openDISHARecord;
+window.viewDISHARecord = viewDISHARecord;
+window.editDISHARecord = editDISHARecord;
+window.deleteDISHARecordFromRegister = deleteDISHARecordFromRegister;
 
 window.newDISHAmeeting =
     newDISHAmeeting;

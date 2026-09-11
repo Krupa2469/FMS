@@ -483,7 +483,7 @@
     const record = allRecords.find(item => item.id === id);
     if (!record) return;
     sessionStorage.setItem("selectedGrievance", JSON.stringify(record));
-    location.href = `cpgrams.html?mode=${encodeURIComponent(mode)}&grievanceType=${encodeURIComponent(selectedType())}`;
+    location.href = `cpgrams.html?mode=${encodeURIComponent(mode)}&id=${encodeURIComponent(id)}&grievanceType=${encodeURIComponent(selectedType())}`;
   }
 
   async function deleteRecord(id) {
@@ -560,7 +560,8 @@
   }
 
   window.openCPGRAMSSummaryFilter = filter => { location.href = summaryUrl(filter); };
-  window.viewRecord = id => openRecord(id, "view");
+  // View opens the Data Entry form with existing values loaded and Update/Delete enabled.
+  window.viewRecord = id => openRecord(id, "edit");
   window.editRecord = id => openRecord(id, "edit");
   window.deleteRecordFromGrid = deleteRecord;
   window.searchRecords = applyFilters;

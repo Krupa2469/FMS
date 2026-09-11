@@ -880,13 +880,27 @@ function createRegisterRow(
             <button
                 type="button"
                 class="btn-open"
-                onclick="openRTIRecord('${escapeHTML(record.id)}')"
+                onclick="viewRTIRecord('${escapeHTML(record.id)}')"
             >
+                <i class="fa-solid fa-eye"></i> View
+            </button>
 
-                <i class="fa-solid fa-folder-open"></i>
+            <button
+                type="button"
+                class="btn-open"
+                style="background:#ffc107;color:#111;margin-left:4px;"
+                onclick="editRTIRecord('${escapeHTML(record.id)}')"
+            >
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
 
-                Open
-
+            <button
+                type="button"
+                class="btn-open"
+                style="background:#dc3545;color:white;margin-left:4px;"
+                onclick="deleteRTIRecordFromRegister('${escapeHTML(record.id)}')"
+            >
+                <i class="fa-solid fa-trash"></i> Delete
             </button>
 
         </td>
@@ -984,8 +998,39 @@ function openRTIRecord(
 }
 
 
+
+
+function viewRTIRecord(id) {
+    openRTIRecord(id);
+}
+
+function editRTIRecord(id) {
+    openRTIRecord(id);
+}
+
+async function deleteRTIRecordFromRegister(id) {
+    if (!id) return;
+    if (!confirm("Delete this RTI application from the register?")) return;
+    try {
+        const database = getRTIRegisterDB();
+        if (!database) throw new Error("Firebase Firestore is not available.");
+        const ts = firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();
+        await database.collection(RTI_COLLECTION).doc(id).set({ active: false, deletedOn: ts, updatedOn: ts }, { merge: true });
+        await loadRTIRecordsFromFirestore();
+        processURLFilter();
+    } catch (error) {
+        console.error("Unable to delete RTI application:", error);
+        showError("Unable to delete RTI application: " + (error.message || error));
+    }
+}
+
+
 window.openRTIRecord =
     openRTIRecord;
+
+window.viewRTIRecord = viewRTIRecord;
+window.editRTIRecord = editRTIRecord;
+window.deleteRTIRecordFromRegister = deleteRTIRecordFromRegister;
 
 
 /* ============================================================
@@ -1676,8 +1721,39 @@ window.performRTISearch =
 window.clearRTISearch =
     clearRTISearch;
 
+
+
+function viewRTIRecord(id) {
+    openRTIRecord(id);
+}
+
+function editRTIRecord(id) {
+    openRTIRecord(id);
+}
+
+async function deleteRTIRecordFromRegister(id) {
+    if (!id) return;
+    if (!confirm("Delete this RTI application from the register?")) return;
+    try {
+        const database = getRTIRegisterDB();
+        if (!database) throw new Error("Firebase Firestore is not available.");
+        const ts = firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();
+        await database.collection(RTI_COLLECTION).doc(id).set({ active: false, deletedOn: ts, updatedOn: ts }, { merge: true });
+        await loadRTIRecordsFromFirestore();
+        processURLFilter();
+    } catch (error) {
+        console.error("Unable to delete RTI application:", error);
+        showError("Unable to delete RTI application: " + (error.message || error));
+    }
+}
+
+
 window.openRTIRecord =
     openRTIRecord;
+
+window.viewRTIRecord = viewRTIRecord;
+window.editRTIRecord = editRTIRecord;
+window.deleteRTIRecordFromRegister = deleteRTIRecordFromRegister;
 
 
 /* ============================================================

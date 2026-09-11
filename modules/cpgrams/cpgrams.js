@@ -18,6 +18,13 @@ let currentGrievance = null;
 
 let editMode = false;
 let formDirty = false;
+let suppressUnsavedNavigationWarning = true;
+
+function stopFormButtonNavigation(event) {
+    if (event && typeof event.preventDefault === "function") event.preventDefault();
+    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+}
+
 
 /*==========================================================
  REPOSITORY SERVICES
@@ -185,20 +192,34 @@ console.log("Current Document ID:", currentGrievance.id);
 
 function registerButtonEvents() {
 
-    document.getElementById("btnNew")?.addEventListener("click", clearForm);
+    const bindToolbarButton = (id, handler) => {
+        const button = document.getElementById(id);
+        if (!button) return;
+        button.setAttribute("type", "button");
+        button.addEventListener("click", function (event) {
+            stopFormButtonNavigation(event);
+            handler(event);
+        });
+    };
 
-    document.getElementById("btnSave")?.addEventListener("click", saveGrievance);
+    bindToolbarButton("btnNew", clearForm);
+    bindToolbarButton("btnSave", saveGrievance);
+    bindToolbarButton("btnUpdate", updateGrievance);
+    bindToolbarButton("btnDelete", confirmDelete);
+    bindToolbarButton("btnRegister", openRegister);
+    bindToolbarButton("btnDashboard", openDashboard);
+    bindToolbarButton("btnPrint", printGrievance);
+    bindToolbarButton("btnHome", goHome);
 
-    document.getElementById("btnUpdate")?.addEventListener("click", updateGrievance);
+    const form = document.getElementById("cpgramsForm");
+    if (form && !form.dataset.submitGuardBound) {
+        form.dataset.submitGuardBound = "1";
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+        });
+    }
 
-    document.getElementById("btnDelete")?.addEventListener("click", confirmDelete);
-
-    document.getElementById("btnRegister")?.addEventListener("click", openRegister);
-
-    document.getElementById("btnDashboard")?.addEventListener("click", openDashboard);
-
-    document.getElementById("btnPrint")?.addEventListener("click", printGrievance);
-    document.getElementById("btnWhatsApp")?.addEventListener("click", async function () {
+    bindToolbarButton("btnWhatsApp", async function () {
         await window.FMSWhatsAppService?.compose({
             module:"GRIEVANCES",
             title:"Grievance Message",
@@ -211,8 +232,6 @@ Please type or edit your custom message.`,
             message:(m,t)=>showMessage(t||"info",m)
         });
     });
-
-    document.getElementById("btnHome")?.addEventListener("click", goHome);
 
 }
 
@@ -957,7 +976,9 @@ async function validateDuplicate() {
  SAVE
 ==========================================================*/
 
-async function saveGrievance() {
+async function saveGrievance(event) {
+
+    stopFormButtonNavigation(event);
 
     console.log("Save button clicked");
 
@@ -1035,7 +1056,9 @@ async function saveGrievance() {
  UPDATE
 ==========================================================*/
 
-async function updateGrievance() {
+async function updateGrievance(event) {
+
+    stopFormButtonNavigation(event);
 
 console.log("Before update currentDocumentId:", currentDocumentId);    
 
@@ -1208,10 +1231,10 @@ function confirmDelete() {
  NAVIGATION
 ==========================================================*/
 
-function openRegister() {
+function openRegister(event) {
 
-    if (checkUnsavedChanges())
-        return;
+    stopFormButtonNavigation(event);
+    formDirty = false;
 
     window.location.href =
         "cpgrams-register.html";
@@ -1222,7 +1245,9 @@ function openDashboard() {
     document.getElementById("moduleDashboardPanel")?.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
-function goHome() {
+function goHome(event) {
+    stopFormButtonNavigation(event);
+    formDirty = false;
     window.location.href = "../../index.html";
 }
 
@@ -1303,17 +1328,16 @@ function checkUnsavedChanges() {
 
 }
 
+/*
+ * The browser-native "Leave site?" prompt was disabled because it was
+ * interrupting Save/Update and dashboard/register navigation. The app still
+ * keeps formDirty for internal checks, but it no longer shows the confusing
+ * native browser popup while users are saving or updating records.
+ */
 window.addEventListener(
     "beforeunload",
-    function (event) {
-
-        if (!formDirty)
-            return;
-
-        event.preventDefault();
-
-        event.returnValue = "";
-
+    function () {
+        return;
     }
 );
 
