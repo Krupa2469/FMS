@@ -3,17 +3,18 @@
 (function(){
   const params=new URLSearchParams(location.search);
   const filter=params.get("filter");
-  if(!filter) return;
+  const full=params.get("fullscreen")==="1" || params.get("fullRegister")==="1";
+  if(!filter && !full) return;
 
   function hide(el){ if(el) el.classList.add("d-none"); }
   function activate(){
-    document.body.classList.add("fms-filtered-register-mode");
+    document.body.classList.add(filter?"fms-filtered-register-mode":"fms-full-register-mode");
     const path=location.pathname.toLowerCase();
     let dataBlock=null;
 
     if(path.includes("cpgrams-register")){
       // Dashboard-card drill-down: show only the filtered Grievances register.
-      document.querySelectorAll("header, nav, footer").forEach(hide);
+      document.querySelectorAll("header, nav, footer, .fms-module-nav, .fms-action-toolbar").forEach(hide);
       const table=document.getElementById("registerTable");
       dataBlock=table?.closest(".card") || table?.parentElement;
       document.querySelectorAll(".card").forEach(el=>{
@@ -24,7 +25,7 @@
       document.querySelectorAll(".container-fluid > .row.mt-3, .container-fluid > .row.mt-4, .container-fluid > .card.shadow-sm.mt-4").forEach(el=>{ if(!el.contains(table)) hide(el); });
     }
     else if(path.includes("rti-register")){
-      document.querySelectorAll("header, nav, footer, .main-header, .navigation-bar").forEach(hide);
+      document.querySelectorAll("header, nav, footer, .main-header, .navigation-bar, .fms-module-nav, .fms-action-toolbar").forEach(hide);
       dataBlock=document.querySelector(".register-container");
       hide(document.querySelector(".search-panel"));
       hide(document.querySelector(".summary-container"));
@@ -33,7 +34,7 @@
       });
     }
     else if(path.includes("disha-register")){
-      document.querySelectorAll("header, nav, footer, .page-header, .navigation-bar, .fms-action-toolbar").forEach(hide);
+      document.querySelectorAll("header, nav, footer, .page-header, .navigation-bar, .fms-action-toolbar, .fms-module-nav").forEach(hide);
       const tbody=document.getElementById("registerBody");
       dataBlock=tbody?.closest(".card") || tbody?.closest(".table-responsive")?.parentElement;
       document.querySelectorAll(".card").forEach(el=>{
@@ -59,12 +60,16 @@
     banner.className="alert alert-primary rounded-0 mb-2 d-flex justify-content-between align-items-center flex-wrap gap-2";
     banner.id="filteredRegisterBanner";
     const category=params.get("category") || params.get("grievanceType"), fy=params.get("fy");
-    const details=[String(filter).replace(/-/g," "), category?`Grievance Type: ${category}`:"", fy?`FY: ${fy}`:""].filter(Boolean).join(" • ");
-    banner.innerHTML=`<span><strong>Filtered Register:</strong> ${details}</span><button type="button" class="btn btn-sm btn-outline-primary" id="btnClearDashboardFilter">Show Full Register</button>`;
+    const details=[filter?String(filter).replace(/-/g," "):"Full Register", category?`Grievance Type: ${category}`:"", fy?`FY: ${fy}`:""].filter(Boolean).join(" • ");
+    const label=filter?"Filtered Register":"Full Register";
+    banner.classList.add("fms-register-fullscreen-banner");
+    banner.innerHTML=`<span><strong>${label}:</strong> ${details}</span><button type="button" class="btn btn-sm btn-outline-primary" id="btnClearDashboardFilter">Exit Full Screen</button>`;
     const anchor=dataBlock || document.body.firstElementChild;
     anchor?.parentNode?.insertBefore(banner,anchor);
     document.getElementById("btnClearDashboardFilter")?.addEventListener("click",()=>{
       params.delete("filter");
+      params.delete("fullscreen");
+      params.delete("fullRegister");
       location.href=location.pathname+(params.toString()?"?"+params.toString():"");
     });
   }

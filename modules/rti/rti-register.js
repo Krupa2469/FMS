@@ -298,8 +298,8 @@ function initializeRTIFinancialYearFilter(){
     const params=new URLSearchParams(location.search);
     const requestedFY=params.get("fy");
     const current=requestedFY || FMSFY.getCurrentFY();
-    el.innerHTML=options.map(f=>`<option value="${f}" ${f===current?"selected":""}>${f}</option>`).join("");
-    if(options.includes(current)) el.value=current;
+    el.innerHTML=`<option value="all">All Years</option>`+options.map(f=>`<option value="${f}" ${f===current?"selected":""}>${f}</option>`).join("");
+    if(current==="all") el.value="all"; else if(options.includes(current)) el.value=current;
     el.onchange=function(){
         const p=new URLSearchParams(location.search);
         p.set("fy",el.value);
@@ -311,6 +311,7 @@ function initializeRTIFinancialYearFilter(){
 function getSelectedRTIFYRecords(){
     const params=new URLSearchParams(location.search);
     const fy=params.get("fy") || document.getElementById("financialYear")?.value || window.FMSFY?.getCurrentFY?.() || "";
+    if(fy==="all") return rtiRecords.filter(r=>r.active!==false && r.deleted!==true);
     return window.FMSFY ? window.FMSFY.filterFY(rtiRecords,fy,RTI_FY_FIELDS) : getCurrentFYRecords();
 }
 function applyRTIFYFilter(){
@@ -326,6 +327,7 @@ function goHome(){ window.location.href="../../index.html"; }
 function openSummaryFilter(filterType){
     const params=new URLSearchParams();
     params.set("filter",filterType||"total");
+    params.set("fullscreen","1");
     const fy=document.getElementById("financialYear")?.value || new URLSearchParams(location.search).get("fy") || window.FMSFY?.getCurrentFY?.();
     if(fy) params.set("fy",fy);
     window.location.href="rti-register.html?"+params.toString();
@@ -955,7 +957,7 @@ function openRTIRecord(
 
 
     window.location.href =
-        "rti.html?id=" +
+        "rti.html?mode=edit&fullscreenForm=1&id=" +
         encodeURIComponent(
             id
         );

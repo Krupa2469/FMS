@@ -162,3 +162,100 @@ UTILITY CLASSES
 /*==========================================================
 END OF FILE
 ==========================================================*/
+
+/*==========================================================
+FMS v1.3.6 - FROZEN BUTTONS, STICKY REGISTER HEADERS,
+FULL-SCREEN REGISTER AND DATA-ENTRY MODES
+==========================================================*/
+.fms-action-toolbar,
+.navigation-bar,
+.fms-sticky-toolbar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1060 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,.10);
+}
+
+.fms-module-nav {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1055 !important;
+}
+
+.table-responsive {
+    position: relative;
+}
+
+.table-responsive table thead th,
+table.table thead th,
+table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+    background: #212529 !important;
+    color: #fff !important;
+    vertical-align: middle;
+}
+
+.fms-filtered-register-mode,
+.fms-full-register-mode,
+.fms-data-entry-fullscreen {
+    background: #f4f6f9 !important;
+}
+
+.fms-filtered-register-mode .fms-filtered-data-block,
+.fms-full-register-mode .fms-filtered-data-block,
+.fms-data-entry-fullscreen .form-container,
+.fms-data-entry-fullscreen .container-fluid.mt-4,
+.fms-data-entry-fullscreen main,
+.fms-data-entry-fullscreen form {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+.fms-data-entry-fullscreen header,
+.fms-data-entry-fullscreen footer,
+.fms-data-entry-fullscreen .fms-module-nav,
+.fms-data-entry-fullscreen #grievanceContextPanel,
+.fms-data-entry-fullscreen #moduleDashboardPanel,
+.fms-data-entry-fullscreen #grievanceInlineRegisterPanel,
+.fms-data-entry-fullscreen #grievanceFYPanel,
+.fms-data-entry-fullscreen #grievanceTypeSelectorCard,
+.fms-data-entry-fullscreen .page-footer {
+    display: none !important;
+}
+
+.fms-data-entry-fullscreen #cpgramsForm,
+.fms-data-entry-fullscreen .form-container,
+.fms-data-entry-fullscreen .container-fluid.mt-4.mb-5 {
+    display: block !important;
+    margin: 8px 0 24px 0 !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+.fms-data-entry-fullscreen .fms-action-toolbar,
+.fms-data-entry-fullscreen .navigation-bar {
+    display: block !important;
+}
+
+.fms-data-entry-fullscreen #btnHome {
+    display: inline-flex !important;
+}
+
+.fms-register-fullscreen-banner,
+#filteredRegisterBanner {
+    position: sticky;
+    top: 0;
+    z-index: 1070;
+}
+
+@media print {
+    .fms-action-toolbar,
+    .navigation-bar,
+    .fms-module-nav,
+    .fms-register-fullscreen-banner,
+    #filteredRegisterBanner {
+        display: none !important;
+    }
+}

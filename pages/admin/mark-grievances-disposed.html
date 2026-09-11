@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mark Existing Grievances Disposed - FMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="../../css/style.css" rel="stylesheet">
+</head><body class="bg-light">
+<header class="bg-primary text-white text-center p-3"><h5>GOVERNMENT OF TELANGANA</h5><h6>OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT</h6><h3 class="mb-0">MARK EXISTING GRIEVANCES DISPOSED</h3></header>
+<nav class="navbar bg-light border-bottom fms-action-toolbar"><div class="container-fluid d-flex gap-2 flex-wrap"><a class="btn btn-dark" href="../../index.html"><i class="bi bi-house"></i> Home</a><a class="btn btn-secondary" href="../utilities.html"><i class="bi bi-tools"></i> Utilities</a><button id="btnRefresh" class="btn btn-primary"><i class="bi bi-arrow-clockwise"></i> Refresh Count</button></div></nav>
+<main class="container py-4"><div class="card shadow"><div class="card-header bg-warning"><h4 class="mb-0">One-time status update</h4></div><div class="card-body">
+<div class="alert alert-info">This utility updates active records in the <strong>cpgrams</strong> collection only. It sets the status fields to <strong>Disposed</strong> and the workflow stage to <strong>Disposed / Closed</strong>. RTI, DISHA, Master Tables and Reports Master are not changed.</div>
+<div id="status" class="alert alert-secondary">Waiting for Firebase...</div><div id="counts"></div>
+<label class="form-label fw-bold mt-3">Type <code>MARK ALL GRIEVANCES DISPOSED</code> to enable the update</label>
+<input id="confirmText" class="form-control mb-3" autocomplete="off" placeholder="MARK ALL GRIEVANCES DISPOSED">
+<button id="btnMark" class="btn btn-danger" disabled><i class="bi bi-check2-circle"></i> Mark All Existing Grievances as Disposed</button>
+</div></div></main>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script><script src="../../js/firebase/firebase-bootstrap.js"></script>
+<script>
+"use strict";
+const statusEl=document.getElementById("status"), countsEl=document.getElementById("counts"), input=document.getElementById("confirmText"), btn=document.getElementById("btnMark");
+function db(){return window.db||window.fmsFirebase?.db||(window.firebase?.apps?.length&&firebase.firestore?firebase.firestore():null);} 
+function ts(){return firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();}
+async function count(){const d=db();if(!d){statusEl.className="alert alert-warning";statusEl.textContent="Waiting for Firebase...";return;}const snap=await d.collection("cpgrams").get();let active=0,disposed=0,pending=0; snap.forEach(doc=>{const r=doc.data()||{};if(r.active===false||r.deleted===true)return;active++;const s=String(r.finalStatus||r.currentStatus||r.workflowStage||r.status||"").toLowerCase();if(/disposed|closed/.test(s))disposed++;else pending++;});countsEl.innerHTML=`<table class="table table-bordered bg-white"><thead><tr><th>Active Grievance Records</th><th>Already Disposed / Closed</th><th>Will be changed to Disposed</th></tr></thead><tbody><tr><td>${active}</td><td>${disposed}</td><td>${pending}</td></tr></tbody></table>`;statusEl.className="alert alert-info";statusEl.textContent="Review the counts. This action is reversible only by editing records again.";}
+async function markDisposed(){if(input.value.trim()!=="MARK ALL GRIEVANCES DISPOSED")return;if(!confirm("Mark all active grievance records as Disposed?"))return;btn.disabled=true;input.disabled=true;const d=db();try{let changed=0;let snap=await d.collection("cpgrams").get();let batch=d.batch(),batchCount=0;for(const doc of snap.docs){const r=doc.data()||{};if(r.active===false||r.deleted===true)continue;batch.set(doc.ref,{currentStatus:"Disposed",finalStatus:"Disposed",status:"Disposed",statusOfFile:"Closed",workflowStage:"Disposed / Closed",presentWorkflowStage:"Disposed / Closed",finalReplySentToComplainant:"Yes",uploadedInCPGRAMSPortal:"Yes",replySentToGovernment:"Yes",disposedDate:new Date().toISOString().slice(0,10),updatedOn:ts()}, {merge:true});changed++;batchCount++;if(batchCount>=400){statusEl.className="alert alert-warning";statusEl.textContent=`Updating records... ${changed} processed`;await batch.commit();batch=d.batch();batchCount=0;}}if(batchCount)await batch.commit();statusEl.className="alert alert-success";statusEl.textContent=`Completed. ${changed} grievance record(s) marked as Disposed.`;await count();}catch(e){console.error(e);statusEl.className="alert alert-danger";statusEl.textContent="Update failed: "+(e.message||e);input.disabled=false;btn.disabled=false;}}
+input.addEventListener("input",()=>btn.disabled=input.value.trim()!=="MARK ALL GRIEVANCES DISPOSED");btn.addEventListener("click",markDisposed);document.getElementById("btnRefresh").addEventListener("click",count);window.addEventListener("fmsFirebaseReady",count,{once:true});document.addEventListener("DOMContentLoaded",()=>setTimeout(count,700));
+</script></body></html>

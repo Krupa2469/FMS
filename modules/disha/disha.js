@@ -182,7 +182,7 @@ function registerEvents() {
 function goToRegister() {
 
     window.location.href =
-        "disha-register.html";
+        "disha-register.html?fullscreen=1";
 
 }
 

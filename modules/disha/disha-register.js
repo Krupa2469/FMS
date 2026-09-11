@@ -328,11 +328,14 @@ function initializeDISHAFinancialYearFilter(){
  const options=FMSFY.getFYOptions(dishaMeetings,DISHA_FY_FIELDS);
  const requestedFY=new URLSearchParams(location.search).get("fy");
  const current=requestedFY||FMSFY.getCurrentFY();
- el.innerHTML=options.map(f=>`<option value="${f}" ${f===current?"selected":""}>${f}</option>`).join("");
+ el.innerHTML=`<option value="all">All Years</option>`+options.map(f=>`<option value="${f}" ${f===current?"selected":""}>${f}</option>`).join("");
+ if(current==="all") el.value="all";
  el.onchange=applyDISHAFinancialYear;
 }
 function getSelectedDISHAFYRecords(){
- const fy=document.getElementById("financialYear")?.value || FMSFY?.getCurrentFY();
+ const params=new URLSearchParams(location.search);
+ const fy=params.get("fy") || document.getElementById("financialYear")?.value || FMSFY?.getCurrentFY();
+ if(fy==="all") return dishaMeetings.filter(r=>r.active!==false && r.deleted!==true);
  return FMSFY ? FMSFY.filterFY(dishaMeetings,fy,DISHA_FY_FIELDS) : dishaMeetings.filter(isCurrentFinancialYear);
 }
 function applyDISHAFinancialYear(){
@@ -1051,7 +1054,7 @@ function openDISHARecord(
 
 
     window.location.href =
-        "disha.html?id=" +
+        "disha.html?mode=edit&fullscreenForm=1&id=" +
         encodeURIComponent(
             id
         );
@@ -1252,7 +1255,7 @@ function openSummaryFilter(filter) {
     );
 
     window.location.href =
-        "disha-register.html?filter=" +
+        "disha-register.html?fullscreen=1&filter=" +
         encodeURIComponent(filter);
 }
 

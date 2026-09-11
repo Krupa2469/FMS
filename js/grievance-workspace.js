@@ -41,7 +41,7 @@
   function isDueToday(r){return P()?.dueToday?.("cpgrams",r)||false;}
   function withinDue(r){return P()?.withinDue?.("cpgrams",r)||(!isClosed(r)&&!isOverdue(r)&&!isDueToday(r));}
   function fullRegisterUrl(filter="total"){
-    const p=new URLSearchParams();p.set("filter",filter);p.set("grievanceType",currentType());p.set("fy",currentFY());
+    const p=new URLSearchParams();p.set("filter",filter);p.set("fullscreen","1");p.set("grievanceType",currentType());p.set("fy",currentFY());
     return `cpgrams-register.html?${p}`;
   }
   function card(label,value,filter,icon,theme){
@@ -145,7 +145,7 @@
     body.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.edit,"edit")));
     body.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>deleteRecord(b.dataset.delete)));
   }
-  function openRecord(id,mode){const r=allRows.find(x=>x.id===id);if(!r)return;sessionStorage.setItem("selectedGrievance",JSON.stringify(r));location.href=`cpgrams.html?mode=${encodeURIComponent(mode)}&id=${encodeURIComponent(id)}&grievanceType=${encodeURIComponent(currentType())}`;}
+  function openRecord(id,mode){const r=allRows.find(x=>x.id===id);if(!r)return;sessionStorage.setItem("selectedGrievance",JSON.stringify(r));location.href=`cpgrams.html?mode=${encodeURIComponent(mode)}&fullscreenForm=1&id=${encodeURIComponent(id)}&grievanceType=${encodeURIComponent(currentType())}`;}
   async function deleteRecord(id){if(!confirm("Delete this record?"))return;try{const db=getDb();await db.collection(COLLECTION).doc(id).update({active:false,deletedOn:firebase.firestore.FieldValue.serverTimestamp(),updatedOn:firebase.firestore.FieldValue.serverTimestamp()});await refresh();}catch(e){alert("Unable to delete record: "+(e.message||e));}}
   function getDb(){if(window.db)return window.db;if(window.fmsFirebase?.db)return window.fmsFirebase.db;try{if(typeof firebase!=="undefined"&&firebase.firestore)return firebase.firestore();}catch(_e){}return null;}
   function showContext(hasType){["grievanceFYPanel","moduleDashboardPanel","grievanceInlineRegisterPanel","cpgramsForm"].forEach(id=>$(id)?.classList.toggle("d-none",!hasType));const dataTitle=[...document.querySelectorAll("h4")].find(h=>h.textContent.includes("GRIEVANCES DATA ENTRY"));if(dataTitle)dataTitle.classList.toggle("d-none",!hasType);}

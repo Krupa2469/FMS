@@ -1,107 +1,107 @@
-﻿sourceSerialNo,grievanceType,grievanceNumber,complainantName,dateReceived,diaryDate
-1,CPGRAMS,DORLD/E/2014/00748,Syed shah Ali Hussaini,23/09/2014,21/09/2014
-2,CPGRAMS,DORLD/E/2014/00952,Syed Shah Ali Hussaini,03/12/2014,02/12/2014
-3,CPGRAMS,NREGA/P/2014/00033,Dr. Asit Kumar Singh,17/12/2014,15/12/2014
-4,CPGRAMS,DORLD/E/2015/00713,V RAGHAVENDAR,18/08/2015,16/08/2015
-5,CPGRAMS,DORLD/E/2016/00703,shekar reddy,12/07/2016,09/07/2016
-6,CPGRAMS,DORLD/E/2016/00725,YENUGU SANJEEV REDDY,14/07/2016,13/07/2016
-7,CPGRAMS,RE7PG/P/2017/00006,Shri Pusuluri Narayan Swami,16/02/2017,16/02/2017
-8,CPGRAMS,RE7PG/P/2017/00012,Shri L Ramana,23/03/2017,23/03/2017
-9,CPGRAMS,DORLD/E/2017/01760,CH V RK PRASAD,09/08/2017,29/07/2017
-10,CPGRAMS,DORLD/E/2019/00721,KRISHNARAJ,28/05/2019,01/04/2019
-11,CPGRAMS,MOPRJ/E/2019/01048,Thirupathi Birudu,19/08/2019,10/08/2019
-12,CPGRAMS,DORLD/E/2020/01685,Egade rekha,08/07/2020,30/06/2020
-13,CPGRAMS,DORLD/E/2020/01752,GOGU RAJAMALLU,07/07/2020,06/07/2020
-14,CPGRAMS,DORLD/E/2020/01791,GOGU MAHESH,13/07/2020,10/07/2020
-15,CPGRAMS,DORLD/E/2020/02208,Kumara swamy Yadandla,31/08/2020,24/08/2020
-16,CPGRAMS,MOPRJ/E/2020/01421,Machha Ramu,16/10/2020,09/10/2020
-17,CPGRAMS,DORLD/E/2020/03052,Machha Ramu and Shapur Villagers,09/12/2020,08/12/2020
-18,CPGRAMS,MOPRJ/E/2020/01846,Machha Ramu,01/01/2021,29/12/2020
-19,CPGRAMS,MOPRJ/E/2021/00122,vangaveeti Srinivasarao BJP,21/01/2021,17/01/2021
-20,CPGRAMS,DORLD/E/2021/00256,MD Rafi,25/01/2021,21/01/2021
-21,CPGRAMS,DORLD/E/2021/00734,RAVURU SAI PRAVEEN,18/03/2021,06/03/2021
-22,CPGRAMS,DORLD/E/2021/00838,MD Rafi,22/03/2021,19/03/2021
-23,CPGRAMS,DORLD/E/2021/00874,MAMATHA,25/03/2021,23/03/2021
-24,CPGRAMS,DORLD/E/2021/00973,Sugunamma sattrui,09/04/2021,08/04/2021
-25,CPGRAMS,DORLD/P/2021/00024,MANDAGONDI SATYANARAYANA,05/05/2021,05/05/2021
-26,CPGRAMS,DORLD/E/2021/01304,MANDAGONDI SATYANARAYANA,27/05/2021,26/05/2021
-27,CPGRAMS,DORLD/E/2021/01306,MANDAGONDI SATYANARAYANA,27/05/2021,26/05/2021
-28,CPGRAMS,DORLD/P/2021/00039,M. Satyanarayana,31/05/2021,28/05/2021
-29,CPGRAMS,DORLD/P/2021/00040,M. Satyanarayana,31/05/2021,28/05/2021
-30,CPGRAMS,DORLD/P/2021/00043,Mandagondi satyanarayana,31/05/2021,28/05/2021
-31,CPGRAMS,DORLD/E/2021/03190,Rafi,27/09/2021,23/09/2021
-32,CPGRAMS,MOPRJ/E/2021/02665,Surender Bandela,26/10/2021,23/10/2021
-33,CPGRAMS,DORLD/E/2022/00157,Krishna s,13/01/2022,09/01/2022
-34,CPGRAMS,DORLD/E/2022/01154,SAMA THIRUPATHI,28/03/2022,26/03/2022
-35,CPGRAMS,DORLD/E/2022/01553,Shinde chandrakala,06/06/2022,30/04/2022
-36,CPGRAMS,DORLD/E/2022/01705,Surender Bandela,30/05/2022,12/05/2022
-37,CPGRAMS,DORLD/E/2022/02176,Surender Bandela,19/06/2022,12/06/2022
-38,CPGRAMS,MOPRJ/E/2022/01727,Chintalvad Madhav,21/07/2022,05/07/2022
-39,CPGRAMS,DORLD/E/2022/02709,Chintalvad Madhav,11/07/2022,08/07/2022
-40,CPGRAMS,DORLD/E/2022/04152,Surender Bandela,23/08/2022,19/08/2022
-41,CPGRAMS,DORLD/E/2022/04652,Surender Bandela,12/09/2022,05/09/2022
-42,CPGRAMS,DORLD/E/2022/06354,chearala jalandhar,04/11/2022,28/10/2022
-43,CPGRAMS,DORLD/E/2022/06739,Surender Bandela,16/11/2022,16/11/2022
-44,CPGRAMS,DORLD/E/2022/06765,Surender Bandela,01/12/2022,17/11/2022
-45,CPGRAMS,DORLD/E/2022/07715,Surender Bandela,25/12/2022,23/12/2022
-46,CPGRAMS,DORLD/E/2023/0000966,Surender Bandela,03/02/2023,01/02/2023
-47,CPGRAMS,DORLD/E/2023/0000969,Surender Bandela,03/02/2023,01/02/2023
-48,CPGRAMS,MOPRJ/E/2023/0001267,Machha Ramum Goud,23/02/2023,20/02/2023
-49,CPGRAMS,DORLD/E/2023/0001503,Surender Bandela,27/02/2023,21/02/2023
-50,CPGRAMS,DORLD/E/2023/0002128,srinivasgandla,10/03/2023,09/03/2023
-51,CPGRAMS,DORLD/E/2023/0004394,ch Ravi,19/06/2023,15/06/2023
-52,CPGRAMS,DORLD/E/2023/0004762,srinivasgandla,03/07/2023,01/07/2023
-53,CPGRAMS,DORLD/E/2023/0005516,SAMA THIRUPATHI,03/08/2023,31/07/2023
-54,CPGRAMS,DORLD/E/2023/0005564,E SATYANARAYANA REDDY,04/08/2023,03/08/2023
-55,CPGRAMS,DORLD/E/2023/0006164,vangaveeti Srinivasarao BJP,05/09/2023,31/08/2023
-56,CPGRAMS,MOPRJ/E/2023/0004904,srinivasgandla,18/10/2023,07/09/2023
-57,CPGRAMS,DORLD/E/2023/0006525,AKULA ANILKUM,18/09/2023,16/09/2023
-58,CPGRAMS,MOPRJ/E/2023/0006242,Lasmaiah,05/12/2023,14/11/2023
-59,CPGRAMS,MOPRJ/E/2023/0006372,Pera thirupathi,01/12/2023,23/11/2023
-60,CPGRAMS,DORLD/E/2024/0000400,Nani,23/01/2024,16/01/2024
-61,CPGRAMS,DORLD/E/2024/0000743,Ragula malla reddi,05/02/2024,30/01/2024
-62,CPGRAMS,DORLD/E/2024/0001498,Thota Bhaskar,19/02/2024,14/02/2024
-63,CPGRAMS,DORLD/E/2024/0272123,RAVURU SAI PRAVEEN,01/04/2024,20/03/2024
-64,CPGRAMS,DORLD/E/2024/0408651,Dharma,06/05/2024,06/05/2024
-65,CPGRAMS,DORLD/E/2024/0440269,Harikrushnareddy Vangala,03/07/2024,27/06/2024
-66,CPGRAMS,DORLD/E/2024/0476363,dumpala raju,08/07/2024,08/07/2024
-67,CPGRAMS,DORLD/E/2024/0686907,Pera thirupathi,04/09/2024,04/09/2024
-68,CPGRAMS,DORLD/E/2024/0692020,M.Raghumareddy,20/11/2024,08/11/2024
-69,CPGRAMS,DORLD/E/2025/0002011,Thondala Sunitha,11/02/2025,10/02/2025
-70,CPGRAMS,MOLBR/E/2025/0022521,Bukya Vakeel,06/03/2025,13/02/2025
-71,CPGRAMS,DORLD/E/2025/0003044,vangaveeti Srinivasarao BJP,18/03/2025,15/03/2025
-72,CPGRAMS,DORLD/E/2025/0004615,Dharma,22/04/2025,17/04/2025
-73,CPGRAMS,DORLD/E/2025/0005036,Narsaiah Thogiti,30/04/2025,29/04/2025
-74,CPGRAMS,DORLD/E/2025/0005500,Maddigunta Narasimha Rao,20/05/2025,20/05/2025
-75,CPGRAMS,DORLD/E/2025/0010235,Srinivasarao,25/09/2025,19/09/2025
-76,CPGRAMS,DORLD/E/2025/0010939,DHARAVATH SUNIL,10/10/2025,08/10/2025
-77,CPGRAMS,DORLD/E/2025/0011586,Srinivasarao,29/10/2025,28/10/2025
-78,CPGRAMS,DORLD/E/2025/0012533,DHARAVATH SUNIL,01/12/2025,25/11/2025
-79,CPGRAMS,DORLD/E/2026/0000534,KONDAVEETI CIRIL,12/01/2026,11/01/2026
-80,CPGRAMS,DORLD/E/2026/0000868,Banoth Padma,20/01/2026,20/01/2026
-81,CPGRAMS,DORLD/E/2026/0000998,KONDAVEETI CIRIL,27/01/2026,24/01/2026
-82,CPGRAMS,DORLD/E/2026/0001022,Dubbari naagaraaju,27/01/2026,24/01/2026
-83,CPGRAMS,DORLD/E/2026/0001587,Dubbari naagaraaju,06/02/2026,06/02/2026
-84,CPGRAMS,DORLD/E/2026/0001914,kondaveeti swarnamary,16/02/2026,15/02/2026
-85,CPGRAMS,DORLD/E/2026/0001989,KONDAVEETI CIRIL,18/02/2026,17/02/2026
-86,CPGRAMS,DORLD/E/2026/0002157,KONDAVEETI CIRIL,24/02/2026,21/02/2026
-87,CPGRAMS,DORLD/E/2026/0002193,Dubbari naagaraaju,24/02/2026,21/02/2026
-88,CPGRAMS,DORLD/E/2026/0002426,Ramana,02/03/2026,26/02/2026
-89,CPGRAMS,DORLD/E/2026/0003104,Santhosh Nayakudu,11/03/2026,10/03/2026
-90,CPGRAMS,DORLD/E/2026/0004353,siddu,23/03/2026,22/03/2026
-91,CPGRAMS,DORLD/E/2026/0004566,Santhosh Nayakudu,25/03/2026,24/03/2026
-92,CPGRAMS,DORLD/E/2026/0005025,Santhosh Nayakudu,01/04/2026,31/03/2026
-93,CPGRAMS,DORLD/E/2026/0006282,B naveen,18/04/2026,18/04/2026
-94,CPGRAMS,DORLD/E/2026/0006519,Banothu Vamshi Nayak,22/04/2026,22/04/2026
-95,CPGRAMS,DORLD/E/2026/0006852,Kova Vijay Kumar,01/05/2026,29/04/2026
-96,CPGRAMS,DORLD/E/2026/0007068,Kethavath jayaraju,04/05/2026,03/05/2026
-97,CPGRAMS,DORLD/E/2026/0007085,Gopal Reddy,04/05/2026,03/05/2026
-98,CPGRAMS,DORLD/E/2026/0008445,ANNEPU RAJAIAH,01/06/2026,30/05/2026
-99,CPGRAMS,DORLD/E/2026/0009197,Saikumar,15/06/2026,14/06/2026
-100,CPGRAMS,DORLD/E/2026/0009332,THIRUMALESH,19/06/2026,17/06/2026
-101,CPGRAMS,DORLD/E/2026/0009615,Venugopal potharaju,23/06/2026,22/06/2026
-102,CPGRAMS,DORLD/E/2026/0009640,Gopal Reddy,23/06/2026,23/06/2026
-103,CPGRAMS,MOPRJ/E/2026/0011385,KADAVATH NITHISH,04/08/2026,27/07/2026
-104,CPGRAMS,DORLD/E/2026/0014270,KADAVATH NITHISH,27/07/2026,27/07/2026
-105,CPGRAMS,DORLD/E/2026/0040941,JOGU NAGARAJU,21/08/2026,21/08/2026
-106,CPGRAMS,DORLD/E/2026/0048368,Abhi,28/08/2026,28/08/2026
+﻿sourceSerialNo,grievanceType,grievanceNumber,complainantName,dateReceived,diaryDate,currentStatus,finalStatus,status,statusOfFile,workflowStage,presentWorkflowStage,finalReplySentToComplainant,uploadedInCPGRAMSPortal
+1,CPGRAMS,DORLD/E/2014/00748,Syed shah Ali Hussaini,23/09/2014,21/09/2014,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+2,CPGRAMS,DORLD/E/2014/00952,Syed Shah Ali Hussaini,03/12/2014,02/12/2014,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+3,CPGRAMS,NREGA/P/2014/00033,Dr. Asit Kumar Singh,17/12/2014,15/12/2014,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+4,CPGRAMS,DORLD/E/2015/00713,V RAGHAVENDAR,18/08/2015,16/08/2015,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+5,CPGRAMS,DORLD/E/2016/00703,shekar reddy,12/07/2016,09/07/2016,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+6,CPGRAMS,DORLD/E/2016/00725,YENUGU SANJEEV REDDY,14/07/2016,13/07/2016,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+7,CPGRAMS,RE7PG/P/2017/00006,Shri Pusuluri Narayan Swami,16/02/2017,16/02/2017,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+8,CPGRAMS,RE7PG/P/2017/00012,Shri L Ramana,23/03/2017,23/03/2017,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+9,CPGRAMS,DORLD/E/2017/01760,CH V RK PRASAD,09/08/2017,29/07/2017,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+10,CPGRAMS,DORLD/E/2019/00721,KRISHNARAJ,28/05/2019,01/04/2019,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+11,CPGRAMS,MOPRJ/E/2019/01048,Thirupathi Birudu,19/08/2019,10/08/2019,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+12,CPGRAMS,DORLD/E/2020/01685,Egade rekha,08/07/2020,30/06/2020,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+13,CPGRAMS,DORLD/E/2020/01752,GOGU RAJAMALLU,07/07/2020,06/07/2020,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+14,CPGRAMS,DORLD/E/2020/01791,GOGU MAHESH,13/07/2020,10/07/2020,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+15,CPGRAMS,DORLD/E/2020/02208,Kumara swamy Yadandla,31/08/2020,24/08/2020,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+16,CPGRAMS,MOPRJ/E/2020/01421,Machha Ramu,16/10/2020,09/10/2020,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+17,CPGRAMS,DORLD/E/2020/03052,Machha Ramu and Shapur Villagers,09/12/2020,08/12/2020,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+18,CPGRAMS,MOPRJ/E/2020/01846,Machha Ramu,01/01/2021,29/12/2020,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+19,CPGRAMS,MOPRJ/E/2021/00122,vangaveeti Srinivasarao BJP,21/01/2021,17/01/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+20,CPGRAMS,DORLD/E/2021/00256,MD Rafi,25/01/2021,21/01/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+21,CPGRAMS,DORLD/E/2021/00734,RAVURU SAI PRAVEEN,18/03/2021,06/03/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+22,CPGRAMS,DORLD/E/2021/00838,MD Rafi,22/03/2021,19/03/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+23,CPGRAMS,DORLD/E/2021/00874,MAMATHA,25/03/2021,23/03/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+24,CPGRAMS,DORLD/E/2021/00973,Sugunamma sattrui,09/04/2021,08/04/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+25,CPGRAMS,DORLD/P/2021/00024,MANDAGONDI SATYANARAYANA,05/05/2021,05/05/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+26,CPGRAMS,DORLD/E/2021/01304,MANDAGONDI SATYANARAYANA,27/05/2021,26/05/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+27,CPGRAMS,DORLD/E/2021/01306,MANDAGONDI SATYANARAYANA,27/05/2021,26/05/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+28,CPGRAMS,DORLD/P/2021/00039,M. Satyanarayana,31/05/2021,28/05/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+29,CPGRAMS,DORLD/P/2021/00040,M. Satyanarayana,31/05/2021,28/05/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+30,CPGRAMS,DORLD/P/2021/00043,Mandagondi satyanarayana,31/05/2021,28/05/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+31,CPGRAMS,DORLD/E/2021/03190,Rafi,27/09/2021,23/09/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+32,CPGRAMS,MOPRJ/E/2021/02665,Surender Bandela,26/10/2021,23/10/2021,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+33,CPGRAMS,DORLD/E/2022/00157,Krishna s,13/01/2022,09/01/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+34,CPGRAMS,DORLD/E/2022/01154,SAMA THIRUPATHI,28/03/2022,26/03/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+35,CPGRAMS,DORLD/E/2022/01553,Shinde chandrakala,06/06/2022,30/04/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+36,CPGRAMS,DORLD/E/2022/01705,Surender Bandela,30/05/2022,12/05/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+37,CPGRAMS,DORLD/E/2022/02176,Surender Bandela,19/06/2022,12/06/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+38,CPGRAMS,MOPRJ/E/2022/01727,Chintalvad Madhav,21/07/2022,05/07/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+39,CPGRAMS,DORLD/E/2022/02709,Chintalvad Madhav,11/07/2022,08/07/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+40,CPGRAMS,DORLD/E/2022/04152,Surender Bandela,23/08/2022,19/08/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+41,CPGRAMS,DORLD/E/2022/04652,Surender Bandela,12/09/2022,05/09/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+42,CPGRAMS,DORLD/E/2022/06354,chearala jalandhar,04/11/2022,28/10/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+43,CPGRAMS,DORLD/E/2022/06739,Surender Bandela,16/11/2022,16/11/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+44,CPGRAMS,DORLD/E/2022/06765,Surender Bandela,01/12/2022,17/11/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+45,CPGRAMS,DORLD/E/2022/07715,Surender Bandela,25/12/2022,23/12/2022,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+46,CPGRAMS,DORLD/E/2023/0000966,Surender Bandela,03/02/2023,01/02/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+47,CPGRAMS,DORLD/E/2023/0000969,Surender Bandela,03/02/2023,01/02/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+48,CPGRAMS,MOPRJ/E/2023/0001267,Machha Ramum Goud,23/02/2023,20/02/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+49,CPGRAMS,DORLD/E/2023/0001503,Surender Bandela,27/02/2023,21/02/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+50,CPGRAMS,DORLD/E/2023/0002128,srinivasgandla,10/03/2023,09/03/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+51,CPGRAMS,DORLD/E/2023/0004394,ch Ravi,19/06/2023,15/06/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+52,CPGRAMS,DORLD/E/2023/0004762,srinivasgandla,03/07/2023,01/07/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+53,CPGRAMS,DORLD/E/2023/0005516,SAMA THIRUPATHI,03/08/2023,31/07/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+54,CPGRAMS,DORLD/E/2023/0005564,E SATYANARAYANA REDDY,04/08/2023,03/08/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+55,CPGRAMS,DORLD/E/2023/0006164,vangaveeti Srinivasarao BJP,05/09/2023,31/08/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+56,CPGRAMS,MOPRJ/E/2023/0004904,srinivasgandla,18/10/2023,07/09/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+57,CPGRAMS,DORLD/E/2023/0006525,AKULA ANILKUM,18/09/2023,16/09/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+58,CPGRAMS,MOPRJ/E/2023/0006242,Lasmaiah,05/12/2023,14/11/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+59,CPGRAMS,MOPRJ/E/2023/0006372,Pera thirupathi,01/12/2023,23/11/2023,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+60,CPGRAMS,DORLD/E/2024/0000400,Nani,23/01/2024,16/01/2024,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+61,CPGRAMS,DORLD/E/2024/0000743,Ragula malla reddi,05/02/2024,30/01/2024,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+62,CPGRAMS,DORLD/E/2024/0001498,Thota Bhaskar,19/02/2024,14/02/2024,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+63,CPGRAMS,DORLD/E/2024/0272123,RAVURU SAI PRAVEEN,01/04/2024,20/03/2024,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+64,CPGRAMS,DORLD/E/2024/0408651,Dharma,06/05/2024,06/05/2024,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+65,CPGRAMS,DORLD/E/2024/0440269,Harikrushnareddy Vangala,03/07/2024,27/06/2024,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+66,CPGRAMS,DORLD/E/2024/0476363,dumpala raju,08/07/2024,08/07/2024,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+67,CPGRAMS,DORLD/E/2024/0686907,Pera thirupathi,04/09/2024,04/09/2024,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+68,CPGRAMS,DORLD/E/2024/0692020,M.Raghumareddy,20/11/2024,08/11/2024,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+69,CPGRAMS,DORLD/E/2025/0002011,Thondala Sunitha,11/02/2025,10/02/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+70,CPGRAMS,MOLBR/E/2025/0022521,Bukya Vakeel,06/03/2025,13/02/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+71,CPGRAMS,DORLD/E/2025/0003044,vangaveeti Srinivasarao BJP,18/03/2025,15/03/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+72,CPGRAMS,DORLD/E/2025/0004615,Dharma,22/04/2025,17/04/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+73,CPGRAMS,DORLD/E/2025/0005036,Narsaiah Thogiti,30/04/2025,29/04/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+74,CPGRAMS,DORLD/E/2025/0005500,Maddigunta Narasimha Rao,20/05/2025,20/05/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+75,CPGRAMS,DORLD/E/2025/0010235,Srinivasarao,25/09/2025,19/09/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+76,CPGRAMS,DORLD/E/2025/0010939,DHARAVATH SUNIL,10/10/2025,08/10/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+77,CPGRAMS,DORLD/E/2025/0011586,Srinivasarao,29/10/2025,28/10/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+78,CPGRAMS,DORLD/E/2025/0012533,DHARAVATH SUNIL,01/12/2025,25/11/2025,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+79,CPGRAMS,DORLD/E/2026/0000534,KONDAVEETI CIRIL,12/01/2026,11/01/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+80,CPGRAMS,DORLD/E/2026/0000868,Banoth Padma,20/01/2026,20/01/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+81,CPGRAMS,DORLD/E/2026/0000998,KONDAVEETI CIRIL,27/01/2026,24/01/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+82,CPGRAMS,DORLD/E/2026/0001022,Dubbari naagaraaju,27/01/2026,24/01/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+83,CPGRAMS,DORLD/E/2026/0001587,Dubbari naagaraaju,06/02/2026,06/02/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+84,CPGRAMS,DORLD/E/2026/0001914,kondaveeti swarnamary,16/02/2026,15/02/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+85,CPGRAMS,DORLD/E/2026/0001989,KONDAVEETI CIRIL,18/02/2026,17/02/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+86,CPGRAMS,DORLD/E/2026/0002157,KONDAVEETI CIRIL,24/02/2026,21/02/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+87,CPGRAMS,DORLD/E/2026/0002193,Dubbari naagaraaju,24/02/2026,21/02/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+88,CPGRAMS,DORLD/E/2026/0002426,Ramana,02/03/2026,26/02/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+89,CPGRAMS,DORLD/E/2026/0003104,Santhosh Nayakudu,11/03/2026,10/03/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+90,CPGRAMS,DORLD/E/2026/0004353,siddu,23/03/2026,22/03/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+91,CPGRAMS,DORLD/E/2026/0004566,Santhosh Nayakudu,25/03/2026,24/03/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+92,CPGRAMS,DORLD/E/2026/0005025,Santhosh Nayakudu,01/04/2026,31/03/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+93,CPGRAMS,DORLD/E/2026/0006282,B naveen,18/04/2026,18/04/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+94,CPGRAMS,DORLD/E/2026/0006519,Banothu Vamshi Nayak,22/04/2026,22/04/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+95,CPGRAMS,DORLD/E/2026/0006852,Kova Vijay Kumar,01/05/2026,29/04/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+96,CPGRAMS,DORLD/E/2026/0007068,Kethavath jayaraju,04/05/2026,03/05/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+97,CPGRAMS,DORLD/E/2026/0007085,Gopal Reddy,04/05/2026,03/05/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+98,CPGRAMS,DORLD/E/2026/0008445,ANNEPU RAJAIAH,01/06/2026,30/05/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+99,CPGRAMS,DORLD/E/2026/0009197,Saikumar,15/06/2026,14/06/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+100,CPGRAMS,DORLD/E/2026/0009332,THIRUMALESH,19/06/2026,17/06/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+101,CPGRAMS,DORLD/E/2026/0009615,Venugopal potharaju,23/06/2026,22/06/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+102,CPGRAMS,DORLD/E/2026/0009640,Gopal Reddy,23/06/2026,23/06/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+103,CPGRAMS,MOPRJ/E/2026/0011385,KADAVATH NITHISH,04/08/2026,27/07/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+104,CPGRAMS,DORLD/E/2026/0014270,KADAVATH NITHISH,27/07/2026,27/07/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+105,CPGRAMS,DORLD/E/2026/0040941,JOGU NAGARAJU,21/08/2026,21/08/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes
+106,CPGRAMS,DORLD/E/2026/0048368,Abhi,28/08/2026,28/08/2026,Disposed,Disposed,Disposed,Closed,Disposed / Closed,Disposed / Closed,Yes,Yes

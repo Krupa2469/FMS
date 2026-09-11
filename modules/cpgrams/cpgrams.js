@@ -1231,8 +1231,13 @@ function openRegister(event) {
     stopFormButtonNavigation(event);
     formDirty = false;
 
-    window.location.href =
-        "cpgrams-register.html";
+    const p = new URLSearchParams();
+    const gt = getSelectedGrievanceType?.() || getControlValue("grievanceType") || "CPGRAMS";
+    const fy = getControlValue("grievanceFinancialYear") || window.FMSRecordPolicy?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";
+    p.set("fullscreen", "1");
+    if (gt) p.set("grievanceType", gt);
+    if (fy) p.set("fy", fy);
+    window.location.href = "cpgrams-register.html?" + p.toString();
 
 }
 

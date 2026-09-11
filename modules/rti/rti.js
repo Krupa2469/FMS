@@ -213,7 +213,7 @@ function registerRTIEvents(){
     document.getElementById("btnUpdate")?.addEventListener("click",updateRTIRecord);
     document.getElementById("btnDelete")?.addEventListener("click",deleteRTIRecord);
     document.getElementById("btnPrint")?.addEventListener("click",()=>window.print());
-    document.getElementById("btnRegister")?.addEventListener("click",()=>location.href="rti-register.html");
+    document.getElementById("btnRegister")?.addEventListener("click",()=>location.href="rti-register.html?fullscreen=1");
     document.getElementById("btnDailyStatus")?.addEventListener("click",()=>location.href="rti-daily-status.html");
     document.getElementById("btnHome")?.addEventListener("click",()=>location.href="../../index.html");
     document.getElementById("btnWhatsApp")?.addEventListener("click",shareRTIWhatsApp);
@@ -440,7 +440,7 @@ async function updateRTIRecord(){
 async function deleteRTIRecord(){
     if(!rtiReady()||!currentRTIRecordId) { showRTIMessage("Please load an RTI record before deleting.","warning"); return; }
     if(!confirm("Are you sure you want to delete this RTI application?")) return;
-    try { await rtiDb().collection(RTI_COLLECTION).doc(currentRTIRecordId).delete(); currentRTIRecordId=null; rtiDocuments=[]; location.href="rti-register.html"; }
+    try { await rtiDb().collection(RTI_COLLECTION).doc(currentRTIRecordId).delete(); currentRTIRecordId=null; rtiDocuments=[]; location.href="rti-register.html?fullscreen=1"; }
     catch(e){ showRTIMessage("Unable to delete RTI application: "+e.message,"danger"); }
 }
 

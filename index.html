@@ -67,7 +67,7 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:22px 
 ========================================================== */
 const homeCollections={cpgrams:'cpgrams',rti:'rtiApplications',disha:'dishaMeetings'};
 const homeDateFields={cpgrams:['dateReceived','dateArised','receivedDate','questionReceivedDate','date'],rti:['applicationDate','dateReceived','date'],disha:['dateOfMeeting','meetingDate','proposedDateOfMeeting','date']};
-const HOME_CATEGORIES=["GRIEVANCES","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
+const HOME_CATEGORIES=["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
 let homeRows={cpgrams:[],rti:[],disha:[]};
 let homeInitialized=false;
 
@@ -94,14 +94,15 @@ function grievanceTypeOfHome(row){
   for(const raw of candidates){
     const key=homeCategoryKey(raw);
     if(!key) continue;
-    if(key==="cpgrams"||key==="cpgrams portal"||key==="cpgram") return "grievances";
+    if(key==="cpgrams"||key==="cpgrams portal"||key==="cpgram"||key==="grievances"||key==="grievance") return "cpgrams";
     if(known.includes(key)) return key;
   }
-  return "grievances";
+  return "cpgrams";
 }
+function rowTypeHome(row){return grievanceTypeOfHome(row)||"cpgrams";}
 function categoryMatchesHome(row,category){
   const selected=homeCategoryKey(category);
-  if(selected==="grievances") return true;
+  if(selected==="cpgrams"||selected==="grievances") return rowTypeHome(row)==="cpgrams";
   return grievanceTypeOfHome(row)===selected;
 }
 function populateHomeFY(){
@@ -117,37 +118,41 @@ function populateHomeFY(){
     sel.value=current;
   }
 }
-function homeCard(title,value,icon,color,target){
+function homeCard(title,totalValue,fyValue,icon,color,target){
   const safe=String(title).replace(/'/g,"\\'");
-  return `<div class="col-xl-3 col-lg-4 col-md-6"><div class="card metric-card h-100 dashboard-home-card" role="button" tabindex="0" onclick="openHomeCard('${safe}','${target}')" onkeydown="if(event.key==='Enter'||event.key===' ')openHomeCard('${safe}','${target}')"><div class="card-body text-center"><i class="bi ${icon} fs-1 text-${color}"></i><h5 class="mt-3">${title}</h5><div class="metric-value text-${color}">${value}</div><div class="small text-muted mt-1">Selected FY</div></div></div></div>`;
+  return `<div class="col-xl-3 col-lg-4 col-md-6"><div class="card metric-card h-100 dashboard-home-card"><div class="card-body text-center"><i class="bi ${icon} fs-1 text-${color}"></i><h5 class="mt-3">${title}</h5><div class="row g-2 mt-2"><div class="col-6"><button type="button" class="btn btn-outline-${color} w-100" onclick="openHomeCard('${safe}','${target}','all')"><div class="small">Total</div><div class="fw-bold fs-4">${totalValue}</div></button></div><div class="col-6"><button type="button" class="btn btn-${color} w-100" onclick="openHomeCard('${safe}','${target}','current')"><div class="small">Current FY</div><div class="fw-bold fs-4">${fyValue}</div></button></div></div></div></div></div>`;
 }
-function openHomeCard(category,target){
+function openHomeCard(category,target,period='current'){
   const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'');
-  const p=new URLSearchParams();p.set('filter','total');if(fy)p.set('fy',fy);
-  if(target==='cpgrams'){if(category&&homeCategoryKey(category)!=='grievances')p.set('category',category);location.href='modules/cpgrams/cpgrams-register.html?'+p.toString();return;}
+  const p=new URLSearchParams();p.set('filter','total');p.set('fullscreen','1');
+  if(period==='all') p.set('fy','all'); else if(fy)p.set('fy',fy);
+  if(target==='cpgrams'){if(category&&homeCategoryKey(category)!=='cpgrams'&&homeCategoryKey(category)!=='grievances')p.set('grievanceType',category);else p.set('grievanceType','CPGRAMS');location.href='modules/cpgrams/cpgrams-register.html?'+p.toString();return;}
   if(target==='rti'){location.href='modules/rti/rti-register.html?'+p.toString();return;}
   if(target==='disha'){location.href='modules/disha/disha-register.html?'+p.toString();return;}
   goModule(target);
 }
 function updateHomeCards(){
   const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'2026-27');
-  const cpRows=homeRows.cpgrams.filter(r=>homeRecordFY(r,homeDateFields.cpgrams)===fy);
-  const rti=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti)===fy).length;
-  const disha=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha)===fy).length;
+  const cpAll=homeRows.cpgrams.filter(r=>homeCategoryKey(grievanceTypeOfHome(r))==="cpgrams");
+  const cpFY=cpAll.filter(r=>homeRecordFY(r,homeDateFields.cpgrams)===fy);
+  const rtiAll=homeRows.rti.length, rtiFY=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti)===fy).length;
+  const dishaAll=homeRows.disha.length, dishaFY=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha)===fy).length;
   const icons=['bi-file-earmark-text','bi-megaphone','bi-chat-left-text','bi-person-raised-hand','bi-question-square','bi-question-diamond','bi-bank','bi-star','bi-person-badge','bi-envelope-paper','bi-clipboard-check','bi-shield-exclamation'];
   const colors=['primary','success','info','warning','secondary','dark','dark','danger','primary','success','warning','danger'];
   let html='';
   HOME_CATEGORIES.forEach((cat,i)=>{
-    const count=homeCategoryKey(cat)==="grievances" ? cpRows.length : cpRows.filter(r=>categoryMatchesHome(r,cat)).length;
-    html+=homeCard(cat,count,icons[i],colors[i],'cpgrams');
+    const key=homeCategoryKey(cat);
+    const total=key==="cpgrams" ? cpAll.length : homeRows.cpgrams.filter(r=>categoryMatchesHome(r,cat)).length;
+    const current=key==="cpgrams" ? cpFY.length : cpFY.filter(r=>categoryMatchesHome(r,cat)).length;
+    html+=homeCard(cat,total,current,icons[i],colors[i],'cpgrams');
   });
-  html+=homeCard('RTI',rti,'bi-journal-text', 'warning','rti');
-  html+=homeCard('DISHA',disha,'bi-people','info','disha');
+  html+=homeCard('RTI',rtiAll,rtiFY,'bi-journal-text', 'warning','rti');
+  html+=homeCard('DISHA',dishaAll,dishaFY,'bi-people','info','disha');
   const container=document.getElementById('homeModuleCards'); if(container) container.innerHTML=html;
   const ready=document.getElementById('dashboardReady');
-  if(ready) ready.textContent=`Dashboard ready — FY ${fy} | GRIEVANCES: ${cpRows.length}, RTI: ${rti}, DISHA: ${disha}.`;
+  if(ready) ready.textContent=`Dashboard ready — Total | CPGRAMS: ${cpAll.length}, RTI: ${rtiAll}, DISHA: ${dishaAll}. Current FY ${fy} | CPGRAMS: ${cpFY.length}, RTI: ${rtiFY}, DISHA: ${dishaFY}.`;
   const status=document.getElementById('homeStatus');
-  if(status){status.className='alert alert-success mb-0';status.textContent=`Financial Year: ${fy} • ${cpRows.length + rti + disha} record(s) across FMS modules.`;}
+  if(status){status.className='alert alert-success mb-0';status.textContent=`Total records: ${cpAll.length + rtiAll + dishaAll} • Current FY ${fy}: ${cpFY.length + rtiFY + dishaFY} record(s) across FMS modules.`;}
 }
 async function readCollectionSafely(name){
   try{
