@@ -9,7 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
 <link href="css/style.css" rel="stylesheet"/>
 <style>
-body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:22px 15px;text-align:center}.home-header h2{font-weight:700;margin:4px 0}.nav-btn{min-width:120px}.metric-card{border:0;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.10);min-height:150px}.metric-value{font-size:42px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.16)!important}.fy-bar{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 10px;text-align:center}.home-header h2{font-weight:700;margin:3px 0;font-size:1.85rem}.nav-btn{min-width:110px}.metric-card{border:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);min-height:0}.metric-value{font-size:30px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.14)!important}.fy-bar{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 </style>
 </head>
 <body>
@@ -118,10 +118,12 @@ function populateHomeFY(){
     sel.value=current;
   }
 }
-function homeCard(title,totalValue,fyValue,icon,color,target){
+function homeCard(title,totalValue,fyValue,icon,color,target,fyLabel){
   const safe=String(title).replace(/'/g,"\\'");
-  return `<div class="col-xl-3 col-lg-4 col-md-6"><div class="card metric-card h-100 dashboard-home-card"><div class="card-body text-center"><i class="bi ${icon} fs-1 text-${color}"></i><h5 class="mt-3">${title}</h5><div class="row g-2 mt-2"><div class="col-6"><button type="button" class="btn btn-outline-${color} w-100" onclick="openHomeCard('${safe}','${target}','all')"><div class="small">Total</div><div class="fw-bold fs-4">${totalValue}</div></button></div><div class="col-6"><button type="button" class="btn btn-${color} w-100" onclick="openHomeCard('${safe}','${target}','current')"><div class="small">Current FY</div><div class="fw-bold fs-4">${fyValue}</div></button></div></div></div></div></div>`;
+  const selectedFY=String(fyLabel||document.getElementById('homeFY')?.value||'Selected FY');
+  return `<div class="col-xl-3 col-lg-4 col-md-6"><div class="card metric-card h-100 dashboard-home-card fms-compact-dashboard-card"><div class="card-body text-center py-3 px-2"><i class="bi ${icon} fs-3 text-${color}"></i><h6 class="mt-2 mb-2 fw-semibold">${title}</h6><div class="row g-2"><div class="col-6"><button type="button" class="btn btn-sm btn-outline-${color} w-100 py-1" onclick="openHomeCard('${safe}','${target}','all')"><div class="small lh-sm">Total</div><div class="fw-bold fs-5 lh-sm">${totalValue}</div></button></div><div class="col-6"><button type="button" class="btn btn-sm btn-${color} w-100 py-1" onclick="openHomeCard('${safe}','${target}','current')"><div class="small lh-sm">${selectedFY}</div><div class="fw-bold fs-5 lh-sm">${fyValue}</div></button></div></div></div></div></div>`;
 }
+
 function openHomeCard(category,target,period='current'){
   const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'');
   const p=new URLSearchParams();p.set('filter','total');p.set('fullscreen','1');
@@ -144,15 +146,15 @@ function updateHomeCards(){
     const key=homeCategoryKey(cat);
     const total=key==="cpgrams" ? cpAll.length : homeRows.cpgrams.filter(r=>categoryMatchesHome(r,cat)).length;
     const current=key==="cpgrams" ? cpFY.length : cpFY.filter(r=>categoryMatchesHome(r,cat)).length;
-    html+=homeCard(cat,total,current,icons[i],colors[i],'cpgrams');
+    html+=homeCard(cat,total,current,icons[i],colors[i],'cpgrams',fy);
   });
-  html+=homeCard('RTI',rtiAll,rtiFY,'bi-journal-text', 'warning','rti');
-  html+=homeCard('DISHA',dishaAll,dishaFY,'bi-people','info','disha');
+  html+=homeCard('RTI',rtiAll,rtiFY,'bi-journal-text', 'warning','rti',fy);
+  html+=homeCard('DISHA',dishaAll,dishaFY,'bi-people','info','disha',fy);
   const container=document.getElementById('homeModuleCards'); if(container) container.innerHTML=html;
   const ready=document.getElementById('dashboardReady');
-  if(ready) ready.textContent=`Dashboard ready — Total | CPGRAMS: ${cpAll.length}, RTI: ${rtiAll}, DISHA: ${dishaAll}. Current FY ${fy} | CPGRAMS: ${cpFY.length}, RTI: ${rtiFY}, DISHA: ${dishaFY}.`;
+  if(ready) ready.textContent=`Dashboard ready — Total | CPGRAMS: ${cpAll.length}, RTI: ${rtiAll}, DISHA: ${dishaAll}. FY ${fy} | CPGRAMS: ${cpFY.length}, RTI: ${rtiFY}, DISHA: ${dishaFY}.`;
   const status=document.getElementById('homeStatus');
-  if(status){status.className='alert alert-success mb-0';status.textContent=`Total records: ${cpAll.length + rtiAll + dishaAll} • Current FY ${fy}: ${cpFY.length + rtiFY + dishaFY} record(s) across FMS modules.`;}
+  if(status){status.className='alert alert-success mb-0';status.textContent=`Total records: ${cpAll.length + rtiAll + dishaAll} • FY ${fy}: ${cpFY.length + rtiFY + dishaFY} record(s) across FMS modules.`;}
 }
 async function readCollectionSafely(name){
   try{

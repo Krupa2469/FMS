@@ -49,7 +49,7 @@ DASHBOARD CARDS
 
 .dashboard-card .card-body
 {
-    padding: 25px;
+    padding: 14px;
 }
 
 .dashboard-card h6
@@ -61,8 +61,8 @@ DASHBOARD CARDS
 
 .dashboard-card h2
 {
-    margin-top: 15px;
-    font-size: 34px;
+    margin-top: 8px;
+    font-size: 26px;
     font-weight: bold;
 }
 
@@ -72,7 +72,7 @@ MODULE BUTTONS
 
 .btn-module {
     width: 100%;
-    min-height: 90px;
+    min-height: 60px;
     border-radius: 12px;
     font-weight: 600;
     display: flex;
@@ -187,7 +187,7 @@ Dashboard Alerts
 .btn-module
 {
     width: 100%;
-    min-height: 70px;
+    min-height: 54px;
     font-size: 16px;
     font-weight: 600;
 }

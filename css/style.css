@@ -259,3 +259,193 @@ table thead th {
         display: none !important;
     }
 }
+
+
+/*==========================================================
+FMS v1.3.8 - COMPACT SCREEN SPACING AND DASHBOARD CARDS
+==========================================================*/
+:root {
+    --fms-compact-gap: .75rem;
+}
+
+body {
+    line-height: 1.35;
+}
+
+header .container-fluid,
+.home-header,
+.page-header,
+.main-header {
+    padding-top: .75rem !important;
+    padding-bottom: .75rem !important;
+}
+
+header h1,
+header h2,
+header h3,
+header h4,
+header h5,
+.page-header h1,
+.page-header h2,
+.page-header h3,
+.home-header h2 {
+    margin-top: .15rem !important;
+    margin-bottom: .15rem !important;
+    line-height: 1.15 !important;
+}
+
+main.container-fluid,
+.container-fluid.mt-4,
+.container-fluid.py-4,
+.container-fluid.py-3,
+#moduleDashboardPanel,
+#grievanceInlineRegisterPanel {
+    padding-top: .75rem !important;
+    padding-bottom: .75rem !important;
+}
+
+.card,
+.fy-bar,
+.register-container,
+.search-panel,
+.form-container {
+    border-radius: 8px !important;
+    margin-bottom: .75rem !important;
+}
+
+.card-body {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: .85rem !important;
+}
+
+.card-header,
+.register-header,
+.search-title,
+.section-header {
+    padding-top: .55rem !important;
+    padding-bottom: .55rem !important;
+}
+
+.row.g-4,
+#homeModuleCards.row,
+#moduleDashboardCards.row {
+    --bs-gutter-x: .75rem !important;
+    --bs-gutter-y: .75rem !important;
+}
+
+#homeModuleCards .metric-card,
+#moduleDashboardCards .card,
+#grievanceInlineRegisterPanel .card,
+.fms-compact-dashboard-card,
+.fms-inline-metric-card {
+    min-height: 0 !important;
+}
+
+#homeModuleCards .card-body,
+#moduleDashboardCards .card-body,
+.dashboard-card .card-body,
+.summary-card,
+.metric .card-body,
+.fms-inline-metric-card .card-body,
+.fms-compact-dashboard-card .card-body {
+    min-height: 0 !important;
+    padding: .70rem .60rem !important;
+}
+
+#homeModuleCards .fs-1,
+#homeModuleCards .fs-2,
+#moduleDashboardCards .fs-1,
+#moduleDashboardCards .fs-2,
+.fms-inline-metric-card .fs-2,
+.fms-compact-dashboard-card .fs-1 {
+    font-size: 1.45rem !important;
+    line-height: 1 !important;
+}
+
+#homeModuleCards h4,
+#homeModuleCards h5,
+#homeModuleCards h6,
+#moduleDashboardCards h4,
+#moduleDashboardCards h5,
+#moduleDashboardCards h6 {
+    margin-top: .35rem !important;
+    margin-bottom: .35rem !important;
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
+}
+
+#homeModuleCards .display-6,
+#moduleDashboardCards .display-6,
+.summary-card .number,
+.metric-value {
+    font-size: 1.55rem !important;
+    line-height: 1.05 !important;
+}
+
+#homeModuleCards .btn,
+#moduleDashboardCards .btn {
+    padding: .30rem .45rem !important;
+    line-height: 1.2 !important;
+}
+
+#homeModuleCards .small,
+#moduleDashboardCards .small,
+.summary-card .small {
+    line-height: 1.15 !important;
+}
+
+#moduleDashboardStatus,
+#homeStatus,
+#dashboardReady,
+.alert {
+    padding-top: .55rem !important;
+    padding-bottom: .55rem !important;
+}
+
+.table th,
+.table td,
+table th,
+table td {
+    padding-top: .45rem !important;
+    padding-bottom: .45rem !important;
+}
+
+.form-label {
+    margin-bottom: .25rem !important;
+}
+
+.form-control,
+.form-select,
+.btn {
+    min-height: 0 !important;
+}
+
+.mb-4 { margin-bottom: .85rem !important; }
+.mt-4 { margin-top: .85rem !important; }
+.mb-3 { margin-bottom: .65rem !important; }
+.mt-3 { margin-top: .65rem !important; }
+.py-4 { padding-top: .85rem !important; padding-bottom: .85rem !important; }
+.py-3 { padding-top: .65rem !important; padding-bottom: .65rem !important; }
+
+@media (min-width: 1200px) {
+    #moduleDashboardCards .col-xl-2 {
+        flex: 0 0 auto;
+        width: 16.66666667%;
+    }
+}
+
+@media (max-width: 768px) {
+    header .container-fluid,
+    .home-header,
+    .page-header,
+    .main-header {
+        padding-top: .60rem !important;
+        padding-bottom: .60rem !important;
+    }
+    #homeModuleCards .display-6,
+    #moduleDashboardCards .display-6,
+    .summary-card .number {
+        font-size: 1.35rem !important;
+    }
+}

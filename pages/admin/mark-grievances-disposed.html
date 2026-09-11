@@ -18,9 +18,27 @@
 <script>
 "use strict";
 const statusEl=document.getElementById("status"), countsEl=document.getElementById("counts"), input=document.getElementById("confirmText"), btn=document.getElementById("btnMark");
-function db(){return window.db||window.fmsFirebase?.db||(window.firebase?.apps?.length&&firebase.firestore?firebase.firestore():null);} 
+function getFirestoreDb(){
+  const candidates=[
+    window.getFMSFirestore?.(),
+    window.fmsFirebase?.db,
+    window.__fmsDb,
+    window.db
+  ];
+  for(const candidate of candidates){
+    if(candidate && typeof candidate.collection==="function" && typeof candidate.batch==="function") return candidate;
+  }
+  try{
+    if(typeof firebase!=="undefined" && firebase.apps?.length && typeof firebase.firestore==="function"){
+      const candidate=firebase.firestore();
+      if(candidate && typeof candidate.collection==="function") return candidate;
+    }
+  }catch(e){ console.warn("Unable to get Firestore instance:", e); }
+  return null;
+}
+
 function ts(){return firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();}
-async function count(){const d=db();if(!d){statusEl.className="alert alert-warning";statusEl.textContent="Waiting for Firebase...";return;}const snap=await d.collection("cpgrams").get();let active=0,disposed=0,pending=0; snap.forEach(doc=>{const r=doc.data()||{};if(r.active===false||r.deleted===true)return;active++;const s=String(r.finalStatus||r.currentStatus||r.workflowStage||r.status||"").toLowerCase();if(/disposed|closed/.test(s))disposed++;else pending++;});countsEl.innerHTML=`<table class="table table-bordered bg-white"><thead><tr><th>Active Grievance Records</th><th>Already Disposed / Closed</th><th>Will be changed to Disposed</th></tr></thead><tbody><tr><td>${active}</td><td>${disposed}</td><td>${pending}</td></tr></tbody></table>`;statusEl.className="alert alert-info";statusEl.textContent="Review the counts. This action is reversible only by editing records again.";}
-async function markDisposed(){if(input.value.trim()!=="MARK ALL GRIEVANCES DISPOSED")return;if(!confirm("Mark all active grievance records as Disposed?"))return;btn.disabled=true;input.disabled=true;const d=db();try{let changed=0;let snap=await d.collection("cpgrams").get();let batch=d.batch(),batchCount=0;for(const doc of snap.docs){const r=doc.data()||{};if(r.active===false||r.deleted===true)continue;batch.set(doc.ref,{currentStatus:"Disposed",finalStatus:"Disposed",status:"Disposed",statusOfFile:"Closed",workflowStage:"Disposed / Closed",presentWorkflowStage:"Disposed / Closed",finalReplySentToComplainant:"Yes",uploadedInCPGRAMSPortal:"Yes",replySentToGovernment:"Yes",disposedDate:new Date().toISOString().slice(0,10),updatedOn:ts()}, {merge:true});changed++;batchCount++;if(batchCount>=400){statusEl.className="alert alert-warning";statusEl.textContent=`Updating records... ${changed} processed`;await batch.commit();batch=d.batch();batchCount=0;}}if(batchCount)await batch.commit();statusEl.className="alert alert-success";statusEl.textContent=`Completed. ${changed} grievance record(s) marked as Disposed.`;await count();}catch(e){console.error(e);statusEl.className="alert alert-danger";statusEl.textContent="Update failed: "+(e.message||e);input.disabled=false;btn.disabled=false;}}
+async function count(){const d=getFirestoreDb();if(!d){statusEl.className="alert alert-warning";statusEl.textContent="Waiting for Firebase...";return;}const snap=await d.collection("cpgrams").get();let active=0,disposed=0,pending=0; snap.forEach(doc=>{const r=doc.data()||{};if(r.active===false||r.deleted===true)return;active++;const s=String(r.finalStatus||r.currentStatus||r.workflowStage||r.status||"").toLowerCase();if(/disposed|closed/.test(s))disposed++;else pending++;});countsEl.innerHTML=`<table class="table table-bordered bg-white"><thead><tr><th>Active Grievance Records</th><th>Already Disposed / Closed</th><th>Will be changed to Disposed</th></tr></thead><tbody><tr><td>${active}</td><td>${disposed}</td><td>${pending}</td></tr></tbody></table>`;statusEl.className="alert alert-info";statusEl.textContent="Review the counts. This action is reversible only by editing records again.";}
+async function markDisposed(){if(input.value.trim()!=="MARK ALL GRIEVANCES DISPOSED")return;if(!confirm("Mark all active grievance records as Disposed?"))return;btn.disabled=true;input.disabled=true;const d=getFirestoreDb();if(!d){statusEl.className="alert alert-danger";statusEl.textContent="Update failed: Firebase Firestore is not ready. Please refresh and try again.";input.disabled=false;btn.disabled=false;return;}try{let changed=0;let snap=await d.collection("cpgrams").get();let batch=d.batch(),batchCount=0;for(const doc of snap.docs){const r=doc.data()||{};if(r.active===false||r.deleted===true)continue;batch.set(doc.ref,{currentStatus:"Disposed",finalStatus:"Disposed",status:"Disposed",statusOfFile:"Closed",workflowStage:"Disposed / Closed",presentWorkflowStage:"Disposed / Closed",finalReplySentToComplainant:"Yes",uploadedInCPGRAMSPortal:"Yes",replySentToGovernment:"Yes",disposedDate:new Date().toISOString().slice(0,10),updatedOn:ts()}, {merge:true});changed++;batchCount++;if(batchCount>=400){statusEl.className="alert alert-warning";statusEl.textContent=`Updating records... ${changed} processed`;await batch.commit();batch=d.batch();batchCount=0;}}if(batchCount)await batch.commit();statusEl.className="alert alert-success";statusEl.textContent=`Completed. ${changed} grievance record(s) marked as Disposed.`;await count();}catch(e){console.error(e);statusEl.className="alert alert-danger";statusEl.textContent="Update failed: "+(e.message||e);input.disabled=false;btn.disabled=false;}}
 input.addEventListener("input",()=>btn.disabled=input.value.trim()!=="MARK ALL GRIEVANCES DISPOSED");btn.addEventListener("click",markDisposed);document.getElementById("btnRefresh").addEventListener("click",count);window.addEventListener("fmsFirebaseReady",count,{once:true});document.addEventListener("DOMContentLoaded",()=>setTimeout(count,700));
 </script></body></html>
