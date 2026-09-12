@@ -2,6 +2,8 @@
 "use strict";
 (function(window,document){
 const MASTER_DEFS={
+ formFields:{label:"Form Fields Master",fields:[s("module","Module",true,"modulesMaster"),s("grievanceType","Grievance Type",false,"grievanceTypes"),f("formName","Form Name",true),f("sectionName","Section Name",true),f("fieldKey","Field Key",true),f("label","Field Label",true),f("fieldType","Field Type",true),f("sourceMaster","Source Master"),f("displayOrder","Display Order",false,"","number"),b("required","Required"),b("visible","Visible"),f("placeholder","Placeholder"),f("helpText","Help Text",false,"","textarea"),b("active","Active")]},
+ modulesMaster:{label:"Modules Master",fields:[f("name","Module Name",true),f("code","Code"),f("description","Description",false,"","textarea"),b("active","Active")]},
  grievanceTypes:{label:"Grievance Types",fields:[f("name","Grievance Type",true),f("code","Code"),f("description","Description",false,"","textarea"),b("active","Active")]},
  districts:{label:"Districts",fields:[f("name","District Name",true),f("code","Code"),f("description","Description",false,"","textarea"),b("active","Active")]},
  mandals:{label:"Mandals",fields:[s("district","District",true,"districts"),f("name","Mandal Name",true),f("code","Code"),f("description","Description",false,"","textarea"),b("active","Active")]},
@@ -27,6 +29,7 @@ function f(key,label,required=false,source="",type="text"){return {key,label,req
 function s(key,label,required=false,source=""){return {key,label,required,source,type:"select"};}
 function b(key,label){return {key,label,type:"checkbox",default:true};}
 const DEFAULTS={
+ modulesMaster:["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases","RTI","DISHA"],
  grievanceTypes:["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"],
  districts:["Adilabad","Bhadradri Kothagudem","Hanumakonda","Hyderabad","Jagtial","Jangaon","Jayashankar Bhupalpally","Jogulamba Gadwal","Kamareddy","Karimnagar","Khammam","Komaram Bheem Asifabad","Mahabubabad","Mahabubnagar","Mancherial","Medak","Medchal-Malkajgiri","Mulugu","Nagarkurnool","Nalgonda","Narayanpet","Nirmal","Nizamabad","Peddapalli","Rajanna Sircilla","Rangareddy","Sangareddy","Siddipet","Suryapet","Vikarabad","Wanaparthy","Warangal","Yadadri Bhuvanagiri"],
  categories:["Roads","Drinking Water","Drainage","Housing","Pensions","MGNREGS","PMAY","Sanitation","Electricity","Agriculture","Revenue","Education","Health","Others"],

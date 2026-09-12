@@ -2,7 +2,7 @@
 /* Central reports + custom report definitions - v1.2.2 */
 (function(window,document){
 const CFG={
-  cpgrams:{collection:"cpgrams",dateFields:["dateReceived","dateArised","receivedDate","questionReceivedDate","date"],dueFields:["dueDate"],name:"GRIEVANCES"},
+  cpgrams:{collection:"cpgrams",dateFields:["dateReceived","dateArised","receivedDate","questionReceivedDate","date"],dueFields:["dueDate"],name:"CPGRAMS"},
   rti:{collection:"rtiApplications",dateFields:["applicationDate","dateReceived","date"],dueFields:["dueDate"],name:"RTI"},
   disha:{collection:"dishaMeetings",dateFields:["dateOfMeeting","meetingDate","proposedDateOfMeeting","date"],dueFields:["pomDueDate"],name:"DISHA"}
 };
@@ -50,7 +50,22 @@ function customValue(r,k){const v=r?.[k];if(v&&typeof v.toDate==="function")retu
 function buildSummary(module,raw,transformed){
  const P=window.FMSRecordPolicy,total=(raw||[]).length;
  if(module==="cpgrams"){
-   return [{label:"Total Received",value:total},{label:"Within Due Date",value:raw.filter(r=>P?.withinDue?.("cpgrams",r)).length},{label:"Due Today",value:raw.filter(r=>P?.dueToday?.("cpgrams",r)).length},{label:"Overdue",value:raw.filter(r=>P?.overdue?.("cpgrams",r)).length},{label:"ATR / Reply Awaited",value:raw.filter(r=>{const w=P?.workflow?.("cpgrams",r)||{};return w.memoIssued&&!w.atrReceived&&!P?.closed?.("cpgrams",r);}).length},{label:"ATR / Reply Received",value:raw.filter(r=>P?.workflow?.("cpgrams",r)?.atrReceived).length},{label:"Pending Approval",value:raw.filter(r=>/Pending JC|EGS|Pending Approval|Reply to Government Pending/i.test(P?.workflow?.("cpgrams",r)?.stage||"")).length},{label:"Disposed / Closed",value:raw.filter(r=>P?.closed?.("cpgrams",r)).length}];
+   const fyLabel=$("financialYear")?.value && $("financialYear")?.value!=="custom" ? $("financialYear").value : selectedPeriod();
+   const sinceStart=new Date(2014,3,1);
+   const allSince2014=(loaded.cpgrams||[]).filter(r=>{const d=parseDate(dateOf(r,"cpgrams"));return r.active!==false && (!P?.rowType || P.rowType(r)==="cpgrams") && d && d>=sinceStart;});
+   const fyReceived=(raw||[]).filter(r=>!P?.rowType || P.rowType(r)==="cpgrams");
+   const summaryRows=fyReceived.length ? fyReceived : (raw||[]);
+   return [
+     {label:"Total Received since 2014-15",value:allSince2014.length},
+     {label:`Total Received ${fyLabel}`,value:fyReceived.length},
+     {label:"Within Due Date",value:summaryRows.filter(r=>P?.withinDue?.("cpgrams",r)).length},
+     {label:"Due Today",value:summaryRows.filter(r=>P?.dueToday?.("cpgrams",r)).length},
+     {label:"Overdue",value:summaryRows.filter(r=>P?.overdue?.("cpgrams",r)).length},
+     {label:"ATR / Reply Awaited",value:summaryRows.filter(r=>{const w=P?.workflow?.("cpgrams",r)||{};return w.memoIssued&&!w.atrReceived&&!P?.closed?.("cpgrams",r);}).length},
+     {label:"ATR / Reply Received",value:summaryRows.filter(r=>P?.workflow?.("cpgrams",r)?.atrReceived).length},
+     {label:"Pending Approval",value:summaryRows.filter(r=>/Pending JC|EGS|Pending Approval|Reply to Government Pending/i.test(P?.workflow?.("cpgrams",r)?.stage||"")).length},
+     {label:"Disposed / Closed",value:summaryRows.filter(r=>P?.closed?.("cpgrams",r)).length}
+   ];
  }
  if(module==="rti"){
    return [{label:"Total RTI Applications",value:total},{label:"Within Due Date",value:raw.filter(r=>P?.withinDue?.("rti",r)).length},{label:"Due Today",value:raw.filter(r=>P?.dueToday?.("rti",r)).length},{label:"Overdue",value:raw.filter(r=>P?.overdue?.("rti",r)).length},{label:"Reply Awaited",value:raw.filter(r=>{const w=P?.workflow?.("rti",r)||{};return w.sentToSection&&!w.replyReceived&&!P?.closed?.("rti",r);}).length},{label:"Reply Received",value:raw.filter(r=>P?.workflow?.("rti",r)?.replyReceived).length},{label:"Reply Sent",value:raw.filter(r=>P?.workflow?.("rti",r)?.replySent).length},{label:"Disposed / Closed",value:raw.filter(r=>P?.closed?.("rti",r)).length}];
@@ -67,7 +82,7 @@ function generate(){
  const m=$("reportModule").value;activeModule=m;let out=[],raw=[];
  if(m==="all"){
    for(const mod of Object.keys(loaded)){const src=loaded[mod].filter(r=>inRange(r,mod));raw.push(...src.map(r=>({...r,__module:mod})));out.push(...src.map(r=>standardRow(mod,r)));}
- }else{raw=loaded[m].filter(r=>inRange(r,m));out=raw.map(r=>standardRow(m,r));}
+ }else{raw=loaded[m].filter(r=>inRange(r,m));if(m==="cpgrams"&&window.FMSRecordPolicy?.rowType){raw=raw.filter(r=>window.FMSRecordPolicy.rowType(r)==="cpgrams");}out=raw.map(r=>standardRow(m,r));}
  reportRows=out;const keys=[];out.forEach(row=>Object.keys(row).forEach(k=>{if(!keys.includes(k))keys.push(k);}));reportColumns=(keys.length?keys:["Module","ID","Date","Subject","Workflow Stage","Final Status"]).map(k=>({key:k,label:k}));reportSummary=buildSummary(m,raw,out);render(reportName(m));
 }
 function generateCustom(def){const modules=def.module==="all"?Object.keys(loaded):[def.module];let out=[],raw=[];activeModule=def.module||"all";if(def.module==="all"){for(const m of modules){for(const r of loaded[m].filter(x=>inRange(x,m))){const sr=standardRow(m,r);if(passesDef(sr,def)){out.push(sr);raw.push({...r,__module:m});}}}reportColumns=(def.fields||Object.keys(out[0]||{})).map(k=>({key:k,label:label(k)}));}else{let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module)).filter(x=>passesDef(x,def));raw=source.slice();if(def.sortField)source.sort((a,b)=>String(customValue(a,def.sortField)??"").localeCompare(String(customValue(b,def.sortField)??""),undefined,{numeric:true})*(def.sortDirection==="desc"?-1:1));for(const r of source){const o={};(def.fields||[]).forEach(k=>o[k]=customValue(r,k));out.push(o);}reportColumns=(def.fields||[]).map(k=>({key:k,label:label(k)}));}if(def.module==="all"&&def.sortField)out.sort((a,b)=>String(a[def.sortField]??"").localeCompare(String(b[def.sortField]??""),undefined,{numeric:true})*(def.sortDirection==="desc"?-1:1));reportRows=out;reportSummary=buildSummary(def.module,raw,out);render(reportName(def.module));}
