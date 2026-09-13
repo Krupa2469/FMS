@@ -357,12 +357,16 @@ function updateGrievanceFormLayout() {
     const cpgramsMode = isCPGRAMSType(normalized);
     const prajavaniMode = normalized === "PRAJAVANI";
     const otherMode = hasType && !questionMode && !cpgramsMode;
+    const heading = getControl("grievanceTypeHeading");
+    if (heading) heading.textContent = hasType ? type : "SELECT GRIEVANCE TYPE";
+    const dataEntryTitle = getControl("grievanceDataEntryTitle");
+    if (dataEntryTitle) dataEntryTitle.textContent = hasType ? `${type.toUpperCase()} DATA ENTRY FORM` : "GRIEVANCES DATA ENTRY FORM";
 
     getControl("standardSection1Card")?.classList.toggle("d-none", !hasType || questionMode);
     getControl("questionEntryCard")?.classList.toggle("d-none", !questionMode);
     getControl("sharedSection2Card")?.classList.toggle("d-none", !hasType || questionMode);
     getControl("sharedSection3Card")?.classList.toggle("d-none", !hasType || questionMode);
-    getControl("workflowClosureCard")?.classList.toggle("d-none", !hasType || questionMode);
+    getControl("workflowClosureCard")?.classList.add("d-none");
     getControl("sharedSection4Card")?.classList.toggle("d-none", !hasType);
 
     document.querySelectorAll(".grievances-only-field").forEach(function (el) {
@@ -402,12 +406,12 @@ function updateGrievanceFormLayout() {
             ? "Select a Grievance Type to load the Data Entry Form"
             : questionMode
                 ? `${normalized} Question Data Entry Form`
-                : `${type} Workflow Data Entry Form`;
+                : `${type} Data Entry Form`;
     }
 
     const section4Title = getControl("section4Title");
     if (section4Title) {
-        section4Title.textContent = questionMode ? "UPLOAD DOCUMENT" : "SECTION 5 : ATTACHMENTS";
+        section4Title.textContent = questionMode ? "UPLOAD DOCUMENT" : "ATTACHMENTS";
     }
 
     if (hasType && !questionMode && getControlValue("dateReceived")) {
@@ -811,6 +815,25 @@ function buildGrievanceObject() {
         grievance.category = "";
         grievance.natureOfGrievance = "";
         grievance.priorityClassification = "";
+    } else if (isCPGRAMSType(grievanceType)) {
+        const atrStatusText = String(grievance.atrStatus || "").trim().toLowerCase();
+        if (atrStatusText === "approved") {
+            grievance.approvalStatus = "Approved";
+        }
+        if (atrStatusText === "sent to complainant") {
+            grievance.finalReplySentToComplainant = "Yes";
+            grievance.currentStatus = "ATR sent to complainant";
+        }
+        if (atrStatusText === "uploaded in cpgrams portal") {
+            grievance.finalReplySentToComplainant = "Yes";
+            grievance.uploadedInCPGRAMSPortal = "Yes";
+            grievance.currentStatus = "Disposed";
+            grievance.officeStatus = "Disposed / Closed";
+            grievance.finalStatus = "Disposed";
+        }
+        grievance.natureOfGrievance = "";
+        grievance.priorityClassification = "";
+        grievance.attachmentCount = "";
     } else if (!isCPGRAMSType(grievanceType)) {
         grievance.grievanceNumber = grievance.referenceMemoNo || grievance.grievanceNumber || "";
         grievance.category = "";
@@ -1660,7 +1683,7 @@ function updateWorkflowStagePreview() {
     });
     data.grievanceType = getSelectedGrievanceType();
     const workflow = window.FMSRecordPolicy.workflow("cpgrams", data);
-    preview.innerHTML = `Present Workflow Stage: <strong>${workflow.stage || "Grievance Received"}</strong>${workflow.dueLabel ? ` <span class="badge bg-secondary ms-2">${workflow.dueLabel}</span>` : ""}`;
+    preview.innerHTML = `${workflow.dueLabel ? `<span class="badge bg-secondary">${workflow.dueLabel}</span>` : ""}`;
 }
 
 document.addEventListener("DOMContentLoaded", function(){

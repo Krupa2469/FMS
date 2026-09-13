@@ -45,7 +45,7 @@
     return `cpgrams-register.html?${p}`;
   }
   function card(label,value,filter,icon,theme){
-    return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${fullRegisterUrl(filter)}"><div class="card h-100 shadow-sm border-0 fms-compact-dashboard-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="fs-3 fw-bold text-${theme} lh-1">${esc(value)}</div><div class="small text-primary mt-1 lh-sm">View filtered data <i class="bi bi-arrows-fullscreen"></i></div></div></div></a></div>`;
+    return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${fullRegisterUrl(filter)}"><div class="card h-100 shadow-sm border-0 fms-compact-dashboard-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="fs-3 fw-bold text-${theme} lh-1">${esc(value)}</div></div></div></a></div>`;
   }
   function renderDashboard(rows){
     const host=$("moduleDashboardCards"), status=$("moduleDashboardStatus");if(!host)return;
@@ -56,11 +56,8 @@
         ["Within Due Date",rows.filter(withinDue).length,"within-due","bi-calendar-check","success"],
         ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
         ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
-        ["Memo / Letter Issued",rows.filter(r=>w(r).memoIssued).length,"memo-issued","bi-envelope-paper","info"],
-        ["ATR Awaited",rows.filter(r=>w(r).memoIssued&&!w(r).atrReceived&&!isClosed(r)).length,"atr-awaited","bi-hourglass-split","warning"],
-        ["ATR Received",rows.filter(r=>w(r).atrReceived).length,"atr-received","bi-inbox","success"],
-        ["Pending JC / EGS Approval",rows.filter(r=>/Pending JC|EGS/i.test(w(r).stage||"")).length,"approval-pending","bi-person-check","warning"],
-        ["Portal Upload Pending",rows.filter(r=>/Portal Upload Pending/i.test(w(r).stage||"")).length,"portal-pending","bi-cloud-arrow-up","danger"],
+        ["ATR Awaited",rows.filter(r=>(String(r.atrStatus||"").toLowerCase().includes("awaited")||(w(r).memoIssued&&!w(r).atrReceived))&&!isClosed(r)).length,"atr-awaited","bi-hourglass-split","warning"],
+        ["ATR Received",rows.filter(r=>w(r).atrReceived||/received|approved|sent to complainant|uploaded in cpgrams portal/i.test(String(r.atrStatus||""))).length,"atr-received","bi-inbox","success"],
         ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
       ];
     }else if(key==="prajavani"){
@@ -131,7 +128,7 @@
   function columns(){
     const key=currentTypeKey();
     if(key==="laq"||key==="lcq")return [["questionNo",`${currentType().toUpperCase()} No.`],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer furnished by"],["answerFurnishedTo","Answer furnished to"],["answerFurnishedDate","Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"],["attachments","Upload Document"]];
-    if(key==="cpgrams")return [["registrationNo","Registration No."],["dateReceived","Date Received"],["dueDate","Due Date"],["daysStatus","Days Left / Overdue Days"],["complainantName","Complainant Name"],["district","District"],["subject","Subject"],["memoStatus","Memo / Letter Status"],["atrStatusView","ATR Status"],["approvalStatusView","JC / EGS Approval Status"],["portalUploadStatus","Portal Upload Status"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
+    if(key==="cpgrams")return [["registrationNo","Registration No."],["dateReceived","Date Received"],["dueDate","Due Date"],["daysStatus","Days Left / Overdue Days"],["complainantName","Complainant Name"],["district","District"],["subject","Subject"],["memoStatus","Memo / Letter Status"],["atrStatusView","ATR Status"],["finalStatusView","Final Status"]];
     if(key==="prajavani")return [["registrationNo","Prajavani No."],["dateReceived","Received Date"],["receivedFrom","Received From"],["section","Concerned Section"],["sentToSectionDate","Sent to Section Date"],["subject","Subject"],["atrStatusView","Reply Status"],["atrDate","Reply Received Date"],["replyGovtStatus","Reply Sent to JC Admin"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
     return [["registrationNo","Reference / Memo No."],["dateReceived","Date Received"],["dueDate","Due Date"],["daysStatus","Days Left / Overdue Days"],["receivedFrom","From Whom Received"],["section","Concerned Section"],["subject","Subject"],["memoStatus","Communication Status"],["atrStatusView","Reply / ATR Status"],["approvalStatusView","Approval Status"],["replyGovtStatus","Reply to Government Status"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
   }
@@ -149,7 +146,7 @@
   async function deleteRecord(id){if(!confirm("Delete this record?"))return;try{const db=getDb();await db.collection(COLLECTION).doc(id).update({active:false,deletedOn:firebase.firestore.FieldValue.serverTimestamp(),updatedOn:firebase.firestore.FieldValue.serverTimestamp()});await refresh();}catch(e){alert("Unable to delete record: "+(e.message||e));}}
   function getDb(){if(window.db)return window.db;if(window.fmsFirebase?.db)return window.fmsFirebase.db;try{if(typeof firebase!=="undefined"&&firebase.firestore)return firebase.firestore();}catch(_e){}return null;}
   function showContext(hasType){["grievanceFYPanel","moduleDashboardPanel","grievanceInlineRegisterPanel","cpgramsForm"].forEach(id=>$(id)?.classList.toggle("d-none",!hasType));const dataTitle=[...document.querySelectorAll("h4")].find(h=>h.textContent.includes("GRIEVANCES DATA ENTRY"));if(dataTitle)dataTitle.classList.toggle("d-none",!hasType);}
-  function syncContext(){const type=currentType();showContext(!!type);if(!type)return;populateFY();const rows=rowsForContext();renderDashboard(rows);renderRegister(rows);const s=$("grievanceContextStatus");if(s){s.className="alert alert-success mb-0 py-3";s.textContent=`${type} • Financial Year ${currentFY()} • workflow dashboard and register use ${rows.length} active record(s).`;}}
+  function syncContext(){const type=currentType();showContext(!!type);const heading=$("grievanceTypeHeading");if(heading)heading.textContent=type||"SELECT GRIEVANCE TYPE";const label=$("selectedGrievanceFormLabel");if(label)label.textContent=type?`${type} Data Entry Form`:"Select a Grievance Type to load the Data Entry Form";const dataTitle=$("grievanceDataEntryTitle");if(dataTitle&&type)dataTitle.textContent=`${String(type).toUpperCase()} DATA ENTRY FORM`;if(!type)return;populateFY();const rows=rowsForContext();renderDashboard(rows);renderRegister(rows);const s=$("grievanceContextStatus");if(s){s.className="d-none";s.textContent="";}}
   async function refresh(){const db=getDb();if(!db)return false;try{const snap=await db.collection(COLLECTION).get();allRows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>P()?P().active(r):r.active!==false);syncContext();return true;}catch(e){console.error("Grievances workspace load error",e);const s=$("grievanceContextStatus");if(s){s.className="alert alert-danger mb-0";s.textContent="Unable to load Grievances: "+(e.message||e);}return false;}}
   function start(){
     const type=$(TYPE_SELECT),fy=$(FY_SELECT);if(!type)return;

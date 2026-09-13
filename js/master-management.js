@@ -1791,9 +1791,28 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  }
 ];
+
+/* FMS v1.4.1 form-field cleanup: remove fields deleted from the live CPGRAMS form. */
+(function(){
+  const hiddenKeys=new Set(["natureOfGrievance","priorityClassification","attachmentCount","putUpToJC","putUpThroughAO","addressedToRole","putUpForJCApproval","jcApprovalDate","putUpForEGSApproval","egsApprovalDate","finalReplySentToComplainant","replySentDate","uploadedInCPGRAMSPortal","portalUploadDate","approvalStatus","approvalDate","replySentToGovernment","replyToGovernmentDate","fileClosed"]);
+  for(let i=FORM_FIELD_DEFAULTS.length-1;i>=0;i--){
+    const r=FORM_FIELD_DEFAULTS[i]||{};
+    if(hiddenKeys.has(r.fieldKey) || r.sectionName==="SECTION 4 : FINAL APPROVAL / CLOSURE") FORM_FIELD_DEFAULTS.splice(i,1);
+  }
+  FORM_FIELD_DEFAULTS.forEach(r=>{
+    if(r.fieldKey==="officeLetterAddressedTo"){
+      r.label="Addressed To"; r.fieldType="dropdown"; r.sourceMaster="officers";
+    }
+    if(r.fieldKey==="atrStatus"){
+      r.label="ATR / Reply Status"; r.fieldType="dropdown";
+    }
+    if(r.sectionName==="GRIEVANCE TYPE") r.sectionName="CPGRAMS";
+  });
+})();
+
 const STATIC_OPTIONS={
  __formNames:["CPGRAMS / Other Grievances Data Entry", "DISHA Data Entry", "LAQ / LCQ Data Entry", "RTI Data Entry"],
- __sectionNames:["Attachments — Saved to Firestore", "DISHA MEETING DETAILS", "GRIEVANCE TYPE", "LAQ / LCQ QUESTION DATA ENTRY", "Office Processing", "RTI APPLICATION MANAGEMENT", "SECTION 1 : GRIEVANCE DETAILS", "SECTION 3 : WORKFLOW PROCESSING", "SECTION 4 : FINAL APPROVAL / CLOSURE"],
+ __sectionNames:["Attachments — Saved to Firestore", "CPGRAMS", "DISHA MEETING DETAILS", "LAQ / LCQ QUESTION DATA ENTRY", "Office Processing", "RTI APPLICATION MANAGEMENT", "SECTION 1 : GRIEVANCE DETAILS", "SECTION 3 : WORKFLOW PROCESSING"],
  __fieldTypes:["text","number","date","dropdown","textarea","file","checkbox","email","tel","url"],
  __sourceMasters:["", "grievanceTypes", "modulesMaster", "districts", "mandals", "villages", "departments", "sections", "officers", "designations", "categories", "sources", "priorityLevels", "statusMaster", "fileLocations", "officeCommunicationTypes", "fileStatuses", "grievanceNature", "contactMethods", "genderMaster", "meetingStatuses", "billStatuses"]
 };

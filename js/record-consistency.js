@@ -80,8 +80,8 @@
     if(module==="rti")return cleanText(first(r,["workflowStage","officeStatus","presentStatus","currentStatus","statusOfFile","finalStatus","status"])).toLowerCase();
     return cleanText(first(r,["officeStatus","statusOfMeeting","currentStatus","status"])).toLowerCase();
   }
-  function cpgramsPortalDone(r){return yes(first(r,["uploadedInCPGRAMSPortal","portalUploaded","cpgramsPortalUploaded","portalUploadStatus"]));}
-  function finalReplyToComplainantDone(r){return yes(first(r,["finalReplySentToComplainant","replySentToComplainant","replySent"]));}
+  function cpgramsPortalDone(r){return yes(first(r,["uploadedInCPGRAMSPortal","portalUploaded","cpgramsPortalUploaded","portalUploadStatus"])) || /uploaded in cpgrams portal/i.test(cleanText(r?.atrStatus));}
+  function finalReplyToComplainantDone(r){return yes(first(r,["finalReplySentToComplainant","replySentToComplainant","replySent"])) || /sent to complainant|uploaded in cpgrams portal/i.test(cleanText(r?.atrStatus));}
   function govtReplyDone(r){return yes(first(r,["replySentToGovernment","replySentToGovernmentMemo","replySentToReferringAuthority","replySentToJCAdmin"]));}
   function rtiReplyDone(r){return yes(first(r,["replySentToApplicant","rtiReplySent","replySent"]));}
   function closed(module,r){
@@ -101,16 +101,17 @@
   function cpgramsWorkflow(r){
     const t=rowType(r);
     const memoIssued=!!(first(r,["memoDate","communicationDate","officeMemoDate","officeCommunicationDate"])||first(r,["memoNumber","communicationNo","officeMemoNumber"]));
-    const atrReceived=yes(first(r,["atrReceived","atrStatus"])) || !!first(r,["atrDate","atrReceivedDate"]);
-    const approvalDone=yes(first(r,["approvalStatus","putUpForJCApproval","putUpForEGSApproval","jcApprovalStatus","egsApprovalStatus"])) || !!first(r,["jcApprovalDate","egsApprovalDate","approvalDate"]);
+    const atrStatusText=cleanText(r?.atrStatus);
+    const atrReceived=/received|approved|sent to complainant|uploaded in cpgrams portal/i.test(atrStatusText) || yes(first(r,["atrReceived"])) || !!first(r,["atrDate","atrReceivedDate"]);
+    const approvalDone=/approved|sent to complainant|uploaded in cpgrams portal/i.test(atrStatusText) || yes(first(r,["approvalStatus","putUpForJCApproval","putUpForEGSApproval","jcApprovalStatus","egsApprovalStatus"])) || !!first(r,["jcApprovalDate","egsApprovalDate","approvalDate"]);
     const putUp=!!first(r,["putUpDate","dateArised","filePutupDate"]);
     let stage="Grievance Received";
     if(t==="cpgrams"){
       if(closed("cpgrams",r))stage="Disposed / Closed";
-      else if(finalReplyToComplainantDone(r) && !cpgramsPortalDone(r))stage="Portal Upload Pending";
-      else if(approvalDone)stage="ATR approved / final reply pending";
-      else if(atrReceived)stage="Pending JC / EGS Approval";
-      else if(memoIssued)stage="ATR Awaited";
+      else if(/sent to complainant/i.test(atrStatusText))stage="ATR sent to complainant";
+      else if(/approved/i.test(atrStatusText))stage="ATR Approved";
+      else if(/received/i.test(atrStatusText)||atrReceived)stage="ATR Received";
+      else if(/awaited/i.test(atrStatusText)||memoIssued)stage="ATR Awaited";
       else if(putUp)stage="File put up to JC through AO";
     }else if(t==="prajavani"){
       if(closed("cpgrams",r))stage="Closed by JC, Admin";
