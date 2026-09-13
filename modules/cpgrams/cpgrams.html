@@ -54,61 +54,20 @@
 <nav class="fms-action-toolbar navbar navbar-expand-lg bg-light border-bottom">
 <div class="container-fluid">
 <div class="d-flex gap-2 flex-wrap">
-<button class="btn btn-success" id="btnNew" type="button">
-<i class="bi bi-plus-circle"></i>
-
-                New
-
-            </button>
 <button class="btn btn-primary" id="btnSave" type="button">
-<i class="bi bi-save"></i>
-
-                Save
-
-            </button>
+<i class="bi bi-save"></i> Save
+</button>
 <button class="btn btn-warning" id="btnUpdate" type="button">
-<i class="bi bi-pencil-square"></i>
-
-                Update
-
-            </button>
+<i class="bi bi-pencil-square"></i> Update
+</button>
 <button class="btn btn-danger" id="btnDelete" type="button">
-<i class="bi bi-trash"></i>
-
-                Delete
-
-            </button>
-<button class="btn btn-info text-white" id="btnRegister" type="button">
-<i class="bi bi-table"></i>
-
-                Register
-
-            </button>
-<button class="btn btn-secondary" id="btnDashboard" type="button">
-<i class="bi bi-speedometer2"></i>
-
-                Dashboard
-
-            </button>
-<button class="btn btn-success" id="btnWhatsApp" type="button">
-<i class="bi bi-whatsapp"></i>
-
-                WhatsApp
-
-            </button>
-<a class="btn btn-outline-secondary" href="../../pages/admin/master-management.html"><i class="bi bi-database"></i> Master Tables</a>
-<a class="btn btn-outline-primary" href="../../pages/reports.html"><i class="bi bi-bar-chart"></i> Reports</a>
-<button class="btn btn-outline-dark" id="btnHome" type="button">
-<i class="bi bi-house"></i>
-
-                Home
-
-            </button>
+<i class="bi bi-trash"></i> Delete
+</button>
 </div>
 </div>
 </nav><section class="container-fluid py-3 bg-light border-bottom" id="grievanceContextPanel"><div class="card shadow-sm mb-3" id="grievanceTypeSelectorCard">
 <div class="card-header bg-dark text-white py-2"><h5 class="mb-0" id="grievanceTypeHeading">SELECT GRIEVANCE TYPE</h5></div>
-<div class="card-body py-2"><div class="row g-2 align-items-end"><div class="col-md-5"><label class="form-label fw-bold mb-1" for="grievanceType">Grievance Type <span class="text-danger">*</span></label><select class="form-select form-select-lg" id="grievanceType" required="">
+<div class="card-body py-2"><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label fw-bold mb-1" for="grievanceFinancialYear">Financial Year</label><select class="form-select form-select-lg" id="grievanceFinancialYear"></select></div><div class="col-md-8"><label class="form-label fw-bold mb-1" for="grievanceType">Grievance Type <span class="text-danger">*</span></label><select class="form-select form-select-lg" id="grievanceType" required="">
 <option selected="" value="">Select Grievance Type</option>
 <option value="CPGRAMS">CPGRAMS</option>
 <option value="Prajavani">Prajavani</option>
@@ -122,7 +81,7 @@
 <option value="PMO References">PMO References</option>
 <option value="Audit Paras">Audit Paras</option>
 <option value="Vigilance Cases">Vigilance Cases</option>
-</select></div><div class="col-md-3"><label class="form-label fw-bold mb-1" for="grievanceFinancialYear">Financial Year</label><select class="form-select form-select-lg" id="grievanceFinancialYear"></select></div><div class="col-md-4"><div class="alert alert-primary mb-0 py-2" id="selectedGrievanceFormLabel">Select a Grievance Type to load the Data Entry Form</div></div></div></div>
+</select></div></div></div>
 </div><section class="container-fluid py-3 bg-light border-bottom d-none" id="moduleDashboardPanel">
 <div class="alert alert-info py-2 mb-3" id="moduleDashboardStatus">Loading dashboard...</div>
 <div class="row g-3" id="moduleDashboardCards"></div>
