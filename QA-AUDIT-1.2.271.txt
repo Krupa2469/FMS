@@ -1,9 +1,0 @@
-Rose Gardens v1.2.271 QA Audit
-
-- Verified one editable expenditureAdvance input and no duplicate expenditureAdvance IDs.
-- Verified the former read-only expenditureTotal input is no longer in the expenditure data-entry form.
-- Verified Total Advance Paid / Expenditure Incurred dynamic labels.
-- Verified Save and Update validate advancePaid <= amountCommitted.
-- JavaScript syntax checked.
-- HTML parsed successfully.
-- Android web assets synchronized with Web build.

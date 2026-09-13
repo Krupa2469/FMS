@@ -1,7 +1,0 @@
-Rose Gardens Web v1.2.267
-
-- Fixed dashboard-number drill-down hang by making global table sorting idempotent.
-- Role Access Save/Reset now writes the canonical settings/roleDashboardAccess Firestore document directly through RGMS.store and verifies the saved matrix.
-- Combined bilingual Colony Fund + Ganesh Festival Collection Summary is explicit, Telugu first, with Colony Fund section on top.
-- Retains Ganesh Festival collection summary fields.
-- Global CRUD/action integrity audit executed for Save, Update, Delete and View controls.

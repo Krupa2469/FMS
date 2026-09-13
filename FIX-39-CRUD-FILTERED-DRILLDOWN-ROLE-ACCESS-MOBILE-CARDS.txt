@@ -1,9 +1,0 @@
-Rose Gardens Web 1.2.258 — Fix 39
-
-1. Role Access is now saved with exact Firestore document replacement (merge=false), fresh-remote merge for other roles, authoritative reread, and post-save verification.
-2. Colony Fund Save/Update/Delete now force a fresh Firestore reread before repainting dashboard/register/history/pending lists and show user-friendly inline success/error messages.
-3. Colony Fund dashboard drill-downs now display only rows represented by the clicked figure; Collected/Pending omit zero-value residents and Expenditure respects the clicked FY/month.
-4. CRUD audit retained Save/Update/Delete/Clear/Refresh on data-entry registers and switched Documents, Meetings and General Information refresh to forced authoritative Firestore refresh.
-5. Added exact clickable filters to Complaints, Visitors, Documents and General Information summary cards. Existing Residents, Meetings, Association, Colony Fund and Ganesh dashboard drill-downs are retained.
-6. Mobile dashboard cards no longer use fixed/clipped heights. FY/month dual values stack vertically in a two-column dashboard grid and all labels/currency values wrap inside cards.
-7. Firestore remains the only authoritative live data source.

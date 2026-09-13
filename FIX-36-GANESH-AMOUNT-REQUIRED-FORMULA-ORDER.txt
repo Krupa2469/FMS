@@ -1,8 +1,0 @@
-Rose Gardens Web 1.2.253 - Fix 36
-
-Ganesh Festival financial calculation correction:
-- Balance = Total Festival Fund - Expenditure Incurred.
-- Amount Required = Projected Expenditure - Balance.
-- Amount Required is displayed immediately AFTER Balance on Ganesh Dashboard, report summaries, register summaries and exports.
-- Expenditure line-item tables use "Balance to be Paid" for each commitment (Projected Expenditure - Expenditure Incurred) so the global "Amount Required" is not confused with an individual expense balance.
-- Web and Android embedded web assets use the same calculation and order.

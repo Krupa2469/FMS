@@ -1,8 +1,0 @@
-Rose Gardens v1.2.271 - Colony Fund Expenditure Advance Entry Fix
-
-- The Colony Fund Expenditure form now provides an editable Total Advance Paid field in the top data-entry row.
-- The previous read-only aggregate field was removed from the data-entry row to avoid confusion.
-- The register-wide advance total remains available in the summary as Register Total Advance Paid.
-- Ganesh Festival dynamically labels the same entry field as Expenditure Incurred.
-- Save/Update now reject an advance amount greater than Amount Committed with a clear user message.
-- Existing expenditure CRUD, reports, Colony Fund resident fixes, and JPEG export fixes are retained.
