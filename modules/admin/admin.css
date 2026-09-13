@@ -1,0 +1,227 @@
+.module-container{background:#fff;padding:24px;border-radius:12px;box-shadow:0 3px 12px rgba(0,0,0,.08)}.module-title{color:#0b4f8a;margin-bottom:20px}.summary-section{margin-bottom:20px}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}.summary-card{background:#fff;border-left:5px solid #1f6fb2;padding:20px;border-radius:10px;box-shadow:0 3px 10px rgba(0,0,0,.08)}.summary-card span{display:block;font-size:26px;font-weight:700;color:#0b4f8a;margin-top:8px}.payment-form{background:#fff;padding:20px;border-radius:10px}.btn{margin-top:10px}
+.rg-access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:10px 0 14px}.rg-access-option{display:flex;align-items:center;gap:8px;padding:10px 11px;border:1px solid #dbe3ec;border-radius:9px;background:#f8fafc;font-weight:600;color:#344054}.rg-access-option input{width:18px;height:18px;min-height:18px}.rg-access-option span{line-height:1.2}
+
+/* 1.2.121 clean Admin master-register UI */
+.admin-master-hub{margin:0 0 14px}
+.admin-master-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.admin-master-card{appearance:none;border:1px solid #dbe5ef;background:#fff;border-radius:15px;min-height:86px;padding:12px 14px;display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-rows:auto auto;column-gap:11px;align-items:center;text-align:left;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.06);color:#123f78}
+.admin-master-card>span{grid-row:1/3;width:42px;height:42px;border-radius:11px;background:#eef6ff;display:grid;place-items:center;font-size:23px}
+.admin-master-card strong{font-size:16px;line-height:1.1;white-space:normal;overflow-wrap:anywhere}
+.admin-master-card small{font-size:11px;color:#667085;line-height:1.15}
+.admin-register-header{display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;align-items:center;gap:8px;background:#fff;border:1px solid #dbe5ef;border-radius:14px;padding:8px;margin:0 0 10px;position:sticky;top:0;z-index:30;box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.admin-register-header h3{margin:0;text-align:center;color:#0b4f8a;font-size:19px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-register-header .btn{margin:0;min-height:40px;padding:7px 12px;font-size:12px;white-space:nowrap}
+.admin-register-hint{display:none}
+.admin-clean-hidden{display:none!important}
+#content-area .admin-master-hub~.summary-section.admin-secondary-section{display:none!important}
+#adminRoleSection,#dashboardAssignmentSection,#adminAccessMatrixSection,#adminRoleAccessSection,#adminResidentMasterSection,#mastersSection{display:none}
+#adminRoleSection.admin-active,#dashboardAssignmentSection.admin-active,#adminAccessMatrixSection.admin-active,#adminRoleAccessSection.admin-active,#adminResidentMasterSection.admin-active,#mastersSection.admin-active{display:block}
+#mastersSection.admin-active .master-panel{display:none}
+#mastersSection.admin-active .master-panel.admin-active{display:block}
+#adminRoleSection .summary-section,#adminRoleAccessSection .summary-section{margin:0}
+#adminRoleSection>p,#dashboardAssignmentSection>p,#adminAccessMatrixSection>p,#adminRoleAccessSection>p,#adminResidentMasterSection>p,#mastersSection>p,#mastersSection .master-panel>p{display:none!important}
+#adminRoleSection>h3,#dashboardAssignmentSection>h3,#adminAccessMatrixSection>h3,#adminRoleAccessSection>h3,#adminResidentMasterSection>h3,#mastersSection>h3,#officeBearerPreviewSection,#adminRoleSection .section-heading{display:none}
+#adminRoleSection .form-row{margin-bottom:8px}
+#adminRoleSection .form-group label,#mastersSection label{font-size:13px}
+#adminRoleSection .form-control,#mastersSection .form-control{font-size:14px;min-height:44px}
+#adminRoleSection .table-wrap,#adminAccessMatrixSection .table-wrap,#adminRoleAccessSection .table-wrap,#mastersSection .table-wrap{margin-top:8px}
+#adminRoleSection .summary-section{padding:0}
+#adminResidentMasterSection .btn{margin-top:0}
+#adminResidentRegister{margin-top:8px}
+@media(max-width:700px){
+ .admin-master-grid{grid-template-columns:1fr}
+ .admin-master-card{min-height:76px}
+ .admin-register-header h3{font-size:17px}
+}
+
+/* Keep long screen titles readable across the entire Android UI. */
+#content-area .module-title{font-size:19px!important;line-height:1.12!important;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Register-first presentation: developer guidance is not shown in production UI. */
+#adminRoleSection>.form-row,#adminRoleSection>#btnSaveStaffRole,#adminRoleSection>#staffRoleMessage{display:none}
+#adminRoleSection.admin-new-mode>.form-row,#adminRoleSection.admin-new-mode>#btnSaveStaffRole,#adminRoleSection.admin-new-mode>#staffRoleMessage{display:flex}
+#adminRoleSection.admin-new-mode>.table-wrap,#adminRoleSection.admin-new-mode>.module-toolbar,#adminRoleSection.admin-new-mode>.section-heading{display:none}
+#mastersSection .master-panel>.form-row,#mastersSection .master-panel>.button-row,#mastersSection .master-panel>.message{display:none}
+#mastersSection .master-panel.admin-new-mode>.form-row{display:grid}
+#mastersSection .master-panel.admin-new-mode>.button-row{display:flex}
+#mastersSection .master-panel.admin-new-mode>.message{display:block}
+#mastersSection .master-panel.admin-new-mode>.table-wrap{display:none}
+#adminResidentMasterSection>#btnSeedResidents,#adminResidentMasterSection>#residentSeedMessage{display:none}
+#adminRoleAccessSection.admin-new-mode #roleAccessTable{outline:3px solid #90caf9;outline-offset:2px}
+#adminRoleAccessSection.admin-new-mode #btnSaveRoleAccess{display:block}
+
+/* 1.2.122 Admin production master-register workflow */
+.admin-page-title{margin:8px 0 14px;color:#0b4f8a;font-size:32px;line-height:1.08;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+/* No secondary/developer copy in production Admin UI. */
+#adminMasterHub~.admin-secondary-section,#adminRoleSection>h3,#dashboardAssignmentSection>h3,#adminAccessMatrixSection>h3,#adminResidentMasterSection>h3,#mastersSection>h3,#adminRoleSection>p,#dashboardAssignmentSection>p,#adminAccessMatrixSection>p,#adminResidentMasterSection>p,#mastersSection>p,#mastersSection .master-panel>p{display:none!important}
+#adminMasterHub~#adminRegisterHeader{display:none!important}
+#adminMasterHub{margin-top:0}
+/* The selected master opens as a clean register: grid first, form second. */
+#adminRoleSection.admin-active,#dashboardAssignmentSection.admin-active,#adminAccessMatrixSection.admin-active,#adminResidentMasterSection.admin-active,#mastersSection.admin-active{display:flex!important;flex-direction:column;gap:12px}
+#adminRoleSection .module-toolbar,#adminRoleSection>.table-wrap{order:1}
+#adminRoleSection>.form-row{order:2}
+#adminRoleSection>.admin-form-actions,#adminRoleSection>#staffRoleMessage{order:3}
+#adminResidentMasterSection>#adminResidentsCrud{display:flex;flex-direction:column;gap:12px}
+#adminResidentsCrud .admin-master-grid-wrap{order:1}
+#adminResidentsCrud .admin-master-form{order:2}
+.admin-master-form{background:#fff;border:1px solid #dbe5ef;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+#mastersSection.admin-active .master-panel{display:flex!important;flex-direction:column;gap:10px}
+#mastersSection.admin-active .master-panel>.table-wrap{order:1}
+#mastersSection.admin-active .master-panel>.module-toolbar{order:2}
+#mastersSection.admin-active .master-panel>.form-row{order:3}
+#mastersSection.admin-active .master-panel>.button-row{order:4}
+#mastersSection.admin-active .master-panel>.message{order:5}
+#mastersSection.admin-active .master-panel>h4{order:0}
+#dashboardAssignmentSection.admin-active .table-wrap{order:1}
+#dashboardAssignmentSection.admin-active #dashboardAccessChecks{order:2}
+#dashboardAssignmentSection.admin-active .admin-dashboard-form{order:3}
+#adminAccessMatrixSection.admin-active .table-wrap{order:1}
+#adminAccessMatrixSection.admin-active .admin-access-form{order:2}
+.admin-master-form .form-row,#adminRoleSection.admin-active>.form-row,#mastersSection.admin-active .master-panel>.form-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.admin-master-form label,#adminRoleSection label,#mastersSection label{font-size:14px;font-weight:700;color:#273444}
+.admin-master-form .form-control,#adminRoleSection .form-control,#mastersSection .form-control{min-height:44px;font-size:14px}
+.admin-form-actions,.admin-master-form .button-row{display:flex;gap:8px;flex-wrap:wrap}
+.admin-form-actions .btn,.admin-master-form .btn{margin-top:0}
+#adminRoleSection .table-wrap,#adminResidentMasterSection .table-wrap,#mastersSection .table-wrap,#dashboardAssignmentSection .table-wrap,#adminAccessMatrixSection .table-wrap{overflow-x:auto}
+#adminRoleSection .table,#adminResidentMasterSection .table,#mastersSection .table,#dashboardAssignmentSection .table,#adminAccessMatrixSection .table{min-width:720px}
+#adminRoleSection .rg-grid-actions,#adminResidentMasterSection .rg-grid-actions,#mastersSection .rg-grid-actions,#dashboardAssignmentSection .rg-grid-actions,#adminAccessMatrixSection .rg-grid-actions{display:flex;gap:5px;white-space:nowrap}
+.rg-admin-view{background:#eaf4ff;border:1px solid #b9d7ef;color:#0b4f8a;border-radius:7px;padding:6px 9px;font-weight:800}
+@media(max-width:700px){
+ .admin-page-title{font-size:24px;margin:5px 0 10px}
+ .admin-master-form .form-row,#adminRoleSection.admin-active>.form-row,#mastersSection.admin-active .master-panel>.form-row{grid-template-columns:1fr}
+ .admin-master-card{min-height:78px}
+}
+
+/* Form action state */
+#homeServiceDelete,#providerDelete,#billerDelete,#btnDeleteStaffRole,#adminDashboardDelete,#adminAccessDelete,#adminDirectoryDelete{background:#c62828;color:#fff;border:0}
+.rg-check-option{display:flex;align-items:center;gap:8px;font-weight:700}.rg-check-option input{width:20px;height:20px}
+#adminRoleAccessSection.admin-active{display:flex!important;flex-direction:column;gap:12px}
+#adminRoleAccessSection.admin-active>.table-wrap{order:1}
+#adminRoleAccessSection.admin-active>.admin-access-form{order:2}
+#adminRoleAccessSection.admin-active>#btnSaveRoleAccess,#adminRoleAccessSection.admin-active>#roleAccessMessage{display:none!important}
+#adminAccessFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media(max-width:700px){#adminAccessFields{grid-template-columns:1fr}}
+
+/* 1.2.123 Admin Masters: card navigation + register-first CRUD */
+.admin-page-title{font-size:clamp(21px,6.5vw,30px)!important;line-height:1.08!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;text-align:center!important;margin:8px 0 14px!important}
+#adminMasterHub[hidden]{display:none!important}
+#adminRoleSection.admin-active>.form-row,
+#adminRoleSection.admin-active>.admin-form-actions,
+#adminRoleSection.admin-active>#staffRoleMessage{display:flex!important}
+#adminRoleSection.admin-active>.form-row{display:grid!important}
+#adminRoleSection.admin-active>.module-toolbar,
+#adminRoleSection.admin-active>.table-wrap{display:block!important}
+#mastersSection.admin-active .master-panel.admin-active>.form-row,
+#mastersSection.admin-active .master-panel.admin-active>.button-row,
+#mastersSection.admin-active .master-panel.admin-active>.message{display:flex!important}
+#mastersSection.admin-active .master-panel.admin-active>.form-row{display:grid!important}
+#mastersSection.admin-active .master-panel.admin-active>.table-wrap,
+#mastersSection.admin-active .master-panel.admin-active>.module-toolbar{display:block!important}
+#adminResidentMasterSection.admin-active #adminResidentsCrud{display:flex!important}
+#adminResidentMasterSection.admin-active #adminResidentsCrud .admin-master-form{display:block!important}
+#adminAccessMatrixSection.admin-active .admin-dashboard-form,
+#adminRoleAccessSection.admin-active .admin-access-form{display:block!important}
+#adminAccessMatrixSection.admin-active #adminDashboardRole,
+#adminRoleAccessSection.admin-active #adminAccessRole{min-height:44px}
+.admin-active .rg-admin-view{cursor:pointer!important;pointer-events:auto!important}
+@media(max-width:700px){
+ .admin-page-title{font-size:24px!important;margin:6px 0 10px!important}
+ .admin-register-header{display:none!important}
+ .admin-master-card strong{font-size:18px!important}
+ .admin-master-card small{font-size:12px!important}
+}
+
+/* 1.2.174 consolidated compact master layout */
+#adminRoleSection.admin-active,#adminRoleAccessSection.admin-active,#mastersSection.admin-active,#genericMasterSection.admin-active{display:flex!important;flex-direction:column!important;gap:10px!important}
+#adminRoleSection.admin-active>.table-wrap,#adminRoleAccessSection.admin-active>.table-wrap,#mastersSection .master-panel.admin-active>.table-wrap,#genericMasterSection>.table-wrap{order:1!important}
+#adminRoleSection.admin-active>.form-row,#adminRoleSection.admin-active>.button-row,#adminRoleSection.admin-active>#staffRoleMessage,#adminRoleAccessSection .admin-master-form,#mastersSection .master-panel.admin-active>.form-row,#mastersSection .master-panel.admin-active>.button-row,#mastersSection .master-panel.admin-active>.message,#genericMasterForm{order:2!important}
+#mastersSection .master-panel.admin-active{display:flex!important;flex-direction:column!important;gap:8px!important;padding:10px!important;margin:0!important}
+#mastersSection .master-panel.admin-active>.table-wrap{margin:0 0 8px!important}
+#mastersSection .master-panel.admin-active>.form-row{margin:0!important}
+#mastersSection .master-panel.admin-active .form-group{margin-bottom:6px!important}
+#mastersSection .master-panel.admin-active .form-control,.admin-master-form .form-control{min-height:40px!important;padding:7px 9px!important;font-size:13px!important}
+#mastersSection .master-panel.admin-active textarea.form-control{min-height:58px!important}
+#mastersSection .master-panel.admin-active .table,#genericMasterSection .table,#adminRoleSection .table,#adminRoleAccessSection .table{min-width:640px!important;font-size:12px!important}
+#mastersSection .master-panel.admin-active .table th,#mastersSection .master-panel.admin-active .table td,#genericMasterSection .table th,#genericMasterSection .table td,#adminRoleSection .table th,#adminRoleSection .table td,#adminRoleAccessSection .table th,#adminRoleAccessSection .table td{padding:7px 6px!important;line-height:1.15!important}
+#roleAccessTable input[type=checkbox],.rg-access-option input[type=checkbox],.rg-check-option input[type=checkbox]{width:14px!important;height:14px!important;min-width:14px!important;min-height:14px!important;margin:0 3px!important}
+.rg-dashboard-assignment-select{min-width:128px!important;min-height:32px!important;height:32px!important;padding:3px 5px!important;font-size:11px!important}
+.rg-generic-master-section{padding:0!important;background:transparent!important;box-shadow:none!important}
+#genericMasterFields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+#genericMasterFields .rg-wide-field{grid-column:1/-1!important}
+#genericMasterForm{padding:10px!important;margin:0!important}
+#genericMasterForm .button-row{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:7px!important}
+#genericMasterForm .btn{min-height:38px!important;padding:7px!important;font-size:12px!important}
+.admin-master-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.admin-master-card{min-height:70px!important;padding:9px 10px!important}
+.admin-master-card>span{width:34px!important;height:34px!important;font-size:19px!important}
+.admin-master-card strong{font-size:13px!important}.admin-master-card small{font-size:9px!important}
+#adminRoleSection .section-heading,#mastersSection>h3,#mastersSection>p{display:none!important}
+@media(max-width:700px){
+  #genericMasterFields{grid-template-columns:1fr!important}
+  #genericMasterFields .rg-wide-field{grid-column:auto!important}
+  #genericMasterForm .button-row{grid-template-columns:repeat(2,1fr)!important}
+  .admin-master-grid{grid-template-columns:1fr!important}
+}
+
+/* 1.2.177 Role Master role dropdown visibility fix */
+#adminRoleSection.admin-active .rg-role-master-role-field{display:block!important;visibility:visible!important;opacity:1!important;order:0!important}
+#adminRoleSection.admin-active #staffRole{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;min-height:44px!important;background:#fff!important;color:#1f2937!important}
+#adminRoleSection.admin-active .rg-role-master-role-field label{display:block!important;margin-bottom:6px!important}
+
+/* Admin password reset */
+.rg-password-reset-panel{margin-top:18px;padding:16px;border:1px solid #d9e4ec;border-radius:14px;background:#f8fbfd;box-shadow:0 3px 12px rgba(20,60,90,.06)}
+.rg-password-reset-panel h4{margin:0 0 6px;color:#0b4f8a}.rg-password-reset-panel p{margin:4px 0 12px}.rg-password-reset-panel .button-row{display:flex;gap:10px;flex-wrap:wrap}
+@media(max-width:700px){.rg-password-reset-panel{padding:12px}.rg-password-reset-panel .button-row .btn{flex:1 1 100%}}
+
+/* 1.2.208 Reports Master aligned checkbox, field display-order and calculated-field editor */
+#genericMasterSection #rgReportModules.rg-field-checks,
+#genericMasterSection .rg-report-field-group .rg-field-checks{display:grid!important;grid-template-columns:repeat(3,minmax(180px,1fr))!important;gap:7px 12px!important;padding:10px!important;align-items:start!important}
+#genericMasterSection .rg-report-check{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;margin:0!important;padding:6px 8px!important;border:1px solid #e2e8f0!important;border-radius:7px!important;background:#fff!important;cursor:pointer!important;line-height:1.25!important;width:auto!important;min-width:0!important}
+#genericMasterSection .rg-report-check input[type="checkbox"]{appearance:auto!important;-webkit-appearance:checkbox!important;width:16px!important;height:16px!important;min-width:16px!important;min-height:16px!important;max-width:16px!important;max-height:16px!important;margin:0!important;padding:0!important;flex:0 0 16px!important}
+#genericMasterSection .rg-report-check span{display:inline!important;margin:0!important;padding:0!important;white-space:normal!important;font-size:12px!important;font-weight:600!important}
+#genericMasterSection .rg-report-field-group{margin:10px 0 14px!important}.rg-report-field-group>strong{display:block!important;margin:0 0 6px!important;color:#123f78!important}
+#genericMasterSection .rg-calc-help{font-size:11px;color:#5d6673;margin:0 0 8px}
+#genericMasterSection #rgCalculatedFields{display:flex;flex-direction:column;gap:8px}
+#genericMasterSection .rg-calc-row{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(170px,1.4fr) 54px minmax(170px,1.4fr) 120px 92px 32px;gap:6px;align-items:center;padding:8px;border:1px solid #dbe3ed;border-radius:8px;background:#fafcff}
+#genericMasterSection .rg-calc-row .form-control{min-height:36px!important;height:36px!important;padding:5px 7px!important;font-size:11px!important}
+#genericMasterSection .rg-calc-display{padding:5px 6px!important}.rg-calc-remove{width:30px;height:30px;border:0;border-radius:6px;background:#c62828;color:#fff;font-size:18px;cursor:pointer}.rg-add-calc{margin-top:8px!important;width:auto!important;min-width:160px!important}
+@media(max-width:1000px){#genericMasterSection #rgReportModules.rg-field-checks,#genericMasterSection .rg-report-field-group .rg-field-checks{grid-template-columns:repeat(2,minmax(160px,1fr))!important}#genericMasterSection .rg-calc-row{grid-template-columns:1fr 1fr 54px 1fr;}.rg-calc-row [data-calc="level"],.rg-calc-row .rg-calc-display,.rg-calc-row .rg-calc-remove{grid-row:auto}}
+@media(max-width:700px){#genericMasterSection #rgReportModules.rg-field-checks,#genericMasterSection .rg-report-field-group .rg-field-checks{grid-template-columns:1fr!important}#genericMasterSection .rg-calc-row{grid-template-columns:1fr!important}.rg-calc-remove{justify-self:end}}
+
+/* 1.2.208 Reports Master field display order */
+#genericMasterSection .rg-field-order-head{display:grid;grid-template-columns:1fr 90px;gap:8px;font-size:10px;font-weight:700;color:#667085;padding:0 3px 4px}
+#genericMasterSection .rg-report-field-group .rg-field-checks{display:flex!important;flex-direction:column!important;gap:6px!important}
+#genericMasterSection .rg-report-field-item{display:grid;grid-template-columns:minmax(180px,1fr) 90px;gap:8px;align-items:center}
+#genericMasterSection .rg-report-field-item .rg-field-order{height:34px!important;min-height:34px!important;padding:4px 6px!important;text-align:center!important;font-size:11px!important}
+@media(max-width:700px){#genericMasterSection .rg-report-field-item{grid-template-columns:minmax(150px,1fr) 76px}#genericMasterSection .rg-field-order-head{grid-template-columns:1fr 76px}}
+
+/* 4.5.54 / 1.2.214 comprehensive Role Access Master */
+#adminAccessFields{display:block!important;overflow-x:auto!important}
+.rg-permission-table{min-width:980px;border:1px solid #dbe5ee;border-radius:12px;overflow:hidden;background:#fff}
+.rg-permission-head,.rg-permission-row{display:grid;grid-template-columns:minmax(220px,2fr) repeat(9,minmax(72px,.65fr));align-items:center;gap:0}
+.rg-permission-head{position:sticky;top:0;z-index:2;background:#edf4fb;color:#0d4f83;font-weight:800;font-size:11px;text-align:center}
+.rg-permission-head>span,.rg-permission-row>*{padding:8px 6px;border-right:1px solid #e4ebf2;border-bottom:1px solid #e4ebf2;box-sizing:border-box;min-height:38px;display:flex;align-items:center;justify-content:center}
+.rg-permission-head>span:first-child,.rg-permission-row>strong{justify-content:flex-start;text-align:left}
+.rg-permission-row>strong{font-size:12px;color:#243746;background:#fbfdff}
+.rg-permission-row label{cursor:pointer;margin:0!important}
+.rg-permission-row input[type=checkbox]{width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;margin:0!important}
+.rg-permission-na{color:#a8b2bc!important}
+.rg-mobile-action-label{display:none}
+.rg-admin-access-note{padding:10px 12px;margin-bottom:8px;border:1px solid #b9d8c2;background:#eef8f0;border-radius:10px;color:#285b35;font-weight:700}
+.rg-access-module-list{min-width:420px;white-space:normal!important;line-height:1.7!important}
+.rg-access-chip{display:inline-block;padding:2px 6px;margin:2px;border-radius:999px;font-size:10px;border:1px solid #dbe3ea;background:#f6f8fa;color:#66727c}
+.rg-access-chip.on{background:#edf8ef;border-color:#bfdcc6;color:#235d31}
+.rg-access-actions-summary{min-width:220px;white-space:normal!important;color:#475569}
+.rg-admin-fixed{font-size:9px;color:#2e7d32;margin-top:3px}
+#roleAccessTable{min-width:900px!important}
+@media(max-width:700px){
+ #adminAccessFields{overflow:visible!important}
+ .rg-permission-table{min-width:0;border:0;background:transparent;overflow:visible}
+ .rg-permission-head{display:none}
+ .rg-permission-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;margin-bottom:9px;border:1px solid #dde6ee;border-radius:10px;background:#fff}
+ .rg-permission-row>strong{grid-column:1/-1;background:#eef5fb;border:0;border-radius:7px;min-height:36px;padding:7px 9px;font-size:13px}
+ .rg-permission-row label{border:1px solid #e4e9ee!important;border-radius:7px;min-height:36px!important;padding:7px 9px!important;justify-content:flex-start!important;gap:7px!important;background:#fafcfd}
+ .rg-permission-row>.rg-permission-na{display:none!important}
+ .rg-mobile-action-label{display:inline!important;font-size:11px}
+ .rg-access-module-list{min-width:360px!important}.rg-access-actions-summary{min-width:180px!important}
+}

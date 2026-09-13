@@ -1,0 +1,38 @@
+Rose Gardens v1.2.265 - Production Hotfix QA
+
+Issue observed in production screenshots
+- Admin Masters displayed a generic "Unable to complete the requested action" toast without an identified CRUD failure.
+- Association Dashboard could become unresponsive while figures were rendering.
+
+Root-cause safeguards added
+- Resident dropdown sorter is idempotent: it does not call replaceChildren when the options are already in alphabetical order.
+- This prevents the childList MutationObserver from reacting to its own dropdown rewrite repeatedly.
+- Dashboard consistency observers are requestAnimationFrame-coalesced.
+- Global card alignment no longer performs per-pixel scrollWidth/font-size loops that force repeated synchronous layout.
+- Filter/detail observers only change classes when state actually changes.
+- Background bootstrap/auth Promise errors are logged and no longer produce misleading generic user toasts. Verified CRUD failures still emit rgms:data-error and form-level errors.
+- Admin Masters no longer awaits the full all-collection background bootstrap before becoming interactive.
+- Association Dashboard and Colony Fund reuse the just-loaded authoritative navigation snapshot (10-second immediate reuse window), preventing duplicate same-screen Firestore reads.
+
+Retained v1.2.264 requirements
+- CRUD success/error feedback.
+- Full-screen filtered registers with background cards hidden.
+- Alphabetically sorted resident dropdowns.
+- Owner / Tenant / Vacant normalization and legacy Occupied compatibility.
+- Centered clickable dashboard figures.
+- Telugu-first bilingual Colony Fund Summary and Ganesh Festival Fund Summary.
+
+Static verification
+- JavaScript files syntax checked: 34
+- JavaScript syntax failures: 0
+- HTML files parsed: 20
+- HTML parse failures: 0
+- Active source references to v1.2.264: 0
+- Android embedded Web assets exactly mirror Web v1.2.265: PASS
+- Android XML files parsed: 5
+- Android XML parse failures: 0
+- Android versionCode: 265
+- Android versionName: 1.2.265
+
+Android build note
+- Gradle APK compilation could not run in this environment because Gradle 8.11.1 is not cached and external access to services.gradle.org is unavailable. Source/static/XML checks passed.

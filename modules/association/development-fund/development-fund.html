@@ -1,0 +1,479 @@
+<!--=========================================================
+    Colony Fund Module
+    Version : 4.0
+    Developed by : Lekha Technologies
+==========================================================-->
+
+<div id="developmentFundModule" class="module-container">
+
+    <h2 class="module-title colony-fund-title">Colony Fund</h2>
+    <div id="colonyFundMessage" class="message" role="status" aria-live="polite"></div>
+
+
+    <!--=========================================
+        Tab Navigation
+    ==========================================-->
+
+    <div class="tab-bar">
+
+       <button id="dashboardTab" class="df-tab"
+            onclick="openTab('dashboard')">
+            Dashboard
+        </button>
+
+        <button id="paymentTab" class="df-tab"
+            onclick="openTab('payment')">
+            New Payment
+        </button>
+
+        <button id="historyTab" class="df-tab"
+            onclick="openTab('history')">
+            Payment History
+        </button>
+
+        <button id="pendingTab" class="df-tab"
+            onclick="openTab('pending')">
+            Pending Residents
+        </button>
+
+    </div>
+
+    <!--=========================================
+        DASHBOARD TAB
+    ==========================================-->
+
+   <div id="dashboardContent" class="df-tab-content df-active" style="display:block">
+      <div class="summary-grid colony-fund-dashboard-grid">
+        <div class="summary-card"><span class="summary-card-icon">🏠</span><h4>Total Houses</h4><span id="colonyTotalHouses" class="dashboard-number dashboard-figure-link" data-colony-dashboard="total" data-colony-period="month" role="button" tabindex="0">…</span></div>
+        <div class="summary-card"><span class="summary-card-icon">🎯</span><h4>Expected Fund</h4><div class="dashboard-period-values"><span><span id="colonyFYLabelExpected">2026-27</span>: <strong id="expectedAmountFY" class="dashboard-figure-link" data-colony-dashboard="expected" data-colony-period="fy" role="button" tabindex="0">…</strong></span><span><span id="colonyMonthLabelExpected">September</span>: <strong id="expectedAmountMonth" class="dashboard-figure-link" data-colony-dashboard="expected" data-colony-period="month" role="button" tabindex="0">…</strong></span></div></div>
+        <div class="summary-card"><span class="summary-card-icon">💰</span><h4>Contributed Fund</h4><div class="dashboard-period-values"><span><span id="colonyFYLabelCollected">2026-27</span>: <strong id="collectedAmountFY" class="dashboard-figure-link" data-colony-dashboard="collected" data-colony-period="fy" role="button" tabindex="0">…</strong></span><span><span id="colonyMonthLabelCollected">September</span>: <strong id="collectedAmountMonth" class="dashboard-figure-link" data-colony-dashboard="collected" data-colony-period="month" role="button" tabindex="0">…</strong></span></div></div>
+        <div class="summary-card"><span class="summary-card-icon">⏳</span><h4>Pending Fund</h4><div class="dashboard-period-values"><span><span id="colonyFYLabelPending">2026-27</span>: <strong id="pendingAmountFY" class="dashboard-figure-link" data-colony-dashboard="pending" data-colony-period="fy" role="button" tabindex="0">…</strong></span><span><span id="colonyMonthLabelPending">September</span>: <strong id="pendingAmountMonth" class="dashboard-figure-link" data-colony-dashboard="pending" data-colony-period="month" role="button" tabindex="0">…</strong></span></div></div>
+        <div class="summary-card"><span class="summary-card-icon">💸</span><h4>Expenditure</h4><div class="dashboard-period-values"><span><span id="colonyFYLabelExpenditure">2026-27</span>: <strong id="colonyExpenditureFY" class="dashboard-figure-link" data-colony-dashboard="expenditure" data-colony-period="fy" role="button" tabindex="0">…</strong></span><span><span id="colonyMonthLabelExpenditure">September</span>: <strong id="colonyExpenditureMonth" class="dashboard-figure-link" data-colony-dashboard="expenditure" data-colony-period="month" role="button" tabindex="0">…</strong></span></div></div>
+        <div class="summary-card"><span class="summary-card-icon">🏦</span><h4>Balance</h4><div class="dashboard-period-values"><span><span id="colonyFYLabelBalance">2026-27</span>: <strong id="colonyBalanceFY" class="dashboard-figure-link" data-colony-dashboard="balance" data-colony-period="fy" role="button" tabindex="0">…</strong></span><span><span id="colonyMonthLabelBalance">September</span>: <strong id="colonyBalanceMonth" class="dashboard-figure-link" data-colony-dashboard="balance" data-colony-period="month" role="button" tabindex="0">…</strong></span></div></div>
+      </div>
+   </div>
+
+    <section id="colonyDashboardDetail" class="dashboard-detail-section dashboard-dropdown" style="display:none" aria-live="polite">
+      <div class="dashboard-detail-toolbar"><strong id="colonyDashboardDetailTitle">Filtered Register</strong><button type="button" id="colonyDashboardDetailClose" class="btn btn-secondary">Close</button></div>
+      <div id="colonyFilteredSummary" class="summary-grid"></div><div class="table-wrap"><table class="table dashboard-detail-table"><thead id="colonyDashboardDetailHead"></thead><tbody id="colonyDashboardDetailBody"></tbody></table></div>
+    </section>
+
+   <!--=========================================
+    NEW PAYMENT TAB
+==========================================-->
+
+<div id="paymentContent" class="df-tab-content">
+
+    <div class="payment-form">
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Financial Year</label>
+                <select id="dfPaymentFinancialYear" class="form-control"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Month</label>
+                <select id="dfPaymentMonth" class="form-control"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Receipt Number</label>
+                <input
+                    type="text"
+                    id="txtReceiptNo"
+                    class="form-control"
+                    readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Name</label>
+                <select id="cmbResidentName" class="form-control"></select>
+            </div>
+
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Mobile Number</label>
+                <input
+                    type="text"
+                    id="txtMobileNumber"
+                    class="form-control"
+                    readonly>
+            </div>
+
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Fund Amount</label>
+                <input
+                    type="number"
+                    id="txtFundAmount"
+                    class="form-control"
+                    readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Amount Paid</label>
+                <input
+                    type="number"
+                    id="txtAmountPaid"
+                    class="form-control">
+            </div>
+
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Balance</label>
+                <input
+                    type="number"
+                    id="txtBalance"
+                    class="form-control"
+                    readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Date</label>
+                <input
+                    type="date"
+                    id="dtPaymentDate"
+                    class="form-control">
+            </div>
+
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Payment Status</label>
+                <select id="cmbPaymentStatus" class="form-control">
+                    <option value="Paid">Paid</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Mode</label>
+                <select
+                    id="cmbPaymentMode"
+                    class="form-control">
+
+                    <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Register Import">Register Import</option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Transaction Number</label>
+                <input
+                    type="text"
+                    id="txtTransactionNo"
+                    class="form-control">
+            </div>
+
+        </div>
+        <input type="hidden" id="txtRemarks" value="">
+
+        <div class="button-row">
+
+            <button
+                id="btnSave"
+                class="btn btn-primary">
+
+                Save
+
+            </button>
+
+            
+
+            
+
+            <button id="btnUpdate" class="btn btn-warning">Update</button>
+
+            <button id="btnDelete" class="btn btn-danger">Delete</button>
+
+            <button
+                id="btnClear"
+                class="btn btn-secondary">
+
+                Clear
+
+            </button>
+
+            <button
+                id="btnPrint"
+                class="btn btn-warning">
+
+                Print Receipt
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <!--=========================================
+        PAYMENT HISTORY TAB
+    ==========================================-->
+
+     <div id="historyContent" class="df-tab-content">
+
+        <div class="rg-register-filter-row" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:0 0 10px;">
+            <div class="form-group" style="min-width:170px;margin:0;">
+                <label>Financial Year</label>
+                <select id="dfHistoryFinancialYear" class="form-control"></select>
+            </div>
+            <div class="form-group" style="min-width:170px;margin:0;">
+                <label>Month</label>
+                <select id="dfHistoryMonth" class="form-control"></select>
+            </div>
+        </div>
+
+        <!-- Payment Register -->
+           <table class="table table-striped">
+
+    <thead>
+
+        <tr>
+
+            <th>S.No.</th>
+            <th>Name</th>
+            <th>H.No.</th>
+            <th>Amount</th>
+            <th>Month</th>
+            <th>Payment Status</th>
+            <th>Mode</th>
+            <th>Total Amount Paid in CY</th>
+            <th>Total Amount Paid Till Date</th>
+            <th>Total Amount Due</th>
+            <th>Remarks</th>
+            <th>Action</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody id="paymentHistoryBody">
+
+    </tbody>
+
+</table>
+        <div id="paymentHistoryContainer"></div>
+
+    </div>
+
+    <!--=========================================
+        PENDING RESIDENTS TAB
+    ==========================================-->
+
+    <div id="pendingContent" class="df-tab-content">
+        <div class="message">Pending residents are available from the Pending Residents tab.</div>
+    </div>
+
+</div>
+
+<script>
+/* Rose Gardens 1.2.28 - Dashboard card navigation */
+(function(){
+  function go(key){
+    var map={
+      residents:['residents','Residents'], visitors:['visitors','Visitors'], complaints:['complaints','Complaints'], meetings:['meetings','Meetings'], documents:['documents','Documents'], notices:['notices','Notices'], communications:['communications','Communications'], developmentFundPayments:['developmentFundPayments','Colony Fund'], festivalFundPayments:['festivalFundPayments','Ganesh Festival'], ganeshFestivalCelebrations:['ganeshFestivalCelebrations','Ganesh Festival'], homeServices:['homeServices','Home Services'], serviceProviders:['serviceProviders','Service Providers'], billers:['billers','Utility Billers'], expenses:['expenses','Expenditure']
+    };
+    var x=map[key]; if(!x)return;
+    try{ if(typeof window.showRegister==='function'){window.showRegister(x[0]);return;} if(typeof window.loadRegister==='function'){window.loadRegister(x[0]);return;} if(typeof window.navigateTo==='function'){window.navigateTo(x[0]);return;} if(typeof window.showSection==='function'){window.showSection(x[0]);return;} }catch(e){console.error(e);}
+    var el=document.querySelector('[data-register="'+x[0]+'"], [data-module="'+x[0]+'"]'); if(el){el.click();return;}
+    var buttons=[...document.querySelectorAll('button,a,[role="button"]')]; var b=buttons.find(function(n){return (n.textContent||'').trim().toLowerCase().indexOf(x[1].toLowerCase())>=0}); if(b)b.click();
+  }
+  document.addEventListener('click',function(e){var card=e.target.closest('[data-dashboard-card],[data-card-key]'); if(!card||card.closest('.association-dashboard-page'))return; var k=card.dataset.dashboardCard||card.dataset.cardKey; if(k)go(k);});
+  window.RGMS=window.RGMS||{}; window.RGMS.dashboardCardNavigate=go;
+})();
+</script>
+<style id="rgms-colony-dashboard-production">
+.dashboard-figure-link{cursor:pointer;border-radius:5px;padding:2px 5px}.dashboard-figure-link:hover{background:rgba(11,79,138,.08)}.dashboard-figure-link:focus{outline:2px solid #90caf9;outline-offset:2px}.dashboard-detail-section.dashboard-dropdown-open{position:fixed!important;inset:0!important;z-index:99990;background:#fff;margin:0!important;padding:18px;box-sizing:border-box;overflow:auto}#colonyFilteredSummary{display:none!important}.dashboard-detail-section.dashboard-dropdown-open #colonyFilteredSummary{display:none!important}.dashboard-detail-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:2px solid #123f78;z-index:2}.dashboard-detail-table{width:100%;border-collapse:collapse}.dashboard-detail-table th{background:#0b4f8a;color:#fff}.dashboard-detail-table th,.dashboard-detail-table td{padding:8px;border:1px solid #d8dee6;white-space:nowrap}.dashboard-detail-table .amount{text-align:right;font-weight:700}
+</style>
+<script>
+(function(){
+  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function money(v){return typeof formatCurrency==='function'?formatCurrency(v):'₹'+Number(v||0).toLocaleString('en-IN');}
+  function hno(r){return typeof formatHNo==='function'?formatHNo(r?.houseNo||r?.plotNo||''):(r?.houseNo||r?.plotNo||'');}
+  function rows(){return RGMS.store.getResidentMaster({includeVacant:true}).filter(r=>String(r.residentType||'').toLowerCase()==='owner');}
+  function payments(){return RGMS.store.getAllRecords(STORAGE_KEYS.DEVELOPMENT_FUND)||[];}
+  function matches(p,r){const a=String(p.residentId||'').toLowerCase(),b=String(r.residentId||'').toLowerCase();if(a&&b&&a===b)return true;return String(p.houseNo||p.plotNo||'').trim().toLowerCase()===String(r.houseNo||r.plotNo||'').trim().toLowerCase();}
+  function show(key,period){
+    const rs=rows(), ps=payments(), sec=document.getElementById('colonyDashboardDetail'); if(!sec)return;
+    const current=String(document.getElementById('dfDashboardMonth')?.value || getCollectionPeriod?.() || '').slice(0,7), fy=String(document.getElementById('dfDashboardFinancialYear')?.value || getFinancialYear());
+    const isFY=period==='fy';
+    const monthLabel=(()=>{if(!/^\d{4}-\d{2}$/.test(current))return 'Current Month';const [y,m]=current.split('-').map(Number);return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});})();
+    const scopeRows=ps.filter(x=>{if(isFY){return typeof paymentFinancialYear==='function' ? paymentFinancialYear(x)===fy : String(x.financialYear||'')===fy;}return String(x.collectionPeriod||x.paymentDate||'').slice(0,7)===current;});
+    const fyMonthsDue=(window.RGMS?.getColonyFundMonthsForFY?.(fy,new Date())||[]).length;
+    let title='', head='<tr><th>S.No.</th><th>Name</th><th>H.No.</th><th>Total Amount</th><th>Payment Status</th><th>Remarks</th></tr>', list=[];
+    if(key==='expected'){
+      const amount=isFY?Number(DEFAULT_FUND_AMOUNT||0)*fyMonthsDue:Number(DEFAULT_FUND_AMOUNT||0);
+      title='Colony Fund – Expected Collection'; list=rs.map(r=>({r,amount}));
+    }
+    if(key==='collected'){title='Colony Fund – Collected Collection'; list=rs.map(r=>{const p=scopeRows.filter(x=>matches(x,r));const a=p.reduce((s,x)=>s+Number(x.amountPaid??x.amount??0),0);return {r,amount:a,status:a>0?'Paid':'Pending'};}).filter(x=>x.amount>0);}
+    if(key==='pending'){
+      const expectedPerResident=isFY?Number(DEFAULT_FUND_AMOUNT||0)*fyMonthsDue:Number(DEFAULT_FUND_AMOUNT||0);
+      title='Colony Fund – Pending Collection'; list=rs.map(r=>{const p=scopeRows.filter(x=>matches(x,r));const a=p.reduce((s,x)=>s+Number(x.amountPaid??x.amount??0),0);return {r,amount:Math.max(0,expectedPerResident-a),status:a>0?'Part Paid':'Pending'};}).filter(x=>x.amount>0);
+    }
+    document.getElementById('colonyDashboardDetailTitle').textContent=title+' · '+(isFY?fy:monthLabel);
+    document.getElementById('colonyDashboardDetailHead').innerHTML=head; document.getElementById('colonyDashboardDetailBody').innerHTML=list.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(hno(x.r))}</td><td>${esc(x.r.ownerName||x.r.name)}</td><td class="amount">${money(x.amount)}</td><td>${esc(x.status||'Expected')}</td><td></td></tr>`).join('')||'<tr><td colspan="6">No matching records found.</td></tr>';
+    sec.style.display='block';sec.classList.add('dashboard-dropdown-open'); document.getElementById('dashboardContent')?.setAttribute('aria-hidden','true');
+  }
+  function close(){const sec=document.getElementById('colonyDashboardDetail');if(sec){sec.style.display='none';sec.classList.remove('dashboard-dropdown-open');}document.getElementById('dashboardContent')?.removeAttribute('aria-hidden');}
+  document.addEventListener('click',e=>{const c=e.target.closest('[data-colony-dashboard]');if(c){e.stopPropagation();show(c.dataset.colonyDashboard,c.dataset.colonyPeriod||'month');}});
+  document.addEventListener('keydown',e=>{const c=e.target.closest('[data-colony-dashboard]');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();show(c.dataset.colonyDashboard,c.dataset.colonyPeriod||'month');}});
+  document.getElementById('colonyDashboardDetailClose')?.addEventListener('click',close);
+  document.getElementById('colonyDashboardDetail')?.addEventListener('mouseleave',()=>{if(window.matchMedia('(hover:hover)').matches)close();});
+})();
+</script>
+
+<style id="rg-162-colony-dashboard">
+.colony-fund-dashboard-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:12px 0 18px!important}
+.colony-fund-dashboard-grid .summary-card{min-width:0!important;min-height:150px!important;padding:12px 8px!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;text-align:center!important;overflow:hidden!important;border-left:0!important}
+.colony-fund-dashboard-grid .summary-card-icon{display:block!important;font-size:28px!important;line-height:1!important;margin:0 0 8px!important}
+.colony-fund-dashboard-grid h4{font-size:clamp(14px,4vw,17px)!important;line-height:1.15!important;margin:0!important;min-height:40px!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;overflow-wrap:anywhere!important}
+.colony-fund-dashboard-grid .dashboard-number{font-size:clamp(24px,7vw,34px)!important;line-height:1!important;margin:auto 0 0!important;padding:8px 0 2px!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;text-align:center!important;text-decoration:none!important}
+</style>
+
+<style id="rg-1228-colony-card-order-fix">
+/* Card order: icon first, label second, amounts at the bottom. */
+#developmentFundModule .colony-fund-dashboard-grid > .summary-card{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;}
+#developmentFundModule .colony-fund-dashboard-grid > .summary-card h4{order:2!important;margin:0 0 3px!important;min-height:24px!important;}
+#developmentFundModule .colony-fund-dashboard-grid > .summary-card .summary-card-icon{order:1!important;margin:0 0 2px!important;}
+#developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-number{order:3!important;margin:auto 0 0!important;}
+#developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-period-values{order:3!important;margin:auto 0 0!important;width:100%!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;text-align:center!important;}
+#developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-period-values span{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;white-space:normal!important;text-align:center!important;}
+#developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-period-values strong{display:block!important;font-size:20px!important;line-height:1.05!important;font-weight:900!important;}
+</style>
+
+<style id="rg-1259-colony-mobile-card-fit-final">
+/* RGMS 1.2.284 — FINAL Colony Fund mobile card fit.
+   This block is intentionally inside the module and after the legacy card-order
+   styles so dynamically loaded module CSS cannot put FY/month values back into
+   two narrow columns. */
+@media (max-width:600px){
+  #developmentFundModule .colony-fund-dashboard-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:9px!important;
+    align-items:stretch!important;
+  }
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card{
+    width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:198px!important;
+    max-height:none!important;
+    padding:10px 7px 13px!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card .summary-card-icon{
+    flex:0 0 auto!important;
+    font-size:27px!important;
+    line-height:1!important;
+    margin:0 0 7px!important;
+  }
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card h4{
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:40px!important;
+    height:auto!important;
+    margin:0 0 6px!important;
+    font-size:clamp(13px,3.75vw,16px)!important;
+    line-height:1.12!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    overflow-wrap:anywhere!important;
+    text-align:center!important;
+  }
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-number{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:auto 0 0!important;
+    padding:8px 0 2px!important;
+    font-size:clamp(26px,7vw,34px)!important;
+    line-height:1.05!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-align:center!important;
+  }
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-period-values{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:8px!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:auto 0 0!important;
+    padding:0!important;
+    text-align:center!important;
+  }
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-period-values > span{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:3px!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0!important;
+    font-size:11px!important;
+    line-height:1.08!important;
+    white-space:normal!important;
+    overflow:hidden!important;
+    text-align:center!important;
+  }
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-period-values > span > span{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    font-size:11px!important;
+    line-height:1.08!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    text-align:center!important;
+  }
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-period-values strong{
+    display:block!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0 auto!important;
+    font-size:clamp(17px,4.8vw,21px)!important;
+    line-height:1.06!important;
+    letter-spacing:-.025em!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:clip!important;
+    text-align:center!important;
+  }
+}
+@media (max-width:360px){
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card{
+    min-height:192px!important;
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+  #developmentFundModule .colony-fund-dashboard-grid > .summary-card .dashboard-period-values strong{
+    font-size:16px!important;
+  }
+}
+</style>

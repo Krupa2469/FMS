@@ -1,0 +1,105 @@
+[
+  {
+    "id": "BL-tgspdcl-electricity",
+    "billerName": "TGSPDCL Electricity Bill",
+    "category": "Electricity",
+    "apiProvider": "Razorpay BBPS",
+    "billerCode": "",
+    "customerNumberLabel": "USC Number",
+    "displayOrder": 1,
+    "requiredFields": [
+      "consumerNumber"
+    ],
+    "status": "Active",
+    "apiStatus": "Not Configured",
+    "razorpayBillerId": "",
+    "gatewayBillerId": "",
+    "paymentGateway": "bbps"
+  },
+  {
+    "id": "BL-water-bill",
+    "billerName": "Water Bill",
+    "category": "Water",
+    "apiProvider": "BBPS",
+    "billerCode": "",
+    "customerNumberLabel": "Consumer Number",
+    "displayOrder": 2,
+    "requiredFields": [
+      "consumerNumber"
+    ],
+    "status": "Active",
+    "apiStatus": "Not Configured"
+  },
+  {
+    "id": "BL-property-tax",
+    "billerName": "Property Tax",
+    "category": "Property Tax",
+    "apiProvider": "BBPS",
+    "billerCode": "",
+    "customerNumberLabel": "Property / Assessment Number",
+    "displayOrder": 3,
+    "requiredFields": [
+      "propertyNumber"
+    ],
+    "status": "Active",
+    "apiStatus": "Not Configured"
+  },
+  {
+    "id": "BL-mobile-postpaid",
+    "billerName": "Mobile Bill",
+    "category": "Mobile Bill",
+    "apiProvider": "BBPS",
+    "billerCode": "",
+    "customerNumberLabel": "Mobile Number",
+    "displayOrder": 4,
+    "requiredFields": [
+      "mobileNumber"
+    ],
+    "status": "Active",
+    "apiStatus": "Not Configured"
+  },
+  {
+    "id": "BL-dth",
+    "billerName": "DTH",
+    "category": "DTH",
+    "apiProvider": "BBPS",
+    "billerCode": "",
+    "customerNumberLabel": "Customer ID",
+    "displayOrder": 6,
+    "requiredFields": [
+      "customerId"
+    ],
+    "status": "Inactive",
+    "apiStatus": "Not Configured"
+  },
+  {
+    "id": "BL-broadband-landline",
+    "billerName": "Broadband / Landline",
+    "category": "Broadband / Landline",
+    "apiProvider": "BBPS",
+    "billerCode": "",
+    "customerNumberLabel": "Customer Number",
+    "displayOrder": 7,
+    "requiredFields": [
+      "customerNumber"
+    ],
+    "status": "Inactive",
+    "apiStatus": "Not Configured"
+  },
+  {
+    "id": "BL-gas-booking",
+    "billerName": "Gas Booking",
+    "category": "Gas Booking",
+    "apiProvider": "BBPS",
+    "billerCode": "",
+    "customerNumberLabel": "Consumer Number / Mobile Number",
+    "displayOrder": 5,
+    "requiredFields": [
+      "consumerNumber",
+      "mobileNumber"
+    ],
+    "status": "Active",
+    "apiStatus": "Not Configured",
+    "notes": "LPG booking integration requires an approved provider/backend endpoint."
+  }
+]

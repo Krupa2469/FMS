@@ -1,0 +1,24 @@
+Rose Gardens v1.2.273
+Date: 2026-09-08
+
+Colony Fund payment identity
+- Authoritative UPI / Payment Link: sriharipriya1209@okhdfcbank.
+- Replaced the previous Colony Fund UPI ID in the central Society configuration and Settings.
+- Pending Colony Fund WhatsApp reminders show Payment Link immediately after Amount Due.
+- Custom pending WhatsApp templates are safeguarded: if the payment ID is omitted, it is inserted after Amount Due.
+- Integrated Colony Fund WhatsApp reminders and automatic reminder templates use the same payment ID.
+
+Resident Portal
+- Colony Payments visibly displays Payment Link: sriharipriya1209@okhdfcbank.
+- Pay Rs./Pay UPI no longer requires a Firebase/Razorpay Payment Link callable; it prepares a direct UPI URI locally.
+- Desktop browser copies the UPI ID and displays it without throwing an online-payment backend error; supported mobile/native clients open the UPI URI.
+- Colony Fund reminder popup displays the same payment ID.
+- Added the missing escD HTML-escape helper used by resident registers/history, fixing the ReferenceError shown in the browser console.
+
+Association Colony Fund
+- Pay Link action uses the direct UPI ID and copies it for sharing.
+- Existing utility-bill/BBPS Razorpay integration remains unchanged because it is not a Colony Fund payment path.
+
+Version
+- Web application/cache version: 1.2.273.
+- Android versionCode 273 / versionName 1.2.273.

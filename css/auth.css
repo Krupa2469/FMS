@@ -1,0 +1,26 @@
+.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#eef2f7;padding:24px}.auth-card{width:min(480px,100%);background:#fff;padding:32px;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.12)}.auth-logo{display:block;width:80px;height:80px;object-fit:contain;margin:0 auto 14px}.auth-card h1{text-align:center;color:#0b4f8a;margin:0}.muted{text-align:center;color:#777;margin:6px 0 24px}.login-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}.login-tabs button{padding:12px;border:1px solid #ccd4dd;background:#f5f7fa;cursor:pointer;border-radius:8px}.login-tabs button.active{background:#0b4f8a;color:#fff}.auth-card label{display:block;font-weight:600;margin:12px 0 6px}.auth-card input,.auth-card select{width:100%;padding:11px;border:1px solid #ccd4dd;border-radius:7px}.auth-card button.primary,.auth-card button.success{width:100%;padding:12px;border:0;border-radius:7px;color:#fff;margin-top:12px;cursor:pointer}.auth-card button.primary{background:#0b4f8a}.auth-card button.success{background:#2e7d32}.details-box{margin-top:10px;padding:10px;background:#f5f8fb;border-radius:7px;color:#555}.message{margin-top:16px;min-height:22px;color:#b3261e}
+html,body{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+.auth-page{width:100%;min-height:100dvh;padding:12px;overflow-y:auto}
+.auth-card{width:min(480px,100%);max-width:100%;padding:20px}
+@media(max-width:480px){
+ .auth-page{padding:8px;align-items:flex-start}
+ .auth-card{padding:16px;border-radius:12px;margin:0 auto}
+ .auth-logo{width:58px;height:58px;margin-bottom:8px}
+ .auth-card h1{font-size:22px}
+ .muted{font-size:12px;margin-bottom:12px}
+ .login-tabs{gap:5px;margin-bottom:10px}
+ .login-tabs button{padding:9px;font-size:12px}
+ .auth-card label{font-size:13px;margin:8px 0 4px}
+ .auth-card input,.auth-card select{padding:9px;font-size:13px}
+ .auth-card button.primary,.auth-card button.success{padding:10px;margin-top:8px;font-size:13px}
+}
+
+@media(max-width:380px){
+ .auth-page{padding:6px}
+ .auth-card{padding:12px}
+ .auth-card h1{font-size:19px}
+ .login-tabs button{font-size:11px;padding:8px 5px}
+ .auth-card input,.auth-card select{font-size:12px;padding:8px}
+ .auth-card button.primary,.auth-card button.success{font-size:12px;padding:9px}
+}
+#recaptcha-container{min-height:0}

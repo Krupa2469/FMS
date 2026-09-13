@@ -1,0 +1,20 @@
+Rose Gardens v1.2.283
+Date: 2026-09-13
+
+Resident Login eligibility
+- Resident Type = Owner: included for every Occupation Status.
+- Resident Type = Tenant: included for every Occupation Status.
+- Resident Type = Family Member / other types: excluded from Resident Login.
+- Occupation Status no longer suppresses an Owner/Tenant login, including Vacant/legacy statuses.
+- Resident login directory remains alphabetical by resident name.
+- Cloud Function residentLoginDirectory and residentLoginPhone use the same rule.
+
+Colony Fund eligibility
+- Resident Type = Owner only.
+- Every Occupation Status is included for an Owner.
+- Tenant and Family Member records are excluded from Colony Fund Expected, Collected and Pending calculations.
+- Dashboard, pending register, payment entry and reports all use the centralized Owner eligibility rule.
+
+Version
+- Web/cache version 1.2.283.
+- Android versionCode 283 / versionName 1.2.283.

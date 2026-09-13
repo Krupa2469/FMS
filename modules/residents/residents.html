@@ -1,0 +1,45 @@
+<div class="module-container residents-management-page" id="residentsManagementPage">
+  <h2 class="module-title">Residents Dashboard</h2>
+  <div class="summary-grid residents-summary-grid">
+    <div class="summary-card dashboard-clickable" data-residents-dashboard="total" role="button" tabindex="0"><h4>Total Houses</h4><span class="summary-card-icon">🏠</span><span id="resTotal" class="dashboard-number">0</span></div>
+    <div class="summary-card dashboard-clickable" data-residents-dashboard="occupied" role="button" tabindex="0">
+      <h4>Occupied</h4><span class="summary-card-icon">👥</span><span id="resOccupied" class="dashboard-number">0</span>
+      <div class="occupied-breakdown"><span class="occupied-filter-link" data-residents-dashboard="owners" role="button" tabindex="0">Owners: <strong id="resOwners">0</strong></span><span class="occupied-filter-link" data-residents-dashboard="tenants" role="button" tabindex="0">Tenants: <strong id="resTenants">0</strong></span></div>
+    </div>
+    <div class="summary-card dashboard-clickable" data-residents-dashboard="vacant" role="button" tabindex="0"><h4>Vacant</h4><span class="summary-card-icon">🏚️</span><span id="resVacant" class="dashboard-number">0</span></div>
+  </div>
+
+  <section class="dashboard-detail-section dashboard-dropdown" id="residentsDashboardDetail" style="display:none" aria-live="polite">
+    <div class="dashboard-detail-toolbar"><strong id="residentsDashboardDetailTitle">Filtered Residents</strong><button type="button" id="residentsDashboardDetailClose" class="btn btn-secondary">Close</button></div>
+    <div class="table-wrap"><table class="table"><thead id="residentsDashboardDetailHead"></thead><tbody id="residentsDashboardDetailBody"></tbody></table></div>
+  </section>
+
+  <div class="residents-main-content">
+    <div class="form-card">
+      <div class="form-row"><div class="form-group"><label>Resident Id (System Generated)</label><input id="residentId" class="form-control" readonly></div><div class="form-group"><label>H.No.</label><input id="plotNo" class="form-control"></div><div class="form-group"><label>Name</label><input id="ownerName" class="form-control"></div></div>
+      <div class="form-row"><div class="form-group"><label>Cell No.</label><input id="mobile" class="form-control" inputmode="tel"></div><div class="form-group"><label>Resident Type</label><select id="residentType" class="form-control"><option>Owner</option><option>Tenant</option><option>Family Member</option></select></div><div class="form-group"><label>Occupation Status</label><select id="residentStatus" class="form-control"><option>Owner</option><option>Tenant</option><option>Vacant</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label>Remarks</label><textarea id="residentRemarks" class="form-control"></textarea></div></div>
+      <div class="button-row"><button id="resSave" class="btn btn-primary">Save</button><button id="resUpdate" class="btn btn-warning" disabled>Update</button><button id="resDelete" class="btn btn-danger" disabled>Delete</button><button id="resClear" class="btn btn-secondary">Clear</button></div>
+      <div id="resMessage" class="message"></div>
+    </div>
+    <div class="module-toolbar"><input id="residentSearch" class="form-control search" placeholder="Search H.No., name, mobile, type or status"><button id="resRefresh" class="btn btn-light">Refresh</button></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>S.No.</th><th>Name</th><th>H.No.</th><th>Resident ID</th><th>Cell No.</th><th>Resident Type</th><th>Occupation Status</th><th>Remarks</th><th>Action</th></tr></thead><tbody id="residentsBody"></tbody></table></div>
+  </div>
+</div>
+<style>
+/* RGMS 1.2.152: Residents Dashboard uses the same mobile card hierarchy as Association Dashboard. */
+.residents-management-page > .module-title{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;font-size:clamp(21px,6.8vw,30px)!important;line-height:1.08!important;margin:16px 0 14px!important}
+.residents-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin-bottom:18px!important}
+.residents-summary-grid .summary-card{cursor:pointer!important;min-height:170px!important;padding:14px!important;box-sizing:border-box!important}
+.residents-summary-grid .summary-card .summary-card-icon{font-size:30px!important;margin:0 0 2px!important}
+.residents-summary-grid .summary-card h4{font-size:17px!important;line-height:1.12!important;margin:0!important;text-align:center!important;overflow-wrap:normal!important;word-break:normal!important}
+.residents-summary-grid .dashboard-number{font-size:30px!important;line-height:1.05!important;font-weight:800!important;margin:2px 0 0!important;text-align:center!important}
+.residents-summary-grid .occupied-breakdown{display:flex!important;justify-content:center!important;align-items:center!important;gap:8px!important;flex-wrap:nowrap!important;width:100%!important;margin-top:2px!important;white-space:nowrap!important;overflow:visible!important}
+.residents-summary-grid .occupied-filter-link{cursor:pointer!important;color:#fff!important;text-decoration:none!important;font-size:10px!important;font-weight:700!important;line-height:1.05!important;white-space:nowrap!important;min-width:0!important}
+.residents-summary-grid .occupied-filter-link strong{font-size:10px!important;color:#fff!important}
+.residents-management-page.dashboard-drill-open .residents-main-content,.residents-management-page.dashboard-drill-open>.module-title,.residents-management-page.dashboard-drill-open>.residents-summary-grid{display:none}
+.residents-management-page .dashboard-detail-section.dashboard-dropdown-open{position:fixed!important;inset:0;z-index:99990;background:#fff;margin:0!important;padding:18px;box-sizing:border-box;overflow:auto;display:block!important}
+.residents-management-page .dashboard-detail-toolbar{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:2px solid #123f78;z-index:2}
+.residents-management-page .dashboard-detail-section table{width:100%}.residents-management-page .dashboard-detail-section th,.residents-management-page .dashboard-detail-section td{white-space:nowrap}.residents-management-page .dashboard-clickable:focus{outline:3px solid #90caf9;outline-offset:2px}
+@media(max-width:600px){.residents-management-page > .module-title{font-size:clamp(20px,6.5vw,28px)!important;margin:14px 0 12px!important}.residents-summary-grid .occupied-filter-link,.residents-summary-grid .occupied-filter-link strong{font-size:9px!important}.residents-summary-grid .occupied-breakdown{gap:5px!important}}
+</style>

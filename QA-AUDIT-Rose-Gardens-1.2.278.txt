@@ -1,0 +1,21 @@
+Rose Gardens v1.2.278 QA Audit
+
+Resident My Profile
+- Active Resident Profile JS no longer calls getResidentProfile/updateResidentProfile Cloud Functions.
+- Profile load uses authenticated Residents Master / Firestore data.
+- Profile Save uses store.patchRecord() with a partial merge only.
+- patchRecord strips identity/master fields before write.
+- Firestore resident self-profile rule whitelists only DOB, anniversary, email, blood group, occupation, emergency contact, personal remarks and update metadata.
+- Name, H.No., mobile, Resident ID, Resident Type and Occupation Status are not in the self-profile whitelist.
+- Displayed Name/H.No. prefer authenticated resident session identity.
+
+Payment handoff
+- v1.2.278 P2P payer-app handoff retained.
+- UPI ID and PhonePe/GPay mobile remain the same beneficiary account.
+
+Validation results are appended during packaging.
+- Web JavaScript: 34 files checked, 0 syntax failures.
+- Web HTML: 20 files parsed successfully.
+- Android XML: 5 files parsed successfully.
+- Web and Android embedded web assets: 153 files, byte-for-byte identical.
+- Resident profile semantic safety assertions: PASS.

@@ -1,0 +1,52 @@
+<div class="module-container"><h2 class="module-title title-single-line">Meetings</h2>
+<div class="summary-grid">
+<div class="summary-card dashboard-clickable" data-meeting-dashboard="upcoming" role="button" tabindex="0"><h4>Upcoming</h4><span id="meetingUpcoming">0</span></div>
+<div class="summary-card dashboard-clickable" data-meeting-dashboard="held" role="button" tabindex="0"><h4>Held</h4><span id="meetingHeld">0</span></div>
+<div class="summary-card dashboard-clickable" data-meeting-dashboard="postponed" role="button" tabindex="0"><h4>Postponed</h4><span id="meetingPostponed">0</span></div>
+<div class="summary-card dashboard-clickable" data-meeting-dashboard="total" role="button" tabindex="0"><h4>Total</h4><span id="meetingTotal">0</span></div>
+</div>
+<div id="meetingActiveFilter" class="message" style="display:none" role="status" aria-live="polite"></div>
+<div class="form-card"><div class="form-row"><div class="form-group"><label>Meeting No.</label><input id="meetingNo" class="form-control" readonly></div><div class="form-group"><label>Meeting Date *</label><input id="meetingDate" type="date" class="form-control"></div><div class="form-group"><label>Time</label><input id="meetingTime" type="time" class="form-control"></div></div>
+<div class="form-row"><div class="form-group"><label>Meeting Type</label><select id="meetingType" class="form-control"><option>General Body Meeting</option><option>Executive Committee Meeting</option><option>Special Meeting</option><option>Emergency Meeting</option></select></div><div class="form-group"><label>Status</label><select id="meetingStatus" class="form-control"><option>To be held</option><option>Held</option><option>Postponed</option><option>Cancelled</option></select></div><div class="form-group"><label>Venue</label><input id="meetingVenue" class="form-control" value="Rose Gardens Colony"></div></div>
+<div class="form-row"><div class="form-group"><label>Chairperson</label><input id="meetingChair" class="form-control"></div><div class="form-group"><label>Secretary / Recorder</label><input id="meetingSecretary" class="form-control"></div><div class="form-group"><label>Quorum / Expected Attendees</label><input id="meetingQuorum" type="number" class="form-control"></div></div>
+<div class="form-row"><div class="form-group"><label>Agenda</label><textarea id="meetingAgenda" class="form-control" placeholder="One item per line"></textarea></div><div class="form-group"><label>Attendance / Participants</label><textarea id="meetingAttendance" class="form-control" placeholder="Names or H.Nos."></textarea></div></div>
+<div class="form-row"><div class="form-group"><label>Minutes / Proceedings</label><textarea id="meetingMinutes" class="form-control"></textarea></div><div class="form-group"><label>Action Items / Decisions</label><textarea id="meetingActions" class="form-control"></textarea></div></div>
+<div class="form-row"><div class="form-group"><label>Next Meeting Date</label><input id="meetingNextDate" type="date" class="form-control"></div><div class="form-group"><label>Meeting Link</label><input id="meetingLink" class="form-control" placeholder="Zoom / Google Meet / WhatsApp link"></div><div class="form-group"><label>Attachment (optional)</label><input id="meetingFile" type="file" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div></div>
+<div class="button-row"><button id="meetingSave" class="btn btn-primary">Save Meeting</button><button id="meetingUpdate" class="btn btn-warning" disabled>Update Meeting</button><button id="meetingDelete" class="btn btn-danger" disabled>Delete Meeting</button><button id="meetingClear" class="btn btn-secondary">Clear</button><button id="meetingPrint" class="btn btn-warning">Print</button></div><div id="meetingMessage" class="message"></div></div>
+<div class="module-toolbar"><input id="meetingSearch" class="form-control search" placeholder="Search meeting no., type, venue, chairperson or status"><button id="meetingRefresh" class="btn btn-light">Refresh</button></div>
+<div class="table-wrap"><table class="table"><thead><tr><th>No.</th><th>Date/Time</th><th>Type</th><th>Venue</th><th>Chair</th><th>Status</th><th>Attachment</th><th>Action</th></tr></thead><tbody id="meetingsBody"></tbody></table></div></div>
+<script>
+/* Rose Gardens 1.2.85 - Meetings dashboard card filters */
+(function(){
+  function apply(key){
+    const search=document.getElementById('meetingSearch');
+    if(search){
+      const today=new Date().toISOString().slice(0,10);
+      search.value='';
+      if(key==='upcoming') search.value='__RG_UPCOMING__';
+      if(key==='held') search.value='__RG_HELD__';
+      if(key==='postponed') search.value='__RG_POSTPONED__';
+      if(window.renderMeetings) window.renderMeetings();
+    }
+    document.querySelector('.module-toolbar')?.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  document.addEventListener('click',e=>{const c=e.target.closest('[data-meeting-dashboard]');if(c){e.stopPropagation();apply(c.dataset.meetingDashboard);}});
+  document.addEventListener('keydown',e=>{const c=e.target.closest('[data-meeting-dashboard]');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();e.stopPropagation();apply(c.dataset.meetingDashboard);}});
+})();
+</script>
+<script>
+/* Rose Gardens 1.2.28 - Dashboard card navigation */
+(function(){
+  function go(key){
+    var map={
+      residents:['residents','Residents'], visitors:['visitors','Visitors'], complaints:['complaints','Complaints'], meetings:['meetings','Meetings'], documents:['documents','Documents'], notices:['notices','Notices'], communications:['communications','Communications'], developmentFundPayments:['developmentFundPayments','Colony Fund'], festivalFundPayments:['festivalFundPayments','Ganesh Festival'], ganeshFestivalCelebrations:['ganeshFestivalCelebrations','Ganesh Festival'], homeServices:['homeServices','Home Services'], serviceProviders:['serviceProviders','Service Providers'], billers:['billers','Utility Billers'], expenses:['expenses','Expenditure']
+    };
+    var x=map[key]; if(!x)return;
+    try{ if(typeof window.showRegister==='function'){window.showRegister(x[0]);return;} if(typeof window.loadRegister==='function'){window.loadRegister(x[0]);return;} if(typeof window.navigateTo==='function'){window.navigateTo(x[0]);return;} if(typeof window.showSection==='function'){window.showSection(x[0]);return;} }catch(e){console.error(e);}
+    var el=document.querySelector('[data-register="'+x[0]+'"], [data-module="'+x[0]+'"]'); if(el){el.click();return;}
+    var buttons=[...document.querySelectorAll('button,a,[role="button"]')]; var b=buttons.find(function(n){return (n.textContent||'').trim().toLowerCase().indexOf(x[1].toLowerCase())>=0}); if(b)b.click();
+  }
+  document.addEventListener('click',function(e){var card=e.target.closest('[data-dashboard-card],[data-card-key]'); if(!card||card.closest('.association-dashboard-page'))return; var k=card.dataset.dashboardCard||card.dataset.cardKey; if(k)go(k);});
+  window.RGMS=window.RGMS||{}; window.RGMS.dashboardCardNavigate=go;
+})();
+</script>

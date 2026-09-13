@@ -1,0 +1,121 @@
+
+.module-container{background:#fff;padding:24px;border-radius:12px;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.module-title{color:#0b4f8a;margin:0 0 18px;font-size:24px;}
+.module-toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px;}
+.module-toolbar .search{min-width:260px;flex:1;max-width:420px;}
+.form-card{background:#f8fafc;border:1px solid #e1e7ef;border-radius:10px;padding:18px;margin-bottom:18px;}
+.form-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;}
+.form-group{flex:1;min-width:200px;display:flex;flex-direction:column;}
+.form-group label{font-weight:600;margin-bottom:6px;color:#344054;}
+.form-control,.form-group input,.form-group select,.form-group textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cfd6df;border-radius:7px;font-size:14px;background:#fff;}
+.form-group textarea{min-height:84px;resize:vertical;}
+.button-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.btn{padding:9px 16px;border:0;border-radius:7px;cursor:pointer;font-weight:600;}
+.btn-primary{background:#0d47a1;color:#fff}.btn-success{background:#2e7d32;color:#fff}.btn-danger{background:#c62828;color:#fff}.btn-warning{background:#ef8f00;color:#fff}.btn-secondary{background:#607d8b;color:#fff}.btn-light{background:#eef2f6;color:#263238}
+.btn:disabled{opacity:.55;cursor:not-allowed}.message{margin:10px 0;font-weight:600;min-height:20px}.message.ok{color:#2e7d32}.message.error{color:#c62828}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;background:#fff}.table th{background:#0b4f8a;color:#fff;padding:10px;text-align:left;white-space:nowrap}.table td{padding:9px;border-bottom:1px solid #e5e7eb;vertical-align:top}.table tr:hover{background:#f7fafc}.table .actions{white-space:nowrap}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}.badge-green{background:#dcfce7;color:#166534}.badge-yellow{background:#fef3c7;color:#92400e}.badge-red{background:#fee2e2;color:#991b1b}.badge-blue{background:#dbeafe;color:#1e40af}.badge-gray{background:#e5e7eb;color:#374151}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:18px}.summary-card{background:#fff;border-left:5px solid #1f6fb2;padding:16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.07)}.summary-card h4{margin:0;color:#555}.summary-card span{display:block;font-size:24px;font-weight:700;color:#0b4f8a;margin-top:7px}
+.section-heading{margin:18px 0 10px;color:#0b4f8a}.muted{color:#667085}.empty{padding:24px;text-align:center;color:#667085}
+.file-link{word-break:break-all}.small{font-size:12px}.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media(max-width:760px){.module-container{padding:14px}.form-group{min-width:100%}.module-toolbar .search{min-width:100%;max-width:none}.table{font-size:13px}}
+
+.dashboard-clickable{cursor:pointer;position:relative}.dashboard-clickable::after{content:'▼';position:absolute;right:10px;bottom:8px;font-size:11px;opacity:.65}.dashboard-clickable.is-expanded::after{content:'▲'}.dashboard-detail-section.dashboard-dropdown{margin-top:12px;border-top:4px solid #0b4f8a;box-shadow:0 5px 18px rgba(0,0,0,.12);animation:rgDashboardDrop .16s ease-out}.dashboard-dropdown-open{display:block!important}.dashboard-detail-section .table-wrap{max-height:55vh;overflow:auto}@keyframes rgDashboardDrop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+
+/* Production Android: compact Association Board card grid. */
+.association-dashboard-page .association-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px!important}
+.association-dashboard-page .association-summary-grid .summary-card{min-width:0!important;padding:10px!important;min-height:74px!important;box-sizing:border-box}
+.association-dashboard-page .association-summary-grid .summary-card h4{font-size:13px!important;line-height:1.1!important}
+.association-dashboard-page .association-summary-grid .summary-card .dashboard-number{font-size:24px!important;margin-top:5px!important}
+@media(max-width:600px){
+  .association-dashboard-page .association-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+  .association-dashboard-page .association-summary-grid .summary-card{padding:8px!important;min-height:70px!important;border-left-width:3px!important}
+  .association-dashboard-page .association-summary-grid .summary-card h4{font-size:11px!important}
+  .association-dashboard-page .association-summary-grid .summary-card .dashboard-number{font-size:21px!important}
+  .association-dashboard-page .occupied-breakdown{font-size:9px!important;gap:4px!important}
+  .association-dashboard-page .summary-card-icon{font-size:15px!important}
+}
+
+
+/* RGMS 1.2.147 — Association Dashboard uses the same clean visual language as
+   Festival Chanda & Laddu Amount. Icons were overlapping labels on Android. */
+.association-dashboard-page .association-summary-grid .summary-card-icon{display:none!important}
+.association-dashboard-page .association-summary-grid .summary-card h4{margin-right:0!important}
+.association-dashboard-page .association-summary-grid .summary-card{min-height:138px!important;height:auto!important;padding:14px!important;justify-content:flex-start!important}
+.association-dashboard-page .association-summary-grid .dashboard-number{margin-top:auto!important;padding-top:12px!important;text-decoration:none!important}
+.association-dashboard-page .association-summary-grid .occupied-breakdown{margin-top:8px!important;justify-content:flex-start!important;overflow:visible!important}
+@media(max-width:600px){
+ .association-dashboard-page .association-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ .association-dashboard-page .association-summary-grid .summary-card{min-height:148px!important;height:auto!important;padding:14px!important}
+ .association-dashboard-page .association-summary-grid .summary-card h4{font-size:16px!important;line-height:1.18!important;overflow:visible!important}
+ .association-dashboard-page .association-summary-grid .dashboard-number{font-size:28px!important;line-height:1.05!important}
+}
+
+/* 1.2.162 final Association Dashboard layout — same hierarchy as Ganesh cards. */
+.association-dashboard-page .association-summary-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+.association-dashboard-page .association-summary-grid .summary-card{min-width:0!important;width:100%!important;min-height:150px!important;height:150px!important;padding:10px 7px!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;text-align:center!important;overflow:hidden!important;border-left:0!important}
+.association-dashboard-page .association-summary-grid .summary-card-icon{display:block!important;font-size:27px!important;line-height:1!important;margin:0 0 7px!important;flex:0 0 auto!important}
+.association-dashboard-page .association-summary-grid .summary-card h4{font-size:clamp(13px,3.8vw,16px)!important;line-height:1.12!important;margin:0!important;max-width:100%!important;min-height:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;overflow-wrap:anywhere!important;word-break:normal!important}
+.association-dashboard-page .association-summary-grid .dashboard-number{font-size:clamp(22px,6.7vw,31px)!important;line-height:1!important;margin:auto 0 0!important;padding:6px 0 2px!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;text-align:center!important;text-decoration:none!important}
+.association-dashboard-page .association-summary-grid .occupied-breakdown{font-size:10px!important;line-height:1.05!important;margin:3px 0 0!important;max-width:100%!important;display:flex!important;gap:5px!important;justify-content:center!important;white-space:nowrap!important}
+
+
+/* RGMS 4.5.30 / Android 1.2.189 — compact Association Dashboard typography */
+.association-dashboard-page .association-summary-grid > .summary-card h4{font-size:13px!important;line-height:1.12!important;min-height:30px!important;}
+.association-dashboard-page .association-summary-grid > .summary-card .dashboard-number{font-size:22px!important;line-height:1.05!important;padding-top:5px!important;}
+.association-dashboard-page .association-summary-grid > .summary-card .dashboard-dual-values{font-size:10.5px!important;line-height:1.15!important;gap:5px!important;}
+.association-dashboard-page .association-summary-grid > .summary-card .dashboard-dual-values span{gap:4px!important;}
+.association-dashboard-page .association-summary-grid > .summary-card .dashboard-dual-values strong{font-size:14px!important;line-height:1.05!important;}
+.association-dashboard-page .association-summary-grid > .summary-card .occupied-breakdown,.association-dashboard-page .association-summary-grid > .summary-card .occupied-filter-link{font-size:9.5px!important;line-height:1.1!important;}
+.association-dashboard-page .association-summary-grid > .summary-card .summary-card-icon{font-size:20px!important;margin-bottom:4px!important;}
+@media(max-width:600px){
+ .association-dashboard-page .association-summary-grid > .summary-card h4{font-size:12px!important;min-height:27px!important;}
+ .association-dashboard-page .association-summary-grid > .summary-card .dashboard-number{font-size:20px!important;}
+ .association-dashboard-page .association-summary-grid > .summary-card .dashboard-dual-values{font-size:9px!important;gap:4px!important;}
+ .association-dashboard-page .association-summary-grid > .summary-card .dashboard-dual-values strong{font-size:12px!important;}
+ .association-dashboard-page .association-summary-grid > .summary-card .occupied-breakdown,.association-dashboard-page .association-summary-grid > .summary-card .occupied-filter-link{font-size:8.5px!important;}
+}
+
+/* RGMS 4.5.32 / Android 1.2.191 — dashboard figures and labels use high-contrast black on pastel cards. */
+.association-dashboard-page .association-summary-grid > .summary-card,
+.association-dashboard-page .association-summary-grid > .summary-card h4,
+.association-dashboard-page .association-summary-grid > .summary-card .dashboard-number,
+.association-dashboard-page .association-summary-grid > .summary-card .dashboard-dual-values,
+.association-dashboard-page .association-summary-grid > .summary-card .dashboard-dual-values span,
+.association-dashboard-page .association-summary-grid > .summary-card .dashboard-dual-values strong,
+.association-dashboard-page .association-summary-grid > .summary-card .occupied-breakdown,
+.association-dashboard-page .association-summary-grid > .summary-card .occupied-breakdown *,
+.association-dashboard-page .association-summary-grid > .summary-card .occupied-filter-link,
+.association-dashboard-page .association-summary-grid > .summary-card .occupied-filter-link * {color:#111!important;}
+
+
+/* RGMS 4.5.36 / Android 1.2.195 — single-screen compact dashboards + centered titles */
+body.rg-module-fullscreen #content-area .module-title,.module-title,.association-page-title,.colony-fund-title{text-align:center!important;}
+.association-dashboard-page .association-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;margin-bottom:8px!important;}
+.association-dashboard-page .association-summary-grid>.summary-card{height:102px!important;min-height:102px!important;padding:6px 5px!important;}
+.association-dashboard-page .association-summary-grid>.summary-card .summary-card-icon{font-size:16px!important;margin:0 0 2px!important;}
+.association-dashboard-page .association-summary-grid>.summary-card h4{font-size:10px!important;line-height:1.05!important;min-height:21px!important;margin:0!important;}
+.association-dashboard-page .association-summary-grid>.summary-card .dashboard-number{font-size:18px!important;line-height:1!important;padding:3px 0 0!important;}
+.association-dashboard-page .association-summary-grid>.summary-card .dashboard-dual-values{font-size:7.5px!important;line-height:1.05!important;gap:2px!important;margin-top:auto!important;}
+.association-dashboard-page .association-summary-grid>.summary-card .dashboard-dual-values strong{font-size:9px!important;}
+.association-dashboard-page .association-summary-grid>.summary-card .occupied-breakdown,.association-dashboard-page .association-summary-grid>.summary-card .occupied-filter-link{font-size:7.5px!important;gap:3px!important;}
+#developmentFundModule .colony-fund-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin:6px 0 8px!important;}
+#developmentFundModule .colony-fund-dashboard-grid>.summary-card{height:112px!important;min-height:112px!important;padding:7px 6px!important;}
+#developmentFundModule .colony-fund-dashboard-grid>.summary-card .summary-card-icon{font-size:18px!important;margin:0 0 3px!important;}
+#developmentFundModule .colony-fund-dashboard-grid>.summary-card h4{font-size:11px!important;line-height:1.05!important;min-height:23px!important;margin:0!important;}
+#developmentFundModule .colony-fund-dashboard-grid>.summary-card .dashboard-number{font-size:19px!important;padding:3px 0 0!important;}
+#developmentFundModule .colony-fund-dashboard-grid>.summary-card .dashboard-period-values{font-size:8px!important;line-height:1.05!important;gap:2px!important;margin-top:auto!important;}
+#developmentFundModule .colony-fund-dashboard-grid>.summary-card .dashboard-period-values strong{font-size:10px!important;}
+.dashboard-clickable .dashboard-number,.dashboard-clickable strong{cursor:pointer!important;}
+@media(min-width:700px){.association-dashboard-page .association-summary-grid>.summary-card{height:112px!important;min-height:112px!important}.association-dashboard-page .association-summary-grid>.summary-card h4{font-size:11px!important}.association-dashboard-page .association-summary-grid>.summary-card .dashboard-dual-values{font-size:8.5px!important}.association-dashboard-page .association-summary-grid>.summary-card .dashboard-dual-values strong{font-size:10px!important}}
+
+/* 4.5.51: figure-only dashboard interaction */
+.association-dashboard-page .summary-card{cursor:default!important;outline:none!important}
+.association-dashboard-page .dashboard-figure-link,.association-dashboard-page .occupied-filter-link{cursor:pointer!important;border-radius:5px;padding:1px 4px}
+.association-dashboard-page .dashboard-figure-link:hover,.association-dashboard-page .occupied-filter-link:hover{background:rgba(11,79,138,.08)}
+.association-dashboard-page .dashboard-figure-link:focus,.association-dashboard-page .occupied-filter-link:focus{outline:2px solid #90caf9;outline-offset:2px}
+
+/* Pending revision: every dashboard figure with a drill-down is visibly interactive. */
+.association-dashboard-page [data-dashboard-card]{cursor:pointer!important;touch-action:manipulation;}
+.association-dashboard-page [data-dashboard-card]:focus{outline:2px solid #90caf9;outline-offset:2px;}

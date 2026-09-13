@@ -1,0 +1,8 @@
+RGMS 1.2.245 - Fix 28
+
+Ganesh Festival Fund report reconciliation:
+- Uses exactly the same record-type classification rule as the live Ganesh Festival Fund register.
+- Explicit historical recordType values are authoritative.
+- Sponsor/Laddu inference is used only when recordType is absent.
+- Prevents a valid contribution with legacy winner/sponsor fields from being misclassified and dropped from the Contributions section.
+- Current FY Contributions report therefore reconciles 1:1 with the register count.

@@ -1,0 +1,24 @@
+Rose Gardens RGMS 1.2.240 - Fix 23
+
+1. Resident My Profile
+- Added getResidentProfile and updateResidentProfile to the active functions/index.js.
+- Profile fields save securely through callable Cloud Functions into the selected resident Firestore record.
+
+2. Ganesh Collection Report
+- Exactly 3 sections: 1. Contributions, 2. Expenditure, 3. Sponsors.
+- Sponsors count added at the top of the report summary and is clickable.
+- Sponsor details included in on-screen report and JPEG/PDF/Excel output path.
+
+3. Reports Master
+- Added Sponsor Details as a selectable module/section with fields.
+- Built-in Ganesh Collection Report synchronized to exactly 3 sections: Contributions + Expenditure + Sponsors. Ganesh expenditure is filtered to Ganesh Festival Fund only.
+- Existing built-in Ganesh report records are upgraded in place when Reports Master opens.
+
+4. Dashboards
+- Ganesh Festival dashboard sponsor card remains clickable.
+- Association Dashboard now also shows a clickable Ganesh Sponsors count.
+
+DEPLOY FROM THE ROSE APP ROOT (Git Bash):
+  export FUNCTIONS_DISCOVERY_TIMEOUT=60
+  firebase deploy --only functions:getResidentProfile,functions:updateResidentProfile
+  firebase deploy --only hosting

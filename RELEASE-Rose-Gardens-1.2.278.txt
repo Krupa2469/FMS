@@ -1,0 +1,23 @@
+Rose Gardens v1.2.278
+Date: 2026-09-09
+
+Resident Login > My Profile
+- Fixed Android resident profile authentication mismatch.
+- My Profile now loads from the same authenticated Residents Master used by the Resident Portal.
+- Save Profile uses a restricted Firestore merge patch instead of requiring WebView Firebase Functions authentication.
+- Editable resident self-service fields: Date of Birth, Marriage Anniversary, Email, Blood Group, Occupation / Profession, Emergency Contact, Personal Details / Remarks.
+- Protected fields remain read-only/not self-editable: Name, H.No., mobile, Resident ID, Resident Type, Occupation Status.
+- Logged-in session identity is authoritative for Name and H.No. displayed in My Profile.
+- Included Firestore rules must be deployed once with: firebase deploy --only firestore:rules
+
+Colony Fund payment handoff
+- Retains v1.2.278 payer-app handoff correction for the personal beneficiary account.
+- UPI ID: sriharipriya1209@okhdfcbank
+- PhonePe / GPay No.: +91 9704035400
+- Both identifiers belong to the same beneficiary account.
+- Android Back returns to the existing Colony Payments screen after payer-app handoff.
+
+Version
+- Web: 1.2.278
+- Android versionCode: 278
+- Android versionName: 1.2.278

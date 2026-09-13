@@ -1,0 +1,90 @@
+<div class="module-container association-dashboard-page" id="associationDashboardPage">
+  <h2 class="module-title association-page-title">Association Dashboard</h2>
+  <div class="summary-grid association-summary-grid">
+    <div class="summary-card"><span class="summary-card-icon">🏠</span><h4>Total Houses</h4><span id="associationTotalHouses" class="dashboard-number dashboard-figure-link" data-dashboard-card="totalHouses" role="button" tabindex="0">…</span></div>
+    <div class="summary-card"><span class="summary-card-icon">👥</span><h4>Occupied</h4><span id="associationResidents" class="dashboard-number dashboard-figure-link" data-dashboard-card="residentsOccupied" role="button" tabindex="0">…</span><div class="dashboard-card-subtext occupied-breakdown"><span class="occupied-filter-link" data-dashboard-card="ownersOccupied" role="button" tabindex="0">Owners: <strong id="associationOwners">…</strong></span><span class="occupied-filter-link" data-dashboard-card="tenantsOccupied" role="button" tabindex="0">Tenants: <strong id="associationTenants">…</strong></span></div></div>
+    <div class="summary-card"><span class="summary-card-icon">🏚️</span><h4>Vacant</h4><span id="associationVacant" class="dashboard-number dashboard-figure-link" data-dashboard-card="vacant" role="button" tabindex="0">…</span></div>
+    <div class="summary-card"><span class="summary-card-icon">💰</span><h4>Contributed Colony Fund</h4><div class="dashboard-dual-values"><span class="dashboard-figure-link" data-dashboard-card="colonyFundFY" role="button" tabindex="0"><span id="associationColonyFYLabel">2026-27</span>: <strong id="associationColonyFY">…</strong></span><span class="dashboard-figure-link" data-dashboard-card="colonyFundMonth" role="button" tabindex="0"><span id="associationColonyMonthLabel">September</span>: <strong id="associationColonyMonth">…</strong></span></div></div>
+    <div class="summary-card"><span class="summary-card-icon">⏳</span><h4>Pending Colony Fund</h4><div class="dashboard-dual-values"><span class="dashboard-figure-link" data-dashboard-card="colonyFundPendingFY" role="button" tabindex="0"><span id="associationPendingFYLabel">2026-27</span>: <strong id="associationPendingFY">…</strong></span><span class="dashboard-figure-link" data-dashboard-card="colonyFundPendingMonth" role="button" tabindex="0"><span id="associationPendingMonthLabel">September</span>: <strong id="associationPendingMonth">…</strong></span></div></div>
+    <div class="summary-card"><span class="summary-card-icon">🎉</span><h4>Ganesh Fund</h4><div class="dashboard-dual-values"><span class="dashboard-figure-link" data-dashboard-card="ganeshChanda" role="button" tabindex="0">Chanda Amount: <strong id="associationGaneshChanda">…</strong></span><span class="dashboard-figure-link" data-dashboard-card="ganeshLaddu" role="button" tabindex="0">Laddu Amount: <strong id="associationGaneshLaddu">…</strong></span></div></div>
+    <div class="summary-card"><span class="summary-card-icon">🤝</span><h4>Ganesh Sponsors</h4><span id="associationGaneshSponsors" class="dashboard-number dashboard-figure-link" data-dashboard-card="ganeshSponsors" role="button" tabindex="0">…</span></div>
+    <div class="summary-card"><span class="summary-card-icon">💸</span><h4>Expenditure</h4><div class="dashboard-dual-values"><span class="dashboard-figure-link" data-dashboard-card="expenditureGanesh" role="button" tabindex="0">Ganesh Fund: <strong id="associationGaneshExpenditure">…</strong></span><span class="dashboard-figure-link" data-dashboard-card="expenditureColony" role="button" tabindex="0">Colony Fund: <strong id="associationColonyExpenditure">…</strong></span></div></div>
+    <div class="summary-card"><span class="summary-card-icon">🏦</span><h4>Balance</h4><div class="dashboard-dual-values"><span class="dashboard-figure-link" data-dashboard-card="balanceGanesh" role="button" tabindex="0">Ganesh Fund: <strong id="associationGaneshBalance">…</strong></span><span class="dashboard-figure-link" data-dashboard-card="balanceColony" role="button" tabindex="0">Colony Fund: <strong id="associationColonyBalance">…</strong></span></div></div>
+    <div class="summary-card"><span class="summary-card-icon">📢</span><h4>Open Complaints</h4><span id="associationComplaints" class="dashboard-number dashboard-figure-link" data-dashboard-card="complaintsOpen" role="button" tabindex="0">…</span></div>
+    <div class="summary-card"><span class="summary-card-icon">🚶</span><h4>Visitors Today</h4><span id="associationVisitors" class="dashboard-number dashboard-figure-link" data-dashboard-card="visitorsToday" role="button" tabindex="0">…</span></div>
+    <div class="summary-card"><span class="summary-card-icon">📅</span><h4>Upcoming Meetings</h4><span id="associationMeetings" class="dashboard-number dashboard-figure-link" data-dashboard-card="meetingsUpcoming" role="button" tabindex="0">…</span></div>
+    <div class="summary-card"><span class="summary-card-icon">📁</span><h4>Documents</h4><span id="associationDocuments" class="dashboard-number dashboard-figure-link" data-dashboard-card="documents" role="button" tabindex="0">…</span></div>
+  </div>
+
+  <section class="dashboard-detail-section dashboard-dropdown" id="associationDashboardDetailSection" style="display:none" aria-live="polite">
+    <div class="dashboard-detail-toolbar">
+      <strong id="associationDashboardDetailTitle">Filtered Register</strong>
+      <button type="button" id="associationDashboardDetailClose" class="btn btn-secondary">Close</button>
+    </div>
+    <div id="associationFilteredSummary" class="summary-grid"></div><div class="table-wrap"><table class="table dashboard-detail-table"><thead id="associationDashboardDetailHead"></thead><tbody id="associationDashboardDetailBody"></tbody></table></div>
+  </section>
+</div>
+<script>
+(function(){
+  function go(key){ if(window.RGMS && typeof window.RGMS.dashboardCardNavigate==='function') window.RGMS.dashboardCardNavigate(key); }
+  document.addEventListener('click',function(e){var row=e.target.closest('[data-dashboard-register]');if(row)go(row.dataset.dashboardRegister);});
+  document.addEventListener('keydown',function(e){var row=e.target.closest('[data-dashboard-register]');if(row&&(e.key==='Enter'||e.key===' ')){e.preventDefault();go(row.dataset.dashboardRegister);}});
+})();
+</script>
+<style>
+.dashboard-number{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
+.dashboard-card-subtext{font-size:13px;color:#6b7280;margin-top:8px;font-weight:600}.occupied-breakdown{display:flex;gap:16px;flex-wrap:wrap}.occupied-filter-link{cursor:pointer;color:#0b4f8a;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}.occupied-filter-link:hover{color:#06345f}.occupied-filter-link:focus{outline:2px solid #90caf9;outline-offset:2px;border-radius:3px}
+.dashboard-figure-link{cursor:pointer}.dashboard-figure-link:focus{outline:2px solid #90caf9;outline-offset:2px;border-radius:4px}
+.dashboard-clickable.is-expanded{box-shadow:0 0 0 3px rgba(11,79,138,.18),0 5px 18px rgba(0,0,0,.12)}
+.association-dashboard-page.dashboard-drill-open .association-summary-grid,
+.association-dashboard-page.dashboard-drill-open > .module-title{display:none}
+.dashboard-detail-section{margin-top:22px}
+#associationFilteredSummary{display:none!important}
+.dashboard-detail-section.dashboard-dropdown-open .table-wrap{width:100%;margin-top:0}
+.dashboard-detail-section.dashboard-dropdown-open{
+  position:fixed!important;left:0;right:0;top:0;bottom:0;z-index:99990;
+  margin:0!important;background:#fff;padding:18px 18px 28px;
+  box-sizing:border-box;overflow:auto;display:block!important;
+}
+.dashboard-detail-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;
+  position:sticky;top:0;background:#fff;z-index:2;padding-bottom:8px;border-bottom:2px solid #123f78}
+.dashboard-detail-table{width:100%}
+.dashboard-detail-table th,.dashboard-detail-table td{white-space:nowrap}
+.dashboard-detail-table .amount{text-align:right;font-weight:700}
+.dashboard-detail-table .month-total{background:#f4f8fc;font-weight:800}
+@media(max-width:760px){
+  .dashboard-detail-section.dashboard-dropdown-open{padding:10px 8px 20px}
+  .dashboard-detail-toolbar .btn{min-height:38px;padding:8px 12px}
+}
+
+.association-summary-grid .summary-card h4{font-size:16px;line-height:1.2;font-weight:700;margin:0}.association-summary-grid .summary-card .dashboard-number{font-size:30px;line-height:1.15;font-weight:800;display:block;margin-top:8px}.association-summary-grid .summary-card .summary-card-head{min-height:38px;align-items:center}.association-summary-grid .occupied-breakdown{font-size:14px;line-height:1.2}
+.dashboard-dual-values{width:100%;display:grid;gap:8px;margin-top:auto;font-size:13px;line-height:1.25;color:#334155;text-align:left}.dashboard-dual-values span{display:flex;justify-content:space-between;gap:8px;align-items:center}.dashboard-dual-values strong{font-size:18px;color:#0b4f8a;white-space:nowrap}
+</style>
+
+
+
+<style id="rg-association-dashboard-layout">
+/* Same summary-card presentation as Festival Chanda & Laddu Amount. */
+.association-page-title{white-space:nowrap!important;overflow:visible!important}
+.association-dashboard-page .module-intro{margin:-8px 0 16px;color:#65727d}
+.association-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.association-summary-grid .summary-card{position:relative;min-width:0;min-height:150px;height:auto;box-sizing:border-box;padding:18px;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
+.association-summary-grid .summary-card h4{margin:0 36px 0 0;font-size:18px;line-height:1.15;font-weight:700;overflow-wrap:anywhere}
+.association-summary-grid .summary-card-icon{position:absolute;right:16px;top:18px;font-size:25px;line-height:1}
+.association-summary-grid .dashboard-number{display:block;margin-top:auto;padding-top:14px;font-size:32px;line-height:1.05;font-weight:800;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
+.association-summary-grid .dashboard-card-subtext{font-size:12px;color:#6b7280;margin-top:8px;font-weight:600}
+.association-summary-grid .occupied-breakdown{display:flex;gap:10px;flex-wrap:nowrap;white-space:nowrap}
+.association-summary-grid .occupied-filter-link{cursor:pointer;color:#0b4f8a;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;min-width:0}
+.association-summary-grid .occupied-filter-link:focus,.association-summary-grid .dashboard-figure-link{cursor:pointer}.dashboard-figure-link:focus{outline:2px solid #90caf9;outline-offset:2px;border-radius:4px}
+.association-summary-grid .dashboard-clickable.is-expanded{box-shadow:0 0 0 3px rgba(11,79,138,.18),0 5px 18px rgba(0,0,0,.12)}
+@media(max-width:900px){.association-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:600px){
+  .association-summary-grid{grid-template-columns:1fr 1fr!important;gap:12px!important}
+  .association-summary-grid .summary-card{min-height:170px;padding:14px}
+  .association-summary-grid .summary-card h4{font-size:17px;line-height:1.12;margin-right:30px}
+  .association-summary-grid .summary-card-icon{right:13px;top:14px;font-size:22px}
+  .association-summary-grid .dashboard-number{font-size:30px;padding-top:12px}
+  .association-summary-grid .occupied-breakdown{font-size:10px;gap:5px}
+  .association-summary-grid .occupied-filter-link{font-size:10px}
+}
+</style>

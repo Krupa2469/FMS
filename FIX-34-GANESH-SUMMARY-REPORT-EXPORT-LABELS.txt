@@ -1,0 +1,13 @@
+Rose Gardens Web 1.2.251 - Fix 34
+
+Ganesh Dashboard, report summaries, report drill-down registers and exports now use the approved eight figures:
+1. Expected Contributions = Total Contributions Paid + Contributions Due
+2. Total Contributions Paid = contribution amounts with Payment Status Paid
+3. Contributions Due = contribution amounts with Payment Status To be paid
+4. Laddu Auction Amount = paid Laddu Auction collections
+5. Total Festival Fund = Total Contributions Paid + Laddu Auction Amount
+6. Expenditure = Ganesh Festival expenditure actually paid/advanced
+7. Balance = Total Festival Fund - Expenditure
+8. Sponsors = current sponsor count
+
+PDF, Excel and JPEG exports use the same labels/calculations as the on-screen report.

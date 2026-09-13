@@ -1,0 +1,10 @@
+Rose Gardens Web 1.2.260 — Fix 41
+
+Colony Fund mobile dashboard card containment
+- Keeps two cards per row on mobile.
+- Forces FY and Month values to stack vertically inside Expected, Contributed,
+  Pending, Expenditure and Balance cards.
+- Removes conflicting legacy two-column FY/month value layout on phones.
+- Uses responsive amount typography and strict card-width containment so
+  currency values do not extend outside card boundaries.
+- Preserves existing Colony Fund calculations and clickable drill-down filters.

@@ -3,15 +3,30 @@
     "public": ".",
     "ignore": [
       "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
+      ".firebaserc",
+      "firestore.rules",
+      ".git",
+      ".git/**",
+      "**/.git/**",
+      ".firebase",
+      ".firebase/**",
+      ".vscode",
+      ".vscode/**",
+      "**/node_modules/**",
+      "functions/**",
+      "firebase-functions/**",
+      "**/*.zip",
+      "**/*.txt",
+      "**/*.md",
+      "package.json",
+      "package-lock.json"
     ],
     "cleanUrls": true
   },
-  "storage": {
-    "rules": "storage.rules"
-  },
   "functions": {
     "source": "functions"
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }

@@ -1,0 +1,45 @@
+<div class="module-container">
+<h2 class="module-title">RGMS Settings</h2>
+
+<div class="summary-section">
+  <h3>Society</h3>
+  <p><b>Rose Gardens Residents Welfare Association</b></p>
+  <p>UPI ID: <b>sriharipriya1209@okhdfcbank</b></p>
+  <p>PhonePe / GPay No.: <b>+91 9704035400</b> <small>(same payment account)</small></p>
+  <p>Colony Fund: <b>₹500</b></p>
+  <p>Treasurer WhatsApp: <b>8074689415</b></p>
+</div>
+
+<div class="summary-section">
+  <h3>Change Password</h3>
+  <p>Change your office-bearer login password here. Re-enter the current password for security.</p>
+  <div class="payment-form">
+    <div class="form-group"><label>Current Password</label><div class="password-wrap-rg"><input id="currentPassword" type="password" class="form-control"><button type="button" class="password-toggle-rg" data-target="currentPassword" aria-label="Show password">👁</button></div></div>
+    <div class="form-group"><label>New Password</label><div class="password-wrap-rg"><input id="newPassword" type="password" class="form-control" minlength="8"><button type="button" class="password-toggle-rg" data-target="newPassword" aria-label="Show password">👁</button></div></div>
+    <div class="form-group"><label>Confirm New Password</label><div class="password-wrap-rg"><input id="confirmPassword" type="password" class="form-control" minlength="8"><button type="button" class="password-toggle-rg" data-target="confirmPassword" aria-label="Show password">👁</button></div></div>
+    <button id="btnChangePassword" class="btn btn-primary">Change Password</button>
+    <p id="passwordMessage"></p>
+  </div>
+</div>
+
+</div>
+<style>
+.password-wrap-rg{position:relative;display:flex;align-items:center}.password-wrap-rg .form-control{padding-right:50px!important}.password-toggle-rg{position:absolute;right:5px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:20px;width:40px;height:40px;cursor:pointer;color:#52667a}
+</style>
+
+<script>
+/* Rose Gardens 1.2.28 - Dashboard card navigation */
+(function(){
+  function go(key){
+    var map={
+      residents:['residents','Residents'], visitors:['visitors','Visitors'], complaints:['complaints','Complaints'], meetings:['meetings','Meetings'], documents:['documents','Documents'], notices:['notices','Notices'], communications:['communications','Communications'], developmentFundPayments:['developmentFundPayments','Colony Fund'], festivalFundPayments:['festivalFundPayments','Ganesh Festival'], ganeshFestivalCelebrations:['ganeshFestivalCelebrations','Ganesh Festival'], homeServices:['homeServices','Home Services'], serviceProviders:['serviceProviders','Service Providers'], billers:['billers','Utility Billers'], expenses:['expenses','Expenditure']
+    };
+    var x=map[key]; if(!x)return;
+    try{ if(typeof window.showRegister==='function'){window.showRegister(x[0]);return;} if(typeof window.loadRegister==='function'){window.loadRegister(x[0]);return;} if(typeof window.navigateTo==='function'){window.navigateTo(x[0]);return;} if(typeof window.showSection==='function'){window.showSection(x[0]);return;} }catch(e){console.error(e);}
+    var el=document.querySelector('[data-register="'+x[0]+'"], [data-module="'+x[0]+'"]'); if(el){el.click();return;}
+    var buttons=[...document.querySelectorAll('button,a,[role="button"]')]; var b=buttons.find(function(n){return (n.textContent||'').trim().toLowerCase().indexOf(x[1].toLowerCase())>=0}); if(b)b.click();
+  }
+  document.addEventListener('click',function(e){var card=e.target.closest('[data-dashboard-card],[data-card-key]'); if(!card||card.closest('.association-dashboard-page'))return; var k=card.dataset.dashboardCard||card.dataset.cardKey; if(k)go(k);});
+  window.RGMS=window.RGMS||{}; window.RGMS.dashboardCardNavigate=go;
+})();
+</script>

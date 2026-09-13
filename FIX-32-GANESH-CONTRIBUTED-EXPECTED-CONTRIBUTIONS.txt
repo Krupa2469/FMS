@@ -1,0 +1,9 @@
+Rose Gardens Web 1.2.250 - Fix 32
+
+Ganesh Festival terminology and summary update:
+- Total Fund Paid / Contributions Received -> Total Contributed Amount.
+- Contributions Due added and calculated ONLY from records whose Payment Status is 'To be paid'.
+- Ganesh Dashboard Contributions Due card now shows only To-be-paid contribution amounts.
+- Report Summary, JPEG/configured report summaries and Ganesh expenditure summary use the same values.
+- Contributions Due is clickable in Reports and opens only To-be-paid contribution records.
+- Grand Total remains paid Contributions + paid Laddu amount. Contributions Due is not included in Grand Total until paid.

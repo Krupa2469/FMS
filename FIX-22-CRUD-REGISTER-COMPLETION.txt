@@ -1,0 +1,22 @@
+Rose Gardens Web 1.2.239 - Fix 22
+CRUD Register Completion
+
+Changes:
+1. Resident Complaints register now shows an Action column with View, Edit and Delete for the logged-in resident's own complaints.
+2. Resident complaint Create/Update/Delete writes remain Firebase-backed. Once Association action has begun (assigned/resolved/closed), resident-side editing/deletion is locked and View remains available.
+3. Office-bearer Complaints register already had full CRUD and remains unchanged.
+4. Notice Board register now supports View, Edit/Update and Delete in addition to Publish/Create.
+5. Admin Residents Master register now exposes View, Edit and Delete directly in the register.
+6. Role Master register now exposes View, Edit and Delete directly in the register.
+7. Dashboard Assignment register now exposes View and Edit (delete is intentionally not offered because the assignment belongs to an officer profile).
+8. Role Access register now exposes View, Edit and Reset-to-defaults for non-Admin roles.
+9. Colony Directory Assignment register now exposes View, Edit and Delete.
+10. Expenditure register now shows a separate Edit action, in addition to View and Delete where role permissions allow it.
+11. Existing CRUD registers (Residents, Visitors, Colony Fund, Ganesh Contribution, Laddu Auction, Sponsors, Meetings, Documents, General Information, Home Services, Service Providers, Utility Billers and Generic Masters) were audited and retained.
+12. View-only resident registers such as Documents and Payment History remain view-only by design.
+13. Corrected Admin action event handling so generic/master View/Edit/Delete buttons are not intercepted by the Admin master router.
+14. Cache-busting updated to 1.2.239 for Resident Dashboard and dynamically loaded module JavaScript.
+
+Deployment:
+- Hosting only is required for this fix.
+- Run: firebase deploy --only hosting

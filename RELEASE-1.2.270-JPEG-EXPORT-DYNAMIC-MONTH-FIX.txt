@@ -1,0 +1,9 @@
+Rose Gardens v1.2.271 - JPEG Export Dynamic Month Fix
+
+1. Fixed Colony Fund JPEG export when the report contains only the active months (for example July, August and September).
+2. Removed the hard-coded assumption that Colony Fund JPEG always has 12 month columns.
+3. JPEG renderer now derives the month range from the generated report columns and safely handles 1 to 12 months.
+4. Total Amount Paid, Pending Amount and Remarks remain correctly positioned after the dynamic month columns.
+5. Colony Fund resident-name consistency and July-2026 expected-fund rules from v1.2.269 are retained unchanged.
+6. JPEG export failures now show a specific JPEG error instead of only the generic application error toast.
+7. The same fix is synchronized into the Android embedded Web application.

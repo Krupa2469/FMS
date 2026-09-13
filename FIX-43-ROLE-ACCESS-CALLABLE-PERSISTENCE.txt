@@ -1,0 +1,14 @@
+Rose Gardens v1.2.263 - Role Access Callable Persistence Fix 43
+
+1. Role Access load/save now uses dedicated authenticated Firebase callable functions.
+2. The server updates only the selected officer role inside settings/roleDashboardAccess and preserves all other roles.
+3. Admin can initialize Role Access. Non-Admin office bearers can update it only when the current matrix grants Role Access Master -> Update.
+4. The save response returns the committed matrix and the UI verifies the selected permissions before showing success.
+5. Firestore rules now prefer the server-issued custom role claim over a historical UID profile role, avoiding stale profile-role conflicts.
+6. Android uses the native Firebase Functions SDK for Role Access load/save so WebView Auth state is not required.
+
+Required deployment from the active project root:
+  export FUNCTIONS_DISCOVERY_TIMEOUT=60
+  firebase deploy --only functions:getRoleAccessMatrix,functions:saveRoleAccessRole
+  firebase deploy --only firestore:rules
+  firebase deploy --only hosting

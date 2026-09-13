@@ -1,0 +1,15 @@
+Rose Gardens v1.2.263 - Role Access deployment
+
+From the active Firebase project root (the project whose functions source is functions/index.js):
+
+1) Deploy the two Role Access callables:
+   export FUNCTIONS_DISCOVERY_TIMEOUT=60
+   firebase deploy --only functions:getRoleAccessMatrix,functions:saveRoleAccessRole
+
+2) Deploy Firestore rules:
+   firebase deploy --only firestore:rules
+
+3) Deploy Hosting:
+   firebase deploy --only hosting
+
+After deployment, sign out completely, sign in as Admin, open Role Access, edit a non-Admin role and press Save / Update. The success message must read that Role Access was saved and verified in Firebase.

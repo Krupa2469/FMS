@@ -1,0 +1,36 @@
+{
+  "officeBearerRoles": [
+    "Admin",
+    "President",
+    "Secretary",
+    "Treasurer"
+  ],
+  "permissions": {
+    "Admin": [
+      "sms",
+      "whatsapp",
+      "bulk",
+      "custom_message"
+    ],
+    "President": [
+      "sms",
+      "whatsapp",
+      "bulk",
+      "custom_message"
+    ],
+    "Secretary": [
+      "sms",
+      "whatsapp",
+      "bulk",
+      "custom_message"
+    ],
+    "Treasurer": [
+      "sms",
+      "whatsapp",
+      "bulk",
+      "custom_message",
+      "pending_payment_reminders"
+    ]
+  },
+  "mode": "manual"
+}

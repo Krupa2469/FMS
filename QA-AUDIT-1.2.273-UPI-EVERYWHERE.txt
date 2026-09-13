@@ -1,0 +1,21 @@
+Rose Gardens v1.2.273 QA Audit
+
+Checks
+- Old Colony Fund UPI ID krupakar26@axl: 0 active source occurrences.
+- Authoritative UPI ID: sriharipriya1209@okhdfcbank.
+- Resident Pay action: direct UPI; no Razorpay/Firebase callable dependency.
+- Resident portal displays Payment Link.
+- Pending WhatsApp default and custom-template safeguard include Payment Link after Amount Due.
+- Association integrated WhatsApp reminder includes Payment Link after Amount Due.
+- Automatic reminders use the authoritative UPI ID.
+- Resident escD helper is defined before use.
+- Web JavaScript syntax validation and Web/Android asset synchronization are performed during packaging.
+
+Validation results
+- Web JavaScript: 34 files checked, 0 syntax failures.
+- Web HTML: 20 files parsed successfully.
+- Android XML: 5 files parsed successfully.
+- Web and Android embedded assets: 142 files, byte-for-byte identical.
+- Active UPI-like Colony Fund handles: only sriharipriya1209@okhdfcbank.
+- Active version references: 1.2.273 only.
+- Android Gradle compilation could not complete because Gradle 8.11.1 is not cached and services.gradle.org is unreachable from this sandbox.

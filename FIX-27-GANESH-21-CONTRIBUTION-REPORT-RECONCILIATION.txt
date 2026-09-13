@@ -1,0 +1,7 @@
+Rose Gardens RGMS v1.2.245 - Fix 27
+
+- Ganesh Collection report now uses the same contribution sources as the Ganesh Festival Fund register.
+- Legacy festivalFund records are always treated as Contributions in reports, matching the register.
+- Current Financial Year Ganesh contribution count reconciles 1:1 with the live register; explicit Calendar Year/Custom Range reports retain date filtering.
+- Fixes the observed 21-register / 20-report mismatch.
+- Preserves v1.2.243 Laddu Auction reconciliation and all prior consolidated fixes.

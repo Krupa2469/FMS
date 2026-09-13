@@ -1,0 +1,16 @@
+RGMS 1.2.250 - Fix 31
+
+Ganesh Dashboard and Reports terminology / calculation presentation:
+- Total Festival Fund / Total Amount -> Grand Total (Laddu + Contributions)
+- Total Amount Paid -> Contributions Received
+- Total Advance Paid -> Amount Spent
+- Balance Amount -> Balance Amount (Grand Total - Amount Spent)
+
+Calculation basis remains authoritative and unchanged:
+- Contributions Received = paid Ganesh cash contributions (including sponsor cash contributions when paid).
+- Laddu Amount = paid Laddu Auction collections.
+- Grand Total = Contributions Received + Laddu Amount.
+- Amount Spent = actual expenditure amount paid/advanced.
+- Balance Amount = Grand Total - Amount Spent.
+
+The same wording is applied to the on-screen Ganesh summary, report main amount card, configured report summaries, filtered balance drill-down, Ganesh expenditure summary, and JPEG report summary.

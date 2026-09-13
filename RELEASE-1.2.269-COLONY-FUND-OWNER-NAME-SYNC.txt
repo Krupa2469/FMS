@@ -1,0 +1,24 @@
+Rose Gardens Web v1.2.269
+Date: 2026-09-07
+
+Colony Fund payment register synchronization
+- Added the supplied Colony Maintenance Payment Register values for FY 2026-27.
+- 66 Paid owner/month entries are synchronized from the supplied sheet.
+- Every synchronized entry uses payment date 2026-09-07.
+- Amount = Rs. 500, payment status = Paid, balance = 0.
+- Remarks are blank.
+- Existing matching resident/month rows are updated instead of duplicated.
+- Accidental duplicate rows for the same resident/month are removed during the one-time migration.
+- The migration is marker-protected and runs once for an authorized Colony Fund/Admin/Treasurer session.
+
+Resident-name consistency
+- Resident names displayed in Colony Fund and other modules are resolved from the current Residents Master.
+- Historical duplicate Resident IDs can no longer map a record to a different house/person.
+- Colony Fund matching now prefers H.No. + Resident Type over legacy Resident ID.
+- Colony Fund resident selection keys use document/person identity and cannot collide on a duplicated Resident ID.
+- Colony Fund dropdowns and registers show all Owner records alphabetically; Tenant/Family Member records are excluded.
+- Property owners remain visible in Colony Fund even when the house is tenant-occupied or currently vacant.
+- Existing Colony Fund payment names are reconciled to the current Residents Master during the one-time sync.
+
+Expected Fund
+- Colony Fund obligation continues to start from July 2026.

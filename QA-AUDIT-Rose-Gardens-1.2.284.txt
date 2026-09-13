@@ -1,0 +1,14 @@
+Rose Gardens v1.2.284 QA Audit
+Date: 2026-09-13
+
+PASS: Resident Login accepts Owner for all Occupation Status values.
+PASS: Resident Login accepts Tenant for all Occupation Status values.
+PASS: Resident Login accepts Family Member for all Occupation Status values.
+PASS: Resident Login does not use Occupation Status as an eligibility filter.
+PASS: Resident login directory sorting remains alphabetical.
+PASS: Cloud Function directory/phone/session checks use the same Owner + Tenant + Family Member rule.
+PASS: Resident Dashboard permits Owner + Tenant + Family Member sessions.
+PASS: Colony Fund centralized eligibility remains Resident Type = Owner only.
+PASS: Colony Fund Owner eligibility ignores Occupation Status.
+PASS: Tenant/Family Member resident sessions do not receive Owner Colony Fund dues/history by shared H.No.
+PASS: Tenant/Family Member resident sessions cannot initiate Colony Fund payment from their resident record.

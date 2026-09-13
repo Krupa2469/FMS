@@ -1,0 +1,6 @@
+Rose Gardens Web 1.2.250 - Fix 33
+
+Terminology-only update requested by the association:
+- "Expected Contributions" is renamed to "Contributions Due" everywhere in the Ganesh Dashboard, Summary Dashboard, Reports, drill-down headings, and exports.
+- Calculation is unchanged: Contributions Due = contribution amounts whose Payment Status is "To be paid".
+- Contributions Due is not included in Grand Total until the contribution is marked Paid.

@@ -1,0 +1,49 @@
+Rose Gardens v1.2.264 - Static QA Audit
+
+JavaScript files syntax-checked: 34
+JavaScript syntax failures: 0
+HTML files scanned: 20
+CRUD/action buttons scanned: 99
+CRUD/action buttons without a JavaScript/inline handler reference: 0
+Dashboard/filter/clickable markers detected: 68
+
+CRUD messaging safeguards:
+- Store CRUD methods are wrapped by crudGuard and emit rgms:data-error on final failure.
+- Successful verified CRUD emits rgms:data-changed and a friendly global success toast.
+- Runtime/unhandled Promise errors surface a friendly user error toast.
+- Module validation messages remain in place for required fields and business-rule errors.
+
+Filtered-register safeguards:
+- Dedicated drill-downs use dashboard-dropdown-open / rg-filter-overlay full-screen presentation.
+- Colony Fund hides its background module content while colony-drill-open is active and removes stale drill classes on Close.
+- Complaints, Visitors, Documents, Meetings and General Information use ActiveFilter-driven full-screen register mode.
+- Filter Close triggers the module Total card to clear the filter and restore the normal screen.
+- Report drill-downs remain full-screen.
+
+Resident normalization:
+- Central Residents Master canonicalizes Resident Type to Owner / Tenant / Family Member.
+- Central Residents Master canonicalizes Occupation Status to Owner / Tenant / Vacant.
+- Legacy Occupied resolves to Owner or Tenant from Resident Type.
+- Admin Residents Master uses the same canonical Occupation Status options.
+- Resident names are normalized/sorted alphabetically by the authoritative master.
+
+Bilingual Fund Summary checks:
+- Telugu appears before English via bilingualLabel: PASS
+- Colony Fund Summary header: PASS
+- Ganesh Festival Fund Summary header: PASS
+- Current FY column: PASS
+- Current Month column: PASS
+- Total Houses (Occupied/Vacant): PASS
+- Total Expected Fund: PASS
+- Collected Fund: PASS
+- Pending Fund: PASS
+- Expenditure: PASS
+- Balance: PASS
+
+Syntax failures:
+- None
+
+Unreferenced action buttons:
+- None
+
+NOTE: Static audit validates source wiring, syntax, normalization and UI behavior encoded in the build. Live Firebase security rules, authentication, network conditions and production Firestore data require runtime testing after deployment.

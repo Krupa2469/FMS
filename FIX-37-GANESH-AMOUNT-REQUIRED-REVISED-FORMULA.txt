@@ -1,0 +1,12 @@
+RGMS 1.2.254 - Fix 37
+
+Ganesh Festival Amount Required formula corrected as requested:
+
+Amount Required = (Projected Expenditure - Expenditure Incurred) - Balance
+
+Display order is preserved everywhere as:
+Projected Expenditure -> Expenditure Incurred -> Balance -> Amount Required.
+
+Applied to Ganesh Dashboard, dashboard drill-down calculation register, Reports summary/dashboard, report registers, configured reports, expenditure summary, and report/export summaries.
+
+Line-item expenditure rows continue to show Balance to be Paid = Projected Expenditure - Expenditure Incurred; this is an individual commitment balance and is separate from the overall Ganesh Amount Required figure.

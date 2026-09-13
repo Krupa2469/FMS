@@ -1,0 +1,14 @@
+Rose Gardens v1.2.279 QA Audit
+Date: 2026-09-09
+
+Checks
+- Resident My Profile save uses native Firestore on Android.
+- Native Resident session activation force-refreshes ID token before dashboard/profile use.
+- Resident profile patch does not use backendDataApi/WebView auth for post-save verification on Android.
+- Firestore rules permit only whitelisted profile fields for a phone-authenticated owner of that resident record.
+- Protected Residents Master identity/business fields cannot be changed through My Profile.
+- Resident payment UI has no generic Payment Options/deep-P2P button.
+- PhonePe/GPay resident buttons use P2P app handoff (copy mobile + open app), not upi://pay.
+- Android payment-app handoff has activity-result and resume return callbacks.
+- UPI ID: sriharipriya1209@okhdfcbank.
+- PhonePe/GPay No.: +91 9704035400 (same account).

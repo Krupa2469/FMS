@@ -1,0 +1,25 @@
+Rose Gardens v1.2.274
+Date: 2026-09-08
+
+Colony Fund payment account identifiers
+- UPI ID / Payment Link: sriharipriya1209@okhdfcbank
+- PhonePe / GPay No.: +91 9704035400
+- Both identifiers belong to the same beneficiary/payment account; the mobile number is not presented as an alternate account or separate payment method.
+
+Resident Portal
+- Displays both identifiers together on Colony Payments, for due and advance payments.
+- Adds a Copy PhonePe/GPay No. button so a resident can use Pay to Mobile Number when their UPI app requires it.
+- The normal Pay button continues to use the standards-based UPI deep link with the authoritative UPI ID.
+- Colony Fund payment reminder popup displays both identifiers together.
+
+WhatsApp / Communications
+- Pending Colony Fund messages place UPI ID and PhonePe/GPay number immediately after Amount Due.
+- Manual, bulk, integrated and automatic reminder paths use the same two identifiers.
+- Existing custom templates are safeguarded: missing identifiers are inserted after Amount Due.
+
+Association / Settings
+- Colony Fund payment-link notices and Settings display both identifiers as the same payment account.
+
+Version
+- Web/cache version 1.2.274.
+- Android versionCode 274 / versionName 1.2.274.

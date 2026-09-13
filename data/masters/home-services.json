@@ -1,0 +1,56 @@
+[
+  {
+    "id": "electrician",
+    "serviceName": "Electrician",
+    "icon": "⚡",
+    "type": "Normal",
+    "description": "Electrical repairs and maintenance",
+    "displayOrder": 1,
+    "status": "Active"
+  },
+  {
+    "id": "plumber",
+    "serviceName": "Plumber",
+    "icon": "🔧",
+    "type": "Normal",
+    "description": "Plumbing repairs and maintenance",
+    "displayOrder": 2,
+    "status": "Active"
+  },
+  {
+    "id": "painter",
+    "serviceName": "Painter",
+    "icon": "🎨",
+    "type": "Normal",
+    "description": "Painting and related work",
+    "displayOrder": 3,
+    "status": "Active"
+  },
+  {
+    "id": "house-maid",
+    "serviceName": "House Maid",
+    "icon": "🧹",
+    "type": "Normal",
+    "description": "Domestic assistance",
+    "displayOrder": 4,
+    "status": "Active"
+  },
+  {
+    "id": "general-worker",
+    "serviceName": "General Worker",
+    "icon": "🛠️",
+    "type": "Normal",
+    "description": "General maintenance and helper services",
+    "displayOrder": 5,
+    "status": "Active"
+  },
+  {
+    "id": "snake-catcher",
+    "serviceName": "Snake Catcher",
+    "icon": "🐍",
+    "type": "Emergency",
+    "description": "Snake rescue / removal service",
+    "displayOrder": 6,
+    "status": "Active"
+  }
+]

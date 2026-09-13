@@ -1,0 +1,11 @@
+Rose Gardens Web 1.2.238 - Fix 21
+
+Change made:
+- Removed the legacy dark/blue background surrounding the Colony Fund Paid and Due cards on Resident > Colony Payments.
+- Kept Paid, Due and Ganesh Chanda as light readable cards.
+- Added cache-busting version 1.2.238 for Resident Dashboard styles so browsers do not reuse the old blue stylesheet.
+
+Deployment:
+  firebase deploy --only hosting
+
+After deployment, refresh the Resident Dashboard once or reopen the site.

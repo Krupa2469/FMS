@@ -1,0 +1,14 @@
+RGMS 1.2.246 - FIX 29
+
+Ganesh Festival report contribution membership is now classified with exactly the
+same type-field rules as the live Ganesh Festival Fund Register.
+
+Root cause fixed:
+- The report additionally inspected legacy entryType / collectionType fields.
+- The live register did not use those fields for Ganesh record classification.
+- A historical contribution for RAJU NAIK BANOTH could therefore appear in the
+  21-row register but be reclassified/omitted by the report.
+
+The report now uses only recordType / RecordType / record_type / type, matching
+modules/association/festival.js. Current-FY Ganesh Contributions therefore use the
+same contribution membership as the register.

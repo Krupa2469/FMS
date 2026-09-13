@@ -1,0 +1,18 @@
+Rose Gardens v1.2.278
+Date: 2026-09-09
+
+Colony Fund P2P payment correction
+- Stopped launching the personal beneficiary VPA through an external upi://pay intent because current PhonePe/GPay flows can classify/reject that P2P initiation.
+- PhonePe and GPay buttons now use a P2P-safe handoff: copy mobile 9704035400 and open the selected payment app normally.
+- UPI ID remains sriharipriya1209@okhdfcbank; both identifiers belong to the same beneficiary account.
+- Android Back returns to the existing Colony Payments screen after leaving the payment app, and the resident sees an I Have Paid verification prompt.
+- I Have Paid remains the verification workflow because no bank-side merchant webhook is configured.
+
+Version: 1.2.278
+
+Resident My Profile correction
+- Resident Login > My Profile now loads from the authenticated Residents Master already used by the portal.
+- Save Profile uses a restricted Firestore merge patch compatible with native Android FirebaseAuth; it no longer depends on WebView Firebase Functions authentication.
+- New Firestore rule permits a resident to edit only DOB, anniversary, email, blood group, occupation, emergency contact and personal remarks on their own record.
+- Name, H.No., mobile, Resident ID, resident type and occupancy remain protected/read-only.
+- Deploy included rules once: firebase deploy --only firestore:rules

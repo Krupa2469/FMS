@@ -1,0 +1,19 @@
+Rose Gardens v1.2.276
+Date: 2026-09-08
+
+Colony Fund beneficiary (same payment account)
+- UPI ID: sriharipriya1209@okhdfcbank
+- PhonePe / GPay No.: +91 9704035400
+
+Payment-flow correction
+- Removed automatic Colony Fund upi://pay deep-link launching for this P2P/personal UPI account.
+- Resident Portal now offers Pay with PhonePe and Pay with GPay without initiating a P2P payment intent.
+- In the Android app, the selected payment app opens at its normal home screen after 9704035400 is copied.
+- Resident uses Pay to Mobile Number and enters/pastes 9704035400; the due/entered amount remains displayed in Rose Gardens for reference.
+- Copy UPI ID remains available for residents who prefer to search/pay using the UPI ID.
+- Web-browser users get the same copy/instruction flow and are not sent into a blocked UPI intent.
+- Association Pending register now shows/copies Payment Details instead of opening a P2P UPI intent.
+- WhatsApp reminders continue to show the UPI ID and PhonePe/GPay number together as identifiers of the same payment account.
+
+Reason
+- The PhonePe screen shown during testing is associated with UPI payer-app restrictions on externally initiated/QR-share style P2P payment flows. The ₹1 test confirms the problem is not the Colony Fund amount itself.

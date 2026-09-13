@@ -1,0 +1,96 @@
+<div class="module-container ganesh-module">
+  <h2 class="module-title festival-page-title"><span>Festival Chanda</span><span>&amp;</span><span>Laddu Amount</span></h2>
+  <p class="module-intro">Ganesh Festival Chanda Fund, Laddu Auction and Sponsor details.</p>
+
+  <div class="summary-grid ganesh-summary-grid">
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">🎯</span><h4>Expected Contributions</h4><span id="ganeshExpectedAmount" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="expected" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">💰</span><h4>Total Contributions Paid</h4><span id="ganeshTotalChanda" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="collected" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">⏳</span><h4>Contributions Due</h4><span id="ganeshPendingAmount" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="due" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">🍬</span><h4>Laddu Auction Amount</h4><span id="ganeshTotalAuction" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="auction" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">🎉</span><h4>Total Festival Fund</h4><span id="ganeshTotalCollection" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="total" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">📋</span><h4>Amount</h4><span id="ganeshProjectedExpenditure" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="projected" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">💸</span><h4>Advance</h4><span id="ganeshExpenditure" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="expenditure" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">🧮</span><h4>Balance to be paid</h4><span id="ganeshBalanceToBePaid" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="expense-balance" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">🏦</span><h4>Balance</h4><span id="ganeshBalance" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="balance" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">🧾</span><h4>Amount Required</h4><span id="ganeshAmountRequired" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="required" role="button" tabindex="0">…</span></div>
+    <div class="summary-card ganesh-dashboard-card"><span class="summary-card-icon">🤝</span><h4>Sponsors</h4><span id="ganeshSponsorCount" class="dashboard-number dashboard-figure-link" data-ganesh-dashboard="sponsors" role="button" tabindex="0">…</span></div>
+  </div>
+
+  <section class="ganesh-dashboard-detail" id="ganeshDashboardDetail" style="display:none" aria-live="polite">
+    <div class="ganesh-dashboard-detail-toolbar"><strong id="ganeshDashboardDetailTitle">Filtered Register</strong><button type="button" id="ganeshDashboardDetailClose" class="btn btn-secondary" onclick="closeGaneshDashboardDetail()">Close</button></div>
+    <div id="ganeshFilteredSummary" class="summary-grid"></div><div class="table-wrap"><table class="table"><thead id="ganeshDashboardDetailHead"></thead><tbody id="ganeshDashboardDetailBody"></tbody></table></div>
+  </section>
+
+  <div class="form-card">
+    <h3>Ganesh Festival Fund Register</h3>
+    <div class="module-toolbar"><input id="ganeshSearch" class="form-control search" placeholder="Search H.No., name, status or remarks"><button id="ganeshRefresh" class="btn btn-light">Refresh</button></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>S.No.</th><th>Name</th><th>H.No.</th><th>Amount</th><th>Payment Status</th><th>Remarks</th><th>Action</th></tr></thead><tbody id="ganeshBody"></tbody></table></div>
+  </div>
+  <div class="form-card" data-ganesh-form="collection">
+    <h3>1. Ganesh Festival Fund – Data Entry</h3>
+    <div class="form-row">
+      <div class="form-group"><label>S.No.</label><input id="ganeshChandaSno" class="form-control" readonly></div>
+      <div class="form-group"><label>Name *</label><select id="ganeshChandaName" class="form-control"></select></div>
+      <div class="form-group"><label>H.No.</label><input id="ganeshChandaHouse" class="form-control" readonly></div>
+      <div class="form-group"><label>Amount *</label><input id="ganeshChandaAmount" type="number" min="0" step="1" class="form-control"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Payment Status</label><select id="ganeshChandaStatus" class="form-control"><option value="Unpaid" selected>Unpaid</option><option value="To be paid">To be paid</option><option value="Paid">Paid</option></select></div>
+      <div class="form-group"><label>Mode of Payment</label><select id="ganeshChandaMode" class="form-control"><option value="">Select Mode</option><option>Cash</option><option>UPI</option><option>Cheque</option><option>Bank Transfer</option></select></div>
+      <div class="form-group"><label>Date of Payment</label><input id="ganeshChandaDate" type="date" class="form-control"></div>
+      <div class="form-group"><label>Remarks</label><input id="ganeshChandaRemarks" class="form-control"></div>
+    </div>
+    <div class="button-row"><button id="ganeshChandaSave" class="btn btn-primary">Save Fund</button><button id="ganeshChandaUpdate" class="btn btn-warning">Update Fund</button><button id="ganeshChandaDelete" class="btn btn-danger">Delete Fund</button><button id="ganeshChandaClear" class="btn btn-secondary">Clear</button></div>
+    <div id="ganeshChandaMessage" class="message"></div>
+  </div>
+
+  <div class="form-card">
+    <h3>Laddu Auction Register</h3>
+    <div class="module-toolbar"><input id="ganeshAuctionSearch" class="form-control search" placeholder="Search H.No., winner, amount or remarks"><button id="ganeshAuctionRefresh" class="btn btn-light">Refresh</button></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>S.No.</th><th>Winner Name</th><th>H.No.</th><th>FY</th><th>Date</th><th>Mobile</th><th>Auction Amount</th><th>Payment Status</th><th>Remarks</th><th>Action</th></tr></thead><tbody id="ganeshAuctionBody"></tbody></table></div>
+  </div>
+
+  <div class="form-card">
+    <h3>2. Laddu Auction</h3>
+    <div class="form-row">
+      <div class="form-group"><label>Financial Year *</label><select id="ganeshAuctionYear" class="form-control"></select></div>
+      <div class="form-group"><label>Auction Date *</label><input id="ganeshAuctionDate" type="date" class="form-control"></div>
+      <div class="form-group"><label>Auction Amount *</label><input id="ganeshAuctionAmount" type="number" min="0" step="1" class="form-control"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Winner Name *</label><select id="ganeshWinnerName" class="form-control"></select></div>
+      <div class="form-group"><label>H.No.</label><input id="ganeshWinnerHouse" class="form-control" readonly></div>
+      <div class="form-group"><label>Payment Status</label><select id="ganeshAuctionStatus" class="form-control"><option value="Unpaid" selected>Unpaid</option><option value="Paid">Paid</option></select></div>
+      <div class="form-group"><label>Winner Mobile</label><input id="ganeshWinnerMobile" class="form-control"></div>
+    </div>
+    <div class="form-row"><div class="form-group form-group-wide"><label>Auction Remarks</label><textarea id="ganeshAuctionRemarks" class="form-control" rows="2"></textarea></div></div>
+    <div class="button-row"><button id="ganeshAuctionSave" class="btn btn-primary">Save Laddu Auction</button><button id="ganeshAuctionUpdate" class="btn btn-warning">Update Laddu Auction</button><button id="ganeshAuctionDelete" class="btn btn-danger">Delete Laddu Auction</button><button id="ganeshAuctionClear" class="btn btn-secondary">Clear</button></div>
+    <div id="ganeshAuctionMessage" class="message"></div>
+  </div>
+
+  <div class="form-card" data-ganesh-form="sponsor">
+    <h3>3. Sponsor Details – Data Entry</h3>
+    <div class="form-row">
+      <div class="form-group"><label>S.No.</label><input id="ganeshSponsorSno" class="form-control" readonly></div>
+      <div class="form-group"><label>Name *</label><select id="ganeshSponsorName" class="form-control"></select></div>
+      <div class="form-group"><label>H.No.</label><input id="ganeshSponsorHouse" class="form-control" readonly></div>
+      <div class="form-group"><label>Sponsor Type *</label><input id="ganeshSponsorType" class="form-control" placeholder="Enter sponsor type"></div>
+      <div class="form-group"><label>Cash Contribution Amount</label><input id="ganeshSponsorCashAmount" type="number" min="0" step="1" class="form-control" placeholder="Optional cash contribution"></div>
+      <div class="form-group"><label>Payment Status</label><select id="ganeshSponsorPaymentStatus" class="form-control"><option value="Unpaid" selected>Unpaid</option><option value="To be Paid">To be Paid</option><option value="Paid">Paid</option></select></div>
+      <div class="form-group"><label>Date of Payment</label><input id="ganeshSponsorPaymentDate" type="date" class="form-control"></div>
+    </div>
+    <div class="button-row"><button id="ganeshSponsorSave" class="btn btn-primary">Save Sponsor</button><button id="ganeshSponsorUpdate" class="btn btn-warning">Update Sponsor</button><button id="ganeshSponsorDelete" class="btn btn-danger">Delete Sponsor</button><button id="ganeshSponsorClear" class="btn btn-secondary">Clear</button></div>
+    <div id="ganeshSponsorMessage" class="message"></div>
+  </div>
+
+  <div class="form-card">
+    <h3>Sponsor Details Report</h3>
+    <div class="module-toolbar"><input id="ganeshSponsorSearch" class="form-control search" placeholder="Search H.No., name or sponsor type"><button id="ganeshSponsorRefresh" class="btn btn-light">Refresh</button></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>S.No.</th><th>Name</th><th>H.No.</th><th>Sponsor Type</th><th>Cash Contribution</th><th>Payment Status</th><th>Action</th></tr></thead><tbody id="ganeshSponsorBody"></tbody></table></div>
+  </div>
+</div>
+
+<style>
+.ganesh-dashboard-card{cursor:default}.dashboard-figure-link{cursor:pointer;border-radius:5px;padding:2px 5px}.dashboard-figure-link:hover{background:rgba(11,79,138,.08)}.dashboard-figure-link:focus{outline:2px solid #90caf9;outline-offset:2px}.ganesh-dashboard-detail{margin-top:18px}.ganesh-dashboard-detail.dashboard-dropdown-open{position:fixed!important;left:0;right:0;top:0;bottom:0;z-index:99990;margin:0!important;background:#fff;padding:18px;box-sizing:border-box;overflow:auto;display:block!important}.ganesh-dashboard-detail-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;background:#fff;z-index:2;padding-bottom:10px;margin-bottom:12px;border-bottom:2px solid #123f78}.ganesh-dashboard-detail table{width:100%}.ganesh-dashboard-detail th,.ganesh-dashboard-detail td{white-space:nowrap}@media(max-width:760px){.ganesh-dashboard-detail.dashboard-dropdown-open{padding:10px 8px 20px}.ganesh-dashboard-detail-toolbar .btn{min-height:38px;padding:8px 12px}}
+.ganesh-module.ganesh-drill-open> .module-title,.ganesh-module.ganesh-drill-open> .module-intro,.ganesh-module.ganesh-drill-open> .ganesh-summary-grid,.ganesh-module.ganesh-drill-open> form,.ganesh-module.ganesh-drill-open> .tabs,.ganesh-module.ganesh-drill-open> .table-section,.ganesh-module.ganesh-drill-open> .ganesh-section{display:none!important}
+</style>

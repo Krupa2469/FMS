@@ -1,0 +1,23 @@
+Rose Gardens v1.2.282
+Date: 2026-09-09
+
+Direct UPI payment intent
+- Resident Colony Fund now uses a real upi://pay payment request again.
+- Pay button opens Android's UPI chooser so the resident can select an installed UPI app.
+- Separate PhonePe and GPay buttons send the same pre-filled UPI payment request directly to the selected app.
+- Payee: S Sri Hari Priya.
+- UPI ID: sriharipriya1209@okhdfcbank.
+- PhonePe/GPay number: +91 9704035400 (same recipient account).
+- Amount is taken from the current Colony Fund due or the entered additional/advance amount.
+- Payment note contains Colony Fund period and H.No.
+- Each attempt includes a unique RGMS transaction reference.
+- The secure UPI PIN is entered only inside the selected UPI app.
+- Rose Gardens remains underneath the payer app; Android Back returns to Colony Payments.
+- I Have Paid remains for manual Treasurer verification; automatic bank confirmation is not implemented yet.
+
+Resident My Profile
+- v1.2.279 resident session/profile corrections are retained.
+
+Version
+- Web/cache: 1.2.282
+- Android versionCode 281 / versionName 1.2.282

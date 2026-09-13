@@ -1,0 +1,252 @@
+<div class="module-container">
+<h2 class="admin-page-title">Masters</h2>
+<div id="adminMasterHub" class="admin-master-hub">
+  <div class="admin-master-grid">
+    <button class="admin-master-card" data-admin-register="residents" type="button"><span>👥</span><strong>Residents</strong><small>Resident Register</small></button>
+    <button class="admin-master-card" data-admin-register="roles" type="button"><span>👤</span><strong>Roles</strong><small>Officer Role Register</small></button>
+    <button class="admin-master-card" data-admin-register="access" type="button"><span>🔐</span><strong>Role Access</strong><small>Access Matrix</small></button>
+    <button class="admin-master-card" data-admin-register="home-services" type="button"><span>🛠️</span><strong>Home Services</strong><small>Service Master</small></button>
+    <button class="admin-master-card" data-admin-register="providers" type="button"><span>🧰</span><strong>Service Providers</strong><small>Provider Register</small></button>
+    <button class="admin-master-card" data-admin-register="billers" type="button"><span>💳</span><strong>Utility Billers</strong><small>Biller Master</small></button>
+    <button class="admin-master-card" data-admin-register="directory" type="button"><span>📋</span><strong>Directory</strong><small>Service Assignments</small></button>
+    <button class="admin-master-card" data-generic-master="officeBearers" type="button"><span>🏛️</span><strong>Office Bearers</strong><small>Committee Master</small></button>
+    <button class="admin-master-card" data-generic-master="associationSettings" type="button"><span>⚙️</span><strong>Association Settings</strong><small>Association Profile</small></button>
+    <button class="admin-master-card" data-generic-master="paymentModes" type="button"><span>💳</span><strong>Payment Modes</strong><small>Payment Options</small></button>
+    <button class="admin-master-card" data-generic-master="financialYears" type="button"><span>📅</span><strong>Financial Years</strong><small>FY Master</small></button>
+    <button class="admin-master-card" data-generic-master="fundTypes" type="button"><span>💰</span><strong>Fund / Collection Types</strong><small>Collections Master</small></button>
+    <button class="admin-master-card" data-generic-master="expenseHeads" type="button"><span>🧾</span><strong>Expense Heads</strong><small>Expense Categories</small></button>
+    <button class="admin-master-card" data-generic-master="complaintCategories" type="button"><span>📝</span><strong>Complaint Categories</strong><small>Complaint Types</small></button>
+    <button class="admin-master-card" data-generic-master="documentCategories" type="button"><span>📁</span><strong>Document Categories</strong><small>Document Types</small></button>
+    <button class="admin-master-card" data-generic-master="noticeCategories" type="button"><span>📢</span><strong>Notice Categories</strong><small>Notice Types</small></button>
+    <button class="admin-master-card" data-generic-master="visitorTypes" type="button"><span>🚶</span><strong>Visitor Types</strong><small>Visitor Categories</small></button>
+    <button class="admin-master-card" data-generic-master="meetingTypes" type="button"><span>🤝</span><strong>Meeting Types</strong><small>Meeting Categories</small></button>
+        <button class="admin-master-card" data-generic-master="dataEntryFields" type="button"><span>🧩</span><strong>Data Entry Fields</strong><small>All Module Field Master</small></button>
+    <button class="admin-master-card" data-generic-master="reportsMaster" type="button"><span>📊</span><strong>Reports Master</strong><small>Report Definitions</small></button>
+<button class="admin-master-card" data-generic-master="communicationTemplates" type="button"><span>💬</span><strong>Communication Templates</strong><small>SMS / WhatsApp Templates</small></button>
+  </div>
+</div>
+<div id="adminRegisterHeader" class="admin-register-header" hidden>
+  <button id="adminRegisterBack" class="btn btn-secondary" type="button">‹ Masters</button>
+  <h3 id="adminRegisterTitle">Register</h3>
+  <button id="adminRegisterNew" class="btn btn-primary" type="button">＋ New</button>
+</div>
+<div id="adminRegisterHint" class="admin-register-hint" hidden></div>
+<div id="adminCleanWorkspace"></div>
+<div class="summary-section rg-generic-master-section" id="genericMasterSection" hidden>
+  <div class="table-wrap"><table class="table rg-compact-master-table"><thead id="genericMasterHead"></thead><tbody id="genericMasterBody"></tbody></table></div>
+  <div class="admin-master-form" id="genericMasterForm"><div id="genericMasterFields" class="form-row"></div>
+    <div class="button-row"><button id="genericMasterSave" class="btn btn-primary" type="button">Save</button><button id="genericMasterUpdate" class="btn btn-primary" type="button">Update</button><button id="genericMasterDelete" class="btn btn-danger" type="button" disabled>Delete</button><button id="genericMasterClear" class="btn btn-secondary" type="button">Clear</button></div>
+    <div id="genericMasterMessage" class="message"></div>
+  </div>
+</div>
+<div class="summary-section admin-secondary-section"><h3>Current User</h3><p id="adminCurrentUser">Loading...</p></div>
+
+<div class="summary-section" id="adminRoleSection">
+<h3>Officer Role Setup</h3>
+<p>Create or update an office-bearer role and choose the dashboards the user may access.</p>
+<div class="form-row">
+  <div class="form-group rg-role-master-role-field"><label for="staffRole">Role</label><select id="staffRole" class="form-control" required><option value="">Select role</option><option>Admin</option><option>President</option><option>Vice President</option><option>Secretary</option><option>Joint Secretary 1</option><option>Joint Secretary 2</option><option>Treasurer</option></select></div>
+  <div class="form-group"><label>Resident ID</label><input id="staffResidentId" class="form-control" placeholder="Pulled automatically from Firebase" readonly><input id="staffUid" type="hidden"><input id="staffProfileDocId" type="hidden"></div>
+  
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Resident Name</label><select id="staffResident" class="form-control"><option value="">Select resident name</option></select></div>
+  <div class="form-group"><label>Email</label><input id="staffEmail" type="email" class="form-control" placeholder="officer@example.com"></div>
+  <div class="form-group"><label>Dashboard Assignment</label><select id="primaryDashboard" class="form-control"><option value="dashboard">Association Dashboard</option><option value="resident-dashboard">Resident Dashboard</option></select></div>
+  
+</div>
+<div class="button-row admin-form-actions"><button id="btnSaveStaffRole" class="btn btn-primary" type="button">Save / Update</button><button id="btnDeleteStaffRole" class="btn btn-danger" type="button" disabled>Delete</button><button id="btnClearStaffRole" class="btn btn-secondary" type="button">Clear</button></div>
+<p id="staffRoleMessage"></p>
+<h4 class="section-heading">Role Register</h4>
+<div class="form-group admin-role-filter rg-master-role-selector"><label>Select Role</label><select id="roleMasterFilter" class="form-control"><option value="">All roles</option><option>Admin</option><option>President</option><option>Vice President</option><option>Secretary</option><option>Joint Secretary 1</option><option>Joint Secretary 2</option><option>Treasurer</option></select></div>
+<div class="module-toolbar"><input id="roleSearch" class="form-control search" placeholder="Search officer, role or email"><button id="btnRefreshRoles" class="btn btn-light">Refresh</button></div>
+<div class="table-wrap"><table class="table"><thead><tr><th>Role</th><th>Resident ID</th><th>Resident</th><th>Email</th><th>Action</th></tr></thead><tbody id="roleRegisterBody"></tbody></table></div>
+<div class="rg-password-reset-panel" id="adminPasswordResetPanel">
+  <h4>Admin Password Reset</h4>
+  <p>Reset an office bearer's Firebase Authentication password. Passwords are never stored in Firestore.</p>
+  <div class="form-row">
+    <div class="form-group"><label>Office Bearer</label><select id="passwordResetOfficer" class="form-control"><option value="">Select office bearer</option></select></div>
+    <div class="form-group"><label>New Password</label><input id="passwordResetValue" type="password" class="form-control" value="" minlength="12" autocomplete="new-password" placeholder="Minimum 12 characters"></div>
+  </div>
+  <div class="button-row"><button id="btnResetOfficerPassword" type="button" class="btn btn-primary">Reset Password</button></div>
+  <p id="passwordResetMessage" class="message"></p>
+</div>
+
+</div>
+
+<div class="summary-section" id="dashboardAssignmentSection">
+<h3>Dashboard Assignment</h3>
+<div class="form-group admin-role-filter rg-master-role-selector"><label>Select Role</label><select id="dashboardMasterRoleFilter" class="form-control"><option value="">Select role</option><option>Admin</option><option>President</option><option>Vice President</option><option>Secretary</option><option>Joint Secretary 1</option><option>Joint Secretary 2</option><option>Treasurer</option></select></div>
+<p>Admin assigns the primary dashboard and additional modules to each office bearer. The personal Resident Dashboard is always available to office bearers linked to a resident profile. Residents cannot be assigned office dashboards.</p>
+<div id="dashboardAccessChecks" class="rg-access-grid"></div>
+</div>
+
+<div class="summary-section" id="adminAccessMatrixSection">
+<h3>Dashboard Assignment Table</h3>
+<p>Admin only: use the check boxes to select the dashboards available to each office bearer.</p>
+<div class="table-wrap"><table class="table" id="dashboardAssignmentTable"><thead><tr><th>Role</th><th>Association Dashboard</th><th>Resident Dashboard</th></tr></thead><tbody></tbody></table></div>
+<button id="btnSaveDashboardAssignments" class="btn btn-primary">Save Dashboard Assignments</button>
+<span id="dashboardAssignmentMessage" class="message"></span>
+<div class="admin-master-form admin-dashboard-form">
+  <div class="form-row"><div class="form-group"><label>Officer Role</label><select id="adminDashboardRole" class="form-control"><option value="">Select role</option><option>Admin</option><option>President</option><option>Vice President</option><option>Secretary</option><option>Joint Secretary 1</option><option>Joint Secretary 2</option><option>Treasurer</option></select></div><div class="form-group"><label>Primary Dashboard</label><select id="adminDashboardPrimary" class="form-control"><option value="dashboard">Association Dashboard</option><option value="resident-dashboard">Resident Dashboard</option></select></div></div>
+  <div class="form-group"><label>Available Modules</label><div id="adminDashboardModules" class="rg-access-grid"></div></div>
+  <div class="button-row"><button id="adminDashboardSave" class="btn btn-primary" type="button">Save / Update</button><button id="adminDashboardDelete" class="btn btn-danger" type="button" disabled>Delete</button><button id="adminDashboardClear" class="btn btn-secondary" type="button">Clear</button></div>
+  <div id="adminDashboardFormMessage" class="message"></div>
+</div>
+</div>
+
+<div class="summary-section" id="adminRoleAccessSection">
+<h3>Role-Based Access Table</h3>
+<div class="form-group admin-role-filter rg-master-role-selector"><label>Select Role</label><select id="roleAccessMasterFilter" class="form-control"><option value="">Select role</option><option>Admin</option><option>President</option><option>Vice President</option><option>Secretary</option><option>Joint Secretary 1</option><option>Joint Secretary 2</option><option>Treasurer</option></select></div>
+<p>All office bearers can use the manual SMS and WhatsApp communication tools. Automated messaging remains disabled until the approved messaging backend is enabled.</p>
+<div class="table-wrap"><table class="table" id="roleAccessTable"><thead><tr><th>Role</th><th>All Modules / Features</th><th>Allowed Actions</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+<button id="btnSaveRoleAccess" class="btn btn-primary">Save Role Access</button>
+<span id="roleAccessMessage" class="message"></span>
+<div class="admin-master-form admin-access-form">
+  <div class="form-group"><label>Officer Role</label><select id="adminAccessRole" class="form-control"><option value="">Select role</option><option>Admin</option><option>President</option><option>Vice President</option><option>Secretary</option><option>Joint Secretary 1</option><option>Joint Secretary 2</option><option>Treasurer</option></select></div>
+  <div id="adminAccessFields" class="rg-access-grid"><div class="muted">Select an officer role and click View to configure permissions.</div></div>
+  <div class="button-row"><button id="adminAccessSave" class="btn btn-primary" type="button">Save / Update</button><button id="adminAccessDelete" class="btn btn-danger" type="button" disabled>Delete</button><button id="adminAccessClear" class="btn btn-secondary" type="button">Clear</button></div>
+  <div id="adminAccessFormMessage" class="message"></div>
+</div>
+</div>
+
+<div class="summary-section" id="officeBearerPreviewSection">
+<h3>Office Bearer Login Preview</h3>
+<p>Preview the four office-bearer login cards exactly as residents will see the role name and dashboard entry point. Preview does not change credentials or permissions.</p>
+<div id="officeBearerPreviewGrid" class="rg-office-preview-grid"></div>
+</div>
+
+<div class="summary-section" id="adminResidentMasterSection"><h3>Resident Master Data</h3>
+<div id="adminResidentsCrud">
+  <div class="admin-master-grid-wrap">
+    <div class="module-toolbar"><input id="adminResidentSearch" class="form-control search" placeholder="Search H.No., name, mobile, type or status"><button id="adminResidentRefresh" class="btn btn-light" type="button">Refresh</button></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>S.No.</th><th>Name</th><th>H.No.</th><th>Resident ID</th><th>Cell No.</th><th>Type</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminResidentsBody"></tbody></table></div>
+  </div>
+  <div class="admin-master-form form-card">
+    <div class="form-row"><div class="form-group"><label>Resident ID</label><input id="adminResidentId" class="form-control" readonly></div><div class="form-group"><label>H.No. *</label><input id="adminResidentPlotNo" class="form-control"></div><div class="form-group"><label>Name *</label><input id="adminResidentOwnerName" class="form-control"></div></div>
+    <div class="form-row"><div class="form-group"><label>Cell No.</label><input id="adminResidentMobile" class="form-control" inputmode="tel"></div><div class="form-group"><label>Resident Type</label><select id="adminResidentType" class="form-control"><option>Owner</option><option>Tenant</option><option>Family Member</option></select></div><div class="form-group"><label>Occupation Status</label><select id="adminResidentStatus" class="form-control"><option>Owner</option><option>Tenant</option><option>Vacant</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label>Remarks</label><textarea id="adminResidentRemarks" class="form-control"></textarea></div></div>
+    <div class="button-row"><button id="adminResidentSave" class="btn btn-primary" type="button">Save / Update</button><button id="adminResidentDelete" class="btn btn-danger" type="button" disabled>Delete</button><button id="adminResidentClear" class="btn btn-secondary" type="button">Clear</button></div>
+    <div id="adminResidentMessage" class="message"></div>
+  </div>
+</div>
+<p>Load the standard resident list when setting up the app for the first time. Existing matching resident records will be updated.</p>
+<button id="btnSeedResidents" class="btn btn-primary">Refresh Residents from Firebase</button>
+<p id="residentSeedMessage"></p></div>
+
+
+<div class="summary-section" id="mastersSection">
+<h3>Masters — Home Services & Utility Billers</h3>
+<p>All resident-facing service cards are driven from these masters. Only Active records are shown to residents. Changes take effect without changing application code.</p>
+
+<div class="master-panel" id="homeServiceMasterPanel">
+  <h4>Home Service Master</h4>
+  <div class="form-row">
+    <div class="form-group"><label>Service Name *</label><input id="homeServiceName" class="form-control" placeholder="e.g. Electrician"></div>
+    <div class="form-group"><label>Icon</label><input id="homeServiceIcon" class="form-control" maxlength="4" placeholder="⚡"></div>
+    <div class="form-group"><label>Type</label><select id="homeServiceType" class="form-control"><option>Normal</option><option>Emergency</option></select></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Description</label><input id="homeServiceDescription" class="form-control" placeholder="Short service description"></div>
+    <div class="form-group"><label>Display Order *</label><input id="homeServiceOrder" type="number" min="1" step="1" class="form-control" placeholder="1"></div>
+    <div class="form-group"><label>Status</label><select id="homeServiceStatus" class="form-control"><option>Active</option><option>Inactive</option></select></div>
+  </div>
+  <div class="button-row"><button id="homeServiceSave" class="btn btn-primary">Save / Update</button><button id="homeServiceDelete" class="btn btn-danger" disabled>Delete</button><button id="homeServiceClear" class="btn btn-secondary">Clear</button></div>
+  <div id="homeServiceMessage" class="message"></div>
+  <div class="table-wrap"><table class="table"><thead><tr><th>Order</th><th>Service</th><th>Type</th><th>Description</th><th>Status</th><th>Action</th></tr></thead><tbody id="homeServicesBody"></tbody></table></div>
+</div>
+
+<div class="master-panel" id="colonyDirectoryAssignmentPanel">
+  <h4>Colony Directory Assignment</h4>
+  <p>Select which Home Service Masters should appear as service categories in the Resident <strong>Colony Directory</strong>. Office Bearers remain visible automatically.</p>
+  <div class="table-wrap"><table class="table" id="colonyDirectoryAssignmentTable"><thead><tr><th>Include</th><th>Service Master</th><th>Type</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+  <button id="btnSaveColonyDirectoryAssignments" class="btn btn-primary">Save Colony Directory Assignments</button>
+  <span id="colonyDirectoryAssignmentMessage" class="message"></span>
+  <div class="admin-master-form admin-directory-form">
+    <div class="form-group"><label>Service Master</label><select id="adminDirectoryService" class="form-control"></select></div>
+    <div class="form-group"><label class="rg-check-option"><input id="adminDirectoryIncluded" type="checkbox"> Include in Resident Directory</label></div>
+    <div class="button-row"><button id="adminDirectorySave" class="btn btn-primary" type="button">Save / Update</button><button id="adminDirectoryDelete" class="btn btn-danger" type="button" disabled>Delete</button><button id="adminDirectoryClear" class="btn btn-secondary" type="button">Clear</button></div>
+    <div id="adminDirectoryFormMessage" class="message"></div>
+  </div>
+</div>
+
+<div class="master-panel" id="serviceProviderMasterPanel">
+  <h4>Service Provider Master</h4>
+  <p>Residents contact providers directly. No admin assignment or approval workflow is used.</p>
+  <div class="form-row">
+    <div class="form-group"><label>Provider Name *</label><input id="providerName" class="form-control" placeholder="Provider / business name"></div>
+    <div class="form-group"><label>Service *</label><select id="providerService" class="form-control"></select></div>
+    <div class="form-group"><label>Mobile *</label><input id="providerMobile" class="form-control" inputmode="numeric" maxlength="10" placeholder="10 digit mobile"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>WhatsApp Number</label><input id="providerWhatsapp" class="form-control" inputmode="numeric" maxlength="10" placeholder="Optional"></div>
+    <div class="form-group"><label>Area / Address</label><input id="providerAddress" class="form-control" placeholder="Area / address"></div>
+    <div class="form-group"><label>Working Hours</label><input id="providerHours" class="form-control" placeholder="e.g. 9 AM - 7 PM"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Charges / Visit (₹)</label><input id="providerCharges" type="number" min="0" step="1" class="form-control" placeholder="Optional"></div>
+    <div class="form-group"><label>Experience</label><input id="providerExperience" class="form-control" placeholder="e.g. 8 years"></div>
+    <div class="form-group"><label>Status</label><select id="providerStatus" class="form-control"><option>Active</option><option>Inactive</option></select></div>
+  </div>
+  <div class="form-row"><div class="form-group"><label>Remarks</label><textarea id="providerRemarks" class="form-control" rows="2"></textarea></div></div>
+  <div class="button-row"><button id="providerSave" class="btn btn-primary">Save / Update</button><button id="providerDelete" class="btn btn-danger" disabled>Delete</button><button id="providerClear" class="btn btn-secondary">Clear</button></div>
+  <div id="providerMessage" class="message"></div>
+  <div class="module-toolbar"><input id="providerSearch" class="form-control search" placeholder="Search provider or service"><select id="providerFilter" class="form-control"><option value="">All Services</option></select></div>
+  <div class="table-wrap"><table class="table"><thead><tr><th>Provider</th><th>Service</th><th>Mobile</th><th>WhatsApp</th><th>Area</th><th>Status</th><th>Action</th></tr></thead><tbody id="providersBody"></tbody></table></div>
+</div>
+
+<div class="master-panel" id="utilityBillerMasterPanel">
+  <h4>Utility Biller Master</h4>
+  <p>Billers are configured here first. Actual bill fetch/payment is performed through the approved backend API/BBPS provider after credentials and biller codes are configured.</p>
+  <div class="form-row">
+    <div class="form-group"><label>Biller Name *</label><input id="billerName" class="form-control" placeholder="e.g. TGSPDCL Electricity"></div>
+    <div class="form-group"><label>Category *</label><select id="billerCategory" class="form-control"><option>Electricity</option><option>Water</option><option>Property Tax</option><option>Mobile Bill</option><option>Mobile Postpaid</option><option>Gas Booking</option><option>DTH</option><option>Broadband / Landline</option><option>Insurance</option><option>Loan Repayment</option><option>Credit Card</option><option>Other</option></select></div>
+    <div class="form-group"><label>Provider</label><select id="billerProvider" class="form-control"><option>BBPS</option><option>Razorpay BBPS</option><option>PayU BBPS</option><option>Other API</option></select></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Razorpay Biller ID</label><input id="razorpayBillerId" class="form-control" placeholder="Razorpay biller_xxx"></div><div class="form-group"><label>BBPS / NPCI Gateway Biller ID</label><input id="gatewayBillerId" class="form-control" placeholder="NPCI gateway biller ID"></div><div class="form-group"><label>Payment Gateway</label><input id="paymentGateway" class="form-control" value="bbps" readonly></div>
+    <div class="form-group"><label>Customer Number Label</label><input id="billerCustomerLabel" class="form-control" placeholder="e.g. USC Number"></div>
+    <div class="form-group"><label>Display Order *</label><input id="billerOrder" type="number" min="1" step="1" class="form-control" placeholder="1"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Required Customer Fields</label><input id="billerFields" class="form-control" placeholder="consumerNumber, mobile"></div>
+    <div class="form-group"><label>Status</label><select id="billerStatus" class="form-control"><option>Active</option><option>Inactive</option></select></div>
+    <div class="form-group"><label>API Status</label><select id="billerApiStatus" class="form-control"><option>Not Configured</option><option>Configured</option><option>Testing</option><option>Live</option></select></div>
+  </div>
+  <div class="form-row"><div class="form-group"><label>Notes</label><textarea id="billerNotes" class="form-control" rows="2" placeholder="API/BBPS notes; never store secret keys here."></textarea></div></div>
+  <div class="button-row"><button id="billerSave" class="btn btn-primary">Save / Update</button><button id="billerDelete" class="btn btn-danger" disabled>Delete</button><button id="billerClear" class="btn btn-secondary">Clear</button></div>
+  <div id="billerMessage" class="message"></div>
+  <div class="table-wrap"><table class="table"><thead><tr><th>Order</th><th>Biller</th><th>Category</th><th>Provider</th><th>Biller Code</th><th>API Status</th><th>Status</th><th>Action</th></tr></thead><tbody id="billersBody"></tbody></table></div>
+</div>
+</div>
+<style>
+#mastersSection .master-panel{border:1px solid #dfe6ee;border-radius:12px;padding:16px;margin:16px 0;background:#fbfcfe}
+#mastersSection .master-panel h4{margin:0 0 8px;color:#0b4f8a;font-size:1.08rem}
+#mastersSection .master-panel .form-row{margin-bottom:10px}
+#mastersSection .button-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+#mastersSection .table-wrap{overflow-x:auto}
+#mastersSection .table{min-width:760px}
+#mastersSection .badge-active{color:#166534;background:#dcfce7;padding:3px 8px;border-radius:999px}
+#mastersSection .badge-inactive{color:#991b1b;background:#fee2e2;padding:3px 8px;border-radius:999px}
+@media(max-width:700px){#mastersSection .form-row{display:grid;grid-template-columns:1fr}}
+</style>
+
+<div class="summary-section admin-secondary-section"><h3>Production Administration</h3><p>Use this area to manage officer roles, personal resident mapping, dashboard assignments and resident-facing service masters. Messaging automation is intentionally excluded from the production build until its approved backend is enabled.</p></div>
+</div>
+
+<script>
+/* Rose Gardens 1.2.28 - Dashboard card navigation */
+(function(){
+  function go(key){
+    var map={
+      residents:['residents','Residents'], visitors:['visitors','Visitors'], complaints:['complaints','Complaints'], meetings:['meetings','Meetings'], documents:['documents','Documents'], notices:['notices','Notices'], communications:['communications','Communications'], developmentFundPayments:['developmentFundPayments','Colony Fund'], festivalFundPayments:['festivalFundPayments','Ganesh Festival'], ganeshFestivalCelebrations:['ganeshFestivalCelebrations','Ganesh Festival'], homeServices:['homeServices','Home Services'], serviceProviders:['serviceProviders','Service Providers'], billers:['billers','Utility Billers'], expenses:['expenses','Expenditure']
+    };
+    var x=map[key]; if(!x)return;
+    try{ if(typeof window.showRegister==='function'){window.showRegister(x[0]);return;} if(typeof window.loadRegister==='function'){window.loadRegister(x[0]);return;} if(typeof window.navigateTo==='function'){window.navigateTo(x[0]);return;} if(typeof window.showSection==='function'){window.showSection(x[0]);return;} }catch(e){console.error(e);}
+    var el=document.querySelector('[data-register="'+x[0]+'"], [data-module="'+x[0]+'"]'); if(el){el.click();return;}
+    var buttons=[...document.querySelectorAll('button,a,[role="button"]')]; var b=buttons.find(function(n){return (n.textContent||'').trim().toLowerCase().indexOf(x[1].toLowerCase())>=0}); if(b)b.click();
+  }
+  document.addEventListener('click',function(e){var card=e.target.closest('[data-dashboard-card],[data-card-key]'); if(!card||card.closest('.association-dashboard-page'))return; var k=card.dataset.dashboardCard||card.dataset.cardKey; if(k)go(k);});
+  window.RGMS=window.RGMS||{}; window.RGMS.dashboardCardNavigate=go;
+})();
+</script>

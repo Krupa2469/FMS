@@ -1,0 +1,13 @@
+RGMS 1.2.247 - Fix 30
+
+Sponsor and cash contribution are now independent Ganesh Festival attributes.
+
+Changes:
+- A Sponsor may also contribute a cash amount.
+- Sponsor cash is included in Ganesh Contributions, totals, dashboards, reports and daily ledger when applicable.
+- The same resident remains listed in the Sponsors section/count.
+- Historical Sponsor records with an existing positive cash/amount field are treated as paid cash contributions when no explicit payment status exists.
+- Sponsor data entry now includes optional Cash Contribution Amount, Payment Status and Date of Payment.
+- Sponsor registers/reports show the cash contribution separately.
+- Sponsor status never excludes a valid cash contribution from the Contributions report.
+- Raju Naik Banoth can therefore appear both as a Sponsor and as a Contributor.

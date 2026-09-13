@@ -1,0 +1,36 @@
+Rose Gardens v1.2.268 - Colony Fund QA Audit
+
+Scope
+1. Colony Fund Data Entry Update
+2. Colony Fund Remarks data
+3. Expected/Pending Fund start month
+4. Resident Pavan Alapati visibility path
+5. Web/Android source synchronization
+
+Verified fixes
+- Integrated Colony Fund Update now resolves the explicitly selected Firebase payment document ID (colonyEditPaymentId) and calls RGMS.store.setRecord() on that exact record.
+- Update has try/catch and user-facing success/error messages; no silent failure path remains in the integrated Update handler.
+- Update can retain an Unpaid/zero-amount record rather than silently converting Update into Delete.
+- Accidental duplicate records for the same resident/FY/month are cleaned only after the selected record is successfully updated.
+- Colony Fund Remarks inputs are hidden/disabled for both legacy and integrated data entry.
+- New/updated Colony Fund records write remarks as an empty string.
+- Colony Fund history, integrated register, existing-record register and Colony Fund report rows display blank Remarks values.
+- Central Colony Fund obligation start period is 2026-07.
+- For FY 2026-27 as of September 2026, due/expected months are exactly July, August and September. April-June are excluded.
+- Dashboard, Pending calculations, WhatsApp due context, filtered drill-downs and reports use the centralized Colony Fund month rule.
+- Colony Fund Residents source merges normalized + raw Firebase Residents Master records by Name + H.No. + Resident Type, preventing a legacy duplicated Resident ID from hiding a valid owner such as Pavan Alapati.
+- Colony Fund owner dropdown remains alphabetical.
+- firebase.json and .firebaserc are included in the Web build; Hosting ignores .git, node_modules, functions and development artifacts.
+
+Static validation
+- Web JavaScript syntax: 34 files checked, 0 syntax failures.
+- firebase.json: valid JSON.
+- .firebaserc: valid JSON and default project rose-gardens-cheeryal.
+- Android embedded Web assets: 90 application files compared, 0 mismatches.
+- Android embedded JavaScript: 32 files checked, 0 syntax failures.
+- Android XML: 5 files parsed successfully.
+- Android versionCode: 268.
+- Android versionName: 1.2.268.
+
+Important runtime note
+Static/source verification confirms the update path and exact Firebase record-ID handling. The final Firestore write should still be confirmed once after deployment with a real Colony Fund record because this environment is not connected to the user's live Firebase project/session.

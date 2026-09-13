@@ -1,0 +1,10 @@
+Rose Gardens v1.2.271 QA Audit
+
+- Root cause reproduced in source: Colony Fund JPEG exporter iterated hard-coded month indices 3..14 although the current FY report supplied only Jul/Aug/Sep.
+- Dynamic month bounds added: month columns are determined from reportColumns; last three columns are Total Amount Paid, Pending Amount and Remarks.
+- 1-month, 3-month and 12-month column layouts checked for valid in-range indices.
+- JPEG click handler now catches rejected export promises and reports the JPEG-specific error.
+- All Web JavaScript files pass node --check.
+- All Web HTML files parse successfully.
+- Android embedded Web assets are synchronized from the final Web build.
+- Android versionCode/versionName updated to 270 / 1.2.271.

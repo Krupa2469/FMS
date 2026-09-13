@@ -1,0 +1,22 @@
+Rose Gardens v1.2.278 — Resident My Profile Firestore Rule
+
+Resident Login > My Profile now uses the same authenticated Firestore path as the rest of the resident portal.
+This removes the Android WebView callable-function authentication mismatch.
+
+Deploy the included Firestore rules once from the Web project root:
+
+  firebase deploy --only firestore:rules
+
+Then deploy Hosting normally and rebuild/install the Android app.
+
+Security: residents may update ONLY these fields on their own Residents Master record:
+- Date of Birth
+- Marriage Anniversary
+- Email
+- Blood Group
+- Occupation / Profession
+- Emergency Contact
+- Personal Details / Remarks
+- profile update metadata
+
+Residents cannot change Name, H.No., mobile, Resident ID, Resident Type or Occupation Status through My Profile.

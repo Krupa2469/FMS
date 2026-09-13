@@ -1,0 +1,26 @@
+Rose Gardens v1.2.276
+Date: 2026-09-08
+
+UPI payment launch correction
+- Restored a standards-based generic UPI payment URI for Colony Fund payments.
+- Resident Portal now has a primary "Payment Link · Choose UPI App" action.
+- Android launches the UPI URI through Intent.createChooser so installed UPI-capable apps can be selected.
+- PhonePe and GPay buttons now attempt to open the payment screen in the selected app with the same UPI URI.
+- Web/mobile-browser fallback launches the same upi://pay URI directly from the user tap.
+
+Android 11+ package visibility
+- Added package visibility declarations for PhonePe (com.phonepe.app) and Google Pay (com.google.android.apps.nbu.paisa.user).
+- Added a UPI VIEW query so Android can resolve UPI handlers.
+- Added upi: handling to the WebView external-navigation bridge.
+
+Payment account remains unchanged
+- UPI ID: sriharipriya1209@okhdfcbank
+- PhonePe / GPay No.: +91 9704035400
+- Both identify the same beneficiary account.
+
+Important runtime note
+- Opening the chooser/payment app and the payer app accepting the transaction are separate stages. A selected UPI app can still apply its own account/risk/merchant validation after it opens.
+
+Version
+- Web/cache version: 1.2.276
+- Android versionCode 276 / versionName 1.2.276

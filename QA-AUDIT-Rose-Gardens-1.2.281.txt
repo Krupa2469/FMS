@@ -1,0 +1,29 @@
+Rose Gardens v1.2.282 QA Audit
+Date: 2026-09-09
+
+PAYMENT FLOW
+PASS - Resident Colony Payments contains a primary "Choose UPI App" payment button.
+PASS - PhonePe and GPay direct payment buttons send the same pre-filled UPI URI.
+PASS - Personal-number copy/open-app flow is no longer used by the main payment buttons.
+PASS - UPI URI contains pa (payee VPA), pn (payee name), tr (unique RGMS reference), am (amount), cu=INR and tn (Colony Fund period/H.No.).
+PASS - Payee: S Sri Hari Priya.
+PASS - UPI ID: sriharipriya1209@okhdfcbank.
+PASS - PhonePe/GPay No.: +91 9704035400 remains displayed as the same-account identifier.
+PASS - Android manifest declares PhonePe, GPay and generic upi scheme visibility.
+PASS - Android generic UPI chooser uses ACTION_VIEW and does not use FLAG_ACTIVITY_NEW_TASK.
+PASS - Android direct PhonePe/GPay UPI intents do not use FLAG_ACTIVITY_NEW_TASK.
+PASS - Rose Gardens sets payment handoff state before the payer app is in the foreground and handles return in onResume.
+PASS - No automatic Paid/Firestore confirmation is performed after return. I Have Paid remains for manual Treasurer verification.
+
+RESIDENT PROFILE
+PASS - v1.2.279 Resident My Profile token refresh/self-update protections are retained.
+
+STATIC VALIDATION
+PASS - Web JavaScript: 34 files checked, 0 syntax failures.
+PASS - Web HTML: 20 files parsed successfully.
+PASS - Android XML: 5 files parsed successfully.
+PASS - Web and Android embedded Web assets: 161 files, byte-for-byte identical.
+PASS - Android versionCode 281 / versionName 1.2.282.
+
+ANDROID BUILD NOTE
+A Gradle Java compilation attempt could not complete because Gradle 8.11.1 is not cached and services.gradle.org is unreachable from this sandbox. The failure occurred before project compilation; static source/XML/JS validation passed.

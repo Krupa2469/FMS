@@ -1,0 +1,21 @@
+Rose Gardens v1.2.279
+Date: 2026-09-09
+
+Resident Login -> My Profile
+- Native activateResidentSession now force-refreshes the Firebase ID token after Resident custom claims are updated.
+- Resident self-profile writes are allowed by the authenticated phone-number ownership check even during a claim-refresh edge case.
+- A successful native Firestore profile write is no longer followed by a Web-backend verification call that could falsely report "resident session expired".
+- Profile editable fields remain restricted to DOB, anniversary, email, blood group, occupation/profession, emergency contact and personal remarks.
+- Name, H.No., mobile, Resident ID, Resident Type and occupancy status remain protected.
+
+PhonePe / Google Pay
+- Removed the generic personal-account deep-payment action from the Resident Portal.
+- Resident buttons are now explicitly "Open PhonePe" and "Open GPay".
+- The same-account mobile number 9704035400 is copied and the selected payer app is opened normally.
+- No resident button sends the blocked personal upi://pay intent to PhonePe/GPay.
+- Android payment-app launch runs without NEW_TASK and uses an activity-result/resume callback so returning from the payer app restores Rose Gardens and displays verification guidance.
+- UPI ID remains sriharipriya1209@okhdfcbank and PhonePe/GPay number remains +91 9704035400 (same recipient account).
+
+Version
+- Web/cache version 1.2.279.
+- Android versionCode 279 / versionName 1.2.279.
