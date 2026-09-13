@@ -1,157 +1,18 @@
-rules_version = '2';
+rules_version='2'
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
-    function nonAnonymous() { return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous'; }
-    function hasProfile() { return signedIn() && exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)); }
-    function claimedRole() { return signedIn() && request.auth.token.role != null ? request.auth.token.role : ''; }
-    function staffClaim() { return nonAnonymous() && claimedRole() in ['Admin','President','Vice President','Secretary','Joint Secretary 1','Joint Secretary 2','Treasurer']; }
-    function residentClaim() { return nonAnonymous() && claimedRole() == 'Resident' && request.auth.token.residentId != null; }
-    // Role Master documents may use generated RGRWA account IDs instead of the
-    // Firebase Auth UID. activateOfficerSession validates that mapping server-side
-    // and issues the staff claim consumed here.
-    function member() { return nonAnonymous() && (hasProfile() || staffClaim() || residentClaim()); }
-    function role() { return claimedRole() != '' ? claimedRole() : (hasProfile() ? get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role : ''); }
-    function admin() { return member() && role() == 'Admin'; }
-    function officer() { return member() && role() in ['Admin','President','Vice President','Secretary','Joint Secretary 1','Joint Secretary 2','Treasurer']; }
-    function allowed(feature, action) {
-      return admin() || (officer()
-        && exists(/databases/$(database)/documents/settings/roleDashboardAccess)
-        && get(/databases/$(database)/documents/settings/roleDashboardAccess).data.matrix[role()].permissions[feature][action] == 'YES');
-    }
-    function owns(data) {
-      return member() && ((hasProfile() && data.residentId == get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.residentId)
-        || (request.auth.token.phone_number != null && data.phoneE164 == request.auth.token.phone_number));
-    }
-    function residentPhoneOwns(data) {
-      return nonAnonymous()
-        && request.auth.token.phone_number != null
-        && data.phoneE164 != null
-        && data.phoneE164 == request.auth.token.phone_number;
-    }
-    function residentTokenOnly() {
-      return (owns(resource.data) || residentPhoneOwns(resource.data))
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fcmToken','fcmTokens','fcmTokenUpdatedAt']);
-    }
-    function residentSelfProfileUpdate() {
-      return (owns(resource.data) || residentPhoneOwns(resource.data))
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'dateOfBirth','marriageAnniversary','email','bloodGroup','occupation',
-          'emergencyContact','personalRemarks','profileUpdatedOn','profileUpdatedByUid'
-        ]);
-    }
-
-    match /userProfiles/{uid} {
-      // Normal reads use the activated member session. The email-self clause is
-      // a narrow recovery path for a just-authenticated officer whose historical
-      // Role Master document ID is not the Firebase Auth UID yet.
-      allow read: if (member() && (uid == request.auth.uid || allowed('roleMaster', 'view')))
-        || (nonAnonymous() && request.auth.token.email != null && resource.data.email == request.auth.token.email);
-      allow create, update, delete: if admin();
-    }
-    match /residents/{id} {
-      allow read: if member();
-      allow create: if allowed('residents', 'add');
-      allow update: if allowed('residents', 'update') || residentTokenOnly() || residentSelfProfileUpdate();
-      allow delete: if allowed('residents', 'delete');
-    }
-    match /developmentFundPayments/{id} {
-      allow read: if member();
-      allow create: if allowed('colonyFund', 'add');
-      allow update: if allowed('colonyFund', 'update');
-      allow delete: if allowed('colonyFund', 'delete');
-    }
-    match /expenditures/{id} {
-      allow read: if member();
-      allow create: if allowed('expenditure', 'add');
-      allow update: if allowed('expenditure', 'update');
-      allow delete: if allowed('expenditure', 'delete');
-    }
-    match /festivalFundPayments/{id} {
-      allow read: if member();
-      allow create: if allowed('ganeshFestival', 'add');
-      allow update: if allowed('ganeshFestival', 'update');
-      allow delete: if allowed('ganeshFestival', 'delete');
-    }
-    match /ganeshFestivalCelebrations/{id} {
-      allow read: if member();
-      allow create: if allowed('ganeshFestival', 'add');
-      allow update: if allowed('ganeshFestival', 'update');
-      allow delete: if allowed('ganeshFestival', 'delete');
-    }
-    match /visitors/{id} {
-      allow read: if member();
-      allow create: if allowed('visitors', 'add') || owns(request.resource.data);
-      allow update: if allowed('visitors', 'update') || (owns(resource.data) && owns(request.resource.data));
-      allow delete: if allowed('visitors', 'delete') || owns(resource.data);
-    }
-    match /complaints/{id} {
-      allow read: if member();
-      allow create: if allowed('complaints', 'add') || owns(request.resource.data);
-      allow update: if allowed('complaints', 'update') || (owns(resource.data) && owns(request.resource.data));
-      allow delete: if allowed('complaints', 'delete');
-    }
-    match /meetings/{id} {
-      allow read: if member();
-      allow create: if allowed('meetings', 'add');
-      allow update: if allowed('meetings', 'update');
-      allow delete: if allowed('meetings', 'delete');
-    }
-    match /documents/{id} {
-      allow read: if member();
-      allow create: if allowed('documents', 'add');
-      allow update: if allowed('documents', 'update');
-      allow delete: if allowed('documents', 'delete');
-    }
-    match /notices/{id} {
-      allow read: if member();
-      allow create: if allowed('noticeBoard', 'add');
-      allow update: if allowed('noticeBoard', 'update');
-      allow delete: if allowed('noticeBoard', 'delete');
-    }
-    match /communications/{id} { allow read: if member(); allow write: if admin(); }
-    match /generalInformation/{id} {
-      allow read: if member();
-      allow create: if allowed('generalInformation', 'add');
-      allow update: if allowed('generalInformation', 'update');
-      allow delete: if allowed('generalInformation', 'delete');
-    }
-    match /greetings/{id} {
-      allow read: if member();
-      allow create: if allowed('greetings', 'add');
-      allow update: if allowed('greetings', 'update');
-      allow delete: if allowed('greetings', 'delete');
-    }
-    match /settings/{id} {
-      allow read: if member();
-      // Admin owns all Settings. A non-Admin office bearer may change only
-      // the Role Access matrix, and only when the CURRENT matrix grants that
-      // role the corresponding Role Access Master permission.
-      allow create: if admin();
-      allow update: if admin() || (id == 'roleDashboardAccess' && (allowed('roleAccessMaster', 'update') || allowed('roleAccessMaster', 'delete')));
-      allow delete: if admin();
-    }
-    match /sequences/{id} { allow read, write: if admin(); }
-    match /paymentLinks/{id} { allow read: if admin(); allow write: if false; }
-    match /paymentLinkEvents/{id} { allow read: if admin(); allow write: if false; }
-    match /automationStates/{id} { allow read: if admin(); allow write: if false; }
-    match /homeServices/{id} { allow read: if member(); allow write: if admin(); }
-    match /serviceProviders/{id} { allow read: if member(); allow write: if admin(); }
-    match /billers/{id} { allow read: if member(); allow write: if admin(); }
-
-    match /{name}/{id} {
-      allow read: if member() && name in [
-        'rgms_residents','rgms_development_fund','rgms_expenditures','rgms_festival_fund','rgms_ganesh_festival','rgms_visitors','rgms_complaints','rgms_meetings','rgms_documents','rgms_notices','rgms_communications','rgms_general_information','rgms_greetings','rgms_settings','rgms_user_profiles','rgms_home_services','rgms_service_providers','rgms_billers',
-        'development_fund','developmentFund','developmentFundRegister','colonyFundPayments','colonyFund','colony_fund','colonyFundRegister','festival_fund','festivalFund','festivalPayments','ganeshFestivalFund','ganeshChanda','festivalChanda','ganeshFestival','festivalCelebrations','ganeshCelebrations','ganeshFestivalCollection','ganeshFestivalCollections','general_information','user_profiles','home_services','service_providers'
-      ];
-      allow write: if admin();
-    }
-    match /{name}/{id} {
-      allow read: if member() && name in [
-        'officeBearers','associationSettings','paymentModes','financialYears','fundTypes','expenseHeads','complaintCategories','documentCategories','noticeCategories','visitorTypes','meetingTypes','communicationTemplates','reportsMaster','dataEntryFields',
-        'rgms_office_bearers','rgms_association_settings','rgms_payment_modes','rgms_financial_years','rgms_fund_types','rgms_expense_heads','rgms_complaint_categories','rgms_document_categories','rgms_notice_categories','rgms_visitor_types','rgms_meeting_types','rgms_communication_templates','rgms_reports_master','rgms_data_entry_fields'
-      ];
-      allow write: if admin();
+    match /{document=**} {
+      // This rule allows anyone with your database reference to view, edit,
+      // and delete all data in your database. It is useful for getting
+      // started, but it is configured to expire after 30 days because it
+      // leaves your app open to attackers. At that time, all client
+      // requests to your database will be denied.
+      //
+      // Make sure to write security rules for your app before that time, or
+      // else all client requests to your database will be denied until you
+      // update your rules.
+      allow read, write: if request.time < timestamp.date(2026, 8, 23);
     }
   }
 }

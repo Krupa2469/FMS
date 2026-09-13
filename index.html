@@ -1,73 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
-<head><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Rose Gardens</title>
-<link rel="stylesheet" href="css/app.css?v=1.2.284">
-<link rel="stylesheet" href="css/mobile-app.css?v=1.2.284"><link rel="stylesheet" href="css/final-production.css?v=1.2.284">
-<style>
-body.rg-home-page{min-height:100dvh;background:linear-gradient(180deg,#eef5fb 0%,#f7fafc 100%);overflow-y:auto;color:#263238}
-.rg-home-header{flex-direction:column!important;align-items:center!important;text-align:center!important;gap:8px!important}
-.rg-home-header img{width:92px!important;height:92px!important;flex:0 0 92px!important}
-.rg-home-header h1{font-size:clamp(25px,6vw,40px)!important}
-@media(max-width:800px){.rg-home-header img{width:78px!important;height:78px!important;flex-basis:78px!important}}
-.rg-home-wrap{width:min(980px,100%);margin:0 auto;padding:18px 14px 28px}
-.rg-home-header{background:#fff;border-radius:18px;padding:18px 20px;box-shadow:0 5px 22px rgba(16,45,70,.12);display:flex;align-items:center;gap:15px}
-.rg-home-header img{width:68px;height:68px;object-fit:contain;flex:0 0 68px}.rg-home-header h1{margin:0;color:#0b4f8a;font-size:clamp(24px,5vw,38px);line-height:1.1}.rg-home-header p{margin:6px 0 0;color:#667085;font-size:15px}
-.rg-home-title{display:none}
-.rg-role-grid{display:flex;flex-direction:column;gap:14px;margin-top:20px}
-.rg-role-card{border:1px solid #d6e0e8;background:#fff;border-radius:15px;min-height:135px;padding:16px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;box-shadow:0 3px 12px rgba(0,0,0,.07);cursor:pointer;color:#0b4f8a;font-weight:700}
-.rg-role-card:hover,.rg-role-card:focus{background:#f1f7fc;outline:2px solid #1f6fb2}.rg-role-icon{font-size:31px}.rg-role-name{font-size:16px;text-align:center}
-@media(max-width:800px){.rg-role-card{min-height:96px;width:100%}.rg-home-header{padding:14px}.rg-home-header img{width:54px;height:54px;flex-basis:54px}}
-@media(max-width:380px){.rg-role-grid{gap:10px}.rg-role-name{font-size:15px}}
-</style>
-<style id="rgms-home-centered-logo-final">
-.rg-home-header{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;gap:8px!important}
-.rg-home-header img{width:92px!important;height:92px!important;flex:0 0 92px!important;object-fit:contain!important}
-.rg-home-header>div{display:flex!important;flex-direction:column!important;align-items:center!important}
-.rg-home-header h1{margin:0!important}
-@media(max-width:800px){.rg-home-header img{width:78px!important;height:78px!important;flex-basis:78px!important}}
-</style>
-<link rel="stylesheet" href="css/elegant-light-theme.css?v=1.2.284">
-</head>
-<body class="rg-home-page">
-<div class="rg-home-wrap">
-<header class="rg-home-header"><img src="assets/logo.png" alt="Rose Gardens"><div><h1>Rose Gardens</h1><p>Cheeryal Ward, Keesara Circle,<br><span class="rg-address-nowrap">Medchal Malkajgiri District - 501303</span></p></div></header>
-<h2 class="rg-home-title">Select Your Login</h2>
-<section class="rg-role-grid" aria-label="Login role selection">
-<button class="rg-role-card" data-role="Resident" type="button"><span class="rg-role-icon">🏡</span><span class="rg-role-name">Residents</span></button>
-<button class="rg-role-card" data-role="President" type="button"><span class="rg-role-icon">👤</span><span class="rg-role-name">President</span></button>
-<button class="rg-role-card" data-role="Vice President" type="button"><span class="rg-role-icon">👤</span><span class="rg-role-name">Vice President</span></button>
-<button class="rg-role-card" data-role="Secretary" type="button"><span class="rg-role-icon">📋</span><span class="rg-role-name">Secretary</span></button>
-<button class="rg-role-card" data-role="Joint Secretary 1" type="button"><span class="rg-role-icon">📋</span><span class="rg-role-name">Joint Secretary 1</span></button>
-<button class="rg-role-card" data-role="Joint Secretary 2" type="button"><span class="rg-role-icon">📋</span><span class="rg-role-name">Joint Secretary 2</span></button>
-<button class="rg-role-card" data-role="Treasurer" type="button"><span class="rg-role-icon">💰</span><span class="rg-role-name">Treasurer</span></button>
-<button class="rg-role-card" data-role="Admin" type="button"><span class="rg-role-icon">⚙️</span><span class="rg-role-name">Admin</span></button>
-</section>
 
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FMS Home Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="css/style.css" rel="stylesheet"/>
+<style>
+body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 10px;text-align:center}.home-header h2{font-weight:700;margin:3px 0;font-size:1.85rem}.nav-btn{min-width:110px}.metric-card{border:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);min-height:0}.metric-value{font-size:30px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.14)!important}.fy-bar{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.home-top-summary{font-size:1.02rem;letter-spacing:.01em}.home-quick-btn{min-width:150px}
+</style>
+</head>
+<body>
+<header class="home-header">
+<div>GOVERNMENT OF TELANGANA</div>
+<div class="small">OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT</div>
+<h2>FILE MANAGEMENT SYSTEM (FMS)</h2>
+<div class="opacity-75">FMS Home Dashboard</div>
+</header>
+<nav class="navbar bg-white border-bottom shadow-sm">
+<div class="container-fluid p-2 d-flex gap-2 flex-wrap">
+<button class="btn btn-primary nav-btn" onclick="goModule('cpgrams')"><i class="bi bi-file-earmark-text"></i> GRIEVANCES</button>
+<button class="btn btn-warning nav-btn" onclick="goModule('rti')"><i class="bi bi-journal-text"></i> RTI</button>
+<button class="btn btn-info text-white nav-btn" onclick="goModule('disha')"><i class="bi bi-people"></i> DISHA</button>
 </div>
-<script src="js/core/app.js?v=1.2.284"></script>
-<script src="js/core/store.js?v=1.2.284"></script>
-<script src="js/core/auth.js?v=1.2.284"></script>
+</nav>
+<main class="container-fluid py-3">
+<div class="card fy-bar p-3 mb-4">
+<div class="text-center fw-bold text-success home-top-summary mb-3" id="dashboardReady">CPGRAMS: 0, RTI: 0, DISHA: 0. FY 2026-27 | CPGRAMS: 0, RTI: 0, DISHA: 0.</div>
+<div class="row align-items-end g-3">
+<div class="col-lg-3 col-md-4"><label class="form-label fw-bold mb-1" for="homeFY">Financial Year</label><select class="form-select" id="homeFY"></select></div>
+<div class="col-lg-9 col-md-8">
+  <div class="d-flex gap-2 flex-wrap justify-content-md-end">
+    <button class="btn btn-outline-secondary home-quick-btn" onclick="openUtilities()"><i class="bi bi-tools"></i> Utilities</button>
+    <button class="btn btn-outline-dark home-quick-btn" onclick="location.href='pages/admin/master-management.html'"><i class="bi bi-database-gear"></i> Master Tables</button>
+    <button class="btn btn-outline-primary home-quick-btn" onclick="location.href='pages/reports.html'"><i class="bi bi-bar-chart-line"></i> Reports</button>
+  </div>
+  <div class="d-none" id="homeStatus"></div>
+</div>
+</div>
+</div>
+
+<div class="row g-4" id="homeModuleCards"></div>
+</main>
+<footer class="bg-light text-center p-3"><small>© <span id="currentYear"></span> File Management System (FMS) | Version <span id="appVersion"></span></small></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase/firebase-bootstrap.js"></script>
+<script src="js/record-consistency.js"></script>
 <script>
-document.querySelectorAll('[data-role]').forEach(card=>card.addEventListener('click',()=>{window.location.href='login.html?role='+encodeURIComponent(card.dataset.role);}));
-</script>
-<script>
-/* Rose Gardens 1.2.28 - Dashboard card navigation */
-(function(){
-  function go(key){
-    var map={
-      residents:['residents','Residents'], visitors:['visitors','Visitors'], complaints:['complaints','Complaints'], meetings:['meetings','Meetings'], documents:['documents','Documents'], notices:['notices','Notices'], communications:['communications','Communications'], developmentFundPayments:['developmentFundPayments','Colony Fund'], festivalFundPayments:['festivalFundPayments','Ganesh Festival'], ganeshFestivalCelebrations:['ganeshFestivalCelebrations','Ganesh Festival'], homeServices:['homeServices','Home Services'], serviceProviders:['serviceProviders','Service Providers'], billers:['billers','Utility Billers'], expenses:['expenses','Expenditure']
-    };
-    var x=map[key]; if(!x)return;
-    try{ if(typeof window.showRegister==='function'){window.showRegister(x[0]);return;} if(typeof window.loadRegister==='function'){window.loadRegister(x[0]);return;} if(typeof window.navigateTo==='function'){window.navigateTo(x[0]);return;} if(typeof window.showSection==='function'){window.showSection(x[0]);return;} }catch(e){console.error(e);}
-    var el=document.querySelector('[data-register="'+x[0]+'"], [data-module="'+x[0]+'"]'); if(el){el.click();return;}
-    var buttons=[...document.querySelectorAll('button,a,[role="button"]')]; var b=buttons.find(function(n){return (n.textContent||'').trim().toLowerCase().indexOf(x[1].toLowerCase())>=0}); if(b)b.click();
+/* ==========================================================
+   FMS HOME DASHBOARD - ROBUST FY + FIRESTORE LOADING
+   FY range: 2014-15 through current FY
+   Grievance-type cards open the corresponding filtered register.
+========================================================== */
+const homeCollections={cpgrams:'cpgrams',rti:'rtiApplications',disha:'dishaMeetings'};
+const homeDateFields={cpgrams:['dateReceived','dateArised','receivedDate','questionReceivedDate','date'],rti:['applicationDate','dateReceived','date'],disha:['dateOfMeeting','meetingDate','proposedDateOfMeeting','date']};
+const HOME_CATEGORIES=["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
+let homeRows={cpgrams:[],rti:[],disha:[]};
+let homeInitialized=false;
+
+function goModule(m){ const routes={cpgrams:'modules/cpgrams/cpgrams.html',rti:'modules/rti/rti.html',disha:'modules/disha/disha.html'}; location.href=routes[m]||'index.html'; }
+function homeCategoryKey(value){
+  return String(value||'').trim().toLowerCase().replace(/\s+/g,' ')
+    .replace(/\bcomplaint\b/g,'complaints').replace(/\breference\b/g,'references').replace(/\bpara\b/g,'paras');
+}
+function homeRecordDate(record, fields){
+  for(const f of (fields||[])){
+    const v=record?.[f]; if(!v) continue;
+    const d=window.FMSFY?.parseDate ? window.FMSFY.parseDate(v) : null;
+    if(d && !isNaN(d.getTime())) return d;
   }
-  document.addEventListener('click',function(e){var card=e.target.closest('[data-dashboard-card],[data-card-key]'); if(!card||card.closest('.association-dashboard-page'))return; var k=card.dataset.dashboardCard||card.dataset.cardKey; if(k)go(k);});
-  window.RGMS=window.RGMS||{}; window.RGMS.dashboardCardNavigate=go;
-})();
-</script>
-</body>
-</html>
+  return null;
+}
+function homeRecordFY(record, fields){
+  const d=homeRecordDate(record,fields); if(!d) return '';
+  return window.FMSFY?.formatFY ? window.FMSFY.formatFY(d.getMonth()>=3?d.getFullYear():d.getFullYear()-1) : '';
+}
+function grievanceTypeOfHome(row){
+  const known=HOME_CATEGORIES.map(homeCategoryKey);
+  const candidates=[row?.grievanceType,row?.referenceType,row?.type,row?.sourceType,row?.grievanceSource,row?.source,row?.category];
+  for(const raw of candidates){
+    const key=homeCategoryKey(raw);
+    if(!key) continue;
+    if(key==="cpgrams"||key==="cpgrams portal"||key==="cpgram"||key==="grievances"||key==="grievance") return "cpgrams";
+    if(known.includes(key)) return key;
+  }
+  return "cpgrams";
+}
+function rowTypeHome(row){return grievanceTypeOfHome(row)||"cpgrams";}
+function categoryMatchesHome(row,category){
+  const selected=homeCategoryKey(category);
+  if(selected==="cpgrams"||selected==="grievances") return rowTypeHome(row)==="cpgrams";
+  return grievanceTypeOfHome(row)===selected;
+}
+function populateHomeFY(){
+  const sel=document.getElementById('homeFY'); if(!sel) return;
+  const all=[...homeRows.cpgrams,...homeRows.rti,...homeRows.disha];
+  const current=window.FMSFY?.getCurrentFY?.() || '2026-27';
+  if(window.FMSFY?.populateFYSelect){
+    window.FMSFY.populateFYSelect(sel, all, ['dateReceived','dateArised','receivedDate','applicationDate','date','dateOfMeeting','meetingDate'], current);
+  } else {
+    sel.innerHTML='';
+    const startYear=new Date().getFullYear()-(new Date().getMonth()<3?1:0);
+    for(let y=startYear;y>=2014;y--) sel.insertAdjacentHTML('beforeend',`<option value="${y}-${String(y+1).slice(-2)}">${y}-${String(y+1).slice(-2)}</option>`);
+    sel.value=current;
+  }
+}
+function homeCard(title,totalValue,fyValue,icon,color,target,fyLabel){
+  const safe=String(title).replace(/'/g,"\\'");
+  const selectedFY=String(fyLabel||document.getElementById('homeFY')?.value||'Selected FY');
+  return `<div class="col-xl-3 col-lg-4 col-md-6"><div class="card metric-card h-100 dashboard-home-card fms-compact-dashboard-card"><div class="card-body text-center py-3 px-2"><i class="bi ${icon} fs-3 text-${color}"></i><h6 class="mt-2 mb-2 fw-semibold">${title}</h6><div class="row g-2"><div class="col-6"><button type="button" class="btn btn-sm btn-outline-${color} w-100 py-1" onclick="openHomeCard('${safe}','${target}','all')"><div class="small lh-sm">Total</div><div class="fw-bold fs-5 lh-sm">${totalValue}</div></button></div><div class="col-6"><button type="button" class="btn btn-sm btn-${color} w-100 py-1" onclick="openHomeCard('${safe}','${target}','current')"><div class="small lh-sm">${selectedFY}</div><div class="fw-bold fs-5 lh-sm">${fyValue}</div></button></div></div></div></div></div>`;
+}
+
+function openHomeCard(category,target,period='current'){
+  const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'');
+  const p=new URLSearchParams();p.set('filter','total');p.set('fullscreen','1');
+  if(period==='all') p.set('fy','all'); else if(fy)p.set('fy',fy);
+  if(target==='cpgrams'){if(category&&homeCategoryKey(category)!=='cpgrams'&&homeCategoryKey(category)!=='grievances')p.set('grievanceType',category);else p.set('grievanceType','CPGRAMS');location.href='modules/cpgrams/cpgrams-register.html?'+p.toString();return;}
+  if(target==='rti'){location.href='modules/rti/rti-register.html?'+p.toString();return;}
+  if(target==='disha'){location.href='modules/disha/disha-register.html?'+p.toString();return;}
+  goModule(target);
+}
+function updateHomeCards(){
+  const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'2026-27');
+  const cpAll=homeRows.cpgrams.filter(r=>homeCategoryKey(grievanceTypeOfHome(r))==="cpgrams");
+  const cpFY=cpAll.filter(r=>homeRecordFY(r,homeDateFields.cpgrams)===fy);
+  const rtiAll=homeRows.rti.length, rtiFY=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti)===fy).length;
+  const dishaAll=homeRows.disha.length, dishaFY=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha)===fy).length;
+  const icons=['bi-file-earmark-text','bi-megaphone','bi-chat-left-text','bi-person-raised-hand','bi-question-square','bi-question-diamond','bi-bank','bi-star','bi-person-badge','bi-envelope-paper','bi-clipboard-check','bi-shield-exclamation'];
+  const colors=['primary','success','info','warning','secondary','dark','dark','danger','primary','success','warning','danger'];
+  let html='';
+  HOME_CATEGORIES.forEach((cat,i)=>{
+    const key=homeCategoryKey(cat);
+    const total=key==="cpgrams" ? cpAll.length : homeRows.cpgrams.filter(r=>categoryMatchesHome(r,cat)).length;
+    const current=key==="cpgrams" ? cpFY.length : cpFY.filter(r=>categoryMatchesHome(r,cat)).length;
+    html+=homeCard(cat,total,current,icons[i],colors[i],'cpgrams',fy);
+  });
+  html+=homeCard('RTI',rtiAll,rtiFY,'bi-journal-text', 'warning','rti',fy);
+  html+=homeCard('DISHA',dishaAll,dishaFY,'bi-people','info','disha',fy);
+  const container=document.getElementById('homeModuleCards'); if(container) container.innerHTML=html;
+  const ready=document.getElementById('dashboardReady');
+  if(ready) ready.textContent=`CPGRAMS: ${cpAll.length}, RTI: ${rtiAll}, DISHA: ${dishaAll}. FY ${fy} | CPGRAMS: ${cpFY.length}, RTI: ${rtiFY}, DISHA: ${dishaFY}.`;
+  const status=document.getElementById('homeStatus');
+  if(status){status.textContent='';status.className='d-none';}
+}
+async function readCollectionSafely(name){
+  try{
+    if(!window.db) throw new Error('Firebase database is not ready');
+    const snap=await window.db.collection(name).get();
+    return {rows:snap.docs.map(x=>({id:x.id,...x.data()})).filter(r=>r.active!==false),error:null};
+  }catch(error){console.error(`FMS Home: unable to read ${name}`,error);return {rows:[],error};}
+}
+async function loadHome(){
+  if(homeInitialized) return;
+  if(!window.db){const ready=document.getElementById('dashboardReady');if(ready)ready.textContent='Firebase is not ready. Please wait and refresh.';return;}
+  homeInitialized=true;
+  try{
+    const [cp,rti,disha]=await Promise.all([readCollectionSafely(homeCollections.cpgrams),readCollectionSafely(homeCollections.rti),readCollectionSafely(homeCollections.disha)]);
+    homeRows={cpgrams:cp.rows,rti:rti.rows,disha:disha.rows};
+    populateHomeFY();
+    document.getElementById('homeFY')?.addEventListener('change',updateHomeCards);
+    updateHomeCards();
+    const errors=[cp,rti,disha].filter(x=>x.error);
+    if(errors.length){console.warn('FMS Home: some modules could not be read from Firebase.');}
+  }catch(e){console.error('FMS Home dashboard error:',e);homeInitialized=false;const ready=document.getElementById('dashboardReady');if(ready){ready.className='fw-bold text-danger home-top-summary mb-3';ready.textContent='Unable to load dashboard: '+(e.message||e);} }
+}
+function initHomeDashboard(){
+  if(window.db) loadHome(); else window.addEventListener('fmsFirebaseReady',loadHome,{once:true});
+  setTimeout(()=>{if(window.db)loadHome();},2500);
+}
+window.addEventListener('fmsFirebaseReady',loadHome,{once:true});
+document.addEventListener('DOMContentLoaded',initHomeDashboard);</script>
+</body></html>
