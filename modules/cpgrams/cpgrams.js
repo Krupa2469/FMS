@@ -2,7 +2,7 @@
  FILE MANAGEMENT SYSTEM (FMS)
  Module      : CPGRAMS
  File        : cpgrams.js
- Version     : 5.3
+ Version     : 5.4
  Developer   : Lekha Technologies
  Description : CPGRAMS Controller
 ==========================================================*/
@@ -79,7 +79,7 @@ async function initializePage() {
 
         console.clear();
 
-        console.log("GRIEVANCES Version 5.3.1 Initializing...");
+        console.log("GRIEVANCES Version 5.4 Initializing...");
 
         registerButtonEvents();
 
@@ -838,7 +838,8 @@ function buildGrievanceObject() {
             grievance[control.id] = String(control.value || "").trim();
         });
 
-    grievance.grievanceType = getSelectedGrievanceType();
+    grievance.grievanceType = getSelectedGrievanceType() || "CPGRAMS";
+    grievance.financialYear = getControlValue("grievanceFinancialYear") || window.FMSRecordPolicy?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";
     const grievanceType = String(grievance.grievanceType || "").trim();
     const questionMode = isQuestionGrievanceType(grievanceType);
 
@@ -1170,9 +1171,12 @@ async function saveGrievance(event) {
         if (!currentDocumentId) throw new Error("Record was saved but Firestore did not return the document ID.");
         console.log("CPGRAMS record saved/updated:", currentDocumentId);
 
+        window.FMSGrievanceWorkspace?.upsertLocal?.({ id: currentDocumentId, ...grievance, active: true });
         const uploadSummary = await uploadSelectedCPGRAMSDocuments(currentDocumentId);
         await loadAttachments(currentDocumentId);
-        window.FMSGrievanceWorkspace?.refresh?.();
+        window.FMSGrievanceWorkspace?.upsertLocal?.({ id: currentDocumentId, ...grievance, active: true, attachments: attachmentList || grievance.attachments || [] });
+        window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true });
+        setTimeout(() => window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true }), 1200);
 
         const uploadedText = uploadSummary.uploaded.length
             ? ` ${uploadSummary.uploaded.length} attachment(s) uploaded.`
@@ -1181,6 +1185,7 @@ async function saveGrievance(event) {
             ? ` ${uploadSummary.failed.length} attachment(s) could not be uploaded. ${uploadSummary.failed.join("; ")}`
             : "";
 
+        const savedDocumentId = currentDocumentId;
         formDirty = false;
         clearForm({ keepType: true, keepMessage: true, focusFirstField: true });
         currentDocumentId = null;
@@ -1189,6 +1194,8 @@ async function saveGrievance(event) {
         await loadAttachments(null);
         refreshButtons();
 
+        window.dispatchEvent(new CustomEvent("fmsRecordChanged", { detail: { module: "cpgrams", id: savedDocumentId, action: updatedExisting ? "update" : "save" } }));
+        window.FMSGrievanceWorkspace?.syncContext?.();
         showMessage(
             `${updatedExisting ? "Existing grievance updated successfully" : "Grievance saved successfully"}.${uploadedText}${failedText}`,
             uploadSummary.failed.length ? "warning" : "success"
@@ -1236,9 +1243,12 @@ async function updateGrievance(event) {
             return;
         }
 
+        window.FMSGrievanceWorkspace?.upsertLocal?.({ id: currentDocumentId, ...grievance, active: true });
         const uploadSummary = await uploadSelectedCPGRAMSDocuments(currentDocumentId);
         await loadAttachments(currentDocumentId);
-        window.FMSGrievanceWorkspace?.refresh?.();
+        window.FMSGrievanceWorkspace?.upsertLocal?.({ id: currentDocumentId, ...grievance, active: true, attachments: attachmentList || grievance.attachments || [] });
+        window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true });
+        setTimeout(() => window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true }), 1200);
 
         hideLoading?.();
 
@@ -1252,6 +1262,7 @@ async function updateGrievance(event) {
             ? ` ${uploadSummary.failed.length} attachment(s) could not be uploaded. ${uploadSummary.failed.join("; ")}`
             : "";
 
+        window.dispatchEvent(new CustomEvent("fmsRecordChanged", { detail: { module: "cpgrams", id: currentDocumentId, action: "update" } }));
         showMessage(
             `Grievance updated successfully.${uploadedText}${failedText}`,
             uploadSummary.failed.length ? "warning" : "success"
@@ -1306,11 +1317,13 @@ async function deleteGrievance(event) {
 
         }
 
+        window.FMSGrievanceWorkspace?.removeLocal?.(currentDocumentId);
+        window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true });
+
         showMessage(
             "success",
             "Grievance deleted successfully."
         );
-        window.FMSGrievanceWorkspace?.refresh?.();
 
         clearForm();
 

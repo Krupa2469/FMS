@@ -1,6 +1,6 @@
 /* =========================================================
    FMS Firebase CRUD Service
-   Version 1.5.3
+   Version 1.5.4
    Purpose: one reliable create/read/update/delete path for all FMS modules.
    Notes:
    - Uses Firestore REST first for writes to avoid browser WebChannel/QUIC stalls.
@@ -356,7 +356,8 @@
       if (!collectionName) throw new Error("Collection name is required.");
       try {
         const database = await waitForDb();
-        const snap = await timeoutPromise(database.collection(collectionName).get(), DEFAULT_TIMEOUT_MS, `List ${collectionName}`);
+        const getOptions = options && (options.forceServer || options.source === "server") ? {source:"server"} : undefined;
+        const snap = await timeoutPromise(database.collection(collectionName).get(getOptions), DEFAULT_TIMEOUT_MS, `List ${collectionName}`);
         let rows = snap.docs.map(doc => ({id:doc.id, ...doc.data()}));
         if (!options || options.activeOnly !== false) rows = rows.filter(row => row.active !== false);
         return success(rows);

@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.3.5
+   FMS GRIEVANCES WORKSPACE - v1.5.4
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -9,6 +9,7 @@
   const FY_SELECT="grievanceFinancialYear";
   const TYPES=["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
   let allRows=[];
+  let lastChangedId="";
   const $=id=>document.getElementById(id);
   const P=()=>window.FMSRecordPolicy;
   const esc=v=>String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]));
@@ -19,13 +20,25 @@
   function currentTypeKey(){return normType(currentType())||"cpgrams";}
   function currentFY(){return $(FY_SELECT)?.value || P()?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";}
   function activeRows(){return allRows.filter(r=>P()?P().active(r):r?.active!==false);}
+  function rowTime(r){
+    const raw=r?.updatedOn||r?.updatedAt||r?.createdOn||r?.createdAt||r?.dateReceived||r?.orgReceivedDate||r?.receivedDate||r?.questionReceivedDate;
+    if(raw&&typeof raw.toDate==="function") return raw.toDate().getTime();
+    if(raw&&raw.seconds!=null) return Number(raw.seconds)*1000;
+    const d=P()?.parseDate?.(raw) || new Date(raw||0);
+    const t=d instanceof Date && !Number.isNaN(d.getTime()) ? d.getTime() : 0;
+    return t;
+  }
   function rowsForContext(){
     const type=currentType();if(!type)return [];
     const key=currentTypeKey(),fy=currentFY();
     let rows=activeRows().filter(r=>rowType(r)===key);
     if(P()) rows=P().filterFY("cpgrams",rows,fy);
     else if(window.FMSFY) rows=FMSFY.filterFY(rows,fy,["dateReceived","dateArised","receivedDate","questionReceivedDate","date"]);
-    return rows;
+    return rows.slice().sort((a,b)=>{
+      if(lastChangedId && a.id===lastChangedId) return -1;
+      if(lastChangedId && b.id===lastChangedId) return 1;
+      return rowTime(b)-rowTime(a);
+    });
   }
   function populateFY(){
     const el=$(FY_SELECT);if(!el)return;
@@ -137,17 +150,78 @@
     const cols=columns();title.textContent=`${currentType()} Register`;count.textContent=`Total Records : ${rows.length}`;
     head.innerHTML=`<tr><th>Sl.No.</th>${cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")}<th>Action</th></tr>`;
     if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+2}" class="text-center text-muted py-4">No ${esc(currentType())} records available for Financial Year ${esc(currentFY())}.</td></tr>`;return;}
-    body.innerHTML=rows.map((r,i)=>`<tr><td>${i+1}</td>${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td></tr>`).join("");
+    body.innerHTML=rows.map((r,i)=>`<tr class="${r.id===lastChangedId?'table-success':''}"><td>${i+1}</td>${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td></tr>`).join("");
     body.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.view,"view")));
     body.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.edit,"edit")));
     body.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>deleteRecord(b.dataset.delete)));
   }
   function openRecord(id,mode){const r=allRows.find(x=>x.id===id);if(!r)return;sessionStorage.setItem("selectedGrievance",JSON.stringify(r));location.href=`cpgrams.html?mode=${encodeURIComponent(mode)}&fullscreenForm=1&id=${encodeURIComponent(id)}&grievanceType=${encodeURIComponent(currentType())}`;}
-  async function deleteRecord(id){if(!confirm("Delete this record?"))return;try{const db=getDb();await db.collection(COLLECTION).doc(id).update({active:false,deletedOn:firebase.firestore.FieldValue.serverTimestamp(),updatedOn:firebase.firestore.FieldValue.serverTimestamp()});await refresh();}catch(e){alert("Unable to delete record: "+(e.message||e));}}
+  async function deleteRecord(id){
+    if(!confirm("Delete this record?"))return;
+    try{
+      let result=null;
+      if(window.FMSCrud?.softDelete){
+        result=await window.FMSCrud.softDelete(COLLECTION,id);
+        if(!result?.success) throw new Error(result?.message||"Delete failed");
+      }else{
+        const db=getDb();
+        if(!db) throw new Error("Firestore is not ready.");
+        await db.collection(COLLECTION).doc(id).set({active:false,deletedOn:new Date(),updatedOn:new Date()},{merge:true});
+      }
+      removeLocal(id);
+      setTimeout(()=>refresh({forceServer:true}),700);
+    }catch(e){
+      alert("Unable to delete record: "+(e.message||e));
+    }
+  }
   function getDb(){if(window.db)return window.db;if(window.fmsFirebase?.db)return window.fmsFirebase.db;try{if(typeof firebase!=="undefined"&&firebase.firestore)return firebase.firestore();}catch(_e){}return null;}
   function showContext(hasType){["grievanceFYPanel","moduleDashboardPanel","grievanceInlineRegisterPanel","cpgramsForm"].forEach(id=>$(id)?.classList.toggle("d-none",!hasType));const dataTitle=[...document.querySelectorAll("h4")].find(h=>h.textContent.includes("GRIEVANCES DATA ENTRY"));if(dataTitle)dataTitle.classList.toggle("d-none",!hasType);}
   function syncContext(){const type=currentType();showContext(!!type);const heading=$("grievanceTypeHeading");if(heading)heading.textContent=type||"SELECT GRIEVANCE TYPE";const label=$("selectedGrievanceFormLabel");if(label)label.textContent="";const dataTitle=$("grievanceDataEntryTitle");if(dataTitle&&type)dataTitle.textContent=`${String(type).toUpperCase()} DATA ENTRY FORM`;if(!type)return;populateFY();const rows=rowsForContext();renderDashboard(rows);renderRegister(rows);const s=$("grievanceContextStatus");if(s){s.className="d-none";s.textContent="";}}
-  async function refresh(){const db=getDb();if(!db)return false;try{const snap=await db.collection(COLLECTION).get();allRows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>P()?P().active(r):r.active!==false);syncContext();return true;}catch(e){console.error("Grievances workspace load error",e);const s=$("grievanceContextStatus");if(s){s.className="alert alert-danger mb-0";s.textContent="Unable to load Grievances: "+(e.message||e);}return false;}}
+  function upsertLocal(row){
+    if(!row || !row.id) return false;
+    const normalised={active:true,...row};
+    lastChangedId=normalised.id;
+    const idx=allRows.findIndex(r=>r.id===normalised.id);
+    if(idx>=0) allRows[idx]={...allRows[idx],...normalised};
+    else allRows.unshift(normalised);
+    syncContext();
+    return true;
+  }
+  function removeLocal(id){
+    if(!id) return false;
+    lastChangedId="";
+    allRows=allRows.filter(r=>r.id!==id);
+    syncContext();
+    return true;
+  }
+  async function refresh(options={}){
+    try{
+      let rows=null;
+      if(window.FMSCrud?.list){
+        const result=await window.FMSCrud.list(COLLECTION,{activeOnly:true,forceServer:!!options.forceServer});
+        if(!result?.success) throw new Error(result?.message||"Unable to load grievances.");
+        rows=result.data||[];
+      }else{
+        const db=getDb();
+        if(!db)return false;
+        const snap=options.forceServer && db.collection(COLLECTION).get.length ? await db.collection(COLLECTION).get({source:"server"}).catch(()=>db.collection(COLLECTION).get()) : await db.collection(COLLECTION).get();
+        rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+      }
+      const fresh=(rows||[]).filter(r=>P()?P().active(r):r.active!==false);
+      if(lastChangedId && !fresh.some(r=>r.id===lastChangedId)){
+        const local=allRows.find(r=>r.id===lastChangedId);
+        if(local) fresh.unshift(local);
+      }
+      allRows=fresh;
+      syncContext();
+      return true;
+    }catch(e){
+      console.error("Grievances workspace load error",e);
+      const s=$("grievanceContextStatus");
+      if(s){s.className="alert alert-danger mb-0";s.textContent="Unable to load Grievances: "+(e.message||e);}
+      return false;
+    }
+  }
   function start(){
     const type=$(TYPE_SELECT),fy=$(FY_SELECT);if(!type)return;
     const requestedType=new URLSearchParams(location.search).get("grievanceType");
@@ -162,5 +236,5 @@
     if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
-  window.FMSGrievanceWorkspace={refresh,syncContext,rowsForContext,normType,rowType};
+  window.FMSGrievanceWorkspace={refresh,syncContext,rowsForContext,upsertLocal,removeLocal,normType,rowType};
 })(window,document);
