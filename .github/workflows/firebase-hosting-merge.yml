@@ -1,8 +1,8 @@
 # FMS temporary deployment workflow
-# Deploys Firestore rules and Firebase Hosting from master.
-# Storage rules deployment is intentionally skipped until the
-# Google Cloud service account has permission to inspect/enable
-# firebasestorage.googleapis.com.
+# Deploys Firebase Hosting only from master.
+# Firestore and Storage rules deployment is intentionally skipped until the
+# Google Cloud service account is granted Service Usage permission to inspect
+# firestore.googleapis.com and firebasestorage.googleapis.com.
 
 name: Deploy to Firebase Hosting on merge
 
@@ -17,17 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy Firestore rules only
-        shell: bash
-        env:
-          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CRD_TG_FMS_2026 }}
-        run: |
-          npm install -g firebase-tools
-          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/firebase-service-account.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-service-account.json"
-          firebase deploy --only firestore:rules --project crd-tg-fms-2026 --non-interactive
-
-      - name: Deploy Firebase Hosting
+      - name: Deploy Firebase Hosting only
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
