@@ -29,7 +29,10 @@ class BaseRepository {
 
     collection() {
 
-        return this.db.collection(this.collectionName);
+        const database = (window.FMSCrud && window.FMSCrud.db && window.FMSCrud.db()) || this.db || window.db || firebase.firestore();
+        if (!database || typeof database.collection !== "function") throw new Error("Firestore is not ready. Please refresh the page and try again.");
+        this.db = database;
+        return database.collection(this.collectionName);
 
     }
 

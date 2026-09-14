@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FMS Firebase CRUD Diagnostics</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../css/style.css"></head>
+<body>
+<header class="bg-primary text-white text-center p-3"><h5 class="mb-1">GOVERNMENT OF TELANGANA</h5><h6 class="mb-1">OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT</h6><h3 class="fw-bold mb-0">FIREBASE CRUD DIAGNOSTICS</h3></header>
+<nav class="navbar bg-light border-bottom"><div class="container-fluid p-2 d-flex gap-2"><button class="btn btn-dark" id="btnHome"><i class="bi bi-house"></i> Home</button><button class="btn btn-secondary" id="btnUtilities"><i class="bi bi-tools"></i> Utilities</button><button class="btn btn-primary" id="btnRun"><i class="bi bi-play-circle"></i> Run CRUD Test</button></div></nav>
+<main class="container py-4">
+<div class="alert alert-info">This utility creates, reads, updates and soft-deletes one temporary document in <strong>systemDiagnostics</strong>. It does not change GRIEVANCES, RTI, DISHA, Master Tables or Reports data.</div>
+<div id="status" class="alert alert-secondary">Ready.</div>
+<table class="table table-bordered bg-white"><thead class="table-dark"><tr><th>Step</th><th>Status</th><th>Details</th></tr></thead><tbody id="results"><tr><td colspan="3" class="text-center text-muted">Click Run CRUD Test.</td></tr></tbody></table>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="../../js/firebase/firebase-bootstrap.js"></script>
+<script src="../../js/firebase/firebase-crud-service.js"></script>
+<script>
+const tbody=document.getElementById('results'), statusEl=document.getElementById('status');
+document.getElementById('btnHome').onclick=()=>location.href='../../index.html';
+document.getElementById('btnUtilities').onclick=()=>location.href='../utilities.html';
+function row(step,ok,details){const tr=document.createElement('tr');tr.innerHTML=`<td>${step}</td><td>${ok?'<span class="badge bg-success">Pass</span>':'<span class="badge bg-danger">Fail</span>'}</td><td>${String(details||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</td>`;tbody.appendChild(tr);}
+document.getElementById('btnRun').onclick=async()=>{tbody.innerHTML='';statusEl.className='alert alert-warning';statusEl.textContent='Running CRUD test...';let id='';try{await FMSCrud.waitForDb();row('Firebase ready',true,'Firestore is available.');const c=await FMSCrud.create('systemDiagnostics',{purpose:'crud-test',createdBy:'FMS UI',testValue:'created'});if(!c.success)throw new Error(c.message);id=c.id||c.data.id;row('Create',true,'Created '+id);const g=await FMSCrud.get('systemDiagnostics',id);if(!g.success)throw new Error(g.message);row('Read',true,'Read '+id);const u=await FMSCrud.update('systemDiagnostics',id,{testValue:'updated'});if(!u.success)throw new Error(u.message);row('Update',true,'Updated '+id);const d=await FMSCrud.softDelete('systemDiagnostics',id);if(!d.success)throw new Error(d.message);row('Delete',true,'Soft-deleted '+id);statusEl.className='alert alert-success';statusEl.textContent='CRUD test passed.';}catch(e){row('Error',false,e.message||e);statusEl.className='alert alert-danger';statusEl.textContent='CRUD test failed: '+(e.message||e);}};
+</script>
+</body></html>

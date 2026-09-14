@@ -1277,10 +1277,15 @@ async function deleteDISHARecordFromRegister(id) {
     if (!id) return;
     if (!confirm("Delete this DISHA record from the register?")) return;
     try {
-        const database = getFirestoreDB();
-        if (!database) throw new Error("Firebase Firestore is not available.");
-        const ts = firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();
-        await database.collection(DISHA_COLLECTION).doc(id).set({ active: false, deletedOn: ts, updatedAt: ts, updatedOn: ts }, { merge: true });
+        const result = window.FMSCrud ? await window.FMSCrud.softDelete(DISHA_COLLECTION, id) : null;
+        if (!result) {
+            const database = getFirestoreDB();
+            if (!database) throw new Error("Firebase Firestore is not available.");
+            const ts = firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();
+            await database.collection(DISHA_COLLECTION).doc(id).set({ active: false, deletedOn: ts, updatedAt: ts, updatedOn: ts }, { merge: true });
+        } else if (!result.success) {
+            throw new Error(result.message || "Delete failed.");
+        }
         await loadDISHAmeetings();
         applyURLFilter();
     } catch (error) {

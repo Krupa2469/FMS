@@ -31,39 +31,37 @@ function stopFormButtonNavigation(event) {
 ==========================================================*/
 
 async function saveGrievanceToDatabase(grievance) {
-
+    if (window.FMSCrud) return await window.FMSCrud.create("cpgrams", grievance);
     return await createRecord(grievance);
-
 }
 
 async function updateGrievanceToDatabase(id, grievance) {
-
+    if (window.FMSCrud) return await window.FMSCrud.update("cpgrams", id, grievance);
     return await updateRecord(id, grievance);
-
 }
 
 async function deleteGrievanceFromDatabase(id) {
-    
-     return await deleteRecord(id);
-
+    if (window.FMSCrud) return await window.FMSCrud.softDelete("cpgrams", id);
+    return await deleteRecord(id);
 }
 
 async function getGrievance(documentId) {
-
-    return await getDocument(documentId);
-
+    if (window.FMSCrud) return await window.FMSCrud.get("cpgrams", documentId);
+    return await window.getDocument(documentId);
 }
 
 async function getAllGrievances() {
-
+    if (window.FMSCrud) return await window.FMSCrud.list("cpgrams");
     return await getActiveRecords();
-
 }
 
 async function checkDuplicateGrievanceNumber(grievanceNumber, excludeId = null) {
-
+    if (window.FMSCrud) {
+        const r = await window.FMSCrud.duplicateExists("cpgrams", ["grievanceNumber", "registrationNumber", "grievanceNo"], grievanceNumber, excludeId);
+        if (!r.success) throw new Error(r.message || "Unable to validate duplicate grievance number.");
+        return !!r.data;
+    }
     return await grievanceExists(grievanceNumber, excludeId);
-
 }
 
 /*==========================================================
@@ -1227,7 +1225,9 @@ async function deleteGrievance() {
  DELETE CONFIRMATION
 ==========================================================*/
 
-function confirmDelete() {
+function confirmDelete(event) {
+
+    stopFormButtonNavigation(event);
 
     if (!currentDocumentId) {
 
@@ -1713,3 +1713,11 @@ document.addEventListener(
 
     }
 );
+
+// Explicit CRUD action exports for register and diagnostics.
+window.FMSCPGRAMSCRUDActions = {
+    save: saveGrievance,
+    update: updateGrievance,
+    delete: confirmDelete,
+    clear: clearForm
+};

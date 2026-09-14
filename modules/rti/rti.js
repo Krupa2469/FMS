@@ -33,6 +33,10 @@ let pendingRTIApplicationMeta = null;
 
 function rtiDb() {
     try {
+        if (window.FMSCrud && typeof window.FMSCrud.db === "function") {
+            const shared = window.FMSCrud.db();
+            if (shared) return shared;
+        }
         if (typeof window.getFMSFirestore === "function") {
             const shared = window.getFMSFirestore();
             if (shared) return shared;
@@ -209,9 +213,9 @@ async function saveNewRTIOfficer(){
 function registerRTIEvents(){
     document.getElementById("applicationDate")?.addEventListener("change",calculateRTIDueDate);
     document.getElementById("btnNew")?.addEventListener("click",prepareNewRTI);
-    document.getElementById("btnSave")?.addEventListener("click",saveRTIRecord);
-    document.getElementById("btnUpdate")?.addEventListener("click",updateRTIRecord);
-    document.getElementById("btnDelete")?.addEventListener("click",deleteRTIRecord);
+    document.getElementById("btnSave")?.addEventListener("click",function(event){ event?.preventDefault?.(); saveRTIRecord(event); });
+    document.getElementById("btnUpdate")?.addEventListener("click",function(event){ event?.preventDefault?.(); updateRTIRecord(event); });
+    document.getElementById("btnDelete")?.addEventListener("click",function(event){ event?.preventDefault?.(); deleteRTIRecord(event); });
     document.getElementById("btnPrint")?.addEventListener("click",()=>window.print());
     document.getElementById("btnRegister")?.addEventListener("click",()=>location.href="rti-register.html?fullscreen=1");
     document.getElementById("btnDailyStatus")?.addEventListener("click",()=>location.href="rti-daily-status.html");
@@ -340,44 +344,34 @@ async function saveRTIRecord(){
 
         if(!validateRTIForm(data)) return false;
 
-        const database=rtiDb();
+        const database=window.FMSCrud ? await window.FMSCrud.waitForDb() : rtiDb();
         if(!database) throw new Error("Firestore is not available.");
 
-        const duplicate=await database.collection(RTI_COLLECTION)
-            .where("applicationNumber","==",data.applicationNumber).limit(1).get();
-
-        if(!duplicate.empty){
-            const existing=duplicate.docs[0];
-            showRTIMessage(
-                "This RTI Application Number already exists. Use Update instead.",
-                "warning"
-            );
-            currentRTIRecordId=existing.id;
-            history.replaceState({},document.title,`rti.html?id=${encodeURIComponent(existing.id)}`);
+        const duplicateResult = window.FMSCrud
+            ? await window.FMSCrud.duplicateExists(RTI_COLLECTION,["applicationNumber","rtiApplicationNumber"],data.applicationNumber,null)
+            : null;
+        if(duplicateResult && !duplicateResult.success) throw new Error(duplicateResult.message);
+        if(duplicateResult ? duplicateResult.data : false){
+            showRTIMessage("This RTI Application Number already exists. Use Update instead.", "warning");
             return false;
         }
 
-        const now=rtiServerTimestamp();
-        const ref=await database.collection(RTI_COLLECTION).add({
-            ...data,
-            documents:[],
-            attachments:[],
-            createdAt:now,
-            updatedAt:now
-        });
+        const createResult = window.FMSCrud
+            ? await window.FMSCrud.create(RTI_COLLECTION,{...data,documents:[],attachments:[]})
+            : null;
+        if(!createResult || !createResult.success) throw new Error(createResult?.message || "Unable to save RTI application.");
 
-        currentRTIRecordId=ref.id;
+        currentRTIRecordId=createResult.id || createResult.data?.id;
 
         // Save the RTI Application document selected for parsing only after
         // the Firestore record has been created.
         let docs=[];
         docs=await persistPendingRTIApplication(currentRTIRecordId,docs);
 
-        await database.collection(RTI_COLLECTION).doc(currentRTIRecordId).update({
-            documents:docs,
-            attachments:docs,
-            updatedAt:rtiServerTimestamp()
-        });
+        const updateDocsResult = window.FMSCrud
+            ? await window.FMSCrud.update(RTI_COLLECTION,currentRTIRecordId,{documents:docs,attachments:docs})
+            : await database.collection(RTI_COLLECTION).doc(currentRTIRecordId).update({documents:docs,attachments:docs,updatedAt:rtiServerTimestamp()}).then(()=>({success:true})).catch(e=>({success:false,message:e.message||String(e)}));
+        if(!updateDocsResult.success) throw new Error(updateDocsResult.message || "RTI saved but attachment metadata update failed.");
 
         rtiDocuments=docs;
         pendingRTIApplicationFile=null;
@@ -386,16 +380,14 @@ async function saveRTIRecord(){
         if(fileInput) fileInput.value="";
         renderRTIAttachments();
 
-        showRTIMessage(
-            "RTI application saved successfully to Firestore.",
-            "success"
-        );
+        showRTIMessage("RTI application saved successfully to Firestore. Form cleared for new entry.", "success");
 
-        history.replaceState(
-            {},
-            document.title,
-            `rti.html?id=${encodeURIComponent(currentRTIRecordId)}`
-        );
+        currentRTIRecordId=null;
+        rtiDocuments=[];
+        clearRTIForm();
+        renderRTIAttachments();
+        history.replaceState({}, document.title, "rti.html");
+        window.FMSInlineDashboard?.refresh?.();
 
         return true;
 
@@ -426,18 +418,16 @@ async function updateRTIRecord(){
         const data=getRTIFormData();
         if(!validateRTIForm(data)) return false;
 
-        const database=rtiDb();
+        const database=window.FMSCrud ? await window.FMSCrud.waitForDb() : rtiDb();
         if(!database) throw new Error("Firestore is not available.");
 
         let docs=[...rtiDocuments];
         docs=await persistPendingRTIApplication(currentRTIRecordId,docs);
 
-        await database.collection(RTI_COLLECTION).doc(currentRTIRecordId).update({
-            ...data,
-            documents:docs,
-            attachments:docs,
-            updatedAt:rtiServerTimestamp()
-        });
+        const updateResult = window.FMSCrud
+            ? await window.FMSCrud.update(RTI_COLLECTION,currentRTIRecordId,{...data,documents:docs,attachments:docs})
+            : await database.collection(RTI_COLLECTION).doc(currentRTIRecordId).update({...data,documents:docs,attachments:docs,updatedAt:rtiServerTimestamp()}).then(()=>({success:true})).catch(e=>({success:false,message:e.message||String(e)}));
+        if(!updateResult.success) throw new Error(updateResult.message || "Unable to update RTI application.");
 
         rtiDocuments=docs;
         pendingRTIApplicationFile=null;
@@ -458,11 +448,19 @@ async function updateRTIRecord(){
         if(btn) btn.disabled=false;
     }
 }
-async function deleteRTIRecord(){
+async function deleteRTIRecord(event){
+    event?.preventDefault?.();
     if(!rtiReady()||!currentRTIRecordId) { showRTIMessage("Please load an RTI record before deleting.","warning"); return; }
     if(!confirm("Are you sure you want to delete this RTI application?")) return;
-    try { await rtiDb().collection(RTI_COLLECTION).doc(currentRTIRecordId).delete(); currentRTIRecordId=null; rtiDocuments=[]; location.href="rti-register.html?fullscreen=1"; }
-    catch(e){ showRTIMessage("Unable to delete RTI application: "+e.message,"danger"); }
+    try {
+        const result = window.FMSCrud
+            ? await window.FMSCrud.softDelete(RTI_COLLECTION,currentRTIRecordId)
+            : await rtiDb().collection(RTI_COLLECTION).doc(currentRTIRecordId).update({active:false,deletedAt:rtiServerTimestamp(),updatedAt:rtiServerTimestamp()}).then(()=>({success:true})).catch(e=>({success:false,message:e.message||String(e)}));
+        if(!result.success) throw new Error(result.message || "Unable to delete RTI application.");
+        currentRTIRecordId=null; rtiDocuments=[]; clearRTIForm(); renderRTIAttachments(); window.FMSInlineDashboard?.refresh?.();
+        showRTIMessage("RTI application deleted successfully.","success");
+    }
+    catch(e){ showRTIMessage("Unable to delete RTI application: "+(e.message||e),"danger"); }
 }
 
 async function loadRTIRecordFromURL(){
@@ -718,3 +716,11 @@ else document.addEventListener("DOMContentLoaded",()=>initializeRTIModule());
 window.parseRTIDocument=parseSelectedRTIApplication;
 window.saveRTIRecord=saveRTIRecord;
 window.updateRTIRecord=updateRTIRecord;
+
+
+window.FMSRTICRUDActions = {
+  save: saveRTIRecord,
+  update: updateRTIRecord,
+  delete: deleteRTIRecord,
+  clear: prepareNewRTI
+};

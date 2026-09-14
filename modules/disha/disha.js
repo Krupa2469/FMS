@@ -200,7 +200,7 @@ function registerEvents() {
         .getElementById("btnSave")
         ?.addEventListener(
             "click",
-            saveRecord
+            function(event){ event?.preventDefault?.(); saveRecord(event); }
         );
 
 
@@ -208,7 +208,7 @@ function registerEvents() {
         .getElementById("btnUpdate")
         ?.addEventListener(
             "click",
-            updateRecord
+            function(event){ event?.preventDefault?.(); updateRecord(event); }
         );
 
 
@@ -216,7 +216,7 @@ function registerEvents() {
         .getElementById("btnDelete")
         ?.addEventListener(
             "click",
-            deleteRecord
+            function(event){ event?.preventDefault?.(); deleteRecord(event); }
         );
 
 
@@ -1055,314 +1055,142 @@ function validateForm(
    SAVE
 ================================================================ */
 
-async function saveRecord() {
+async function saveRecord(event) {
+
+    event?.preventDefault?.();
 
     try {
 
-        const data =
-            getFormData();
+        const data = getFormData();
 
+        if (!validateForm(data)) return false;
 
-        if (
-            !validateForm(
-                data
-            )
-        ) {
+        const result = window.FMSCrud
+            ? await window.FMSCrud.create(DISHA_COLLECTION, data)
+            : await db.collection(DISHA_COLLECTION).add({
+                ...data,
+                active: true,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(ref => ({success:true, id:ref.id, data:{id:ref.id}})).catch(e => ({success:false, message:e.message||String(e)}));
 
-            return;
+        if (!result.success) throw new Error(result.message || "Unable to save DISHA record.");
 
-        }
+        const savedId = result.id || result.data?.id;
+        console.log("DISHA Firestore document saved:", savedId);
 
+        sessionStorage.removeItem("selectedDishaRecordId");
+        sessionStorage.removeItem("selectedDishaMeeting");
+        currentRecordId = null;
 
-        if (
-            typeof db ===
-            "undefined"
-        ) {
-
-            throw new Error(
-                "Firebase Firestore 'db' is not initialized."
-            );
-
-        }
-
-
-        const record = {
-
-            ...data,
-
-            createdAt:
-                firebase.firestore
-                    .FieldValue
-                    .serverTimestamp(),
-
-            updatedAt:
-                firebase.firestore
-                    .FieldValue
-                    .serverTimestamp()
-
-        };
-
-
-        const docRef =
-            await db
-                .collection(
-                    DISHA_COLLECTION
-                )
-                .add(
-                    record
-                );
-
-
-        currentRecordId =
-            docRef.id;
-
-
-        showMessage(
-            "DISHA record saved successfully to Firestore.",
-            "success"
-        );
-
-
-        console.log(
-            "Firestore document ID:",
-            docRef.id
-        );
-
-
-        /*
-         * Important:
-         * After saving, remain on the same
-         * record so Update/Delete can work.
-         */
-
-        sessionStorage.setItem(
-            "selectedDishaRecordId",
-            docRef.id
-        );
-
-
-        updateDISHAStatus();
-        if (window.FMSDishaAttachmentUI?.refresh) {
-            await window.FMSDishaAttachmentUI.refresh();
-        }
+        showMessage("DISHA record saved successfully. Form cleared for new entry.", "success");
+        await prepareNewRecord();
+        window.FMSInlineDashboard?.refresh?.();
+        return true;
 
     }
     catch (error) {
 
-        console.error(
-            "DISHA Save Error:",
-            error
-        );
-
-
-        showMessage(
-            "Unable to save record: " +
-            error.message,
-            "danger"
-        );
+        console.error("DISHA Save Error:", error);
+        showMessage("Unable to save record: " + (error.message || error), "danger");
+        return false;
 
     }
 
 }
-
 
 /* ================================================================
    UPDATE
 ================================================================ */
 
-async function updateRecord() {
+async function updateRecord(event) {
 
-    console.log(
-        "Updating DISHA Firestore document:",
-        currentRecordId
-    );
+    event?.preventDefault?.();
 
+    console.log("Updating DISHA Firestore document:", currentRecordId);
 
     try {
 
         if (!currentRecordId) {
-
-            showMessage(
-                "Please select a saved record before updating.",
-                "warning"
-            );
-
-            return;
-
+            showMessage("Please select a saved record before updating.", "warning");
+            return false;
         }
 
+        const data = getFormData();
+        if (!validateForm(data)) return false;
 
-        const data =
-            getFormData();
-
-
-        if (
-            !validateForm(
-                data
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            typeof db ===
-            "undefined"
-        ) {
-
-            throw new Error(
-                "Firebase Firestore 'db' is not initialized."
-            );
-
-        }
-
-
-        await db
-            .collection(
-                DISHA_COLLECTION
-            )
-            .doc(
-                currentRecordId
-            )
-            .update({
-
+        const result = window.FMSCrud
+            ? await window.FMSCrud.update(DISHA_COLLECTION, currentRecordId, data)
+            : await db.collection(DISHA_COLLECTION).doc(currentRecordId).update({
                 ...data,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => ({success:true})).catch(e => ({success:false, message:e.message||String(e)}));
 
-                updatedAt:
-                    firebase.firestore
-                        .FieldValue
-                        .serverTimestamp()
+        if (!result.success) throw new Error(result.message || "Unable to update DISHA record.");
 
-            });
-
-
-        showMessage(
-            "DISHA record updated successfully.",
-            "success"
-        );        if (window.FMSDishaAttachmentUI?.refresh) {
-            await window.FMSDishaAttachmentUI.refresh();
-        }
-
-
-        console.log(
-            "Updated Firestore document:",
-            currentRecordId
-        );
+        showMessage("DISHA record updated successfully.", "success");
+        if (window.FMSDishaAttachmentUI?.refresh) await window.FMSDishaAttachmentUI.refresh();
+        window.FMSInlineDashboard?.refresh?.();
+        return true;
 
     }
     catch (error) {
 
-        console.error(
-            "DISHA Update Error:",
-            error
-        );
-
-
-        showMessage(
-            "Unable to update record: " +
-            error.message,
-            "danger"
-        );
+        console.error("DISHA Update Error:", error);
+        showMessage("Unable to update record: " + (error.message || error), "danger");
+        return false;
 
     }
 
 }
-
 
 /* ================================================================
    DELETE
 ================================================================ */
 
-async function deleteRecord() {
+async function deleteRecord(event) {
+
+    event?.preventDefault?.();
 
     try {
 
         if (!currentRecordId) {
-
-            showMessage(
-                "Please select a saved record before deleting.",
-                "warning"
-            );
-
-            return;
-
+            showMessage("Please select a saved record before deleting.", "warning");
+            return false;
         }
 
+        if (!confirm("Are you sure you want to delete this DISHA record?")) return false;
 
-        const confirmed =
-            confirm(
-                "Are you sure you want to delete this DISHA record?"
-            );
+        const result = window.FMSCrud
+            ? await window.FMSCrud.softDelete(DISHA_COLLECTION, currentRecordId)
+            : await db.collection(DISHA_COLLECTION).doc(currentRecordId).update({
+                active:false,
+                deletedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => ({success:true})).catch(e => ({success:false, message:e.message||String(e)}));
 
+        if (!result.success) throw new Error(result.message || "Unable to delete DISHA record.");
 
-        if (!confirmed)
-            return;
+        sessionStorage.removeItem("selectedDishaRecordId");
+        sessionStorage.removeItem("selectedDishaMeeting");
+        currentRecordId = null;
 
-
-        if (
-            typeof db ===
-            "undefined"
-        ) {
-
-            throw new Error(
-                "Firebase Firestore 'db' is not initialized."
-            );
-
-        }
-
-
-        await db
-            .collection(
-                DISHA_COLLECTION
-            )
-            .doc(
-                currentRecordId
-            )
-            .delete();
-
-
-        sessionStorage.removeItem(
-            "selectedDishaRecordId"
-        );
-
-
-        sessionStorage.removeItem(
-            "selectedDishaMeeting"
-        );
-
-
-        showMessage(
-            "DISHA record deleted successfully.",
-            "success"
-        );
-
-
-        prepareNewRecord();
-
-
+        showMessage("DISHA record deleted successfully.", "success");
+        await prepareNewRecord();
         await loadRecords();
+        window.FMSInlineDashboard?.refresh?.();
+        return true;
 
     }
     catch (error) {
 
-        console.error(
-            "DISHA Delete Error:",
-            error
-        );
-
-
-        showMessage(
-            "Unable to delete record: " +
-            error.message,
-            "danger"
-        );
+        console.error("DISHA Delete Error:", error);
+        showMessage("Unable to delete record: " + (error.message || error), "danger");
+        return false;
 
     }
 
 }
-
 
 /* ================================================================
    LOAD ALL FIRESTORE RECORDS
@@ -1780,3 +1608,5 @@ function clearMessage() {
     }
 
 }
+
+window.FMSDISHACRUDActions = { save: saveRecord, update: updateRecord, delete: deleteRecord, clear: prepareNewRecord };

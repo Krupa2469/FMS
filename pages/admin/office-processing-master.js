@@ -25,10 +25,15 @@ Lekha Technologies
     };
 
     function db() {
-        return window.getFMSFirestore?.() ||
+        return window.FMSCrud?.db?.() ||
+            window.getFMSFirestore?.() ||
             window.fmsFirebase?.db ||
             window.db ||
             (typeof firebase !== "undefined" ? firebase.firestore() : null);
+    }
+
+    async function readyDb(){
+        return window.FMSCrud?.waitForDb ? await window.FMSCrud.waitForDb() : db();
     }
 
     function collection() {
@@ -45,7 +50,7 @@ Lekha Technologies
     }
 
     async function ensureDefaults() {
-        const database = db();
+        const database = await readyDb();
         if (!database) return;
 
         for (const [name, values] of Object.entries(defaults)) {
@@ -83,7 +88,7 @@ Lekha Technologies
 
         body.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
 
-        const database = db();
+        const database = await readyDb();
         if (!database) {
             body.innerHTML = '<tr><td colspan="5">Firebase is not ready.</td></tr>';
             return;
@@ -128,7 +133,7 @@ Lekha Technologies
             return;
         }
 
-        const database = db();
+        const database = await readyDb();
         if (!database) {
             alert("Firebase is not ready.");
             return;
@@ -143,19 +148,20 @@ Lekha Technologies
         };
 
         if (selectedId) {
-            await database.collection(collection()).doc(selectedId).update(data);
+            const result = window.FMSCrud ? await window.FMSCrud.update(collection(), selectedId, data) : await database.collection(collection()).doc(selectedId).update(data).then(()=>({success:true}));
+            if(!result.success) throw new Error(result.message || "Master update failed.");
             alert("Master updated.");
         } else {
             const existing = await database.collection(collection())
                 .where("name", "==", name).limit(1).get();
 
-            if (!existing.empty) {
+            if (!existing.empty && existing.docs.some(doc => (doc.data() || {}).active !== false)) {
                 alert("This master value already exists.");
                 return;
             }
 
-            data.createdOn = firebase.firestore.FieldValue.serverTimestamp();
-            await database.collection(collection()).add(data);
+            const result = window.FMSCrud ? await window.FMSCrud.create(collection(), data) : await database.collection(collection()).add({...data, createdOn: firebase.firestore.FieldValue.serverTimestamp()}).then(ref=>({success:true,id:ref.id}));
+            if(!result.success) throw new Error(result.message || "Master save failed.");
             alert("Master saved.");
         }
 
@@ -164,7 +170,7 @@ Lekha Technologies
     }
 
     async function edit(id) {
-        const database = db();
+        const database = await readyDb();
         const snap = await database.collection(collection()).doc(id).get();
         if (!snap.exists) return;
 
@@ -184,10 +190,18 @@ Lekha Technologies
 
         if (!confirm("Delete this master value?")) return;
 
-        const database = db();
-        await database.collection(collection()).doc(selectedId).delete();
+        const database = await readyDb();
+        const result = window.FMSCrud
+            ? await window.FMSCrud.softDelete(collection(), selectedId)
+            : await database.collection(collection()).doc(selectedId).update({
+                active:false,
+                deletedOn: firebase.firestore.FieldValue.serverTimestamp(),
+                modifiedOn: firebase.firestore.FieldValue.serverTimestamp()
+              }).then(()=>({success:true})).catch(e=>({success:false,message:e.message||String(e)}));
+        if(!result.success) throw new Error(result.message || "Delete failed.");
         clear();
         await loadGrid();
+        alert("Master deleted.");
     }
 
     function clear() {
