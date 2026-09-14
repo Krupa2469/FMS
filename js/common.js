@@ -199,21 +199,38 @@ MESSAGE AREA
 
 function showMessage(message, type = "success") {
 
+    // Accept both call styles used across this app:
+    // showMessage("Saved", "success") and showMessage("success", "Saved").
+    const validTypes = new Set(["success", "danger", "warning", "info", "primary", "secondary", "light", "dark"]);
+    let finalMessage = message;
+    let finalType = type || "success";
+
+    if (validTypes.has(String(message || "").toLowerCase()) && typeof type !== "undefined") {
+        finalType = String(message).toLowerCase();
+        finalMessage = type;
+    }
+
     const area = document.getElementById("messageArea");
 
     if (!area) {
-
-        alert(message);
+        console.log(finalType + ":", finalMessage);
         return;
-
     }
 
+    area.style.display = "";
     area.innerHTML =
-        `<div class="alert alert-${type}">${message}</div>`;
+        `<div class="alert alert-${finalType} alert-dismissible fade show">
+            ${finalMessage}
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
+        </div>`;
 
-    area.style.display = "block";
-
-    setTimeout(clearMessage, 4000);
+    setTimeout(() => {
+        area.innerHTML = "";
+    }, 5000);
 
 }
 

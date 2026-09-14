@@ -1792,9 +1792,9 @@ const FORM_FIELD_DEFAULTS=[
  }
 ];
 
-/* FMS v1.4.1 form-field cleanup: remove fields deleted from the live CPGRAMS form. */
+/* FMS v1.4.7 form-field cleanup: remove fields deleted from the live CPGRAMS, RTI and DISHA forms. */
 (function(){
-  const hiddenKeys=new Set(["natureOfGrievance","priorityClassification","attachmentCount","putUpToJC","putUpThroughAO","addressedToRole","putUpForJCApproval","jcApprovalDate","putUpForEGSApproval","egsApprovalDate","finalReplySentToComplainant","replySentDate","uploadedInCPGRAMSPortal","portalUploadDate","approvalStatus","approvalDate","replySentToGovernment","replyToGovernmentDate","fileClosed"]);
+  const hiddenKeys=new Set(["natureOfGrievance","priorityClassification","attachmentCount","putUpToJC","putUpThroughAO","addressedToRole","putUpForJCApproval","jcApprovalDate","putUpForEGSApproval","egsApprovalDate","finalReplySentToComplainant","replySentDate","uploadedInCPGRAMSPortal","portalUploadDate","approvalStatus","approvalDate","replySentToGovernment","replyToGovernmentDate","fileClosed","replyReceivedDate","replyReceivedFrom","replySummary","sectionReplyFile","replySentToApplicant","replySentDate","finalStatus","finalReplyFile","meetingSubject","meetingVenue","chairedBy","pomDueDate","pomRemarks","officeReplySection"]);
   for(let i=FORM_FIELD_DEFAULTS.length-1;i>=0;i--){
     const r=FORM_FIELD_DEFAULTS[i]||{};
     if(hiddenKeys.has(r.fieldKey) || r.sectionName==="SECTION 4 : FINAL APPROVAL / CLOSURE") FORM_FIELD_DEFAULTS.splice(i,1);
@@ -1862,6 +1862,7 @@ const MODULE_SOURCES={cpgrams:{collection:"cpgrams",map:{grievanceTypes:["grieva
 let db=null,currentType="formFields",selectedId=null,rows=[],started=false;
 const $=id=>document.getElementById(id); const val=v=>String(v??"").trim();
 function status(msg,kind="muted"){const el=$("masterStatus");if(!el)return;el.className=`ms-auto small align-self-center text-${kind}`;el.textContent=msg;}
+function broadcastMasterDataUpdated(type){try{window.dispatchEvent(new CustomEvent("fmsMasterDataUpdated",{detail:{master:type}}));localStorage.setItem("fmsMasterDataUpdated",JSON.stringify({master:type,ts:Date.now()}));window.FMSMasterOptionLoader?.load?.();}catch(e){console.warn("Master update broadcast failed",e);}}
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function normalize(v){return val(v).toLowerCase().replace(/\s+/g," ");}
 function uniqueKeyFor(type,data){
@@ -1932,9 +1933,9 @@ function renderGrid(){const data=filteredRows(),cols=columns();$("recordCount").
 async function editRecord(id){const r=rows.find(x=>x.id===id);if(!r)return;selectedId=id;const def=MASTER_DEFS[currentType];for(const fld of def.fields){const el=$("mf_"+fld.key);if(!el)continue;if(fld.type==="checkbox")el.checked=r[fld.key]!==false;else{ if(r[fld.key]!==undefined && el.tagName==="SELECT" && ![...el.options].some(o=>o.value===val(r[fld.key]))) el.add(new Option(val(r[fld.key]),val(r[fld.key]))); el.value=val(r[fld.key]);}}$("selectedRecordBadge").textContent="Editing: "+(r.name||r.label||r.fieldKey||id);window.scrollTo({top:0,behavior:"smooth"});}
 function clearForm(){selectedId=null;$("masterForm").reset();MASTER_DEFS[currentType].fields.filter(f=>f.type==="checkbox").forEach(f=>{const el=$("mf_"+f.key);if(el)el.checked=f.default!==false;});$("selectedRecordBadge").textContent="New record";}
 async function duplicateExists(data,excludeId){const snap=await db.collection(currentType).get();const key=uniqueKeyFor(currentType,data);return snap.docs.some(d=>d.id!==excludeId&&uniqueKeyFor(currentType,d.data()||{})===key);}
-async function saveRecord(){try{const data=collect();if(await duplicateExists(data,null))throw new Error("A matching master record already exists.");data.createdOn=firebase.firestore.FieldValue.serverTimestamp();await db.collection(currentType).add(data);clearForm();await loadGrid();status("Record saved successfully.","success");}catch(e){alert(e.message||e);}}
-async function updateRecord(){if(!selectedId)return alert("Select a record to update.");try{const data=collect();if(await duplicateExists(data,selectedId))throw new Error("A matching master record already exists.");await db.collection(currentType).doc(selectedId).update(data);clearForm();await loadGrid();status("Record updated successfully.","success");}catch(e){alert(e.message||e);}}
-async function deleteById(id){if(!confirm("Delete this master record?"))return;try{await db.collection(currentType).doc(id).delete();if(selectedId===id)clearForm();await loadGrid();status("Record deleted successfully.","success");}catch(e){alert("Delete failed: "+(e.message||e));}}
+async function saveRecord(){try{const data=collect();if(await duplicateExists(data,null))throw new Error("A matching master record already exists.");data.createdOn=firebase.firestore.FieldValue.serverTimestamp();await db.collection(currentType).add(data);broadcastMasterDataUpdated(currentType);clearForm();await renderForm();await loadGrid();status("Record saved successfully.","success");}catch(e){alert(e.message||e);}}
+async function updateRecord(){if(!selectedId)return alert("Select a record to update.");try{const data=collect();if(await duplicateExists(data,selectedId))throw new Error("A matching master record already exists.");await db.collection(currentType).doc(selectedId).update(data);broadcastMasterDataUpdated(currentType);clearForm();await renderForm();await loadGrid();status("Record updated successfully.","success");}catch(e){alert(e.message||e);}}
+async function deleteById(id){if(!confirm("Delete this master record?"))return;try{await db.collection(currentType).doc(id).delete();broadcastMasterDataUpdated(currentType);if(selectedId===id)clearForm();await renderForm();await loadGrid();status("Record deleted successfully.","success");}catch(e){alert("Delete failed: "+(e.message||e));}}
 async function deleteRecord(){if(!selectedId)return alert("Select a record to delete.");return deleteById(selectedId);}
 function extract(row,fields){for(const k of fields||[]){const v=val(row?.[k]);if(v)return v;}return "";}
 async function ensureBuiltInDefaults(){
@@ -1959,7 +1960,7 @@ async function syncExistingData(showAlert=false){status("Scanning existing modul
     for(const row of docs){for(const [key,fields] of Object.entries(src.map)){const name=extract(row,fields);if(!name)continue;const data={name,active:true,source:`Existing ${src.collection} data`};if(key==="mandals")data.district=val(row.district);if(key==="villages"){data.district=val(row.district);data.mandal=val(row.mandal);}if(key==="sections")data.department=val(row.department||row.departmentName);if(key==="officers"){data.designation=val(row.designation||row.officerDesignation);data.section=val(row.section||row.assignedSection||row.officeReplySection||row.concernedSection);}queue.push({key,data});}}
   }
   for(const item of queue){const idkey=uniqueKeyFor(item.key,item.data);if(existing[item.key].has(idkey)){skipped++;continue;}try{await db.collection(item.key).add({...item.data,createdOn:firebase.firestore.FieldValue.serverTimestamp(),modifiedOn:firebase.firestore.FieldValue.serverTimestamp()});existing[item.key].add(idkey);added++;}catch(e){failed++;console.warn("Master sync write failed",item.key,item.data,e);}}
-  await renderForm();await loadGrid();status(`Sync complete: ${added} added, ${skipped} already existed${failed?`, ${failed} failed`:""}.`,failed?"warning":"success");if(showAlert)alert(`Master sync complete.
+  broadcastMasterDataUpdated("all");await renderForm();await loadGrid();status(`Sync complete: ${added} added, ${skipped} already existed${failed?`, ${failed} failed`:""}.`,failed?"warning":"success");if(showAlert)alert(`Master sync complete.
 Added: ${added}
 Already existed: ${skipped}
 Failed: ${failed}`);

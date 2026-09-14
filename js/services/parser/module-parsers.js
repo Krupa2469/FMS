@@ -276,6 +276,7 @@
             dateOfMeeting: meetingDate,
             pomDueDate,
             pomUploaded: first(text, [/PoM\s*Uploaded\s*[:\-]?\s*(Yes|No)/i, /POM\s*Uploaded\s*[:\-]?\s*(Yes|No)/i]),
+            pomUploadDate: dateISO(first(text, [/PoM\s*Upload\s*Date\s*[:\-]?\s*([^\n]+)/i, /POM\s*Upload\s*Date\s*[:\-]?\s*([^\n]+)/i])),
             meetingExpenditure: exp,
             statusOfBills: first(text, [/Status\s*of\s*Bills\s*[:\-]?\s*([^\n]+)/i]),
             billsSubmittedCRD: dateISO(first(text, [/Bills\s*Submitted\s*to\s*CRD[^:]*[:\-]?\s*([^\n]+)/i])),

@@ -206,6 +206,109 @@ async function cpDocExtractTextFallback(file) {
     return "";
 }
 
+
+function cpDocToISODate(value) {
+    const dmy = cpDocDateToDMY(value);
+    const m = dmy.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+    return value || "";
+}
+
+function cpDocSetIfEmpty(id, value, changed) {
+    const control = document.getElementById(id);
+    const clean = cpDocCleanField(value);
+    if (!control || !clean || String(control.value || "").trim()) return;
+    control.value = clean;
+    control.dispatchEvent(new Event("change", { bubbles: true }));
+    changed.push(id);
+}
+
+function cpDocExtractMemoFields(rawText) {
+    const text = cpDocNormalizeText(rawText);
+    const oneLine = text.replace(/\n+/g, " ");
+    const fields = {};
+
+    if (/\boffice\s+memo\b|\bmemo\b/i.test(oneLine)) fields.officeCommunicationType = "Memo";
+    else if (/\bd\.?o\.?\s*letter\b/i.test(oneLine)) fields.officeCommunicationType = "D.O. Letter";
+    else if (/\bu\.?o\.?\s*note\b/i.test(oneLine)) fields.officeCommunicationType = "UO Note";
+    else if (/\bletter\b/i.test(oneLine)) fields.officeCommunicationType = "Letter";
+
+    fields.memoNumber = cpDocFirst(text, [
+        /(?:Memo|Letter|D\.O\.?|U\.O\.?|Rc|Proceedings)\s*(?:No\.?|Number)\s*[:\-]?\s*([^\n]+)/i,
+        /(?:File\s*No\.?|F\.No\.?)\s*[:\-]?\s*([^\n]+)/i
+    ]);
+    fields.fileNumber = cpDocFirst(text, [/(?:File\s*No\.?|F\.No\.?)\s*[:\-]?\s*([^\n]+)/i]);
+    fields.memoDate = cpDocToISODate(cpDocFirst(text, [
+        /(?:Memo|Letter|Rc|Proceedings)?\s*Date\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}|\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2})/i,
+        /Dated\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}|\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2})/i
+    ]));
+    fields.officeLetterAddressedTo = cpDocFirst(text, [
+        /(?:To|Addressed\s*To)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Sir|Madam|Sub(?:ject)?|Ref|Rc|Memo|Letter)\b|$)/i
+    ]);
+    fields.subject = cpDocFirst(text, [
+        /(?:Sub|Subject)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Ref|Reference|Sir|Madam|With reference|I am|The)\b|$)/i
+    ]);
+    return fields;
+}
+
+function cpDocExtractATRFields(rawText) {
+    const text = cpDocNormalizeText(rawText);
+    const fields = {};
+    fields.atrStatus = "Received";
+    fields.atrDate = cpDocToISODate(cpDocFirst(text, [
+        /(?:ATR|Reply|Report|Action\s*Taken\s*Report)?\s*Date\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}|\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2})/i,
+        /Dated\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}|\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2})/i
+    ]));
+    fields.atrReceivedFrom = cpDocFirst(text, [
+        /(?:From|Received\s*From|Submitted\s*By)\s*[:\-]?\s*([^\n]+)/i
+    ]);
+    fields.atrSummary = cpDocFirst(text, [
+        /(?:Action\s*Taken\s*Report|ATR|Reply|Report)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Encl|Yours|Thanking|Copy|Submitted)\b|$)/i
+    ]);
+    if (!fields.atrSummary) fields.atrSummary = text.slice(0, 2000);
+    return fields;
+}
+
+async function captureWorkflowDocument(event, role) {
+    const file = event?.target?.files?.[0];
+    if (!file) return;
+    const fileInput = event.target;
+    fileInput.disabled = true;
+    try {
+        let result = null;
+        let rawText = "";
+        if (window.FMSParserService && window.FMSDocumentEngine) {
+            result = await window.FMSParserService.parseFile(file, "CPGRAMS");
+            rawText = result.text || "";
+        }
+        if (!rawText) rawText = await cpDocExtractTextFallback(file);
+        rawText = cpDocNormalizeText(rawText);
+
+        const fields = role === "atr"
+            ? cpDocExtractATRFields(rawText)
+            : cpDocExtractMemoFields(rawText);
+
+        const changed = [];
+        Object.entries(fields).forEach(([id, value]) => cpDocSetIfEmpty(id, value, changed));
+
+        const preview = document.getElementById("parsedText");
+        if (preview) preview.value = rawText;
+        if (typeof window.updateWorkflowStagePreview === "function") window.updateWorkflowStagePreview();
+
+        const label = role === "atr" ? "ATR / Reply" : "Memo / Letter";
+        const message = `${label} parsed successfully. ${changed.length} field(s) populated. The file will be uploaded when you Save / Update.`;
+        if (window.FMSParserService?.notify) window.FMSParserService.notify(message, "success");
+        else alert(message);
+    } catch (error) {
+        console.error("Workflow document parsing failed:", error);
+        const message = "Document parsing failed: " + (error.message || error);
+        if (window.FMSParserService?.notify) window.FMSParserService.notify(message, "danger");
+        else alert(message);
+    } finally {
+        fileInput.disabled = false;
+    }
+}
+
 async function captureDocument(event) {
     const file = event?.target?.files?.[0];
     if (!file) return;
@@ -274,7 +377,12 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     const fileInput = document.getElementById("fileDocument");
     if (fileInput) fileInput.addEventListener("change", captureDocument);
+    const memoInput = document.getElementById("memoDocument");
+    if (memoInput) memoInput.addEventListener("change", event => captureWorkflowDocument(event, "memo"));
+    const atrInput = document.getElementById("atrDocument");
+    if (atrInput) atrInput.addEventListener("change", event => captureWorkflowDocument(event, "atr"));
     initializeDateReceivedPicker();
 });
 
 window.captureDocument = captureDocument;
+window.captureWorkflowDocument = captureWorkflowDocument;

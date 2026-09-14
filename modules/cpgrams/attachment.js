@@ -97,97 +97,49 @@ async function loadAttachments(grievanceId) {
 
 async function uploadAttachment() {
 
-    console.log("STEP 1 - uploadAttachment started");
-
     try {
-
-        const control =
-            document.getElementById("fileAttachment");
-
-        console.log("STEP 2", control);
-
+        const control = document.getElementById("fileAttachment");
         if (!control) {
-
-            console.error("fileAttachment control not found");
-
+            showMessage?.("Attachment file control not found.", "danger");
             return;
-
         }
 
-        console.log("Files Selected =", control.files.length);
-
-        if (control.files.length === 0) {
-
-            console.log("No file selected");
-
+        if (!control.files || control.files.length === 0) {
+            showMessage?.("Please choose an attachment first.", "warning");
             return;
-
         }
-
-        console.log("STEP 3 - File Selected");
-
-        console.log("Current Document ID =", currentDocumentId);
 
         if (!currentDocumentId) {
-
-            console.log("No currentDocumentId");
-
+            showMessage?.("Please save the grievance first. After saving, attachments can be uploaded.", "warning");
             return;
-
         }
 
-        console.log(
-            "typeof uploadAttachmentRepository =",
-            typeof uploadAttachmentRepository
+        if (typeof uploadAttachmentRepository !== "function") {
+            showMessage?.("Attachment repository is not loaded. Please refresh the page and try again.", "danger");
+            return;
+        }
+
+        showLoading?.();
+        const result = await uploadAttachmentRepository(
+            currentDocumentId,
+            control.files[0],
+            { module: "cpgrams", fileRole: "Attachment", sourceField: "fileAttachment" }
         );
+        hideLoading?.();
 
-        console.log("STEP 4 - Calling Repository");
+        if (!result.success) {
+            showMessage?.(result.message || "Unable to upload attachment.", "danger");
+            return;
+        }
 
-        const result =
-    await uploadAttachmentRepository(
-        currentDocumentId,
-        control.files[0]
-    );
-
-console.log("STEP 5");
-
-console.log(result);
-
-if (!result.success) {
-
-    alert(result.message);
-
-    return;
-
-}
-
-// Refresh attachment table
-
-attachmentList.push(result.data);
-
-renderAttachments();
-
-updateAttachmentCount();
-
-document.getElementById("fileAttachment").value = "";
-
-alert("Attachment uploaded successfully.");
-
-await loadAttachments(currentDocumentId);
-
-// Clear file selector
-
-control.value = "";
-
-alert("Attachment uploaded successfully.");
-
+        control.value = "";
+        await loadAttachments(currentDocumentId);
+        showMessage?.("Attachment uploaded successfully.", "success");
     }
     catch (error) {
-
-        console.error("UPLOAD ERROR");
-
-        console.error(error);
-
+        hideLoading?.();
+        console.error("UPLOAD ERROR", error);
+        showMessage?.("Unable to upload attachment: " + (error.message || error), "danger");
     }
 
 }

@@ -129,13 +129,28 @@ function generateId(prefix) {
 
 function showMessage(message, type = "success") {
 
+    // Accept both call styles used across this app:
+    // showMessage("Saved", "success") and showMessage("success", "Saved").
+    const validTypes = new Set(["success", "danger", "warning", "info", "primary", "secondary", "light", "dark"]);
+    let finalMessage = message;
+    let finalType = type || "success";
+
+    if (validTypes.has(String(message || "").toLowerCase()) && typeof type !== "undefined") {
+        finalType = String(message).toLowerCase();
+        finalMessage = type;
+    }
+
     const area = document.getElementById("messageArea");
 
-    if (!area) return;
+    if (!area) {
+        console.log(finalType + ":", finalMessage);
+        return;
+    }
 
+    area.style.display = "";
     area.innerHTML =
-        `<div class="alert alert-${type} alert-dismissible fade show">
-            ${message}
+        `<div class="alert alert-${finalType} alert-dismissible fade show">
+            ${finalMessage}
             <button
                 type="button"
                 class="btn-close"

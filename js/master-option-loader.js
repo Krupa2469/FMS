@@ -46,5 +46,7 @@
   }
   document.addEventListener("DOMContentLoaded",()=>{setTimeout(load,900);setTimeout(load,2200);});
   window.addEventListener("fmsFirebaseReady",()=>setTimeout(load,300));
+  window.addEventListener("fmsMasterDataUpdated",()=>setTimeout(load,150));
+  window.addEventListener("storage",event=>{ if(event.key==="fmsMasterDataUpdated") setTimeout(load,150); });
   window.FMSMasterOptionLoader={load};
 })(window,document);

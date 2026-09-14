@@ -217,7 +217,6 @@ function registerRTIEvents(){
     document.getElementById("btnDailyStatus")?.addEventListener("click",()=>location.href="rti-daily-status.html");
     document.getElementById("btnHome")?.addEventListener("click",()=>location.href="../../index.html");
     document.getElementById("btnWhatsApp")?.addEventListener("click",shareRTIWhatsApp);
-    document.getElementById("btnParseRTIApplication")?.addEventListener("click",parseSelectedRTIApplication);
     document.getElementById("rtiApplicationFile")?.addEventListener("change",handleRTIApplicationSelection);
     document.getElementById("btnUploadAttachment")?.addEventListener("click",()=>uploadRTIAttachment("Attachment","attachmentFile"));
 }
@@ -291,13 +290,35 @@ function buildFirestoreData(data,documents){
     };
 }
 
+function readRTIFileAsDataURL(file){
+    return new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(String(reader.result||""));
+        reader.onerror=()=>reject(reader.error||new Error("Unable to read file."));
+        reader.readAsDataURL(file);
+    });
+}
+
 async function uploadFileToRTI(file,type,recordId){
     if(!file) return null;
-    const storage=rtiStorage(); if(!storage) throw new Error("Firebase Storage is not available.");
+    if(!recordId) throw new Error("Save the RTI record first, then upload attachments.");
     const path=`rtiApplications/${recordId}/${Date.now()}_${safeName(file.name)}`;
-    const snap=await storage.ref(path).put(file);
-    const url=await snap.ref.getDownloadURL();
-    return {name:file.name,type,contentType:file.type||"",size:file.size||0,path,url,uploadedAt:new Date().toISOString()};
+    const storage=rtiStorage();
+    if(storage){
+        try{
+            const snap=await storage.ref(path).put(file);
+            const url=await snap.ref.getDownloadURL();
+            return {name:file.name,type,contentType:file.type||"",size:file.size||0,path,url,storageProvider:"firebase-storage",uploadedAt:new Date().toISOString()};
+        }catch(e){
+            console.warn("RTI Storage upload failed. Trying Firestore inline fallback.", e);
+            if((file.size||0)>700*1024) throw new Error("Firebase Storage upload failed and this file is too large for Firestore fallback. Deploy the updated storage.rules, then try again.");
+            const url=await readRTIFileAsDataURL(file);
+            return {name:file.name,type,contentType:file.type||"",size:file.size||0,path:"",url,storageProvider:"firestore-inline",storageError:e.message||String(e),uploadedAt:new Date().toISOString()};
+        }
+    }
+    if((file.size||0)>700*1024) throw new Error("Firebase Storage is not available and this file is too large for Firestore fallback. Deploy the updated storage.rules, then try again.");
+    const url=await readRTIFileAsDataURL(file);
+    return {name:file.name,type,contentType:file.type||"",size:file.size||0,path:"",url,storageProvider:"firestore-inline",uploadedAt:new Date().toISOString()};
 }
 
 async function persistPendingRTIApplication(recordId,existingDocs=[]){
@@ -523,11 +544,14 @@ function clearRTIForm(){
 }
 
 async function handleRTIApplicationSelection(){
-    const input=document.getElementById("rtiApplicationFile"); const file=input?.files?.[0];
+    const input=document.getElementById("rtiApplicationFile");
+    const file=input?.files?.[0];
     if(!file) return;
-    pendingRTIApplicationFile=file; pendingRTIApplicationMeta={name:file.name,size:file.size,type:file.type};
-    const status=document.getElementById("rtiApplicationStatus"); if(status) status.textContent=`Selected: ${file.name}`;
-    showRTIMessage("RTI Application selected. Click 'Parse RTI Application' to extract and populate the form.","info");
+    pendingRTIApplicationFile=file;
+    pendingRTIApplicationMeta={name:file.name,size:file.size,type:file.type};
+    const status=document.getElementById("rtiApplicationStatus");
+    if(status) status.textContent=`Selected: ${file.name}. Parsing and normalising text...`;
+    await parseSelectedRTIApplication();
 }
 
 async function parseSelectedRTIApplication(){
@@ -542,7 +566,7 @@ async function parseSelectedRTIApplication(){
         showRTIMessage("Parsing RTI Application and populating the form...","info");
 
         // Use the central engine so extraction + RTI field parsing are performed together.
-        const result=await window.FMSDocumentEngine.parse({file,module:"RTI"});
+        const result=await window.FMSDocumentEngine.parse({file,module:"RTI",precision:"accurate",normalize:true});
         const text=String(result?.text||"").trim();
         const fields=result?.fields||{};
 
@@ -572,7 +596,6 @@ async function parseSelectedRTIApplication(){
             officeSubject:"officeSubject",
             officeCommunicationType:"officeCommunicationType",
             officeLetterAddressedTo:"officeLetterAddressedTo",
-            officeReplyObtainedFrom:"officeReplySection",
             officeStatus:"officeStatus"
         };
 

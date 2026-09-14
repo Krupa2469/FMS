@@ -70,6 +70,94 @@ async function initializeDISHA() {
 }
 
 
+
+/* ================================================================
+   AUTO PARSE DISHA DOCUMENT ON FILE SELECTION
+================================================================ */
+
+function dishaGetValue(id) {
+    return String(document.getElementById(id)?.value || "").trim();
+}
+
+function dishaFillField(id, value, isDate = false) {
+    if (value === null || value === undefined || String(value).trim() === "") return;
+    if (dishaGetValue(id)) return;
+    if (isDate) setDateControlValue(id, value);
+    else setControlValue(id, value);
+}
+
+async function parseSelectedDishaDocument() {
+    const input = document.getElementById("fmsAttachmentFile");
+    const file = input?.files?.[0];
+    if (!file) return;
+
+    const status = document.getElementById("dishaAttachmentParseStatus");
+    if (status) status.textContent = `Selected: ${file.name}. Parsing and normalising text...`;
+
+    if (!window.FMSDocumentEngine || typeof window.FMSDocumentEngine.parse !== "function") {
+        if (status) status.textContent = "Document parser is not available. The file can still be uploaded after saving.";
+        return;
+    }
+
+    try {
+        const result = await window.FMSDocumentEngine.parse({file, module: "DISHA", precision: "accurate", normalize: true});
+        const fields = result?.fields || {};
+        const text = String(result?.text || fields.rawText || "").trim();
+
+        dishaFillField("district", fields.district);
+        dishaFillField("dateOfMeeting", fields.dateOfMeeting, true);
+        dishaFillField("pomUploaded", fields.pomUploaded);
+        dishaFillField("pomUploadDate", fields.pomUploadDate, true);
+        dishaFillField("meetingExpenditure", fields.meetingExpenditure);
+        dishaFillField("statusOfBills", fields.statusOfBills);
+        dishaFillField("billsSubmittedCRD", fields.billsSubmittedCRD, true);
+        dishaFillField("billsForwardedMoRD", fields.billsForwardedMoRD, true);
+        dishaFillField("proposedDateOfMeeting", fields.proposedDateOfMeeting, true);
+        dishaFillField("statusOfMeeting", fields.statusOfMeeting);
+        dishaFillField("officeFileNo", fields.officeFileNo || fields.fileNo || fields.fileNumber);
+        dishaFillField("officeDateArised", fields.officeDateArised, true);
+        dishaFillField("officeSubject", fields.officeSubject || fields.subject);
+        dishaFillField("officeCommunicationType", fields.officeCommunicationType || fields.communicationType);
+        dishaFillField("officeLetterAddressedTo", fields.officeLetterAddressedTo || fields.letterAddressedTo);
+        dishaFillField("officeStatus", fields.officeStatus || fields.fileStatus);
+        dishaFillField("remarks", fields.remarks || (text.length < 1000 ? text : ""));
+
+        updateDISHAStatus();
+        if (status) status.textContent = `Parsed: ${file.name}. Review fields and click Save / Update. The attachment will upload after the record is saved.`;
+        showMessage("Document parsed and matching DISHA fields populated. Review before saving.", "success");
+    } catch (error) {
+        console.error("DISHA document parse error", error);
+        if (status) status.textContent = "Unable to parse this document. You can still upload it after saving.";
+        showMessage("Unable to parse document: " + (error.message || error), "warning");
+    }
+}
+
+async function saveNewSectionToMaster() {
+    const input = document.getElementById("newOfficeSection");
+    const name = String(input?.value || "").trim();
+    if (!name) {
+        showMessage("Please enter the new section name.", "warning");
+        input?.focus();
+        return;
+    }
+    try {
+        const database = window.db || (typeof db !== "undefined" ? db : null) || window.fmsFirebase?.db;
+        if (!database) throw new Error("Firestore is not ready.");
+        const existing = await database.collection("sections").get();
+        const duplicate = existing.docs.some(doc => String((doc.data() || {}).name || "").trim().toLowerCase() === name.toLowerCase() && (doc.data() || {}).active !== false);
+        if (!duplicate) {
+            await database.collection("sections").add({name, active: true, source: "DISHA Data Entry", createdOn: firebase.firestore.FieldValue.serverTimestamp(), modifiedOn: firebase.firestore.FieldValue.serverTimestamp()});
+        }
+        input.value = "";
+        window.dispatchEvent(new CustomEvent("fmsMasterDataUpdated", {detail: {master: "sections", name}}));
+        window.FMSMasterOptionLoader?.load?.();
+        showMessage(duplicate ? "Section already exists in Section Master." : "Section saved to Section Master.", duplicate ? "info" : "success");
+    } catch (error) {
+        console.error("Section master save error", error);
+        showMessage("Unable to save section: " + (error.message || error), "danger");
+    }
+}
+
 /* ================================================================
    REGISTER EVENTS
 ================================================================ */
@@ -173,6 +261,14 @@ function registerEvents() {
             });
     }
 
+    document
+        .getElementById("fmsAttachmentFile")
+        ?.addEventListener("change", parseSelectedDishaDocument);
+
+    document
+        .getElementById("btnAddOfficeSection")
+        ?.addEventListener("click", saveNewSectionToMaster);
+
 }
 
 /* ================================================================
@@ -220,7 +316,6 @@ function clearForm() {
 
         "district",
         "dateOfMeeting",
-        "pomDueDate",
         "pomUploaded",
         "meetingExpenditure",
         "statusOfBills",
@@ -234,7 +329,6 @@ function clearForm() {
         "officeSubject",
         "officeCommunicationType",
         "officeLetterAddressedTo",
-        "officeReplySection",
         "officeStatus",
         "newOfficeSection"
 
@@ -375,8 +469,7 @@ function handleMeetingDateChange() {
     if (!dateValue) {
 
         setControlValue(
-            "pomDueDate",
-            ""
+                ""
         );
 
         setElementText(
@@ -470,7 +563,6 @@ function calculatePomDueDate(
 
 
     setDateControlValue(
-        "pomDueDate",
         dueDate
     );
 
@@ -847,7 +939,6 @@ function getFormData() {
     });
     data.slNo = Number(data.slNo || 0);
     data.meetingExpenditure = Number(data.meetingExpenditure || 0);
-    data.pomDueDate = getPomDueDateInternal();
     const workflow = window.FMSRecordPolicy?.workflow?.("disha", data) || {};
     data.workflowStage = workflow.stage || "Meeting recorded";
     data.pomDisplay = workflow.pomDisplay || "";

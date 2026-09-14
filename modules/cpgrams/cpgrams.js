@@ -314,6 +314,10 @@ async function loadMasterData() {
             "answerFurnishedBy"
         );
 
+        loadOfficers(
+            "officeLetterAddressedTo"
+        );
+
         await loadSections(
             "section"
         );
@@ -992,81 +996,106 @@ async function validateDuplicate() {
 }
 
 /*==========================================================
+ UPLOAD SELECTED DOCUMENTS AFTER SAVE / UPDATE
+==========================================================*/
+
+async function uploadSelectedCPGRAMSDocuments(recordId) {
+    const summary = { uploaded: [], failed: [] };
+    if (!recordId) return summary;
+
+    const fileInputs = [
+        { id: "fileDocument", role: "Grievance Document" },
+        { id: "memoDocument", role: "Memo / Letter" },
+        { id: "atrDocument", role: "ATR / Reply" },
+        { id: "fileAttachment", role: "Attachment" }
+    ];
+
+    if (typeof uploadAttachmentRepository !== "function") {
+        const hasFiles = fileInputs.some(item => document.getElementById(item.id)?.files?.length);
+        if (hasFiles) summary.failed.push("Attachment repository is not loaded.");
+        return summary;
+    }
+
+    for (const item of fileInputs) {
+        const input = document.getElementById(item.id);
+        const file = input?.files?.[0];
+        if (!file) continue;
+
+        try {
+            const result = await uploadAttachmentRepository(recordId, file, {
+                module: "cpgrams",
+                fileRole: item.role,
+                sourceField: item.id
+            });
+
+            if (result?.success) {
+                summary.uploaded.push(result.data);
+                input.value = "";
+            } else {
+                summary.failed.push(`${item.role}: ${result?.message || "upload failed"}`);
+            }
+        } catch (error) {
+            console.error("Document upload failed:", item.id, error);
+            summary.failed.push(`${item.role}: ${error.message || error}`);
+        }
+    }
+
+    return summary;
+}
+
+/*==========================================================
  SAVE
 ==========================================================*/
 
 async function saveGrievance(event) {
 
     stopFormButtonNavigation(event);
-
     console.log("Save button clicked");
 
     try {
-
-        if (!validateForm())
-            return;
-
-        if (!await validateDuplicate())
-            return;
+        if (!validateForm()) return;
+        if (!await validateDuplicate()) return;
 
         showLoading?.();
-
         let grievance = buildGrievanceObject();
-
         grievance.createdOn = new Date();
-
-        console.log("Saving...", grievance);
 
         const result = await saveGrievanceToDatabase(grievance);
 
-        hideLoading?.();
-
-        console.log("Firestore returned", result);
-
         if (!result.success) {
-
-            showMessage?.(
-                "danger",
-                result.message || "Unable to save."
-            );
-
+            hideLoading?.();
+            showMessage?.(result.message || "Unable to save grievance.", "danger");
             return;
-
         }
 
-        currentDocumentId = result.data.id;
+        currentDocumentId = result.data?.id || result.id;
+        if (!currentDocumentId) throw new Error("Record was saved but Firestore did not return the document ID.");
+
+        const uploadSummary = await uploadSelectedCPGRAMSDocuments(currentDocumentId);
+        await loadAttachments(currentDocumentId);
         window.FMSGrievanceWorkspace?.refresh?.();
 
-        editMode = true;
-
-        formDirty = false;
-
-        refreshButtons();
-
-        console.log("Saved Successfully");
-
-        if (typeof showMessage === "function") {
-
-            showMessage(
-                "success",
-                "Grievance saved successfully."
-            );
-
-        } else {
-
-            alert("Grievance saved successfully.");
-
-        }
-
-    }
-    catch (error) {
-
         hideLoading?.();
 
-        console.error(error);
+        const uploadedText = uploadSummary.uploaded.length
+            ? ` ${uploadSummary.uploaded.length} attachment(s) uploaded.`
+            : "";
+        const failedText = uploadSummary.failed.length
+            ? ` ${uploadSummary.failed.length} attachment(s) could not be uploaded. ${uploadSummary.failed.join("; ")}`
+            : "";
 
-        alert(error.message);
+        formDirty = false;
+        clearForm();
 
+        showMessage(
+            `Grievance saved successfully.${uploadedText}${failedText}`,
+            uploadSummary.failed.length ? "warning" : "success"
+        );
+    }
+    catch (error) {
+        hideLoading?.();
+        console.error("CPGRAMS SAVE ERROR:", error);
+        showMessage?.("Unable to save grievance: " + (error.message || error), "danger");
     }
 
 }
@@ -1078,75 +1107,53 @@ async function saveGrievance(event) {
 async function updateGrievance(event) {
 
     stopFormButtonNavigation(event);
-
-console.log("Before update currentDocumentId:", currentDocumentId);    
+    console.log("Before update currentDocumentId:", currentDocumentId);
 
     try {
-
         if (!currentDocumentId) {
-
-            showMessage(
-                "warning",
-                "Please open a grievance before updating."
-            );
-
+            showMessage("Please open a grievance before updating.", "warning");
             return;
-
         }
 
-        if (!validateForm())
-            return;
-
-        if (!await validateDuplicate())
-            return;
+        if (!validateForm()) return;
+        if (!await validateDuplicate()) return;
 
         showLoading?.();
 
-        let grievance =
-            buildGrievanceObject();
-
-        const result =
-            await updateGrievanceToDatabase(
-                currentDocumentId,
-                grievance
-            );
-
-        hideLoading?.();
+        let grievance = buildGrievanceObject();
+        const result = await updateGrievanceToDatabase(currentDocumentId, grievance);
 
         if (!result.success) {
-
-            showMessage(
-                "danger",
-                result.message
-            );
-
+            hideLoading?.();
+            showMessage(result.message || "Unable to update grievance.", "danger");
             return;
-
         }
 
-        formDirty = false;
+        const uploadSummary = await uploadSelectedCPGRAMSDocuments(currentDocumentId);
+        await loadAttachments(currentDocumentId);
         window.FMSGrievanceWorkspace?.refresh?.();
-
-        showMessage(
-            "success",
-            "Grievance updated successfully."
-        );
-
-        sessionStorage.removeItem(
-    "selectedGrievance"
-);
-    }
-    catch (error) {
 
         hideLoading?.();
 
-        console.error(error);
+        formDirty = false;
+        sessionStorage.removeItem("selectedGrievance");
+
+        const uploadedText = uploadSummary.uploaded.length
+            ? ` ${uploadSummary.uploaded.length} attachment(s) uploaded.`
+            : "";
+        const failedText = uploadSummary.failed.length
+            ? ` ${uploadSummary.failed.length} attachment(s) could not be uploaded. ${uploadSummary.failed.join("; ")}`
+            : "";
 
         showMessage(
-            "danger",
-            error.message
+            `Grievance updated successfully.${uploadedText}${failedText}`,
+            uploadSummary.failed.length ? "warning" : "success"
         );
-
+    }
+    catch (error) {
+        hideLoading?.();
+        console.error("CPGRAMS UPDATE ERROR:", error);
+        showMessage("Unable to update grievance: " + (error.message || error), "danger");
     }
 
 }
