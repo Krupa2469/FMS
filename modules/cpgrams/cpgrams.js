@@ -2,7 +2,7 @@
  FILE MANAGEMENT SYSTEM (FMS)
  Module      : CPGRAMS
  File        : cpgrams.js
- Version     : 5.2
+ Version     : 5.3
  Developer   : Lekha Technologies
  Description : CPGRAMS Controller
 ==========================================================*/
@@ -79,7 +79,7 @@ async function initializePage() {
 
         console.clear();
 
-        console.log("GRIEVANCES Version 5.3 Initializing...");
+        console.log("GRIEVANCES Version 5.3.1 Initializing...");
 
         registerButtonEvents();
 
@@ -541,7 +541,7 @@ function enableEditing() {
  CLEAR FORM
 ==========================================================*/
 
-function clearForm() {
+function clearForm(options = {}) {
 
     const form =
         getControl("cpgramsForm");
@@ -549,7 +549,9 @@ function clearForm() {
     if (form)
         form.reset();
 
-    const requestedType = new URLSearchParams(window.location.search).get("grievanceType") || "CPGRAMS";
+    const requestedType = options.keepType
+        ? (getSelectedGrievanceType() || "CPGRAMS")
+        : (new URLSearchParams(window.location.search).get("grievanceType") || "CPGRAMS");
     setControlValue("grievanceType", requestedType);
 
     resetEditMode();
@@ -560,15 +562,22 @@ function clearForm() {
 
     updateGrievanceFormLayout();
 
-    clearMessage?.();
+    if (!options.keepMessage) clearMessage?.();
 
     attachmentList = [];
 
     renderAttachments();
 
-    getControl(
-        "grievanceType"
-    )?.focus();
+    // Do not focus the Grievance Type dropdown after Save.
+    // Earlier versions jumped to the top selector, making users think Save failed.
+    if (options.focusFirstField) {
+        setTimeout(function () {
+            const firstField = isQuestionGrievanceType(getSelectedGrievanceType())
+                ? getControl("questionSerialNo")
+                : getControl("grievanceNumber");
+            firstField?.focus?.({ preventScroll: true });
+        }, 100);
+    }
 
 }
 
@@ -904,7 +913,7 @@ function buildGrievanceObject() {
     grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || grievance.registrationNumber || "")
         .trim().toUpperCase().replace(/\s+/g, "");
     grievance.updatedOn = new Date();
-    grievance.version = "5.5";
+    grievance.version = "5.6";
     return grievance;
 }
 /*==========================================================
@@ -913,12 +922,12 @@ function buildGrievanceObject() {
 
 function validateForm() {
     clearMessage?.();
-    const type = getSelectedGrievanceType();
+    let type = getSelectedGrievanceType();
 
     if (!type) {
-        showMessage("warning", "Grievance Type is required.");
-        getControl("grievanceType")?.focus();
-        return false;
+        setControlValue("grievanceType", "CPGRAMS");
+        updateGrievanceFormLayout();
+        type = getSelectedGrievanceType() || "CPGRAMS";
     }
 
     let requiredFields;
@@ -1098,12 +1107,16 @@ async function findExistingGrievanceIdForSave(grievance) {
         // Firestore WebChannel/QUIC errors. This prevents the Save button from
         // getting stuck after document parsing.
         if (window.FMSCrud && typeof window.FMSCrud.findFirstByNormalized === "function") {
-            const result = await window.FMSCrud.findFirstByNormalized(
+            const lookupPromise = window.FMSCrud.findFirstByNormalized(
                 "cpgrams",
                 ["grievanceNumber", "registrationNumber", "grievanceNo", "grievanceNumberNormalized"],
                 key,
                 null
             );
+            const timeoutPromise = new Promise(resolve =>
+                setTimeout(() => resolve({ success: false, message: "Existing grievance lookup timed out and was skipped." }), 5000)
+            );
+            const result = await Promise.race([lookupPromise, timeoutPromise]);
             if (result.success && result.data && result.data.id) return result.data.id;
             if (!result.success) console.warn("Existing grievance lookup skipped:", result.message);
             return null;
@@ -1135,7 +1148,9 @@ async function saveGrievance(event) {
         let grievance = buildGrievanceObject();
         grievance.createdOn = new Date();
 
+        showMessage?.("Checking existing grievance number...", "info");
         const existingId = await findExistingGrievanceIdForSave(grievance);
+        showMessage?.(existingId ? "Existing grievance found. Updating record..." : "Creating new grievance record...", "info");
         let result;
         let updatedExisting = false;
         if (existingId) {
@@ -1153,6 +1168,7 @@ async function saveGrievance(event) {
         }
 
         if (!currentDocumentId) throw new Error("Record was saved but Firestore did not return the document ID.");
+        console.log("CPGRAMS record saved/updated:", currentDocumentId);
 
         const uploadSummary = await uploadSelectedCPGRAMSDocuments(currentDocumentId);
         await loadAttachments(currentDocumentId);
@@ -1166,7 +1182,7 @@ async function saveGrievance(event) {
             : "";
 
         formDirty = false;
-        clearForm();
+        clearForm({ keepType: true, keepMessage: true, focusFirstField: true });
         currentDocumentId = null;
         currentGrievance = null;
         editMode = false;

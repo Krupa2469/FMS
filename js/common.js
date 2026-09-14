@@ -226,7 +226,7 @@ function showMessage(message, type = "success") {
         finalMessage = type;
     }
 
-    const area = document.getElementById("messageArea");
+    const area = document.getElementById("actionMessageArea") || document.getElementById("messageArea");
 
     if (!area) {
         console.log(finalType + ":", finalMessage);
@@ -252,12 +252,11 @@ function showMessage(message, type = "success") {
 
 function clearMessage() {
 
-    const area = document.getElementById("messageArea");
-
-    if (!area) return;
-
-    area.innerHTML = "";
-    area.style.display = "none";
+    [document.getElementById("actionMessageArea"), document.getElementById("messageArea")].forEach(function(area) {
+        if (!area) return;
+        area.innerHTML = "";
+        area.style.display = "none";
+    });
 
 }
 

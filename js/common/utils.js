@@ -140,7 +140,7 @@ function showMessage(message, type = "success") {
         finalMessage = type;
     }
 
-    const area = document.getElementById("messageArea");
+    const area = document.getElementById("actionMessageArea") || document.getElementById("messageArea");
 
     if (!area) {
         console.log(finalType + ":", finalMessage);
@@ -166,14 +166,11 @@ function showMessage(message, type = "success") {
 
 function clearMessage() {
 
-    const messageArea = document.getElementById("messageArea");
-
-    if (!messageArea) {
-        return;
-    }
-
-    messageArea.innerHTML = "";
-    messageArea.style.display = "none";
+    [document.getElementById("actionMessageArea"), document.getElementById("messageArea")].forEach(function(messageArea) {
+        if (!messageArea) return;
+        messageArea.innerHTML = "";
+        messageArea.style.display = "none";
+    });
 
 }
 

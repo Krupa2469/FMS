@@ -1,6 +1,6 @@
 /* =========================================================
    FMS Firebase CRUD Service
-   Version 1.5.2
+   Version 1.5.3
    Purpose: one reliable create/read/update/delete path for all FMS modules.
    Notes:
    - Uses Firestore REST first for writes to avoid browser WebChannel/QUIC stalls.
@@ -241,75 +241,74 @@
   }
 
   async function create(collectionName, data, options){
+    if (!collectionName) return failure(new Error("Collection name is required."));
+    const now = serverTimestamp();
+    const payload = cleanForFirestore({
+      ...(data || {}),
+      active: (data && data.active === false) ? false : true,
+      createdAt: (data && (data.createdAt || data.createdOn)) || now,
+      createdOn: (data && (data.createdOn || data.createdAt)) || now,
+      updatedAt: now,
+      updatedOn: now,
+      ...(options && options.extra ? options.extra : {})
+    });
+
+    // Prefer the Firebase SDK now that the app forces long-polling.
+    // This avoids REST/QUIC fetch stalls seen in Edge/Chrome on some networks.
     try {
-      if (!collectionName) throw new Error("Collection name is required.");
-      const now = serverTimestamp();
-      const payload = cleanForFirestore({
-        ...(data || {}),
-        active: (data && data.active === false) ? false : true,
-        createdAt: (data && (data.createdAt || data.createdOn)) || now,
-        createdOn: (data && (data.createdOn || data.createdAt)) || now,
-        updatedAt: now,
-        updatedOn: now,
-        ...(options && options.extra ? options.extra : {})
-      });
-      const row = await restCreate(collectionName, payload);
-      return success(row, "Record saved successfully.");
-    } catch (restError) {
-      console.warn("FMSCrud.create REST failed; trying SDK fallback", collectionName, restError);
+      const database = await waitForDb();
+      const ref = await timeoutPromise(database.collection(collectionName).add(payload), WRITE_TIMEOUT_MS, `Save ${collectionName}`);
+      return success({id:ref.id, ...payload}, "Record saved successfully.");
+    } catch (sdkError) {
+      console.warn("FMSCrud.create SDK failed; trying REST fallback", collectionName, sdkError);
       try {
-        const database = await waitForDb();
-        const now = serverTimestamp();
-        const payload = cleanForFirestore({...(data || {}), active:(data && data.active===false)?false:true, createdAt:(data && (data.createdAt || data.createdOn)) || now, createdOn:(data && (data.createdOn || data.createdAt)) || now, updatedAt:now, updatedOn:now, ...(options && options.extra ? options.extra : {})});
-        const ref = await timeoutPromise(database.collection(collectionName).add(payload), WRITE_TIMEOUT_MS, `Save ${collectionName}`);
-        return success({id:ref.id, ...payload}, "Record saved successfully.");
-      } catch (error) {
-        console.error("FMSCrud.create failed", collectionName, error);
-        return failure(error);
+        const row = await restCreate(collectionName, payload);
+        return success(row, "Record saved successfully.");
+      } catch (restError) {
+        console.error("FMSCrud.create failed", collectionName, restError);
+        return failure(restError);
       }
     }
   }
 
   async function update(collectionName, documentId, data, options){
+    if (!collectionName) return failure(new Error("Collection name is required."));
+    if (!documentId) return failure(new Error("Document id is required for update."));
+    const now = serverTimestamp();
+    const payload = cleanForFirestore({...(data || {}), updatedAt:now, updatedOn:now, ...(options && options.extra ? options.extra : {})});
     try {
-      if (!collectionName) throw new Error("Collection name is required.");
-      if (!documentId) throw new Error("Document id is required for update.");
-      const now = serverTimestamp();
-      const payload = cleanForFirestore({...(data || {}), updatedAt:now, updatedOn:now, ...(options && options.extra ? options.extra : {})});
-      const row = await restSet(collectionName, documentId, payload, true);
-      return success(row, "Record updated successfully.");
-    } catch (restError) {
-      console.warn("FMSCrud.update REST failed; trying SDK fallback", collectionName, documentId, restError);
+      const database = await waitForDb();
+      await timeoutPromise(database.collection(collectionName).doc(documentId).set(payload, {merge:true}), WRITE_TIMEOUT_MS, `Update ${collectionName}`);
+      return success({id:documentId, ...payload}, "Record updated successfully.");
+    } catch (sdkError) {
+      console.warn("FMSCrud.update SDK failed; trying REST fallback", collectionName, documentId, sdkError);
       try {
-        const database = await waitForDb();
-        const now = serverTimestamp();
-        const payload = cleanForFirestore({...(data || {}), updatedAt:now, updatedOn:now, ...(options && options.extra ? options.extra : {})});
-        await timeoutPromise(database.collection(collectionName).doc(documentId).set(payload, {merge:true}), WRITE_TIMEOUT_MS, `Update ${collectionName}`);
-        return success({id:documentId, ...payload}, "Record updated successfully.");
-      } catch (error) {
-        console.error("FMSCrud.update failed", collectionName, documentId, error);
-        return failure(error);
+        const row = await restSet(collectionName, documentId, payload, true);
+        return success(row, "Record updated successfully.");
+      } catch (restError) {
+        console.error("FMSCrud.update failed", collectionName, documentId, restError);
+        return failure(restError);
       }
     }
   }
 
   async function softDelete(collectionName, documentId, extra){
+    if (!collectionName) return failure(new Error("Collection name is required."));
+    if (!documentId) return failure(new Error("Document id is required for delete."));
+    const now = serverTimestamp();
+    const payload = cleanForFirestore({active:false, deletedAt:now, deletedOn:now, updatedAt:now, updatedOn:now, ...(extra || {})});
     try {
-      if (!collectionName) throw new Error("Collection name is required.");
-      if (!documentId) throw new Error("Document id is required for delete.");
-      const now = serverTimestamp();
-      const row = await restSet(collectionName, documentId, cleanForFirestore({active:false, deletedAt:now, deletedOn:now, updatedAt:now, updatedOn:now, ...(extra || {})}), true);
-      return success(row, "Record deleted successfully.");
-    } catch (restError) {
-      console.warn("FMSCrud.softDelete REST failed; trying SDK fallback", collectionName, documentId, restError);
+      const database = await waitForDb();
+      await timeoutPromise(database.collection(collectionName).doc(documentId).set(payload, {merge:true}), WRITE_TIMEOUT_MS, `Delete ${collectionName}`);
+      return success({id:documentId}, "Record deleted successfully.");
+    } catch (sdkError) {
+      console.warn("FMSCrud.softDelete SDK failed; trying REST fallback", collectionName, documentId, sdkError);
       try {
-        const database = await waitForDb();
-        const now = serverTimestamp();
-        await timeoutPromise(database.collection(collectionName).doc(documentId).set(cleanForFirestore({active:false, deletedAt:now, deletedOn:now, updatedAt:now, updatedOn:now, ...(extra || {})}), {merge:true}), WRITE_TIMEOUT_MS, `Delete ${collectionName}`);
-        return success({id:documentId}, "Record deleted successfully.");
-      } catch (error) {
-        console.error("FMSCrud.softDelete failed", collectionName, documentId, error);
-        return failure(error);
+        const row = await restSet(collectionName, documentId, payload, true);
+        return success(row, "Record deleted successfully.");
+      } catch (restError) {
+        console.error("FMSCrud.softDelete failed", collectionName, documentId, restError);
+        return failure(restError);
       }
     }
   }
@@ -356,14 +355,14 @@
     try {
       if (!collectionName) throw new Error("Collection name is required.");
       try {
-        return success(await restList(collectionName, options));
-      } catch (restError) {
-        console.warn("FMSCrud.list REST failed; trying SDK fallback", collectionName, restError);
         const database = await waitForDb();
         const snap = await timeoutPromise(database.collection(collectionName).get(), DEFAULT_TIMEOUT_MS, `List ${collectionName}`);
         let rows = snap.docs.map(doc => ({id:doc.id, ...doc.data()}));
         if (!options || options.activeOnly !== false) rows = rows.filter(row => row.active !== false);
         return success(rows);
+      } catch (sdkError) {
+        console.warn("FMSCrud.list SDK failed; trying REST fallback", collectionName, sdkError);
+        return success(await restList(collectionName, options));
       }
     } catch (error) {
       console.error("FMSCrud.list failed", collectionName, error);
