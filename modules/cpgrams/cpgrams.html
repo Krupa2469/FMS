@@ -66,10 +66,10 @@
 </div>
 </div>
 </nav><section class="container-fluid py-3 bg-light border-bottom" id="grievanceContextPanel"><div class="card shadow-sm mb-3" id="grievanceTypeSelectorCard">
-<div class="card-header bg-dark text-white py-2"><h5 class="mb-0" id="grievanceTypeHeading">SELECT GRIEVANCE TYPE</h5></div>
+<div class="card-header bg-dark text-white py-2"><h5 class="mb-0" id="grievanceTypeHeading">CPGRAMS</h5></div>
 <div class="card-body py-2"><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label fw-bold mb-1" for="grievanceFinancialYear">Financial Year</label><select class="form-select form-select-lg" id="grievanceFinancialYear"></select></div><div class="col-md-8"><label class="form-label fw-bold mb-1" for="grievanceType">Grievance Type <span class="text-danger">*</span></label><select class="form-select form-select-lg" id="grievanceType" required="">
-<option selected="" value="">Select Grievance Type</option>
-<option value="CPGRAMS">CPGRAMS</option>
+<option value="">Select Grievance Type</option>
+<option selected="" value="CPGRAMS">CPGRAMS</option>
 <option value="Prajavani">Prajavani</option>
 <option value="Public Grievances">Public Grievances</option>
 <option value="Direct Complaints">Direct Complaints</option>
@@ -109,8 +109,8 @@
      MAIN CONTAINER
 ============================================================ -->
 <div class="container-fluid mt-4 mb-5">
-<h4 class="text-center fw-bold mb-3" id="grievanceDataEntryTitle">GRIEVANCES DATA ENTRY FORM</h4>
-<form class="d-none" id="cpgramsForm">
+<h4 class="text-center fw-bold mb-3" id="grievanceDataEntryTitle">CPGRAMS DATA ENTRY FORM</h4>
+<form id="cpgramsForm">
 <!-- ===========================================================
      GRIEVANCE TYPE - FIRST FIELD
 ============================================================ -->

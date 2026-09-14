@@ -15,7 +15,7 @@
   const pretty=v=>String(v||"").trim();
   function normType(v){return P()?.normalizeType?.(v)||"";}
   function rowType(r){return P()?.rowType?.(r)||"cpgrams";}
-  function currentType(){return pretty($(TYPE_SELECT)?.value);}  
+  function currentType(){return pretty($(TYPE_SELECT)?.value || "CPGRAMS");}  
   function currentTypeKey(){return normType(currentType())||"cpgrams";}
   function currentFY(){return $(FY_SELECT)?.value || P()?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";}
   function activeRows(){return allRows.filter(r=>P()?P().active(r):r?.active!==false);}
@@ -146,15 +146,20 @@
   async function deleteRecord(id){if(!confirm("Delete this record?"))return;try{const db=getDb();await db.collection(COLLECTION).doc(id).update({active:false,deletedOn:firebase.firestore.FieldValue.serverTimestamp(),updatedOn:firebase.firestore.FieldValue.serverTimestamp()});await refresh();}catch(e){alert("Unable to delete record: "+(e.message||e));}}
   function getDb(){if(window.db)return window.db;if(window.fmsFirebase?.db)return window.fmsFirebase.db;try{if(typeof firebase!=="undefined"&&firebase.firestore)return firebase.firestore();}catch(_e){}return null;}
   function showContext(hasType){["grievanceFYPanel","moduleDashboardPanel","grievanceInlineRegisterPanel","cpgramsForm"].forEach(id=>$(id)?.classList.toggle("d-none",!hasType));const dataTitle=[...document.querySelectorAll("h4")].find(h=>h.textContent.includes("GRIEVANCES DATA ENTRY"));if(dataTitle)dataTitle.classList.toggle("d-none",!hasType);}
-  function syncContext(){const type=currentType();showContext(!!type);const heading=$("grievanceTypeHeading");if(heading)heading.textContent=type||"SELECT GRIEVANCE TYPE";const label=$("selectedGrievanceFormLabel");if(label)label.textContent=type?`${type} Data Entry Form`:"Select a Grievance Type to load the Data Entry Form";const dataTitle=$("grievanceDataEntryTitle");if(dataTitle&&type)dataTitle.textContent=`${String(type).toUpperCase()} DATA ENTRY FORM`;if(!type)return;populateFY();const rows=rowsForContext();renderDashboard(rows);renderRegister(rows);const s=$("grievanceContextStatus");if(s){s.className="d-none";s.textContent="";}}
+  function syncContext(){const type=currentType();showContext(!!type);const heading=$("grievanceTypeHeading");if(heading)heading.textContent=type||"SELECT GRIEVANCE TYPE";const label=$("selectedGrievanceFormLabel");if(label)label.textContent="";const dataTitle=$("grievanceDataEntryTitle");if(dataTitle&&type)dataTitle.textContent=`${String(type).toUpperCase()} DATA ENTRY FORM`;if(!type)return;populateFY();const rows=rowsForContext();renderDashboard(rows);renderRegister(rows);const s=$("grievanceContextStatus");if(s){s.className="d-none";s.textContent="";}}
   async function refresh(){const db=getDb();if(!db)return false;try{const snap=await db.collection(COLLECTION).get();allRows=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>P()?P().active(r):r.active!==false);syncContext();return true;}catch(e){console.error("Grievances workspace load error",e);const s=$("grievanceContextStatus");if(s){s.className="alert alert-danger mb-0";s.textContent="Unable to load Grievances: "+(e.message||e);}return false;}}
   function start(){
     const type=$(TYPE_SELECT),fy=$(FY_SELECT);if(!type)return;
     const requestedType=new URLSearchParams(location.search).get("grievanceType");
     if(requestedType&&!type.value){const k=normType(requestedType);const mapped=TYPES.find(t=>normType(t)===k);if(mapped)type.value=mapped;}
+    // Open CPGRAMS by default when the Grievances module is opened from Home.
+    // Users can still change this dropdown to Prajavani, LAQ, LCQ, etc.
+    if(!type.value) type.value="CPGRAMS";
     populateFY();type.addEventListener("change",()=>{if(typeof window.updateGrievanceFormLayout==="function")window.updateGrievanceFormLayout();syncContext();});fy?.addEventListener("change",syncContext);
     $("btnOpenFullGrievanceRegister")?.addEventListener("click",()=>{location.href=fullRegisterUrl("total");});
-    showContext(!!currentType());if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
+    showContext(!!currentType());
+    if(typeof window.updateGrievanceFormLayout==="function") window.updateGrievanceFormLayout();
+    if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
   window.FMSGrievanceWorkspace={refresh,syncContext,rowsForContext,normType,rowType};

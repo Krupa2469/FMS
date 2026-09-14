@@ -350,6 +350,10 @@ function isQuestionGrievanceType(type = getSelectedGrievanceType()) {
 }
 
 function updateGrievanceFormLayout() {
+    if (!getSelectedGrievanceType()) {
+        const gt = getControl("grievanceType");
+        if (gt) gt.value = new URLSearchParams(window.location.search).get("grievanceType") || "CPGRAMS";
+    }
     const type = getSelectedGrievanceType();
     const normalized = type.toUpperCase();
     const hasType = Boolean(normalized);
@@ -401,13 +405,7 @@ function updateGrievanceFormLayout() {
     }
 
     const label = getControl("selectedGrievanceFormLabel");
-    if (label) {
-        label.textContent = !hasType
-            ? "Select a Grievance Type to load the Data Entry Form"
-            : questionMode
-                ? `${normalized} Question Data Entry Form`
-                : `${type} Data Entry Form`;
-    }
+    if (label) label.textContent = "";
 
     const section4Title = getControl("section4Title");
     if (section4Title) {
@@ -548,6 +546,9 @@ function clearForm() {
 
     if (form)
         form.reset();
+
+    const requestedType = new URLSearchParams(window.location.search).get("grievanceType") || "CPGRAMS";
+    setControlValue("grievanceType", requestedType);
 
     resetEditMode();
 
