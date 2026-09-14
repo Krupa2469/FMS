@@ -1,6 +1,6 @@
 /* =========================================================
    FMS Firebase CRUD Service
-   Version 1.5.4
+   Version 1.5.5
    Purpose: one reliable create/read/update/delete path for all FMS modules.
    Notes:
    - Uses Firestore REST first for writes to avoid browser WebChannel/QUIC stalls.

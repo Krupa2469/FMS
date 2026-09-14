@@ -2,7 +2,7 @@
  FILE MANAGEMENT SYSTEM (FMS)
  Module      : CPGRAMS
  File        : cpgrams.js
- Version     : 5.4
+ Version     : 5.5
  Developer   : Lekha Technologies
  Description : CPGRAMS Controller
 ==========================================================*/
@@ -1091,44 +1091,10 @@ async function uploadSelectedCPGRAMSDocuments(recordId) {
 }
 
 /*==========================================================
- SAVE / UPSERT HELPERS
+ SAVE POLICY
+ Save always creates a new Firestore document. Existing records are
+ changed only through the Update button.
 ==========================================================*/
-
-async function findExistingGrievanceIdForSave(grievance) {
-    try {
-        if (currentDocumentId) return currentDocumentId;
-        if (!isCPGRAMSType(grievance.grievanceType)) return null;
-
-        const key = window.FMSCrud?.normalizeKey
-            ? window.FMSCrud.normalizeKey(grievance.grievanceNumber || grievance.registrationNumber || grievance.grievanceNo)
-            : String(grievance.grievanceNumber || grievance.registrationNumber || grievance.grievanceNo || "").trim().toUpperCase().replace(/\s+/g, "");
-        if (!key) return null;
-
-        // Use the common CRUD service. It uses REST fallback and will not hang on
-        // Firestore WebChannel/QUIC errors. This prevents the Save button from
-        // getting stuck after document parsing.
-        if (window.FMSCrud && typeof window.FMSCrud.findFirstByNormalized === "function") {
-            const lookupPromise = window.FMSCrud.findFirstByNormalized(
-                "cpgrams",
-                ["grievanceNumber", "registrationNumber", "grievanceNo", "grievanceNumberNormalized"],
-                key,
-                null
-            );
-            const timeoutPromise = new Promise(resolve =>
-                setTimeout(() => resolve({ success: false, message: "Existing grievance lookup timed out and was skipped." }), 5000)
-            );
-            const result = await Promise.race([lookupPromise, timeoutPromise]);
-            if (result.success && result.data && result.data.id) return result.data.id;
-            if (!result.success) console.warn("Existing grievance lookup skipped:", result.message);
-            return null;
-        }
-
-        return null;
-    } catch (error) {
-        console.warn("Existing grievance check skipped. Save will continue as a new record.", error);
-        return null;
-    }
-}
 
 /*==========================================================
  SAVE
@@ -1149,19 +1115,11 @@ async function saveGrievance(event) {
         let grievance = buildGrievanceObject();
         grievance.createdOn = new Date();
 
-        showMessage?.("Checking existing grievance number...", "info");
-        const existingId = await findExistingGrievanceIdForSave(grievance);
-        showMessage?.(existingId ? "Existing grievance found. Updating record..." : "Creating new grievance record...", "info");
-        let result;
-        let updatedExisting = false;
-        if (existingId) {
-            currentDocumentId = existingId;
-            result = await updateGrievanceToDatabase(existingId, grievance);
-            updatedExisting = true;
-        } else {
-            result = await saveGrievanceToDatabase(grievance);
-            currentDocumentId = result.data?.id || result.id;
-        }
+        // SAVE is create-only. Never silently convert Save into Update.
+        // Update of an existing record is handled exclusively by updateGrievance().
+        showMessage?.("Creating new grievance record...", "info");
+        const result = await saveGrievanceToDatabase(grievance);
+        currentDocumentId = result?.data?.id || result?.id;
 
         if (!result || !result.success) {
             showMessage?.((result && result.message) || "Unable to save grievance.", "danger");
@@ -1169,7 +1127,7 @@ async function saveGrievance(event) {
         }
 
         if (!currentDocumentId) throw new Error("Record was saved but Firestore did not return the document ID.");
-        console.log("CPGRAMS record saved/updated:", currentDocumentId);
+        console.log("CPGRAMS new record saved:", currentDocumentId);
 
         window.FMSGrievanceWorkspace?.upsertLocal?.({ id: currentDocumentId, ...grievance, active: true });
         const uploadSummary = await uploadSelectedCPGRAMSDocuments(currentDocumentId);
@@ -1194,10 +1152,10 @@ async function saveGrievance(event) {
         await loadAttachments(null);
         refreshButtons();
 
-        window.dispatchEvent(new CustomEvent("fmsRecordChanged", { detail: { module: "cpgrams", id: savedDocumentId, action: updatedExisting ? "update" : "save" } }));
+        window.dispatchEvent(new CustomEvent("fmsRecordChanged", { detail: { module: "cpgrams", id: savedDocumentId, action: "save" } }));
         window.FMSGrievanceWorkspace?.syncContext?.();
         showMessage(
-            `${updatedExisting ? "Existing grievance updated successfully" : "Grievance saved successfully"}.${uploadedText}${failedText}`,
+            `Grievance saved successfully.${uploadedText}${failedText}`,
             uploadSummary.failed.length ? "warning" : "success"
         );
         return true;
