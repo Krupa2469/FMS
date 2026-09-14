@@ -1,6 +1,6 @@
 /*==========================================================
  CPGRAMS SEARCH
- Version : 5.1 synchronized search page
+ Version : 5.2 synchronized search page
 ==========================================================*/
 "use strict";
 

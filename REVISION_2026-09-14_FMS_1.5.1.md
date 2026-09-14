@@ -1,4 +1,4 @@
-# FMS Web v1.5.1 — Save/Update/Delete and Firestore Network Fix
+# FMS Web v1.5.2 — Save/Update/Delete and Firestore Network Fix
 
 - Enabled Firestore long-polling mode to avoid browser QUIC/WebChannel failures during Save, Update, Delete and duplicate checks.
 - Fixed CPGRAMS DD/MM/YYYY due-date calculation; NaN-NaN-NaN is no longer generated.

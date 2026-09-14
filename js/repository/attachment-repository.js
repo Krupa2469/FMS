@@ -2,7 +2,7 @@
  FILE MANAGEMENT SYSTEM (FMS)
  Module      : Attachment Repository
  File        : attachment-repository.js
- Version     : 2.1
+ Version     : 2.2
  Developer   : Lekha Technologies
  Description : Storage upload with Firestore inline fallback
 ==========================================================*/
@@ -122,6 +122,12 @@ class AttachmentRepository {
                 active: true
             };
 
+            if (window.FMSCrud && typeof window.FMSCrud.create === "function") {
+                const result = await window.FMSCrud.create(this.collectionName, attachment);
+                if (!result.success) throw new Error(result.message || "Attachment metadata could not be saved.");
+                return this.success({ id: result.id || result.data?.id, ...attachment });
+            }
+
             const doc = await this.collection().add(attachment);
             return this.success({ id: doc.id, ...attachment });
         } catch (error) {
@@ -133,6 +139,13 @@ class AttachmentRepository {
     async getAttachments(grievanceId) {
         try {
             if (!grievanceId) return this.success([]);
+            if (window.FMSCrud && typeof window.FMSCrud.list === "function") {
+                const result = await window.FMSCrud.list(this.collectionName, { activeOnly: true });
+                if (!result.success) throw new Error(result.message || "Unable to load attachments.");
+                const records = (result.data || []).filter(item => String(item.grievanceId || item.recordId || "") === String(grievanceId));
+                return this.success(records);
+            }
+
             const snapshot = await this.collection().where("grievanceId", "==", grievanceId).get();
             const records = [];
             snapshot.forEach(doc => {
@@ -149,6 +162,11 @@ class AttachmentRepository {
 
     async getAttachment(id) {
         try {
+            if (window.FMSCrud && typeof window.FMSCrud.get === "function") {
+                const result = await window.FMSCrud.get(this.collectionName, id);
+                if (!result.success) throw new Error(result.message || "Attachment not found.");
+                return this.success(result.data);
+            }
             const doc = await this.collection().doc(id).get();
             if (!doc.exists) throw new Error("Attachment not found.");
             return this.success({ id: doc.id, ...doc.data() });
@@ -161,15 +179,27 @@ class AttachmentRepository {
     async deleteAttachment(id) {
         try {
             const docRef = this.collection().doc(id);
-            const doc = await docRef.get();
-            if (!doc.exists) throw new Error("Attachment not found.");
-            const data = doc.data() || {};
+            let data = {};
+            if (window.FMSCrud && typeof window.FMSCrud.get === "function") {
+                const r = await window.FMSCrud.get(this.collectionName, id);
+                if (!r.success) throw new Error(r.message || "Attachment not found.");
+                data = r.data || {};
+            } else {
+                const doc = await docRef.get();
+                if (!doc.exists) throw new Error("Attachment not found.");
+                data = doc.data() || {};
+            }
             const storageRef = this.getStorage();
             if (storageRef && data.storagePath) {
                 try { await storageRef.ref(data.storagePath).delete(); }
                 catch (e) { console.warn("Storage file delete warning:", e); }
             }
-            await docRef.update({ active: false, deletedOn: this.serverTimestamp(), updatedOn: this.serverTimestamp() });
+            if (window.FMSCrud && typeof window.FMSCrud.softDelete === "function") {
+                const r = await window.FMSCrud.softDelete(this.collectionName, id);
+                if (!r.success) throw new Error(r.message || "Unable to delete attachment.");
+            } else {
+                await docRef.update({ active: false, deletedOn: this.serverTimestamp(), updatedOn: this.serverTimestamp() });
+            }
             return this.success(true);
         } catch (error) {
             console.error(error);

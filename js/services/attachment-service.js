@@ -1,6 +1,6 @@
 /* =========================================================
    FMS CENTRAL ATTACHMENT SERVICE
-   Version 1.1
+   Version 1.2
    Uploads to Firebase Storage with Firestore inline fallback.
 ========================================================= */
 (function(window){
@@ -82,6 +82,11 @@
             uploadedOn:serverTimestamp(),
             active:true
         };
+        if(window.FMSCrud && typeof window.FMSCrud.create === "function"){
+            const result = await window.FMSCrud.create("fmsAttachments", metadata);
+            if(!result.success) throw new Error(result.message || "Attachment metadata could not be saved.");
+            return {id:result.id || result.data?.id, ...metadata};
+        }
         const doc=await database.collection("fmsAttachments").add(metadata);
         return {id:doc.id,...metadata};
     }
@@ -90,6 +95,11 @@
         const database=getDB();
         if(!database || !recordId) return [];
         const module=String(moduleName||"FMS").toLowerCase();
+        if(window.FMSCrud && typeof window.FMSCrud.list === "function"){
+            const result = await window.FMSCrud.list("fmsAttachments", {activeOnly:true});
+            if(!result.success) throw new Error(result.message || "Unable to load attachments.");
+            return (result.data || []).filter(item => String(item.recordId || "") === String(recordId) && item.module === module && item.active !== false);
+        }
         const snap=await database.collection("fmsAttachments").where("recordId","==",recordId).get();
         return snap.docs.map(d=>({id:d.id,...d.data()})).filter(item => item.module===module && item.active!==false);
     }
@@ -98,7 +108,10 @@
         const database=getDB(), storage=getStorage();
         if(!item) return;
         if(storage && item.storagePath){ try{ await storage.ref(item.storagePath).delete(); }catch(e){ console.warn("Storage delete:",e); } }
-        if(database && item.id){ await database.collection("fmsAttachments").doc(item.id).update({active:false,deletedOn:serverTimestamp()}); }
+        if(database && item.id){
+            if(window.FMSCrud && typeof window.FMSCrud.softDelete === "function") await window.FMSCrud.softDelete("fmsAttachments", item.id);
+            else await database.collection("fmsAttachments").doc(item.id).update({active:false,deletedOn:serverTimestamp()});
+        }
     }
 
     function wireUI(config){

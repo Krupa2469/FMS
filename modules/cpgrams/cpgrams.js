@@ -2,7 +2,7 @@
  FILE MANAGEMENT SYSTEM (FMS)
  Module      : CPGRAMS
  File        : cpgrams.js
- Version     : 5.1
+ Version     : 5.2
  Developer   : Lekha Technologies
  Description : CPGRAMS Controller
 ==========================================================*/
@@ -685,11 +685,16 @@ function formatDisplayDate(value) {
     return `${String(parsed.getDate()).padStart(2, "0")}/${String(parsed.getMonth() + 1).padStart(2, "0")}/${parsed.getFullYear()}`;
 }
 
+function cpgramsFormatDMYFromDate(dateObject) {
+    if (!(dateObject instanceof Date) || Number.isNaN(dateObject.getTime())) return "";
+    return `${String(dateObject.getDate()).padStart(2, "0")}/${String(dateObject.getMonth() + 1).padStart(2, "0")}/${dateObject.getFullYear()}`;
+}
+
 function calculateCPGRAMSDueDateString(dateValue) {
     const parsed = parseFMSDate(dateValue);
-    if (!parsed) return "";
+    if (!parsed || Number.isNaN(parsed.getTime())) return "";
     parsed.setDate(parsed.getDate() + 21);
-    return formatDisplayDate(parsed);
+    return cpgramsFormatDMYFromDate(parsed);
 }
 
 function calculateDueDate() {
@@ -1083,28 +1088,28 @@ async function findExistingGrievanceIdForSave(grievance) {
     try {
         if (currentDocumentId) return currentDocumentId;
         if (!isCPGRAMSType(grievance.grievanceType)) return null;
+
         const key = window.FMSCrud?.normalizeKey
             ? window.FMSCrud.normalizeKey(grievance.grievanceNumber || grievance.registrationNumber || grievance.grievanceNo)
             : String(grievance.grievanceNumber || grievance.registrationNumber || grievance.grievanceNo || "").trim().toUpperCase().replace(/\s+/g, "");
         if (!key) return null;
-        const database = window.FMSCrud ? await window.FMSCrud.waitForDb() : (window.db || (typeof db !== "undefined" ? db : null));
-        if (!database || typeof database.collection !== "function") return null;
-        try {
-            const snap = await database.collection("cpgrams").where("grievanceNumberNormalized", "==", key).limit(1).get();
-            if (!snap.empty) return snap.docs[0].id;
-        } catch (queryError) {
-            console.warn("Duplicate lookup by normalized key failed; trying local list fallback.", queryError);
+
+        // Use the common CRUD service. It uses REST fallback and will not hang on
+        // Firestore WebChannel/QUIC errors. This prevents the Save button from
+        // getting stuck after document parsing.
+        if (window.FMSCrud && typeof window.FMSCrud.findFirstByNormalized === "function") {
+            const result = await window.FMSCrud.findFirstByNormalized(
+                "cpgrams",
+                ["grievanceNumber", "registrationNumber", "grievanceNo", "grievanceNumberNormalized"],
+                key,
+                null
+            );
+            if (result.success && result.data && result.data.id) return result.data.id;
+            if (!result.success) console.warn("Existing grievance lookup skipped:", result.message);
+            return null;
         }
-        const existing = await getAllGrievances();
-        const rows = Array.isArray(existing?.data) ? existing.data : (Array.isArray(existing) ? existing : []);
-        const found = rows.find(row => {
-            if (!row || row.active === false) return false;
-            return [row.grievanceNumber, row.registrationNumber, row.grievanceNo, row.grievanceNumberNormalized].some(value => {
-                const rowKey = window.FMSCrud?.normalizeKey ? window.FMSCrud.normalizeKey(value) : String(value || "").trim().toUpperCase().replace(/\s+/g, "");
-                return rowKey && rowKey === key;
-            });
-        });
-        return found?.id || null;
+
+        return null;
     } catch (error) {
         console.warn("Existing grievance check skipped. Save will continue as a new record.", error);
         return null;
@@ -1119,11 +1124,14 @@ async function saveGrievance(event) {
 
     stopFormButtonNavigation(event);
     console.log("Save button clicked");
+    const saveButton = document.getElementById("btnSave");
+    if (saveButton) saveButton.disabled = true;
 
     try {
-        if (!validateForm()) return;
+        if (!validateForm()) return false;
 
         showLoading?.();
+        showMessage?.("Saving grievance, please wait...", "info");
         let grievance = buildGrievanceObject();
         grievance.createdOn = new Date();
 
@@ -1139,10 +1147,9 @@ async function saveGrievance(event) {
             currentDocumentId = result.data?.id || result.id;
         }
 
-        if (!result.success) {
-            hideLoading?.();
-            showMessage?.(result.message || "Unable to save grievance.", "danger");
-            return;
+        if (!result || !result.success) {
+            showMessage?.((result && result.message) || "Unable to save grievance.", "danger");
+            return false;
         }
 
         if (!currentDocumentId) throw new Error("Record was saved but Firestore did not return the document ID.");
@@ -1150,8 +1157,6 @@ async function saveGrievance(event) {
         const uploadSummary = await uploadSelectedCPGRAMSDocuments(currentDocumentId);
         await loadAttachments(currentDocumentId);
         window.FMSGrievanceWorkspace?.refresh?.();
-
-        hideLoading?.();
 
         const uploadedText = uploadSummary.uploaded.length
             ? ` ${uploadSummary.uploaded.length} attachment(s) uploaded.`
@@ -1162,16 +1167,26 @@ async function saveGrievance(event) {
 
         formDirty = false;
         clearForm();
+        currentDocumentId = null;
+        currentGrievance = null;
+        editMode = false;
+        await loadAttachments(null);
+        refreshButtons();
 
         showMessage(
             `${updatedExisting ? "Existing grievance updated successfully" : "Grievance saved successfully"}.${uploadedText}${failedText}`,
             uploadSummary.failed.length ? "warning" : "success"
         );
+        return true;
     }
     catch (error) {
-        hideLoading?.();
         console.error("CPGRAMS SAVE ERROR:", error);
         showMessage?.("Unable to save grievance: " + (error.message || error), "danger");
+        return false;
+    }
+    finally {
+        hideLoading?.();
+        if (saveButton) saveButton.disabled = false;
     }
 
 }

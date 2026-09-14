@@ -336,23 +336,18 @@ async function findExistingRTIIdForSave(applicationNumber){
     try{
         const key = window.FMSCrud?.normalizeKey ? window.FMSCrud.normalizeKey(applicationNumber) : String(applicationNumber||"").trim().toUpperCase().replace(/\s+/g,"");
         if(!key) return null;
-        const database = window.FMSCrud ? await window.FMSCrud.waitForDb() : rtiDb();
-        if(!database || typeof database.collection!=="function") return null;
-        for(const field of ["applicationNumberNormalized","rtiApplicationNumberNormalized"]){
-            try{
-                const snap=await database.collection(RTI_COLLECTION).where(field,"==",key).limit(1).get();
-                if(!snap.empty) return snap.docs[0].id;
-            }catch(_e){}
+        if(window.FMSCrud && typeof window.FMSCrud.findFirstByNormalized === "function"){
+            const result = await window.FMSCrud.findFirstByNormalized(
+                RTI_COLLECTION,
+                ["applicationNumber", "rtiApplicationNumber", "applicationNo", "applicationNumberNormalized", "rtiApplicationNumberNormalized"],
+                key,
+                null
+            );
+            if(result.success && result.data && result.data.id) return result.data.id;
+            if(!result.success) console.warn("RTI existing-record lookup skipped:", result.message);
+            return null;
         }
-        const snap=await database.collection(RTI_COLLECTION).get();
-        const found=snap.docs.find(doc=>{
-            const d=doc.data()||{}; if(d.active===false) return false;
-            return [d.applicationNumber,d.rtiApplicationNumber,d.applicationNo,d.applicationNumberNormalized].some(v=>{
-                const rowKey=window.FMSCrud?.normalizeKey ? window.FMSCrud.normalizeKey(v) : String(v||"").trim().toUpperCase().replace(/\s+/g,"");
-                return rowKey && rowKey===key;
-            });
-        });
-        return found?.id || null;
+        return null;
     }catch(e){ console.warn("RTI existing-record check skipped:",e); return null; }
 }
 

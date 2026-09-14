@@ -123,18 +123,31 @@ function cpDocExtractLocalFields(rawText) {
     return fields;
 }
 
+function cpDocLooksInvalid(value) {
+    return /nan|undefined|invalid|null/i.test(String(value || "").trim());
+}
+
 function cpDocMergeFields(engineFields, rawText) {
     const fallback = cpDocExtractLocalFields(rawText);
-    const fields = { ...(fallback || {}), ...(engineFields || {}) };
+    const cleanEngine = { ...(engineFields || {}) };
+
+    // Do not allow parser/OCR artefacts such as NaN-NaN-NaN to overwrite
+    // good locally-calculated values.
+    ["dateReceived", "receivedDate", "dueDate", "memoDate", "atrDate"].forEach(key => {
+        if (cpDocLooksInvalid(cleanEngine[key])) delete cleanEngine[key];
+    });
+
+    const fields = { ...(fallback || {}), ...cleanEngine };
 
     // Harmonise older parser key names to the current data-entry form IDs.
     if (!fields.mobileNumber && fields.mobile) fields.mobileNumber = fields.mobile;
     if (!fields.grievanceNumber && fields.registrationNumber) fields.grievanceNumber = fields.registrationNumber;
     if (!fields.grievanceDescription && fields.description) fields.grievanceDescription = fields.description;
     if (!fields.dateReceived && fields.receivedDate) fields.dateReceived = fields.receivedDate;
-    if (fields.dateReceived) fields.dateReceived = cpDocDateToDMY(fields.dateReceived);
-    if (!fields.dueDate && fields.dateReceived) fields.dueDate = cpDocAddDaysDMY(fields.dateReceived, 21);
-    if (fields.dueDate) fields.dueDate = cpDocDateToDMY(fields.dueDate);
+    if (fields.dateReceived && !cpDocLooksInvalid(fields.dateReceived)) fields.dateReceived = cpDocDateToDMY(fields.dateReceived);
+    if ((!fields.dueDate || cpDocLooksInvalid(fields.dueDate)) && fields.dateReceived) fields.dueDate = cpDocAddDaysDMY(fields.dateReceived, 21);
+    if (fields.dueDate && !cpDocLooksInvalid(fields.dueDate)) fields.dueDate = cpDocDateToDMY(fields.dueDate);
+    else fields.dueDate = "";
     return fields;
 }
 
