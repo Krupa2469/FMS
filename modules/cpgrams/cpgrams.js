@@ -281,14 +281,14 @@ function registerFieldEvents() {
                 editMode ? currentDocumentId : null
             );
             if (duplicate) {
-                this.classList.add("is-invalid");
-                showMessage("warning", "This Grievance Number already exists. Please enter a unique Grievance Number.");
+                this.classList.add("is-valid");
+                showMessage("Existing Grievance Number found. Save will update that record instead of creating a duplicate.", "info");
             } else {
                 this.classList.add("is-valid");
             }
         } catch (error) {
-            console.error("Grievance Number validation failed:", error);
-            showMessage("danger", "Unable to validate the Grievance Number. Please try again before saving.");
+            console.warn("Grievance Number validation skipped:", error);
+            this.classList.remove("is-invalid");
         }
     });
 
@@ -648,8 +648,49 @@ function makeReadOnly() {
 }
 
 /*==========================================================
- CALCULATE DUE DATE
+ DATE HELPERS / CALCULATE DUE DATE
 ==========================================================*/
+
+function isInvalidDateText(value) {
+    const text = String(value || "").trim();
+    return !text || /nan/i.test(text) || /^undefined/i.test(text) || /^invalid/i.test(text);
+}
+
+function parseFMSDate(value) {
+    if (!value) return null;
+    if (window.FMSRecordPolicy && typeof window.FMSRecordPolicy.parseDate === "function") {
+        const parsed = window.FMSRecordPolicy.parseDate(value);
+        if (parsed && !Number.isNaN(parsed.getTime())) return parsed;
+    }
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+    const text = String(value || "").trim();
+    let match = text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2}|\d{4})$/);
+    if (match) {
+        const year = match[3].length === 2 ? Number("20" + match[3]) : Number(match[3]);
+        const parsed = new Date(year, Number(match[2]) - 1, Number(match[1]));
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+    match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (match) {
+        const parsed = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+    const parsed = new Date(text);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function formatDisplayDate(value) {
+    const parsed = parseFMSDate(value);
+    if (!parsed) return String(value || "").trim();
+    return `${String(parsed.getDate()).padStart(2, "0")}/${String(parsed.getMonth() + 1).padStart(2, "0")}/${parsed.getFullYear()}`;
+}
+
+function calculateCPGRAMSDueDateString(dateValue) {
+    const parsed = parseFMSDate(dateValue);
+    if (!parsed) return "";
+    parsed.setDate(parsed.getDate() + 21);
+    return formatDisplayDate(parsed);
+}
 
 function calculateDueDate() {
 
@@ -669,24 +710,11 @@ function calculateDueDate() {
         return;
     }
 
-    const dueDate = new Date(receivedControl.value);
-
-    // CPGRAMS = 21 days
-    dueDate.setDate(dueDate.getDate() + 21);
-
-    const yyyy = dueDate.getFullYear();
-
-    const mm = String(dueDate.getMonth() + 1)
-        .padStart(2, "0");
-
-    const dd = String(dueDate.getDate())
-        .padStart(2, "0");
-
-    dueControl.value = `${yyyy}-${mm}-${dd}`;
+    dueControl.value = calculateCPGRAMSDueDateString(receivedControl.value);
 
     console.log(
         "Due Date Calculated:",
-        dueControl.value
+        dueControl.value || "not available"
     );
 
 }
@@ -800,6 +828,12 @@ function buildGrievanceObject() {
     const grievanceType = String(grievance.grievanceType || "").trim();
     const questionMode = isQuestionGrievanceType(grievanceType);
 
+    if (grievance.dateReceived) grievance.dateReceived = formatDisplayDate(grievance.dateReceived);
+    if (isInvalidDateText(grievance.dueDate)) grievance.dueDate = "";
+    if (!questionMode && grievance.dateReceived) {
+        grievance.dueDate = calculateCPGRAMSDueDateString(grievance.dateReceived) || grievance.dueDate || "";
+    }
+
     if (questionMode) {
         grievance.grievanceType = String(grievance.questionType || grievanceType).toUpperCase();
         grievance.dateReceived = grievance.questionReceivedDate || "";
@@ -892,11 +926,11 @@ function validateForm() {
             ["question", "Question"]
         ];
     } else if (isCPGRAMSType(type)) {
+        // Keep CPGRAMS save practical after document parsing/import.
+        // Complainant/district may be filled later when the scanned PDF does not expose them clearly.
         requiredFields = [
             ["grievanceNumber", "Registration / Grievance No."],
             ["dateReceived", "Date Received"],
-            ["complainantName", "Complainant Name"],
-            ["district", "District"],
             ["subject", "Subject"],
             ["grievanceDescription", "Grievance Description"]
         ];
@@ -1042,6 +1076,42 @@ async function uploadSelectedCPGRAMSDocuments(recordId) {
 }
 
 /*==========================================================
+ SAVE / UPSERT HELPERS
+==========================================================*/
+
+async function findExistingGrievanceIdForSave(grievance) {
+    try {
+        if (currentDocumentId) return currentDocumentId;
+        if (!isCPGRAMSType(grievance.grievanceType)) return null;
+        const key = window.FMSCrud?.normalizeKey
+            ? window.FMSCrud.normalizeKey(grievance.grievanceNumber || grievance.registrationNumber || grievance.grievanceNo)
+            : String(grievance.grievanceNumber || grievance.registrationNumber || grievance.grievanceNo || "").trim().toUpperCase().replace(/\s+/g, "");
+        if (!key) return null;
+        const database = window.FMSCrud ? await window.FMSCrud.waitForDb() : (window.db || (typeof db !== "undefined" ? db : null));
+        if (!database || typeof database.collection !== "function") return null;
+        try {
+            const snap = await database.collection("cpgrams").where("grievanceNumberNormalized", "==", key).limit(1).get();
+            if (!snap.empty) return snap.docs[0].id;
+        } catch (queryError) {
+            console.warn("Duplicate lookup by normalized key failed; trying local list fallback.", queryError);
+        }
+        const existing = await getAllGrievances();
+        const rows = Array.isArray(existing?.data) ? existing.data : (Array.isArray(existing) ? existing : []);
+        const found = rows.find(row => {
+            if (!row || row.active === false) return false;
+            return [row.grievanceNumber, row.registrationNumber, row.grievanceNo, row.grievanceNumberNormalized].some(value => {
+                const rowKey = window.FMSCrud?.normalizeKey ? window.FMSCrud.normalizeKey(value) : String(value || "").trim().toUpperCase().replace(/\s+/g, "");
+                return rowKey && rowKey === key;
+            });
+        });
+        return found?.id || null;
+    } catch (error) {
+        console.warn("Existing grievance check skipped. Save will continue as a new record.", error);
+        return null;
+    }
+}
+
+/*==========================================================
  SAVE
 ==========================================================*/
 
@@ -1052,13 +1122,22 @@ async function saveGrievance(event) {
 
     try {
         if (!validateForm()) return;
-        if (!await validateDuplicate()) return;
 
         showLoading?.();
         let grievance = buildGrievanceObject();
         grievance.createdOn = new Date();
 
-        const result = await saveGrievanceToDatabase(grievance);
+        const existingId = await findExistingGrievanceIdForSave(grievance);
+        let result;
+        let updatedExisting = false;
+        if (existingId) {
+            currentDocumentId = existingId;
+            result = await updateGrievanceToDatabase(existingId, grievance);
+            updatedExisting = true;
+        } else {
+            result = await saveGrievanceToDatabase(grievance);
+            currentDocumentId = result.data?.id || result.id;
+        }
 
         if (!result.success) {
             hideLoading?.();
@@ -1066,7 +1145,6 @@ async function saveGrievance(event) {
             return;
         }
 
-        currentDocumentId = result.data?.id || result.id;
         if (!currentDocumentId) throw new Error("Record was saved but Firestore did not return the document ID.");
 
         const uploadSummary = await uploadSelectedCPGRAMSDocuments(currentDocumentId);
@@ -1086,7 +1164,7 @@ async function saveGrievance(event) {
         clearForm();
 
         showMessage(
-            `Grievance saved successfully.${uploadedText}${failedText}`,
+            `${updatedExisting ? "Existing grievance updated successfully" : "Grievance saved successfully"}.${uploadedText}${failedText}`,
             uploadSummary.failed.length ? "warning" : "success"
         );
     }
@@ -1160,7 +1238,9 @@ async function updateGrievance(event) {
  DELETE
 ==========================================================*/
 
-async function deleteGrievance() {
+async function deleteGrievance(event) {
+
+    stopFormButtonNavigation(event);
 
     try {
 
@@ -1497,7 +1577,9 @@ function initializeDateReceivedPicker() {
        OPEN CALENDAR
        --------------------------------------------------------- */
 
-    button.addEventListener("click", function () {
+    button.addEventListener("click", function (event) {
+
+        if (event && event.isTrusted === false) return;
 
         /*
          * If current value is DD/MM/YYYY,
@@ -1553,12 +1635,12 @@ function initializeDateReceivedPicker() {
 
         } catch (error) {
 
-            console.error(
-                "Calendar open error:",
-                error
+            console.warn(
+                "Calendar picker could not be opened automatically. Please type DD/MM/YYYY or click the calendar again:",
+                error && error.message ? error.message : error
             );
 
-            picker.click();
+            picker.focus();
         }
     });
 
@@ -1669,9 +1751,11 @@ function initializeDateReceivedPicker() {
 function calculateDueDateFromDisplay(dateValue) {
     if (isQuestionGrievanceType(getSelectedGrievanceType())) return;
     if (!dateValue) return;
-    const dueValue = window.FMSRecordPolicy?.addDays?.(dateValue, 21, "dmy");
+    const received = document.getElementById("dateReceived");
+    if (received && received.value) received.value = formatDisplayDate(received.value);
+    const dueValue = calculateCPGRAMSDueDateString(dateValue);
     const dueDate = document.getElementById("dueDate");
-    if (dueDate && dueValue) dueDate.value = dueValue;
+    if (dueDate) dueDate.value = dueValue || "";
     updateWorkflowStagePreview();
 }
 

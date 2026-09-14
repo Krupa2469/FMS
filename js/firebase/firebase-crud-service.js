@@ -1,6 +1,6 @@
 /* =========================================================
    FMS Firebase CRUD Service
-   Version 1.5.0
+   Version 1.5.1
    Purpose: one reliable create/read/update/delete path for all FMS modules
 ========================================================= */
 (function(window){

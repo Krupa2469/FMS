@@ -138,15 +138,31 @@ function setDefaultDates() {
  ******************************************************************************/
 function calculateDueDate() {
 
-    const received = document.getElementById("dateReceived").value;
+    const receivedEl = document.getElementById("dateReceived");
+    const dueEl = document.getElementById("dueDate");
+    const received = receivedEl ? String(receivedEl.value || "").trim() : "";
 
-    if (!received) return;
+    if (!received || !dueEl) return;
 
-    const due = new Date(received);
-    due.setDate(due.getDate() + CPGRAMS_DUE_DAYS);
+    let dueValue = "";
+    if (window.FMSRecordPolicy && typeof window.FMSRecordPolicy.addDays === "function") {
+        dueValue = window.FMSRecordPolicy.addDays(received, CPGRAMS_DUE_DAYS, "dmy");
+    } else {
+        let m = received.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2}|\d{4})$/);
+        let due = null;
+        if (m) {
+            const y = m[3].length === 2 ? Number("20" + m[3]) : Number(m[3]);
+            due = new Date(y, Number(m[2]) - 1, Number(m[1]));
+        } else {
+            due = new Date(received);
+        }
+        if (due && !Number.isNaN(due.getTime())) {
+            due.setDate(due.getDate() + CPGRAMS_DUE_DAYS);
+            dueValue = `${String(due.getDate()).padStart(2,"0")}/${String(due.getMonth()+1).padStart(2,"0")}/${due.getFullYear()}`;
+        }
+    }
 
-    document.getElementById("dueDate").value =
-        due.toISOString().split("T")[0];
+    dueEl.value = dueValue;
 }
 
 /*==========================================================

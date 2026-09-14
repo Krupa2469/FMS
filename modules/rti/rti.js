@@ -332,6 +332,30 @@ async function persistPendingRTIApplication(recordId,existingDocs=[]){
     return [...filtered,meta];
 }
 
+async function findExistingRTIIdForSave(applicationNumber){
+    try{
+        const key = window.FMSCrud?.normalizeKey ? window.FMSCrud.normalizeKey(applicationNumber) : String(applicationNumber||"").trim().toUpperCase().replace(/\s+/g,"");
+        if(!key) return null;
+        const database = window.FMSCrud ? await window.FMSCrud.waitForDb() : rtiDb();
+        if(!database || typeof database.collection!=="function") return null;
+        for(const field of ["applicationNumberNormalized","rtiApplicationNumberNormalized"]){
+            try{
+                const snap=await database.collection(RTI_COLLECTION).where(field,"==",key).limit(1).get();
+                if(!snap.empty) return snap.docs[0].id;
+            }catch(_e){}
+        }
+        const snap=await database.collection(RTI_COLLECTION).get();
+        const found=snap.docs.find(doc=>{
+            const d=doc.data()||{}; if(d.active===false) return false;
+            return [d.applicationNumber,d.rtiApplicationNumber,d.applicationNo,d.applicationNumberNormalized].some(v=>{
+                const rowKey=window.FMSCrud?.normalizeKey ? window.FMSCrud.normalizeKey(v) : String(v||"").trim().toUpperCase().replace(/\s+/g,"");
+                return rowKey && rowKey===key;
+            });
+        });
+        return found?.id || null;
+    }catch(e){ console.warn("RTI existing-record check skipped:",e); return null; }
+}
+
 async function saveRTIRecord(){
     if(!rtiReady()) return false;
 
@@ -347,21 +371,23 @@ async function saveRTIRecord(){
         const database=window.FMSCrud ? await window.FMSCrud.waitForDb() : rtiDb();
         if(!database) throw new Error("Firestore is not available.");
 
-        const duplicateResult = window.FMSCrud
-            ? await window.FMSCrud.duplicateExists(RTI_COLLECTION,["applicationNumber","rtiApplicationNumber"],data.applicationNumber,null)
-            : null;
-        if(duplicateResult && !duplicateResult.success) throw new Error(duplicateResult.message);
-        if(duplicateResult ? duplicateResult.data : false){
-            showRTIMessage("This RTI Application Number already exists. Use Update instead.", "warning");
-            return false;
+        const existingId = await findExistingRTIIdForSave(data.applicationNumber);
+        let createResult;
+        let updatedExisting = false;
+        if(existingId){
+            currentRTIRecordId = existingId;
+            createResult = window.FMSCrud
+                ? await window.FMSCrud.update(RTI_COLLECTION, existingId, {...data})
+                : await database.collection(RTI_COLLECTION).doc(existingId).set({...data,updatedAt:rtiServerTimestamp()}, {merge:true}).then(()=>({success:true,id:existingId,data:{id:existingId}})).catch(e=>({success:false,message:e.message||String(e)}));
+            updatedExisting = true;
+        }else{
+            createResult = window.FMSCrud
+                ? await window.FMSCrud.create(RTI_COLLECTION,{...data,documents:[],attachments:[]})
+                : null;
         }
-
-        const createResult = window.FMSCrud
-            ? await window.FMSCrud.create(RTI_COLLECTION,{...data,documents:[],attachments:[]})
-            : null;
         if(!createResult || !createResult.success) throw new Error(createResult?.message || "Unable to save RTI application.");
 
-        currentRTIRecordId=createResult.id || createResult.data?.id;
+        currentRTIRecordId=currentRTIRecordId || createResult.id || createResult.data?.id;
 
         // Save the RTI Application document selected for parsing only after
         // the Firestore record has been created.
@@ -380,7 +406,7 @@ async function saveRTIRecord(){
         if(fileInput) fileInput.value="";
         renderRTIAttachments();
 
-        showRTIMessage("RTI application saved successfully to Firestore. Form cleared for new entry.", "success");
+        showRTIMessage((updatedExisting ? "Existing RTI application updated successfully" : "RTI application saved successfully") + ". Form cleared for new entry.", "success");
 
         currentRTIRecordId=null;
         rtiDocuments=[];

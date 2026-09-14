@@ -101,13 +101,32 @@ Version:
     ======================================================
     */
 
+    const firestoreDb = firebase.firestore();
+    try {
+        firestoreDb.settings({
+            experimentalForceLongPolling: true,
+            useFetchStreams: false
+        });
+        console.log("Firestore network mode: long polling enabled");
+    } catch (settingsError) {
+        try {
+            firestoreDb.settings({
+                experimentalAutoDetectLongPolling: true,
+                useFetchStreams: false
+            });
+            console.log("Firestore network mode: auto-detect long polling enabled");
+        } catch (secondError) {
+            console.warn("Firestore long-polling settings were already locked or unsupported:", settingsError, secondError);
+        }
+    }
+
     window.fmsFirebase = {
 
         app:
             firebase.app(),
 
         db:
-            firebase.firestore(),
+            firestoreDb,
 
         auth:
             (typeof firebase.auth === "function" ? firebase.auth() : null),

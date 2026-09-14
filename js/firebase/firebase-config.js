@@ -58,6 +58,26 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
 
+// Force long-polling to avoid browser/network QUIC/WebChannel failures
+// such as ERR_QUIC_PROTOCOL_ERROR / TOO_MANY_RTOS during Save/Update/Delete.
+try {
+    db.settings({
+        experimentalForceLongPolling: true,
+        useFetchStreams: false
+    });
+    console.log("Firestore network mode: long polling enabled");
+} catch (settingsError) {
+    try {
+        db.settings({
+            experimentalAutoDetectLongPolling: true,
+            useFetchStreams: false
+        });
+        console.log("Firestore network mode: auto-detect long polling enabled");
+    } catch (secondError) {
+        console.warn("Firestore long-polling settings were already locked or unsupported:", settingsError, secondError);
+    }
+}
+
 // Make Firestore globally available
 window.db = db;
 
