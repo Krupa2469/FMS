@@ -1,13 +1,13 @@
 "use strict";
 /* ============================================================
-   FMS OPERATIONAL RECORD POLICY - v1.3.5
+   FMS OPERATIONAL RECORD POLICY - v1.5.7
    One source of truth for active-record, FY, due dates, workflow
    stage, dashboard cards and register/report status logic.
 ============================================================ */
 (function(window){
   const DAY=86400000;
   const CONFIG={
-    cpgrams:{dateFields:["dateReceived","orgReceivedDate","receivedDate","questionReceivedDate","dateArised","diaryDate","dairyDate","date"],dueFields:["dueDate","atrDueDate"],dueDays:21},
+    cpgrams:{dateFields:["dateReceived","dateArised","receivedDate","questionReceivedDate","orgReceivedDate","diaryDate","dairyDate","date"],dueFields:["dueDate","atrDueDate"],dueDays:21},
     rti:{dateFields:["applicationDate","dateReceived","date"],dueFields:["dueDate"],dueDays:30},
     disha:{dateFields:["dateOfMeeting","meetingDate","proposedDateOfMeeting","date"],dueFields:["pomDueDate"],dueDays:0}
   };
@@ -65,7 +65,26 @@
   function recordDate(module,r){for(const f of fields(module)){const d=parseDate(r?.[f]);if(d)return d;}return null;}
   function currentFY(){const d=new Date(),y=d.getFullYear(),start=d.getMonth()>=3?y:y-1;return `${start}-${String(start+1).slice(-2)}`;}
   function fyOfDate(d){if(!d)return "";const y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1;return `${y}-${String(y+1).slice(-2)}`;}
-  function inFY(module,r,fy=currentFY()){return active(r)&&fyOfDate(recordDate(module,r))===fy;}
+  function normalizeFY(v){
+    const s=cleanText(v);
+    let m=s.match(/^(20\d{2})\s*[-/]\s*(\d{2})$/);
+    if(m)return `${m[1]}-${m[2]}`;
+    m=s.match(/^(20\d{2})\s*[-/]\s*(20\d{2})$/);
+    if(m && Number(m[2])===Number(m[1])+1)return `${m[1]}-${m[2].slice(-2)}`;
+    return "";
+  }
+  function recordFY(module,r){
+    // The FY selected while saving is the authoritative source. This prevents
+    // parsed/legacy secondary dates from moving a valid record into another FY.
+    const explicitKeys=module==="cpgrams"
+      ? ["financialYear","grievanceFinancialYear","fy","financial_year"]
+      : module==="rti"
+        ? ["financialYear","rtiFinancialYear","fy","financial_year"]
+        : ["financialYear","dishaFinancialYear","fy","financial_year"];
+    for(const k of explicitKeys){const fy=normalizeFY(r?.[k]);if(fy)return fy;}
+    return fyOfDate(recordDate(module,r));
+  }
+  function inFY(module,r,fy=currentFY()){return active(r)&&recordFY(module,r)===fy;}
   function filterFY(module,rows,fy=currentFY()){return (rows||[]).filter(r=>inFY(module,r,fy));}
   function dueDate(module,r){for(const k of CONFIG[module]?.dueFields||[]){const d=parseDate(r?.[k]);if(d)return d;}return null;}
   function dueLabel(module,r){
@@ -159,5 +178,5 @@
   }
   function workflow(module,r){if(module==="rti")return rtiWorkflow(r);if(module==="disha")return dishaWorkflow(r);return cpgramsWorkflow(r);}
 
-  window.FMSRecordPolicy={CONFIG,TYPE_MAP,DISPLAY_TYPES,active,cleanText,normalizeKey,normalizeType,displayType,isQuestionType,rowType,first,yes,no,parseDate,formatDMY,formatISO,addDays,diffDays,fields,recordDate,currentFY,fyOfDate,inFY,filterFY,dueDate,dueLabel,status,closed,circulation,overdue,dueToday,withinDue,workflow,cpgramsWorkflow,rtiWorkflow,dishaWorkflow,dishaPomDisplay};
+  window.FMSRecordPolicy={CONFIG,TYPE_MAP,DISPLAY_TYPES,active,cleanText,normalizeKey,normalizeType,displayType,isQuestionType,rowType,first,yes,no,parseDate,formatDMY,formatISO,addDays,diffDays,fields,recordDate,currentFY,fyOfDate,normalizeFY,recordFY,inFY,filterFY,dueDate,dueLabel,status,closed,circulation,overdue,dueToday,withinDue,workflow,cpgramsWorkflow,rtiWorkflow,dishaWorkflow,dishaPomDisplay};
 })(window);

@@ -46,11 +46,11 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 
 </main>
 <footer class="bg-light text-center p-3"><small>© <span id="currentYear"></span> File Management System (FMS) | Version <span id="appVersion"></span></small></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/app.js"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js"></script>
+<script src="js/app.js"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js?v=1.5.7"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase/firebase-bootstrap.js"></script>
-<script src="js/record-consistency.js"></script>
+<script src="js/record-consistency.js?v=1.5.7"></script>
 <script>
 /* ==========================================================
    FMS HOME DASHBOARD - ROBUST FY + FIRESTORE LOADING
@@ -76,7 +76,9 @@ function homeRecordDate(record, fields){
   }
   return null;
 }
-function homeRecordFY(record, fields){
+function homeRecordFY(record, fields, module){
+  const sharedFY=window.FMSRecordPolicy?.recordFY?.(module,record);
+  if(sharedFY) return sharedFY;
   const d=homeRecordDate(record,fields); if(!d) return '';
   return window.FMSFY?.formatFY ? window.FMSFY.formatFY(d.getMonth()>=3?d.getFullYear():d.getFullYear()-1) : '';
 }
@@ -128,9 +130,9 @@ function openHomeCard(category,target,period='current'){
 function updateHomeCards(){
   const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'2026-27');
   const cpAll=homeRows.cpgrams.filter(r=>homeCategoryKey(grievanceTypeOfHome(r))==="cpgrams");
-  const cpFY=cpAll.filter(r=>homeRecordFY(r,homeDateFields.cpgrams)===fy);
-  const rtiAll=homeRows.rti.length, rtiFY=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti)===fy).length;
-  const dishaAll=homeRows.disha.length, dishaFY=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha)===fy).length;
+  const cpFY=cpAll.filter(r=>homeRecordFY(r,homeDateFields.cpgrams,"cpgrams")===fy);
+  const rtiAll=homeRows.rti.length, rtiFY=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti,"rti")===fy).length;
+  const dishaAll=homeRows.disha.length, dishaFY=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha,"disha")===fy).length;
   const icons=['bi-file-earmark-text','bi-megaphone','bi-chat-left-text','bi-person-raised-hand','bi-question-square','bi-question-diamond','bi-bank','bi-star','bi-person-badge','bi-envelope-paper','bi-clipboard-check','bi-shield-exclamation'];
   const colors=['primary','success','info','warning','secondary','dark','dark','danger','primary','success','warning','danger'];
   let html='';

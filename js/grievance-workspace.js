@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.5.6
+   FMS GRIEVANCES WORKSPACE - v1.5.7
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -214,7 +214,14 @@
       }
       allRows=fresh;
       syncContext();
-      console.log("FMS Grievances Workspace refreshed", { total: allRows.length, context: rowsForContext().length, changedId: lastChangedId || "" });
+      console.log("FMS Grievances Workspace refreshed", {
+        total: allRows.length,
+        context: rowsForContext().length,
+        fy: currentFY(),
+        type: currentTypeKey(),
+        fyCountBeforeType: activeRows().filter(r=>P()?.recordFY?.("cpgrams",r)===currentFY()).length,
+        changedId: lastChangedId || ""
+      });
       return true;
     }catch(e){
       console.error("Grievances workspace load error",e);
@@ -248,7 +255,7 @@
         window.addEventListener("beforeunload",()=>channel.close(),{once:true});
       }
     }catch(_e){}
-    console.log("FMS Grievances Workspace v1.5.6 loaded");
+    console.log("FMS Grievances Workspace v1.5.7 loaded");
     if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
