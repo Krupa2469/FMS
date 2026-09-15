@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS OPERATIONAL RECORD POLICY - v1.5.7
+   FMS OPERATIONAL RECORD POLICY - v1.5.8
    One source of truth for active-record, FY, due dates, workflow
    stage, dashboard cards and register/report status logic.
 ============================================================ */
@@ -35,9 +35,17 @@
   function displayType(key){return DISPLAY_TYPES[key]||cleanText(key).replace(/\b\w/g,c=>c.toUpperCase());}
   function isQuestionType(t){const k=normalizeType(t);return k==="laq"||k==="lcq";}
   function rowType(r){
+    // Explicit grievance/reference classification is authoritative.
+    // questionType is used only as a fallback for legacy LAQ/LCQ records.
+    // This prevents an unrelated/stale questionType field on a CPGRAMS record
+    // from moving that record out of the CPGRAMS dashboard/register.
+    for(const f of ["grievanceType","referenceType","type","sourceType","grievanceSource","source"]){
+      const k=normalizeType(r?.[f]);
+      if(k)return k;
+    }
     const qt=cleanText(r?.questionType).toUpperCase();
-    if(qt==="LAQ")return "laq"; if(qt==="LCQ")return "lcq";
-    for(const f of ["grievanceType","referenceType","type","sourceType","grievanceSource","source"]){const k=normalizeType(r?.[f]);if(k)return k;}
+    if(qt==="LAQ")return "laq";
+    if(qt==="LCQ")return "lcq";
     return "cpgrams";
   }
   function first(r,keys){for(const k of keys||[]){const v=r?.[k];if(v!==undefined&&v!==null&&cleanText(v)!=="")return v;}return "";}
