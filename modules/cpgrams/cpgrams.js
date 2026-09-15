@@ -2,7 +2,7 @@
  FILE MANAGEMENT SYSTEM (FMS)
  Module      : CPGRAMS
  File        : cpgrams.js
- Version     : 5.6
+ Version     : 5.9
  Developer   : Lekha Technologies
  Description : CPGRAMS Controller
 ==========================================================*/
@@ -1109,8 +1109,9 @@ async function uploadSelectedCPGRAMSDocuments(recordId) {
 
 /*==========================================================
  SAVE POLICY
- Save always creates a new Firestore document. Existing records are
- changed only through the Update button.
+ - New-entry mode: Save creates a new Firestore document.
+ - Edit mode: Save updates the currently opened Firestore document.
+ The Update button remains available as an explicit update action.
 ==========================================================*/
 
 /*==========================================================
@@ -1125,15 +1126,25 @@ async function saveGrievance(event) {
     if (saveButton) saveButton.disabled = true;
 
     try {
+        // When an existing grievance is open in EDIT mode, users expect Save
+        // to persist the edits to that same record. Do not create a duplicate.
+        if (editMode && currentDocumentId) {
+            console.log("Save clicked in edit mode; updating existing CPGRAMS record:", currentDocumentId);
+            if (saveButton) saveButton.disabled = false;
+            await updateGrievance(event);
+            return true;
+        }
+
         if (!validateForm()) return false;
+        if (!await validateDuplicate()) return false;
 
         showLoading?.();
         showMessage?.("Saving grievance, please wait...", "info");
         let grievance = buildGrievanceObject();
         grievance.createdOn = new Date();
 
-        // SAVE is create-only. Never silently convert Save into Update.
-        // Update of an existing record is handled exclusively by updateGrievance().
+        // In NEW mode Save creates a fresh record. A duplicate grievance number
+        // is rejected above rather than silently becoming an update.
         showMessage?.("Creating new grievance record...", "info");
         const result = await saveGrievanceToDatabase(grievance);
         currentDocumentId = result?.data?.id || result?.id;

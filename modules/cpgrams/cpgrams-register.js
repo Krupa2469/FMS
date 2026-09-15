@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   GRIEVANCES REGISTER CONTROLLER - v1.5.8
+   GRIEVANCES REGISTER CONTROLLER - v1.5.9
    Workflow register with consistent Type + FY + dashboard filters.
 ============================================================ */
 (function(window,document){
@@ -81,7 +81,7 @@
     window.addEventListener("storage",event=>{if(event.key==="fms_cpgrams_record_changed"&&event.newValue)reload();});
     try{if("BroadcastChannel" in window){const channel=new BroadcastChannel("fms-cpgrams-records");channel.addEventListener("message",reload);window.addEventListener("beforeunload",()=>channel.close(),{once:true});}}catch(_e){}
   }
-  function init(){console.log("CPGRAMS Register v1.5.8 loaded");populateTypeDropdown();populateFY();bind();bindExternalRefresh();renderTable();loadRegister();}
+  function init(){console.log("CPGRAMS Register v1.5.9 loaded");populateTypeDropdown();populateFY();bind();bindExternalRefresh();renderTable();loadRegister();}
   window.openCPGRAMSSummaryFilter=f=>{const p=new URLSearchParams();p.set("filter",f||"total");p.set("fullscreen","1");p.set("fy",selectedFY());p.set("grievanceType",selectedType());location.href="cpgrams-register.html?"+p;};
   window.viewRecord=id=>openRecord(id,"view");window.editRecord=id=>openRecord(id,"edit");window.deleteRecordFromGrid=deleteRecord;window.searchRecords=applyFilters;window.applyFinancialYearFilter=applyFilters;window.applyURLFilter=applyFilters;window.refreshRegister=loadRegister;window.goHome=()=>location.href="../../index.html";window.openDashboard=()=>location.href=`cpgrams.html?grievanceType=${encodeURIComponent(selectedType())}`;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
