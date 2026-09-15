@@ -61,12 +61,42 @@ function extractRegistrationNumber(text) {
     Date Received
 ---------------------------------------------------------------*/
 
+function buildStrictParserDate(day, month, year) {
+
+    const d = Number(day);
+    const m = Number(month);
+    const y = Number(year);
+
+    if (!Number.isInteger(d) || !Number.isInteger(m) || !Number.isInteger(y))
+        return null;
+
+    if (d < 1 || d > 31 || m < 1 || m > 12 || y < 1900 || y > 2100)
+        return null;
+
+    const parsed = new Date(y, m - 1, d);
+
+    if (
+        Number.isNaN(parsed.getTime()) ||
+        parsed.getDate() !== d ||
+        parsed.getMonth() !== m - 1 ||
+        parsed.getFullYear() !== y
+    ) return null;
+
+    return parsed;
+}
+
 function extractDateReceived(text) {
 
-    const match =
-        text.match(/\d{2}\/\d{2}\/\d{4}/);
+    const matches = String(text || "").match(/\b\d{1,2}\/\d{1,2}\/\d{4}\b/g) || [];
 
-    return match ? match[0] : "";
+    for (const candidate of matches) {
+        const parts = candidate.split("/");
+        if (buildStrictParserDate(parts[0], parts[1], parts[2])) {
+            return `${String(Number(parts[0])).padStart(2, "0")}/${String(Number(parts[1])).padStart(2, "0")}/${parts[2]}`;
+        }
+    }
+
+    return "";
 
 }
 
@@ -80,15 +110,11 @@ function calculateDueDate(dateReceived) {
     if (!dateReceived)
         return "";
 
-    const parts = dateReceived.split("/");
+    const parts = String(dateReceived).split("/");
+    if (parts.length !== 3) return "";
 
-    const date = new Date(
-
-        Number(parts[2]),
-        Number(parts[1]) - 1,
-        Number(parts[0])
-
-    );
+    const date = buildStrictParserDate(parts[0], parts[1], parts[2]);
+    if (!date) return "";
 
     date.setDate(date.getDate() + 21);
 

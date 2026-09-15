@@ -2,7 +2,7 @@
  FILE MANAGEMENT SYSTEM (FMS)
  Module      : CPGRAMS
  File        : cpgrams.js
- Version     : 5.9
+ Version     : 6.0
  Developer   : Lekha Technologies
  Description : CPGRAMS Controller
 ==========================================================*/
@@ -682,6 +682,22 @@ function isInvalidDateText(value) {
     return !text || /nan/i.test(text) || /^undefined/i.test(text) || /^invalid/i.test(text);
 }
 
+function cpgramsStrictDate(year, month, day) {
+    const y = Number(year);
+    const m = Number(month);
+    const d = Number(day);
+    if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d)) return null;
+    if (y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+    const parsed = new Date(y, m - 1, d);
+    if (
+        Number.isNaN(parsed.getTime()) ||
+        parsed.getFullYear() !== y ||
+        parsed.getMonth() !== m - 1 ||
+        parsed.getDate() !== d
+    ) return null;
+    return parsed;
+}
+
 function parseFMSDate(value) {
     if (!value) return null;
     if (window.FMSRecordPolicy && typeof window.FMSRecordPolicy.parseDate === "function") {
@@ -693,14 +709,10 @@ function parseFMSDate(value) {
     let match = text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2}|\d{4})$/);
     if (match) {
         const year = match[3].length === 2 ? Number("20" + match[3]) : Number(match[3]);
-        const parsed = new Date(year, Number(match[2]) - 1, Number(match[1]));
-        return Number.isNaN(parsed.getTime()) ? null : parsed;
+        return cpgramsStrictDate(year, match[2], match[1]);
     }
-    match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-    if (match) {
-        const parsed = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-        return Number.isNaN(parsed.getTime()) ? null : parsed;
-    }
+    match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s].*)?$/);
+    if (match) return cpgramsStrictDate(match[1], match[2], match[3]);
     const parsed = new Date(text);
     return Number.isNaN(parsed.getTime()) ? null : parsed;
 }

@@ -194,12 +194,21 @@ function convertDate(dateString) {
         day > 31 ||
         month < 1 ||
         month > 12 ||
-        year < 1900
+        year < 1900 ||
+        year > 2100
     ) {
 
         return "";
 
     }
+
+    const strict = new Date(year, month - 1, day);
+    if (
+        Number.isNaN(strict.getTime()) ||
+        strict.getFullYear() !== year ||
+        strict.getMonth() !== month - 1 ||
+        strict.getDate() !== day
+    ) return "";
 
 
     return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;

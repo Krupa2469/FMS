@@ -349,13 +349,23 @@ function validateDueDate() {
     if (received === "" || due === "")
         return true;
 
-    const expected =
-        new Date(received);
+    const parser = window.FMSRecordPolicy?.parseDate ||
+        (typeof parseFMSDate === "function" ? parseFMSDate : null);
 
+    const receivedDate = parser ? parser(received) : null;
+    const actual = parser ? parser(due) : null;
+
+    if (!receivedDate || !actual) {
+        showMessage(
+            "Please enter a valid Date Received. Due Date will be calculated automatically.",
+            "warning"
+        );
+        document.getElementById("dateReceived").focus();
+        return false;
+    }
+
+    const expected = new Date(receivedDate.getTime());
     expected.setDate(expected.getDate() + 21);
-
-    const actual =
-        new Date(due);
 
     if (expected.toDateString() !== actual.toDateString()) {
 

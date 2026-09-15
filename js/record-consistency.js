@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS OPERATIONAL RECORD POLICY - v1.5.9
+   FMS OPERATIONAL RECORD POLICY - v1.6.0
    One source of truth for active-record, FY, due dates, workflow
    stage, dashboard cards and register/report status logic.
 ============================================================ */
@@ -51,6 +51,14 @@
   function first(r,keys){for(const k of keys||[]){const v=r?.[k];if(v!==undefined&&v!==null&&cleanText(v)!=="")return v;}return "";}
   function yes(v){return /^(yes|y|true|1|uploaded|done|completed|closed|disposed|sent|approved|received)$/i.test(cleanText(v));}
   function no(v){return /^(no|n|false|0|not uploaded|pending|awaited|awaiting)$/i.test(cleanText(v));}
+  function strictDate(y,m,d){
+    y=Number(y);m=Number(m);d=Number(d);
+    if(!Number.isInteger(y)||!Number.isInteger(m)||!Number.isInteger(d))return null;
+    if(y<1900||y>2100||m<1||m>12||d<1||d>31)return null;
+    const out=new Date(y,m-1,d);
+    if(Number.isNaN(out.getTime())||out.getFullYear()!==y||out.getMonth()!==m-1||out.getDate()!==d)return null;
+    return out;
+  }
   function parseDate(v){
     if(!v)return null;
     if(v&&typeof v.toDate==="function")v=v.toDate();
@@ -59,9 +67,9 @@
     if(v instanceof Date)return Number.isNaN(v.getTime())?null:new Date(v.getTime());
     const s=cleanText(v);
     let m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2}|\d{4})$/);
-    if(m){const y=m[3].length===2?Number("20"+m[3]):Number(m[3]);return new Date(y,Number(m[2])-1,Number(m[1]));}
-    m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-    if(m)return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]));
+    if(m){const y=m[3].length===2?Number("20"+m[3]):Number(m[3]);return strictDate(y,m[2],m[1]);}
+    m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s].*)?$/);
+    if(m)return strictDate(m[1],m[2],m[3]);
     const d=new Date(s);return Number.isNaN(d.getTime())?null:d;
   }
   function formatDMY(v){const d=parseDate(v);if(!d)return cleanText(v);return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;}

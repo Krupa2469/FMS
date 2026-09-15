@@ -1,12 +1,12 @@
 /******************************************************************
  * CPGRAMS DOCUMENT CAPTURE
- * Version 6.1
+ * Version 6.2
  * Parses uploaded grievance documents and populates the CPGRAMS form.
  ******************************************************************/
 
 "use strict";
 
-console.log("CPGRAMS Document Capture V6.1 loaded");
+console.log("CPGRAMS Document Capture V6.2 loaded");
 
 function cpDocNormalizeText(value) {
     return String(value || "")
@@ -35,23 +35,79 @@ function cpDocCleanField(value) {
         .trim();
 }
 
+function cpDocBuildStrictDate(year, month, day) {
+    const y = Number(year);
+    const m = Number(month);
+    const d = Number(day);
+    if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d)) return null;
+    if (y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+    const parsed = new Date(y, m - 1, d);
+    if (
+        Number.isNaN(parsed.getTime()) ||
+        parsed.getFullYear() !== y ||
+        parsed.getMonth() !== m - 1 ||
+        parsed.getDate() !== d
+    ) return null;
+    return parsed;
+}
+
 function cpDocDateToDMY(value) {
     if (!value) return "";
     const text = String(value).trim();
-    let m = text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
-    if (m) return `${String(m[1]).padStart(2,"0")}/${String(m[2]).padStart(2,"0")}/${m[3]}`;
-    m = text.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/);
-    if (m) return `${String(m[3]).padStart(2,"0")}/${String(m[2]).padStart(2,"0")}/${m[1]}`;
-    return text;
+    let m = text.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+    if (m) {
+        const parsed = cpDocBuildStrictDate(m[3], m[2], m[1]);
+        if (!parsed) return "";
+        return `${String(parsed.getDate()).padStart(2,"0")}/${String(parsed.getMonth()+1).padStart(2,"0")}/${parsed.getFullYear()}`;
+    }
+    m = text.match(/^(\d{4})[\/.-](\d{1,2})[\/.-](\d{1,2})(?:[T\s].*)?$/);
+    if (m) {
+        const parsed = cpDocBuildStrictDate(m[1], m[2], m[3]);
+        if (!parsed) return "";
+        return `${String(parsed.getDate()).padStart(2,"0")}/${String(parsed.getMonth()+1).padStart(2,"0")}/${parsed.getFullYear()}`;
+    }
+    return "";
+}
+
+function cpDocFirstValidDate(text, patterns) {
+    for (const pattern of patterns || []) {
+        const match = String(text || "").match(pattern);
+        if (match && match[1]) {
+            const valid = cpDocDateToDMY(match[1]);
+            if (valid) return valid;
+        }
+    }
+    const candidates = String(text || "").match(/\b(?:\d{1,2}[\/.-]\d{1,2}[\/.-]\d{4}|\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2})\b/g) || [];
+    for (const candidate of candidates) {
+        const valid = cpDocDateToDMY(candidate);
+        if (valid) return valid;
+    }
+    return "";
 }
 
 function cpDocAddDaysDMY(value, days) {
     const dmy = cpDocDateToDMY(value);
     const m = dmy.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
     if (!m) return "";
-    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    const d = cpDocBuildStrictDate(m[3], m[2], m[1]);
+    if (!d) return "";
     d.setDate(d.getDate() + Number(days || 0));
     return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
+}
+
+function cpDocGrievanceYear(value) {
+    const m = String(value || "").match(/(?:^|\/)(20\d{2})(?:\/|$)/);
+    return m ? m[1] : "";
+}
+
+function cpDocFindValidDateForYear(text, year) {
+    if (!year) return "";
+    const candidates = String(text || "").match(/\b(?:\d{1,2}[\/.-]\d{1,2}[\/.-]\d{4}|\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2})\b/g) || [];
+    for (const candidate of candidates) {
+        const valid = cpDocDateToDMY(candidate);
+        if (valid && valid.endsWith(`/${year}`)) return valid;
+    }
+    return "";
 }
 
 function cpDocExtractLocalFields(rawText) {
@@ -65,12 +121,13 @@ function cpDocExtractLocalFields(rawText) {
         /\b([A-Z]{2,8}\/[A-Z]\/[0-9]{4}\/[0-9]{4,})\b/i
     ]).toUpperCase();
 
-    fields.dateReceived = cpDocDateToDMY(cpDocFirst(text, [
-        /(?:Org\s*)?Received\s*Date\s*[:\-]?\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{4}|\d{4}[\/-]\d{1,2}[\/-]\d{1,2})/i,
-        /Date\s*of\s*(?:Receipt|Receiving|Received)\s*[:\-]?\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{4}|\d{4}[\/-]\d{1,2}[\/-]\d{1,2})/i,
-        /Received\s*on\s*[:\-]?\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{4}|\d{4}[\/-]\d{1,2}[\/-]\d{1,2})/i,
-        /\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{4})\b/
-    ]));
+    fields.dateReceived = cpDocFirstValidDate(text, [
+        /(?:Org\s*)?Received\s*Date\s*[:\-]?\s*(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{4}|\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2})/i,
+        /Date\s*of\s*(?:Receipt|Receiving|Received)\s*[:\-]?\s*(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{4}|\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2})/i,
+        /Received\s*on\s*[:\-]?\s*(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{4}|\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2})/i,
+        /Registration\s*Date\s*[:\-]?\s*(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{4}|\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2})/i,
+        /\b(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{4}|\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2})\b/
+    ]);
 
     if (fields.dateReceived) fields.dueDate = cpDocAddDaysDMY(fields.dateReceived, 21);
 
@@ -131,10 +188,19 @@ function cpDocMergeFields(engineFields, rawText) {
     const fallback = cpDocExtractLocalFields(rawText);
     const cleanEngine = { ...(engineFields || {}) };
 
-    // Do not allow parser/OCR artefacts such as NaN-NaN-NaN to overwrite
-    // good locally-calculated values.
+    // Reject parser/OCR date artefacts before they reach the form. JavaScript's
+    // Date constructor silently rolls impossible dates (for example 15/94/2023)
+    // into a future year, which previously produced 2030 on screen.
     ["dateReceived", "receivedDate", "dueDate", "memoDate", "atrDate"].forEach(key => {
-        if (cpDocLooksInvalid(cleanEngine[key])) delete cleanEngine[key];
+        const value = cleanEngine[key];
+        if (!value) return;
+        const normalized = cpDocDateToDMY(value);
+        if (!normalized) {
+            console.warn(`Rejected invalid parsed ${key}:`, value);
+            delete cleanEngine[key];
+        } else {
+            cleanEngine[key] = normalized;
+        }
     });
 
     const fields = { ...(fallback || {}), ...cleanEngine };
@@ -144,10 +210,28 @@ function cpDocMergeFields(engineFields, rawText) {
     if (!fields.grievanceNumber && fields.registrationNumber) fields.grievanceNumber = fields.registrationNumber;
     if (!fields.grievanceDescription && fields.description) fields.grievanceDescription = fields.description;
     if (!fields.dateReceived && fields.receivedDate) fields.dateReceived = fields.receivedDate;
-    if (fields.dateReceived && !cpDocLooksInvalid(fields.dateReceived)) fields.dateReceived = cpDocDateToDMY(fields.dateReceived);
-    if ((!fields.dueDate || cpDocLooksInvalid(fields.dueDate)) && fields.dateReceived) fields.dueDate = cpDocAddDaysDMY(fields.dateReceived, 21);
-    if (fields.dueDate && !cpDocLooksInvalid(fields.dueDate)) fields.dueDate = cpDocDateToDMY(fields.dueDate);
-    else fields.dueDate = "";
+
+    // Prefer the local document capture date because it uses CPGRAMS-specific labels.
+    // The generic engine can otherwise pick another valid-looking date elsewhere in the PDF.
+    fields.dateReceived = cpDocDateToDMY(fallback.dateReceived || fields.dateReceived);
+
+    // Cross-check the received year against the year embedded in the CPGRAMS grievance number.
+    // If OCR produced another year, try to recover a valid date from the document with the
+    // matching grievance year; otherwise leave the date blank for user verification.
+    const grievanceYear = cpDocGrievanceYear(fields.grievanceNumber);
+    if (grievanceYear) {
+        const matchingYearDate = cpDocFindValidDateForYear(rawText, grievanceYear);
+        if (!fields.dateReceived && matchingYearDate) {
+            fields.dateReceived = matchingYearDate;
+        } else if (fields.dateReceived && !fields.dateReceived.endsWith(`/${grievanceYear}`)) {
+            console.warn("Parsed Date Received year does not match grievance number year:", fields.dateReceived, grievanceYear);
+            fields.dateReceived = matchingYearDate || "";
+        }
+    }
+
+    // CPGRAMS due date is always exactly 21 days from the validated received date.
+    // Never trust a parser-generated due date when the source date is invalid.
+    fields.dueDate = fields.dateReceived ? cpDocAddDaysDMY(fields.dateReceived, 21) : "";
     return fields;
 }
 
