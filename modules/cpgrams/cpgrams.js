@@ -2,7 +2,7 @@
  FILE MANAGEMENT SYSTEM (FMS)
  Module      : CPGRAMS
  File        : cpgrams.js
- Version     : 5.5
+ Version     : 5.6
  Developer   : Lekha Technologies
  Description : CPGRAMS Controller
 ==========================================================*/
@@ -23,6 +23,23 @@ let suppressUnsavedNavigationWarning = true;
 function stopFormButtonNavigation(event) {
     if (event && typeof event.preventDefault === "function") event.preventDefault();
     if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+}
+
+function notifyCPGRAMSRecordChanged(id, action) {
+    const detail = { module: "cpgrams", id: id || "", action: action || "change", ts: Date.now() };
+    try {
+        window.dispatchEvent(new CustomEvent("fmsRecordChanged", { detail }));
+    } catch (_e) {}
+    try {
+        localStorage.setItem("fms_cpgrams_record_changed", JSON.stringify(detail));
+    } catch (_e) {}
+    try {
+        if ("BroadcastChannel" in window) {
+            const channel = new BroadcastChannel("fms-cpgrams-records");
+            channel.postMessage(detail);
+            channel.close();
+        }
+    } catch (_e) {}
 }
 
 
@@ -79,7 +96,7 @@ async function initializePage() {
 
         console.clear();
 
-        console.log("GRIEVANCES Version 5.4 Initializing...");
+        console.log("GRIEVANCES Version 5.6 Initializing...");
 
         registerButtonEvents();
 
@@ -1129,12 +1146,20 @@ async function saveGrievance(event) {
         if (!currentDocumentId) throw new Error("Record was saved but Firestore did not return the document ID.");
         console.log("CPGRAMS new record saved:", currentDocumentId);
 
+        // Update the visible dashboard/register immediately from the saved row.
+        // Do not wait for a Firestore re-read before showing the new count.
         window.FMSGrievanceWorkspace?.upsertLocal?.({ id: currentDocumentId, ...grievance, active: true });
+        window.FMSGrievanceWorkspace?.syncContext?.();
+
         const uploadSummary = await uploadSelectedCPGRAMSDocuments(currentDocumentId);
         await loadAttachments(currentDocumentId);
         window.FMSGrievanceWorkspace?.upsertLocal?.({ id: currentDocumentId, ...grievance, active: true, attachments: attachmentList || grievance.attachments || [] });
-        window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true });
-        setTimeout(() => window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true }), 1200);
+        window.FMSGrievanceWorkspace?.syncContext?.();
+
+        // Verify against Firestore, while the workspace preserves the just-saved row
+        // if the network/cache returns an older snapshot for a moment.
+        await window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true, preserveChanged: true });
+        setTimeout(() => window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true, preserveChanged: true }), 1200);
 
         const uploadedText = uploadSummary.uploaded.length
             ? ` ${uploadSummary.uploaded.length} attachment(s) uploaded.`
@@ -1152,7 +1177,7 @@ async function saveGrievance(event) {
         await loadAttachments(null);
         refreshButtons();
 
-        window.dispatchEvent(new CustomEvent("fmsRecordChanged", { detail: { module: "cpgrams", id: savedDocumentId, action: "save" } }));
+        notifyCPGRAMSRecordChanged(savedDocumentId, "save");
         window.FMSGrievanceWorkspace?.syncContext?.();
         showMessage(
             `Grievance saved successfully.${uploadedText}${failedText}`,
@@ -1220,7 +1245,7 @@ async function updateGrievance(event) {
             ? ` ${uploadSummary.failed.length} attachment(s) could not be uploaded. ${uploadSummary.failed.join("; ")}`
             : "";
 
-        window.dispatchEvent(new CustomEvent("fmsRecordChanged", { detail: { module: "cpgrams", id: currentDocumentId, action: "update" } }));
+        notifyCPGRAMSRecordChanged(currentDocumentId, "update");
         showMessage(
             `Grievance updated successfully.${uploadedText}${failedText}`,
             uploadSummary.failed.length ? "warning" : "success"
@@ -1275,8 +1300,10 @@ async function deleteGrievance(event) {
 
         }
 
-        window.FMSGrievanceWorkspace?.removeLocal?.(currentDocumentId);
+        const deletedDocumentId = currentDocumentId;
+        window.FMSGrievanceWorkspace?.removeLocal?.(deletedDocumentId);
         window.FMSGrievanceWorkspace?.refresh?.({ forceServer: true });
+        notifyCPGRAMSRecordChanged(deletedDocumentId, "delete");
 
         showMessage(
             "success",

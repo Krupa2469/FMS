@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.5.5
+   FMS GRIEVANCES WORKSPACE - v1.5.6
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -214,6 +214,7 @@
       }
       allRows=fresh;
       syncContext();
+      console.log("FMS Grievances Workspace refreshed", { total: allRows.length, context: rowsForContext().length, changedId: lastChangedId || "" });
       return true;
     }catch(e){
       console.error("Grievances workspace load error",e);
@@ -233,6 +234,21 @@
     $("btnOpenFullGrievanceRegister")?.addEventListener("click",()=>{location.href=fullRegisterUrl("total");});
     showContext(!!currentType());
     if(typeof window.updateGrievanceFormLayout==="function") window.updateGrievanceFormLayout();
+    const refreshAfterExternalChange=()=>refresh({forceServer:true,preserveChanged:true});
+    window.addEventListener("fmsRecordChanged",event=>{
+      if(!event?.detail?.module || event.detail.module==="cpgrams") refreshAfterExternalChange();
+    });
+    window.addEventListener("storage",event=>{
+      if(event.key==="fms_cpgrams_record_changed" && event.newValue) refreshAfterExternalChange();
+    });
+    try{
+      if("BroadcastChannel" in window){
+        const channel=new BroadcastChannel("fms-cpgrams-records");
+        channel.addEventListener("message",refreshAfterExternalChange);
+        window.addEventListener("beforeunload",()=>channel.close(),{once:true});
+      }
+    }catch(_e){}
+    console.log("FMS Grievances Workspace v1.5.6 loaded");
     if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
