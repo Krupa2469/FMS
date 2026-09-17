@@ -96,7 +96,7 @@ async function initializePage() {
 
         console.clear();
 
-        console.log("GRIEVANCES Version 5.6 Initializing...");
+        console.log("GRIEVANCES Version 1.6.2 Initializing...");
 
         registerButtonEvents();
 
@@ -331,10 +331,6 @@ async function loadMasterData() {
 
         loadOfficers(
             "officeLetterAddressedTo"
-        );
-
-        await loadSections(
-            "section"
         );
 
         await loadSections(
@@ -630,6 +626,43 @@ function populateForm(grievance) {
 
         });
 
+    // Office Processing v1.6.1 compatibility:
+    // retain values from older field names without deleting the legacy fields in Firestore.
+    const officeProcessingAliases = {
+        fileNumber: ["fileNumber", "officeFileNo", "fileNo"],
+        dateArised: ["dateArised", "officeDateArised", "putUpDate"],
+        officeStatus: ["officeStatus", "statusOfFile"],
+        memoNumber: ["memoNumber", "officeMemoNumber", "communicationNo"],
+        memoDate: ["memoDate", "officeMemoDate", "officeCommunicationDate", "communicationDate"]
+    };
+
+    Object.entries(officeProcessingAliases).forEach(([targetId, sourceKeys]) => {
+        const target = getControl(targetId);
+        if (!target || target.value) return;
+        for (const sourceKey of sourceKeys) {
+            const value = grievance[sourceKey];
+            if (value === undefined || value === null || String(value).trim() === "") continue;
+            const text = String(value).trim();
+            if (targetId === "officeStatus") {
+                const allowed = ["Arised", "Under Circulation", "Lie Over", "Closed"];
+                if (allowed.includes(text)) target.value = text;
+                else if (/disposed|closed/i.test(text)) target.value = "Closed";
+                // Unknown legacy statuses remain unselected and are preserved during update.
+            } else {
+                target.value = text;
+            }
+            break;
+        }
+    });
+
+    const finalStatusControl = getControl("finalStatus");
+    if (finalStatusControl) {
+        const explicit = String(grievance.finalStatus || "").trim();
+        const legacyDisposed = !explicit && !!window.FMSRecordPolicy?.closed?.("cpgrams", grievance);
+        if (/disposed|closed|completed/i.test(explicit) || legacyDisposed) finalStatusControl.value = "Disposed";
+        else finalStatusControl.value = "Pending";
+    }
+
     if (isQuestionGrievanceType(grievance.grievanceType) && !getControlValue("questionType")) {
         setControlValue("questionType", String(grievance.grievanceType || "").toUpperCase());
     }
@@ -869,6 +902,9 @@ function buildGrievanceObject() {
 
     grievance.grievanceType = getSelectedGrievanceType() || "CPGRAMS";
     grievance.financialYear = getControlValue("grievanceFinancialYear") || window.FMSRecordPolicy?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";
+    if (editMode && !grievance.officeStatus && currentGrievance?.officeStatus) {
+        grievance.officeStatus = currentGrievance.officeStatus;
+    }
     const grievanceType = String(grievance.grievanceType || "").trim();
     const questionMode = isQuestionGrievanceType(grievanceType);
 
@@ -898,20 +934,19 @@ function buildGrievanceObject() {
         grievance.priorityClassification = "";
     } else if (isCPGRAMSType(grievanceType)) {
         const atrStatusText = String(grievance.atrStatus || "").trim().toLowerCase();
+        const explicitFinalStatus = String(grievance.finalStatus || "Pending").trim();
         if (atrStatusText === "approved") {
             grievance.approvalStatus = "Approved";
         }
         if (atrStatusText === "sent to complainant") {
             grievance.finalReplySentToComplainant = "Yes";
-            grievance.currentStatus = "ATR sent to complainant";
         }
         if (atrStatusText === "uploaded in cpgrams portal") {
             grievance.finalReplySentToComplainant = "Yes";
             grievance.uploadedInCPGRAMSPortal = "Yes";
-            grievance.currentStatus = "Disposed";
-            grievance.officeStatus = "Disposed / Closed";
-            grievance.finalStatus = "Disposed";
         }
+        grievance.finalStatus = /^disposed$/i.test(explicitFinalStatus) ? "Disposed" : "Pending";
+        grievance.currentStatus = grievance.finalStatus === "Disposed" ? "Disposed" : "Pending";
         grievance.natureOfGrievance = "";
         grievance.priorityClassification = "";
         grievance.attachmentCount = "";
@@ -943,7 +978,7 @@ function buildGrievanceObject() {
     grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || grievance.registrationNumber || "")
         .trim().toUpperCase().replace(/\s+/g, "");
     grievance.updatedOn = new Date();
-    grievance.version = "5.7";
+    grievance.version = "1.6.2";
     return grievance;
 }
 /*==========================================================
@@ -1081,8 +1116,7 @@ async function uploadSelectedCPGRAMSDocuments(recordId) {
 
     const fileInputs = [
         { id: "fileDocument", role: "Grievance Document" },
-        { id: "memoDocument", role: "Memo / Letter" },
-        { id: "atrDocument", role: "ATR / Reply" },
+        { id: "memoDocument", role: "UO Note/Memo/Letter" },
         { id: "fileAttachment", role: "Attachment" }
     ];
 

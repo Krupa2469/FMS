@@ -254,6 +254,9 @@ DISHA. Section names are maintained in Firestore collection
 
                     if (targetElement.tagName === "SELECT" && value &&
                         ![...targetElement.options].some(option => option.value === value)) {
+                        if (targetElement.dataset.fixedOptions === "true") {
+                            break;
+                        }
                         targetElement.insertAdjacentHTML(
                             "beforeend",
                             `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`

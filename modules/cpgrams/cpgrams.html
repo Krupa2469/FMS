@@ -41,7 +41,7 @@
 <div class="col-md-2 text-end">
 <span class="badge bg-light text-dark fs-6">
 
-                    Version 1.6.0
+                    Version 1.6.2
 
                 </span>
 </div>
@@ -123,7 +123,7 @@
 ============================================================ -->
 <div class="card shadow-sm d-none" id="standardSection1Card">
 <div class="card-header bg-primary text-white">
-<h5 class="mb-0">SECTION 1 : GRIEVANCE DETAILS</h5>
+<h5 class="mb-0">GRIEVANCE DETAILS</h5>
 </div>
 <div class="card-body">
 <div class="row g-3">
@@ -284,12 +284,12 @@
 </div>
 </div>
 <!-- ===========================================================
-     SECTION 2 : COMPLAINANT DETAILS
+     COMPLAINANT DETAILS
 ============================================================ -->
 <div class="card mt-4 d-none" id="sharedSection2Card">
 <div class="card-header bg-success text-white">
 <h5 class="mb-0">
-            SECTION 2 : COMPLAINANT DETAILS
+            COMPLAINANT DETAILS
         </h5>
 </div>
 <div class="card-body">
@@ -376,42 +376,26 @@
 ============================================================ -->
 <div class="card shadow-sm mt-4 d-none" id="sharedSection3Card">
 <div class="card-header bg-info text-white">
-<h5 class="mb-0">SECTION 3 : WORKFLOW PROCESSING</h5>
+<h5 class="mb-0">OFFICE PROCESSING</h5>
 </div>
 <div class="card-body">
-
 <div class="row g-3">
-<div class="col-md-3"><label class="form-label" for="fileNumber">File No.</label><input class="form-control" id="fileNumber" maxlength="80" type="text"/></div>
-
-
-<div class="col-md-3"><label class="form-label" for="putUpDate">Put-up Date</label><input class="form-control" id="putUpDate" type="date"/></div>
-</div>
-<div class="row g-3 mt-2 other-grievance-workflow-field prajavani-workflow-field">
-<div class="col-md-4"><label class="form-label" for="receivedFrom">Received From</label><input class="form-control" id="receivedFrom" maxlength="150" placeholder="Government / JC, Admin / Referring authority" type="text"/></div>
-<div class="col-md-4"><label class="form-label" for="sentToSectionDate">Sent to Section Date</label><input class="form-control" id="sentToSectionDate" type="date"/></div>
-<div class="col-md-4"><label class="form-label" for="section">Concerned Section</label><select class="form-select" id="section"><option value="">Select Section</option></select></div>
+<div class="col-md-4"><label class="form-label" for="fileNumber">File No.</label><input class="form-control" id="fileNumber" maxlength="80" type="text"/></div>
+<div class="col-md-4"><label class="form-label" for="dateArised">Date Arised</label><input class="form-control" id="dateArised" type="date"/></div>
+<div class="col-md-4"><label class="form-label" for="officeStatus">File Status</label><select class="form-select" data-fixed-options="true" id="officeStatus"><option value="Arised">Arised</option><option value="Under Circulation">Under Circulation</option><option value="Lie Over">Lie Over</option><option value="Closed">Closed</option></select></div>
 </div>
 <hr class="my-4"/>
-
-<h6 class="fw-bold text-primary other-grievance-workflow-field">Memo / Letter / UO Note to Concerned Section or Officer</h6>
 <div class="row g-3">
 <div class="col-md-3"><label class="form-label" for="officeCommunicationType">Communication Type</label><select class="form-select" id="officeCommunicationType"><option value="">-- Select Type --</option><option>Memo</option><option>Letter</option><option>D.O. Letter</option><option>UO Note</option></select></div>
-
-<div class="col-md-6"><label class="form-label" for="officeLetterAddressedTo">Addressed To</label><select class="form-select" id="officeLetterAddressedTo"><option value="">-- Select Officer --</option></select></div>
-<div class="col-md-3"><label class="form-label" for="memoNumber">Memo / Letter No.</label><input class="form-control" id="memoNumber" maxlength="100" type="text"/></div>
-<div class="col-md-3"><label class="form-label" for="memoDate">Memo / Letter Date</label><input class="form-control" id="memoDate" type="date"/></div>
-<div class="col-md-6"><label class="form-label" for="memoDocument">Upload Memo / Letter</label><input accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="form-control" id="memoDocument" type="file"/></div>
+<div class="col-md-5"><label class="form-label" for="officeLetterAddressedTo">Addressed To</label><select class="form-select" id="officeLetterAddressedTo"><option value="">-- Select Officer --</option></select></div>
+<div class="col-md-4"><label class="form-label" for="memoNumber">UO Note/Memo/Letter No.</label><input class="form-control" id="memoNumber" maxlength="100" type="text"/></div>
+<div class="col-md-4"><label class="form-label" for="memoDate">UO Note/Memo/Letter Date</label><input class="form-control" id="memoDate" type="date"/></div>
+<div class="col-md-8"><label class="form-label" for="memoDocument">Upload UO Note/Memo/Letter</label><input accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="form-control" id="memoDocument" type="file"/></div>
 </div>
 <hr class="my-4"/>
-<h6 class="fw-bold text-success cpgrams-workflow-field">ATR Details</h6>
-<h6 class="fw-bold text-success other-grievance-workflow-field">Reply / ATR Details</h6>
 <div class="row g-3">
-<div class="col-md-3"><label class="form-label" for="atrStatus">ATR / Reply Status</label><select class="form-select" id="atrStatus"><option value="Awaited">Awaited</option><option value="Received">Received</option><option value="Approved">Approved</option><option value="Sent to Complainant">Sent to Complainant</option><option value="Uploaded in CPGRAMS Portal">Uploaded in CPGRAMS Portal</option></select></div>
-<div class="col-md-3"><label class="form-label" for="atrDate">ATR / Reply Received Date</label><input class="form-control" id="atrDate" type="date"/></div>
-<div class="col-md-3"><label class="form-label" for="atrReceivedFrom">ATR / Reply Received From</label><input class="form-control" id="atrReceivedFrom" maxlength="200" type="text"/></div>
-<div class="col-md-3"><label class="form-label" for="atrDueDate">ATR Due Date</label><input class="form-control" id="atrDueDate" type="date"/></div>
-<div class="col-md-8"><label class="form-label" for="atrSummary">ATR / Reply Summary</label><textarea class="form-control" id="atrSummary" maxlength="3000" rows="3"></textarea></div>
-<div class="col-md-4"><label class="form-label" for="atrDocument">Upload ATR / Reply</label><input accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="form-control" id="atrDocument" type="file"/></div>
+<div class="col-md-6"><label class="form-label" for="atrStatus">ATR Status</label><select class="form-select" id="atrStatus"><option value="Awaited">Awaited</option><option value="Received">Received</option><option value="Approved">Approved</option><option value="Sent to Complainant">Sent to Complainant</option><option value="Uploaded in CPGRAMS Portal">Uploaded in CPGRAMS Portal</option></select></div>
+<div class="col-md-6"><label class="form-label" for="finalStatus">Grievance Final Status</label><select class="form-select" data-fixed-options="true" id="finalStatus"><option value="Pending">Pending</option><option value="Disposed">Disposed</option></select></div>
 </div>
 </div>
 </div>
@@ -484,7 +468,7 @@ ATTACHMENTS
 
                     File Management System |
                     GRIEVANCES Module |
-                    Version 1.6.0
+                    Version 1.6.2
 
                 </small>
 </div>
@@ -566,9 +550,9 @@ ATTACHMENTS
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-<script src="../../js/firebase/firebase-config.js?v=1.6.0"></script>
-<script src="../../js/firebase/firebase-service.js?v=1.6.0"></script>
-<script src="../../js/firebase/firebase-crud-service.js?v=1.6.0"></script>
+<script src="../../js/firebase/firebase-config.js?v=1.6.2"></script>
+<script src="../../js/firebase/firebase-service.js?v=1.6.2"></script>
+<script src="../../js/firebase/firebase-crud-service.js?v=1.6.2"></script>
 <!-- Common Utilities -->
 <script src="../../js/common/utils.js"></script>
 <!-- Master Data -->
@@ -580,9 +564,9 @@ ATTACHMENTS
 <script src="../../js/section-master.js"></script>
 <script src="../../js/priority-master.js"></script>
 <!-- CPGRAMS -->
-<script src="cpgrams-validator.js?v=1.6.0"></script>
-<script src="../../js/repository/base-repository.js?v=1.6.0"></script>
-<script src="../../js/repository/cpgrams-repository.js?v=1.6.0"></script>
+<script src="cpgrams-validator.js?v=1.6.2"></script>
+<script src="../../js/repository/base-repository.js?v=1.6.2"></script>
+<script src="../../js/repository/cpgrams-repository.js?v=1.6.2"></script>
 <script src="../../js/repository/attachment-repository.js"></script>
 <script src="../../js/services/storage-service.js"></script>
 <script src="attachment.js"></script>
@@ -595,7 +579,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="../../js/services/classification-engine.js"></script>
 <script src="../../js/services/parser/layout-detector.js"></script>
-<script src="../../js/services/parser/parser-utils.js?v=1.6.0"></script>
+<script src="../../js/services/parser/parser-utils.js?v=1.6.2"></script>
 <script src="../../js/services/parser/name-extractor.js"></script>
 <script src="../../js/services/parser/address-extractor.js"></script>
 <script src="../../js/services/parser/description-extractor.js"></script>
@@ -606,25 +590,25 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <script src="../../js/services/parser/subject-engine.js"></script>
 <script src="../../js/services/parser/parser-core.js"></script>
 <script src="../../js/services/form-filler.js"></script>
-<script src="../../js/services/document-parser.js?v=1.6.0"></script>
+<script src="../../js/services/document-parser.js?v=1.6.2"></script>
 <script src="../../js/services/parser/module-parsers.js"></script>
 <script src="../../js/document/document-engine.js"></script>
 <script src="../../js/services/fms-parser-service.js"></script>
 <script src="../../js/services/ocr-engine.js"></script>
-<script src="document-capture.js?v=1.6.0"></script>
+<script src="document-capture.js?v=1.6.2"></script>
 <script src="../../js/services/attachment-service.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
 <script src="../../js/services/whatsapp-service.js"></script>
-<script src="cpgrams.js?v=1.6.0"></script>
-<script src="../../js/record-consistency.js?v=1.6.0"></script>
-<script src="../../js/grievance-workspace.js?v=1.6.0"></script>
+<script src="cpgrams.js?v=1.6.2"></script>
+<script src="../../js/record-consistency.js?v=1.6.2"></script>
+<script src="../../js/grievance-workspace.js?v=1.6.2"></script>
 <!-- =====================================================
      FMS FIREBASE STARTUP
 ====================================================== -->
-<script src="../../js/firebase/firebase-loader.js?v=1.6.0"></script>
-<script src="../../js/firebase/firebase-ready.js?v=1.6.0"></script>
-<script src="../../js/services/office-processing-service.js"></script>
-<script src="../../js/master-option-loader.js"></script>
+<script src="../../js/firebase/firebase-loader.js?v=1.6.2"></script>
+<script src="../../js/firebase/firebase-ready.js?v=1.6.2"></script>
+<script src="../../js/services/office-processing-service.js?v=1.6.2"></script>
+<script src="../../js/master-option-loader.js?v=1.6.2"></script>
 <script src="../../js/module-navigation.js"></script>
 </body>
 </html>

@@ -118,7 +118,7 @@
       case "dueDate":return P()?.formatDMY?.(fv(r,"dueDate"))||"";
       case "daysStatus":return wf.dueLabel||"";
       case "memoStatus":return wf.memoIssued?"Issued":"Not issued";
-      case "atrStatusView":return wf.atrReceived?"Received":"Awaited";
+      case "atrStatusView":return fv(r,"atrStatus")||wf.atrStatus||(wf.atrReceived?"Received":"Awaited");
       case "approvalStatusView":return wf.approvalDone?"Approved / Put up":"Pending";
       case "portalUploadStatus":return wf.portalUploaded?"Uploaded":"Pending";
       case "workflowStage":return wf.stage||"";
@@ -133,6 +133,9 @@
       }
       default:{
         let v=fv(r,key);
+        if(!v&&key==="district")v=fv(r,"districtManual");
+        if(!v&&key==="mandal")v=fv(r,"mandalManual");
+        if(!v&&key==="village")v=fv(r,"villageManual");
         if((key||"").toLowerCase().includes("date"))v=P()?.formatDMY?.(v)||v;
         return v;
       }
@@ -141,16 +144,17 @@
   function columns(){
     const key=currentTypeKey();
     if(key==="laq"||key==="lcq")return [["questionNo",`${currentType().toUpperCase()} No.`],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer furnished by"],["answerFurnishedTo","Answer furnished to"],["answerFurnishedDate","Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"],["attachments","Upload Document"]];
-    if(key==="cpgrams")return [["registrationNo","Registration No."],["dateReceived","Date Received"],["dueDate","Due Date"],["daysStatus","Days Left / Overdue Days"],["complainantName","Complainant Name"],["district","District"],["subject","Subject"],["memoStatus","Memo / Letter Status"],["atrStatusView","ATR Status"],["finalStatusView","Final Status"]];
+    if(key==="cpgrams")return [["registrationNo","Grievance No."],["dateReceived","Date Received"],["complainantName","Complaint Name"],["subject","Subject"],["district","District"],["mandal","Mandal"],["village","Village"],["atrStatusView","ATR Status"],["finalStatusView","Grievance Status"]];
     if(key==="prajavani")return [["registrationNo","Prajavani No."],["dateReceived","Received Date"],["receivedFrom","Received From"],["section","Concerned Section"],["sentToSectionDate","Sent to Section Date"],["subject","Subject"],["atrStatusView","Reply Status"],["atrDate","Reply Received Date"],["replyGovtStatus","Reply Sent to JC Admin"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
     return [["registrationNo","Reference / Memo No."],["dateReceived","Date Received"],["dueDate","Due Date"],["daysStatus","Days Left / Overdue Days"],["receivedFrom","From Whom Received"],["section","Concerned Section"],["subject","Subject"],["memoStatus","Communication Status"],["atrStatusView","Reply / ATR Status"],["approvalStatusView","Approval Status"],["replyGovtStatus","Reply to Government Status"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
   }
   function renderRegister(rows){
     const head=$("grievanceInlineRegisterHead"), body=$("grievanceInlineRegisterBody"), title=$("grievanceInlineRegisterTitle"), count=$("grievanceInlineRecordCount");if(!head||!body)return;
     const cols=columns();title.textContent=`${currentType()} Register`;count.textContent=`Total Records : ${rows.length}`;
-    head.innerHTML=`<tr><th>Sl.No.</th>${cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")}<th>Action</th></tr>`;
-    if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+2}" class="text-center text-muted py-4">No ${esc(currentType())} records available for Financial Year ${esc(currentFY())}.</td></tr>`;return;}
-    body.innerHTML=rows.map((r,i)=>`<tr class="${r.id===lastChangedId?'table-success':''}"><td>${i+1}</td>${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td></tr>`).join("");
+    const includeSerial=currentTypeKey()!=="cpgrams";
+    head.innerHTML=`<tr>${includeSerial?"<th>Sl.No.</th>":""}${cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")}<th>Action</th></tr>`;
+    if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+(includeSerial?2:1)}" class="text-center text-muted py-4">No ${esc(currentType())} records available for Financial Year ${esc(currentFY())}.</td></tr>`;return;}
+    body.innerHTML=rows.map((r,i)=>`<tr class="${r.id===lastChangedId?'table-success':''}">${includeSerial?`<td>${i+1}</td>`:""}${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td></tr>`).join("");
     body.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.view,"view")));
     body.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.edit,"edit")));
     body.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>deleteRecord(b.dataset.delete)));

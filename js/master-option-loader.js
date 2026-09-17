@@ -38,7 +38,7 @@
   async function load(){
     if(running)return;const db=getDb();if(!db)return;running=true;
     try{
-      const targets=Object.entries(MAP).filter(([id])=>document.getElementById(id));
+      const targets=Object.entries(MAP).filter(([id])=>{const el=document.getElementById(id);return el&&el.dataset.fixedOptions!=="true";});
       const collections=[...new Set(targets.map(([,c])=>c))];
       const cache={}; await Promise.all(collections.map(async c=>cache[c]=await loadCollection(db,c)));
       targets.forEach(([id,c])=>addOptions(document.getElementById(id),cache[c]||[]));

@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS OPERATIONAL RECORD POLICY - v1.6.0
+   FMS OPERATIONAL RECORD POLICY - v1.6.1
    One source of truth for active-record, FY, due dates, workflow
    stage, dashboard cards and register/report status logic.
 ============================================================ */
@@ -120,6 +120,11 @@
   function govtReplyDone(r){return yes(first(r,["replySentToGovernment","replySentToGovernmentMemo","replySentToReferringAuthority","replySentToJCAdmin"]));}
   function rtiReplyDone(r){return yes(first(r,["replySentToApplicant","rtiReplySent","replySent"]));}
   function closed(module,r){
+    if(module==="cpgrams"){
+      const explicitFinal=cleanText(r?.finalStatus).toLowerCase();
+      if(/^pending$/.test(explicitFinal))return false;
+      if(/disposed|closed|completed/.test(explicitFinal))return true;
+    }
     const s=status(module,r);
     if(module==="disha")return /held|completed|closed/.test(s) || yes(first(r,["pomUploaded","pomStatus"]));
     if(module==="rti")return rtiReplyDone(r)||/closed|disposed|completed|reply sent|reply furnished|final reply|replied/.test(s);
