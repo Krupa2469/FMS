@@ -373,9 +373,10 @@ function updateGrievanceFormLayout() {
     const normalized = type.toUpperCase();
     const hasType = Boolean(normalized);
     const questionMode = hasType && isQuestionGrievanceType(normalized);
-    const cpgramsMode = isCPGRAMSType(normalized);
-    const prajavaniMode = normalized === "PRAJAVANI";
-    const otherMode = hasType && !questionMode && !cpgramsMode;
+    const standardMode = hasType && !questionMode;
+    const cpgramsMode = standardMode;
+    const prajavaniMode = false;
+    const otherMode = false;
     const heading = getControl("grievanceTypeHeading");
     if (heading) heading.textContent = hasType ? type : "SELECT GRIEVANCE TYPE";
     const dataEntryTitle = getControl("grievanceDataEntryTitle");
@@ -389,10 +390,10 @@ function updateGrievanceFormLayout() {
     getControl("sharedSection4Card")?.classList.toggle("d-none", !hasType);
 
     document.querySelectorAll(".grievances-only-field").forEach(function (el) {
-        el.classList.toggle("d-none", !cpgramsMode);
+        el.classList.toggle("d-none", !standardMode);
     });
     document.querySelectorAll(".cpgrams-workflow-field").forEach(function (el) {
-        el.classList.toggle("d-none", !cpgramsMode);
+        el.classList.toggle("d-none", !standardMode);
     });
     document.querySelectorAll(".other-grievance-workflow-field").forEach(function (el) {
         el.classList.toggle("d-none", !otherMode);
@@ -405,11 +406,11 @@ function updateGrievanceFormLayout() {
     const grievanceNumberField = document.querySelector(".prajavani-number-field");
     if (grievanceNumberField) grievanceNumberField.classList.toggle("d-none", !(cpgramsMode || prajavaniMode));
     const numberLabel = getControl("grievanceNumberLabel");
-    if (numberLabel) numberLabel.innerHTML = prajavaniMode ? 'Prajavani No. <span class="text-danger">*</span>' : 'Grievance Number <span class="text-danger">*</span>';
+    if (numberLabel) numberLabel.innerHTML = 'Grievance Number <span class="text-danger">*</span>';
     const dateLabel = getControl("dateReceivedLabel");
-    if (dateLabel) dateLabel.innerHTML = prajavaniMode ? 'Date <span class="text-danger">*</span>' : 'Date Received <span class="text-danger">*</span>';
-    const memoNoLabel = getControl("memoNumberLabel"); if (memoNoLabel) memoNoLabel.textContent = prajavaniMode ? "Communication No." : "UO Note/Memo/Letter No.";
-    const memoDateLabel = getControl("memoDateLabel"); if (memoDateLabel) memoDateLabel.textContent = prajavaniMode ? "Communication Date" : "UO Note/Memo/Letter Date";
+    if (dateLabel) dateLabel.innerHTML = 'Date Received <span class="text-danger">*</span>';
+    const memoNoLabel = getControl("memoNumberLabel"); if (memoNoLabel) memoNoLabel.textContent = "UO Note/Memo/Letter No.";
+    const memoDateLabel = getControl("memoDateLabel"); if (memoDateLabel) memoDateLabel.textContent = "UO Note/Memo/Letter Date";
     if (prajavaniMode && !getControlValue("communicationStatus")) setControlValue("communicationStatus", "Awaiting Approval");
 
     const due = getControl("dueDate");
@@ -924,10 +925,7 @@ function buildGrievanceObject() {
     if (grievance.dateReceived) grievance.dateReceived = formatDisplayDate(grievance.dateReceived);
     if (isInvalidDateText(grievance.dueDate)) grievance.dueDate = "";
     if (!questionMode && grievance.dateReceived) {
-        const isPrajavani = String(grievanceType).toUpperCase() === "PRAJAVANI";
-        grievance.dueDate = isPrajavani
-            ? (window.FMSRecordPolicy?.addDays?.(grievance.dateReceived, window.FMS_MASTER_DATA?.PRAJAVANI_DUE_DAYS || 30, "dmy") || grievance.dueDate || "")
-            : (calculateCPGRAMSDueDateString(grievance.dateReceived) || grievance.dueDate || "");
+        grievance.dueDate = calculateCPGRAMSDueDateString(grievance.dateReceived) || grievance.dueDate || "";
     }
 
     if (questionMode) {
@@ -948,7 +946,7 @@ function buildGrievanceObject() {
         grievance.category = "";
         grievance.natureOfGrievance = "";
         grievance.priorityClassification = "";
-    } else if (isCPGRAMSType(grievanceType)) {
+    } else {
         const atrStatusText = String(grievance.atrStatus || "").trim().toLowerCase();
         const explicitFinalStatus = String(grievance.finalStatus || "Pending").trim();
         if (atrStatusText === "approved") {
@@ -966,21 +964,6 @@ function buildGrievanceObject() {
         grievance.natureOfGrievance = "";
         grievance.priorityClassification = "";
         grievance.attachmentCount = "";
-    } else if (String(grievanceType).toUpperCase() === "PRAJAVANI") {
-        grievance.prajavaniNo = grievance.grievanceNumber || grievance.prajavaniNo || "";
-        grievance.registrationNumber = grievance.prajavaniNo;
-        grievance.communicationNo = grievance.memoNumber || "";
-        grievance.communicationDate = grievance.memoDate || "";
-        grievance.addressedTo = grievance.officeLetterAddressedTo || "";
-        grievance.finalStatus = /^disposed$/i.test(String(grievance.finalStatus || "Pending")) ? "Disposed" : "Pending";
-        grievance.currentStatus = grievance.finalStatus;
-        grievance.category = ""; grievance.natureOfGrievance = ""; grievance.priorityClassification = "";
-    } else if (!isCPGRAMSType(grievanceType)) {
-        grievance.grievanceNumber = grievance.referenceMemoNo || grievance.grievanceNumber || "";
-        grievance.category = "";
-        grievance.natureOfGrievance = "";
-        grievance.priorityClassification = "";
-        grievance.attachmentCount = "";
     }
 
     grievance.district = getHybridValue("district", "districtManual");
@@ -990,8 +973,7 @@ function buildGrievanceObject() {
     if (questionMode) grievance.section = grievance.questionConcernedSection || "";
 
     if (!questionMode && grievance.dateReceived && !grievance.dueDate) {
-        const dueDays = String(grievanceType).toUpperCase() === "PRAJAVANI" ? (window.FMS_MASTER_DATA?.PRAJAVANI_DUE_DAYS || 30) : 21;
-        grievance.dueDate = window.FMSRecordPolicy?.addDays?.(grievance.dateReceived, dueDays, "dmy") || grievance.dueDate;
+        grievance.dueDate = window.FMSRecordPolicy?.addDays?.(grievance.dateReceived, 21, "dmy") || grievance.dueDate;
     }
 
     const workflow = window.FMSRecordPolicy?.workflow?.("cpgrams", grievance) || {};
@@ -1003,7 +985,7 @@ function buildGrievanceObject() {
     grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || grievance.registrationNumber || "")
         .trim().toUpperCase().replace(/\s+/g, "");
     grievance.updatedOn = new Date();
-    grievance.version = "1.6.3";
+    grievance.version = "1.6.6";
     return grievance;
 }
 /*==========================================================

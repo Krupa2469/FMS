@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.6.5
+   FMS GRIEVANCES WORKSPACE - v1.6.6
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -72,28 +72,7 @@
   function renderDashboard(rows){
     const host=$("moduleDashboardCards"), status=$("moduleDashboardStatus");if(!host)return;
     const key=currentTypeKey();let cards=[];
-    if(key==="cpgrams"){
-      cards=[
-        ["Total CPGRAMS",rows.length,"total","bi-collection","primary"],
-        ["Within Due Date",rows.filter(withinDue).length,"within-due","bi-calendar-check","success"],
-        ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
-        ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
-        ["ATR Awaited",rows.filter(r=>(String(r.atrStatus||"").toLowerCase().includes("awaited")||(w(r).memoIssued&&!w(r).atrReceived))&&!isClosed(r)).length,"atr-awaited","bi-hourglass-split","warning"],
-        ["ATR Received",rows.filter(r=>w(r).atrReceived||/received|approved|sent to complainant|uploaded in cpgrams portal/i.test(String(r.atrStatus||""))).length,"atr-received","bi-inbox","success"],
-        ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
-      ];
-    }else if(key==="prajavani"){
-      const totalRows=activeRows().filter(r=>rowType(r)==="prajavani");
-      const fy=currentFY();
-      const fyRows=P()?P().filterFY("cpgrams",totalRows,fy):totalRows.filter(r=>window.FMSFY?.filterFY?.([r],fy,["dateReceived","dateArised","date"])?.length);
-      const pair=(all,year)=>({metrics:[{label:"Total",value:all},{label:fy,value:year}]});
-      cards=[
-        ["Total Grievances",pair(totalRows.length,fyRows.length),"total","bi-collection","primary"],
-        ["Pending",pair(totalRows.filter(r=>!isClosed(r)).length,fyRows.filter(r=>!isClosed(r)).length),"pending","bi-hourglass-split","warning"],
-        ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
-        ["Disposed",pair(totalRows.filter(isClosed).length,fyRows.filter(isClosed).length),"disposed","bi-check-circle","success"]
-      ];
-    }else if(key==="laq"||key==="lcq"){
+    if(key==="laq"||key==="lcq"){
       cards=[
         [`Total ${currentType().toUpperCase()}`,rows.length,"total","bi-collection","primary"],
         ["With Section",rows.filter(r=>/With concerned section/i.test(w(r).stage||"")).length,"with-section","bi-building","info"],
@@ -106,12 +85,9 @@
         ["Within Due Date",rows.filter(withinDue).length,"within-due","bi-calendar-check","success"],
         ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
         ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
-        ["Memo / Letter Issued",rows.filter(r=>w(r).memoIssued).length,"memo-issued","bi-envelope-paper","info"],
-        ["Reply Awaited",rows.filter(r=>w(r).memoIssued&&!w(r).atrReceived&&!isClosed(r)).length,"reply-awaited","bi-hourglass-split","warning"],
-        ["Reply Received",rows.filter(r=>w(r).atrReceived).length,"reply-received","bi-inbox","success"],
-        ["Pending Approval",rows.filter(r=>/Pending Approval|Reply to Government Pending/i.test(w(r).stage||"")).length,"approval-pending","bi-person-check","warning"],
-        ["Reply to Government Pending",rows.filter(r=>/Reply to Government Pending/i.test(w(r).stage||"")).length,"govt-pending","bi-send-exclamation","danger"],
-        ["Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
+        ["ATR Awaited",rows.filter(r=>(String(r.atrStatus||"").toLowerCase().includes("awaited")||(w(r).memoIssued&&!w(r).atrReceived))&&!isClosed(r)).length,"atr-awaited","bi-hourglass-split","warning"],
+        ["ATR Received",rows.filter(r=>w(r).atrReceived||/received|approved|sent to complainant|uploaded in cpgrams portal/i.test(String(r.atrStatus||""))).length,"atr-received","bi-inbox","success"],
+        ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
       ];
     }
     host.innerHTML=cards.map(x=>card(...x)).join("");
@@ -155,9 +131,7 @@
   function columns(){
     const key=currentTypeKey();
     if(key==="laq"||key==="lcq")return [["questionNo",`${currentType().toUpperCase()} No.`],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer furnished by"],["answerFurnishedTo","Answer furnished to"],["answerFurnishedDate","Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"],["attachments","Upload Document"]];
-    if(key==="cpgrams")return [["registrationNo","Grievance No."],["dateReceived","Date Received"],["complainantName","Complaint Name"],["subject","Subject"],["district","District"],["mandal","Mandal"],["village","Village"],["atrStatusView","ATR Status"],["finalStatusView","Grievance Status"]];
-    if(key==="prajavani")return [["registrationNo","Prajavani No."],["dateReceived","Date"],["subject","Subject"],["complainantName","Complainant Name"],["mobileNumber","Mobile Number"],["district","District"],["mandal","Mandal"],["village","Village"],["sentTo","Sent to"],["communicationStatusView","Communication Status"],["atrStatusView","ATR Status"],["finalStatusView","Status"]];
-    return [["registrationNo","Reference / Memo No."],["dateReceived","Date Received"],["dueDate","Due Date"],["daysStatus","Days Left / Overdue Days"],["receivedFrom","From Whom Received"],["section","Concerned Section"],["subject","Subject"],["memoStatus","Communication Status"],["atrStatusView","Reply / ATR Status"],["approvalStatusView","Approval Status"],["replyGovtStatus","Reply to Government Status"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
+    return [["registrationNo","Grievance No."],["dateReceived","Date Received"],["complainantName","Complaint Name"],["subject","Subject"],["district","District"],["mandal","Mandal"],["village","Village"],["atrStatusView","ATR Status"],["finalStatusView","Grievance Status"]];
   }
   function serialTime(r){const raw=r?.createdOn||r?.createdAt||r?.dateReceived||r?.receivedDate; if(raw&&typeof raw.toDate==="function")return raw.toDate().getTime();if(raw&&raw.seconds!=null)return Number(raw.seconds)*1000;const d=P()?.parseDate?.(raw)||new Date(raw||0);return d instanceof Date&&!Number.isNaN(d.getTime())?d.getTime():0;}
   function prajavaniSerial(r){
@@ -173,7 +147,7 @@
   function renderRegister(rows){
     const head=$("grievanceInlineRegisterHead"), body=$("grievanceInlineRegisterBody"), title=$("grievanceInlineRegisterTitle"), count=$("grievanceInlineRecordCount");if(!head||!body)return;
     const cols=columns();title.textContent=`${currentType()} Register`;count.textContent=`Total Records : ${rows.length}`;
-    const includeSerial=currentTypeKey()!=="cpgrams", includeAction=true;
+    const includeSerial=currentTypeKey()==="laq"||currentTypeKey()==="lcq", includeAction=true;
     head.innerHTML=`<tr>${includeSerial?"<th>S.No.</th>":""}${cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")}${includeAction?"<th>Action</th>":""}</tr>`;
     if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+(includeSerial?1:0)+(includeAction?1:0)}" class="text-center text-muted py-4">No ${esc(currentType())} records available for Financial Year ${esc(currentFY())}.</td></tr>`;return;}
     body.innerHTML=rows.map((r,i)=>`<tr class="${r.id===lastChangedId?'table-success':''}">${includeSerial?`<td>${currentTypeKey()==="prajavani"?prajavaniSerial(r):i+1}</td>`:""}${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}${includeAction?`<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td>`:""}</tr>`).join("");

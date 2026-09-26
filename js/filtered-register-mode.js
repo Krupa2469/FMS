@@ -67,6 +67,15 @@
     const anchor=dataBlock || document.body.firstElementChild;
     anchor?.parentNode?.insertBefore(banner,anchor);
     document.getElementById("btnClearDashboardFilter")?.addEventListener("click",()=>{
+      if(path.includes("cpgrams-register")){
+        const homeParams=new URLSearchParams();
+        const grievanceType=params.get("grievanceType")||params.get("category")||"CPGRAMS";
+        const fy=params.get("fy");
+        homeParams.set("grievanceType",grievanceType);
+        if(fy) homeParams.set("fy",fy);
+        location.href="cpgrams.html?"+homeParams.toString();
+        return;
+      }
       params.delete("filter");
       params.delete("fullscreen");
       params.delete("fullRegister");
