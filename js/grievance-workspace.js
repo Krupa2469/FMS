@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.6.4
+   FMS GRIEVANCES WORKSPACE - v1.6.5
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -13,7 +13,7 @@
   if(!document.getElementById("fmsDashboardCardValueStyle")){
     const style=document.createElement("style");
     style.id="fmsDashboardCardValueStyle";
-    style.textContent=".fms-dashboard-card-value{font-size:1.28rem;line-height:1.25;overflow-wrap:anywhere}.fms-compact-dashboard-card .card-body{min-width:0}@media(max-width:575.98px){.fms-dashboard-card-value{font-size:1.08rem}}";
+    style.textContent=".fms-dashboard-card-value{font-size:1rem;line-height:1.2}.fms-dashboard-metric-line{display:block;white-space:nowrap;margin-top:.12rem}.fms-dashboard-metric-number{font-size:1.05rem;font-weight:700}.fms-compact-dashboard-card .card-body{min-width:0}@media(max-width:575.98px){.fms-dashboard-card-value{font-size:.9rem}.fms-dashboard-metric-number{font-size:.95rem}}";
     document.head.appendChild(style);
   }
   const $=id=>document.getElementById(id);
@@ -64,7 +64,10 @@
     return `cpgrams-register.html?${p}`;
   }
   function card(label,value,filter,icon,theme){
-    return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${fullRegisterUrl(filter)}"><div class="card h-100 shadow-sm border-0 fms-compact-dashboard-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="fms-dashboard-card-value fw-bold text-${theme} lh-sm">${esc(value)}</div></div></div></a></div>`;
+    const renderedValue = value && typeof value === "object" && Array.isArray(value.metrics)
+      ? value.metrics.map(m=>`<span class="fms-dashboard-metric-line">${esc(m.label)}: <span class="fms-dashboard-metric-number">${esc(m.value)}</span></span>`).join("")
+      : esc(value);
+    return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${fullRegisterUrl(filter)}"><div class="card h-100 shadow-sm border-0 fms-compact-dashboard-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="fms-dashboard-card-value fw-bold text-${theme} lh-sm">${renderedValue}</div></div></div></a></div>`;
   }
   function renderDashboard(rows){
     const host=$("moduleDashboardCards"), status=$("moduleDashboardStatus");if(!host)return;
@@ -74,7 +77,7 @@
         ["Total CPGRAMS",rows.length,"total","bi-collection","primary"],
         ["Within Due Date",rows.filter(withinDue).length,"within-due","bi-calendar-check","success"],
         ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
-        ["Overdue",fyRows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
+        ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
         ["ATR Awaited",rows.filter(r=>(String(r.atrStatus||"").toLowerCase().includes("awaited")||(w(r).memoIssued&&!w(r).atrReceived))&&!isClosed(r)).length,"atr-awaited","bi-hourglass-split","warning"],
         ["ATR Received",rows.filter(r=>w(r).atrReceived||/received|approved|sent to complainant|uploaded in cpgrams portal/i.test(String(r.atrStatus||""))).length,"atr-received","bi-inbox","success"],
         ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
@@ -83,7 +86,7 @@
       const totalRows=activeRows().filter(r=>rowType(r)==="prajavani");
       const fy=currentFY();
       const fyRows=P()?P().filterFY("cpgrams",totalRows,fy):totalRows.filter(r=>window.FMSFY?.filterFY?.([r],fy,["dateReceived","dateArised","date"])?.length);
-      const pair=(all,year)=>`Total: ${all} | ${fy}: ${year}`;
+      const pair=(all,year)=>({metrics:[{label:"Total",value:all},{label:fy,value:year}]});
       cards=[
         ["Total Grievances",pair(totalRows.length,fyRows.length),"total","bi-collection","primary"],
         ["Pending",pair(totalRows.filter(r=>!isClosed(r)).length,fyRows.filter(r=>!isClosed(r)).length),"pending","bi-hourglass-split","warning"],
@@ -258,12 +261,14 @@
   }
   function start(){
     const type=$(TYPE_SELECT),fy=$(FY_SELECT);if(!type)return;
-    const requestedType=new URLSearchParams(location.search).get("grievanceType");
-    if(requestedType&&!type.value){const k=normType(requestedType);const mapped=TYPES.find(t=>normType(t)===k);if(mapped)type.value=mapped;}
+    const queryParams=new URLSearchParams(location.search);
+    const requestedType=queryParams.get("grievanceType");
+    const requestedFY=queryParams.get("fy");
+    if(requestedType){const k=normType(requestedType);const mapped=TYPES.find(t=>normType(t)===k);if(mapped)type.value=mapped;}
     // Open CPGRAMS by default when the Grievances module is opened from Home.
     // Users can still change this dropdown to Prajavani, LAQ, LCQ, etc.
     if(!type.value) type.value="CPGRAMS";
-    populateFY();type.addEventListener("change",()=>{if(typeof window.updateGrievanceFormLayout==="function")window.updateGrievanceFormLayout();syncContext();});fy?.addEventListener("change",syncContext);
+    populateFY();if(requestedFY && fy && Array.from(fy.options).some(o=>o.value===requestedFY)) fy.value=requestedFY;type.addEventListener("change",()=>{if(typeof window.updateGrievanceFormLayout==="function")window.updateGrievanceFormLayout();syncContext();});fy?.addEventListener("change",syncContext);
     $("btnOpenFullGrievanceRegister")?.addEventListener("click",()=>{location.href=fullRegisterUrl("total");});
     showContext(!!currentType());
     if(typeof window.updateGrievanceFormLayout==="function") window.updateGrievanceFormLayout();

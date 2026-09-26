@@ -1,5 +1,5 @@
 "use strict";
-/* Common module navigation: Home, Grievances, RTI and DISHA on every module screen. v1.6.4 */
+/* Common module navigation: Home, Grievances, RTI and DISHA on every module screen. v1.6.5 */
 (function(window,document){
   function init(){
     if(document.querySelector(".fms-module-nav")) return;
@@ -69,12 +69,11 @@
       document.getElementById("btnExitDataEntryFullscreen")?.addEventListener("click",()=>{
         if(path.includes("/cpgrams/")){
           const target=new URLSearchParams();
-          target.set("fullscreen","1");
           const grievanceType=params.get("grievanceType") || document.getElementById("grievanceType")?.value || "CPGRAMS";
           const fy=params.get("fy") || document.getElementById("grievanceFinancialYear")?.value || "";
           target.set("grievanceType",grievanceType);
           if(fy) target.set("fy",fy);
-          location.href="cpgrams-register.html?"+target.toString();
+          location.href="cpgrams.html?"+target.toString();
         }
         else if(path.includes("/rti/")) location.href="rti-register.html?fullscreen=1";
         else if(path.includes("/disha/")) location.href="disha-register.html?fullscreen=1";

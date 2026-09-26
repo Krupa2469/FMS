@@ -1,0 +1,11 @@
+const fs=require('fs'),assert=require('assert');
+const nav=fs.readFileSync(__dirname+'/../js/module-navigation.js','utf8');
+const ws=fs.readFileSync(__dirname+'/../js/grievance-workspace.js','utf8');
+assert(/grievanceType/.test(nav) && /cpgrams\.html\?/.test(nav), 'Back must preserve grievanceType and return to grievance home workspace');
+assert(/\bfy\b/.test(nav), 'Back must preserve FY');
+assert(!/btnExitDataEntryFullscreen[\s\S]{0,1400}cpgrams-register\.html\?/.test(nav), 'Back must not target register-only page');
+assert(/if\(requestedType\)\{/.test(ws), 'Home workspace must honor grievanceType query');
+assert(/requestedFY/.test(ws), 'Home workspace must restore FY query');
+assert(/fms-dashboard-metric-line/.test(ws), 'Dashboard Total/FY metrics must be separate lines');
+assert(/fms-dashboard-metric-number/.test(ws), 'Dashboard numbers need compact styling');
+console.log('v1.6.5 navigation/dashboard assertions passed');
