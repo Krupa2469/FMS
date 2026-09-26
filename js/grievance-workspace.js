@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.6.3
+   FMS GRIEVANCES WORKSPACE - v1.6.4
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -10,6 +10,12 @@
   const TYPES=["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"];
   let allRows=[];
   let lastChangedId="";
+  if(!document.getElementById("fmsDashboardCardValueStyle")){
+    const style=document.createElement("style");
+    style.id="fmsDashboardCardValueStyle";
+    style.textContent=".fms-dashboard-card-value{font-size:1.28rem;line-height:1.25;overflow-wrap:anywhere}.fms-compact-dashboard-card .card-body{min-width:0}@media(max-width:575.98px){.fms-dashboard-card-value{font-size:1.08rem}}";
+    document.head.appendChild(style);
+  }
   const $=id=>document.getElementById(id);
   const P=()=>window.FMSRecordPolicy;
   const esc=v=>String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]));
@@ -58,7 +64,7 @@
     return `cpgrams-register.html?${p}`;
   }
   function card(label,value,filter,icon,theme){
-    return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${fullRegisterUrl(filter)}"><div class="card h-100 shadow-sm border-0 fms-compact-dashboard-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="fs-3 fw-bold text-${theme} lh-1">${esc(value)}</div></div></div></a></div>`;
+    return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${fullRegisterUrl(filter)}"><div class="card h-100 shadow-sm border-0 fms-compact-dashboard-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="fms-dashboard-card-value fw-bold text-${theme} lh-sm">${esc(value)}</div></div></div></a></div>`;
   }
   function renderDashboard(rows){
     const host=$("moduleDashboardCards"), status=$("moduleDashboardStatus");if(!host)return;
