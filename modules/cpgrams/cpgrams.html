@@ -41,7 +41,7 @@
 <div class="col-md-2 text-end">
 <span class="badge bg-light text-dark fs-6">
 
-                    Version 1.6.2
+                    Version 1.6.3
 
                 </span>
 </div>
@@ -127,14 +127,15 @@
 </div>
 <div class="card-body">
 <div class="row g-3">
-<div class="col-md-4 grievances-only-field">
-<label class="form-label" for="grievanceNumber">
+<div class="col-md-2 prajavani-only d-none"><label class="form-label" for="prajavaniSerial">S.No.</label><input class="form-control" id="prajavaniSerial" type="number" readonly/></div>
+<div class="col-md-4 grievances-only-field prajavani-number-field">
+<label class="form-label" for="grievanceNumber" id="grievanceNumberLabel">
                     Grievance Number <span class="text-danger">*</span>
 </label>
 <input class="form-control" id="grievanceNumber" type="text"/>
 </div>
 <div class="col-md-4">
-<label class="form-label" for="dateReceived">
+<label class="form-label" for="dateReceived" id="dateReceivedLabel">
                     Date Received <span class="text-danger">*</span>
 </label>
 <div class="input-group">
@@ -307,7 +308,7 @@
                 </label>
 <input class="form-control" id="mobileNumber" maxlength="10" type="text"/>
 </div>
-<div class="col-md-3">
+<div class="col-md-3 prajavani-hide">
 <label class="form-label">
                     Gender
                 </label>
@@ -352,7 +353,7 @@
                 </label>
 <textarea class="form-control" id="address" maxlength="300" rows="3"></textarea>
 </div>
-<div class="col-md-4">
+<div class="col-md-4 prajavani-hide">
 <label class="form-label">
                     Preferred Contact
                 </label>
@@ -387,10 +388,11 @@
 <hr class="my-4"/>
 <div class="row g-3">
 <div class="col-md-3"><label class="form-label" for="officeCommunicationType">Communication Type</label><select class="form-select" id="officeCommunicationType"><option value="">-- Select Type --</option><option>Memo</option><option>Letter</option><option>D.O. Letter</option><option>UO Note</option></select></div>
-<div class="col-md-5"><label class="form-label" for="officeLetterAddressedTo">Addressed To</label><select class="form-select" id="officeLetterAddressedTo"><option value="">-- Select Officer --</option></select></div>
-<div class="col-md-4"><label class="form-label" for="memoNumber">UO Note/Memo/Letter No.</label><input class="form-control" id="memoNumber" maxlength="100" type="text"/></div>
-<div class="col-md-4"><label class="form-label" for="memoDate">UO Note/Memo/Letter Date</label><input class="form-control" id="memoDate" type="date"/></div>
-<div class="col-md-8"><label class="form-label" for="memoDocument">Upload UO Note/Memo/Letter</label><input accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="form-control" id="memoDocument" type="file"/></div>
+<div class="col-md-3"><label class="form-label" for="memoNumber" id="memoNumberLabel">UO Note/Memo/Letter No.</label><input class="form-control" id="memoNumber" maxlength="100" type="text"/></div>
+<div class="col-md-3"><label class="form-label" for="memoDate" id="memoDateLabel">UO Note/Memo/Letter Date</label><input class="form-control" id="memoDate" type="date"/></div>
+<div class="col-md-3"><label class="form-label" for="officeLetterAddressedTo">Addressed To</label><select class="form-select" id="officeLetterAddressedTo"><option value="">-- Select Officer --</option></select></div>
+<div class="col-md-4 prajavani-only d-none"><label class="form-label" for="communicationStatus">Communication Status</label><select class="form-select" data-fixed-options="true" id="communicationStatus"><option value="Awaiting Approval">Awaiting Approval</option><option value="Despatched">Despatched</option></select></div>
+<div class="col-md-8 prajavani-hide"><label class="form-label" for="memoDocument">Upload UO Note/Memo/Letter</label><input accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="form-control" id="memoDocument" type="file"/></div>
 </div>
 <hr class="my-4"/>
 <div class="row g-3">
@@ -468,7 +470,7 @@ ATTACHMENTS
 
                     File Management System |
                     GRIEVANCES Module |
-                    Version 1.6.2
+                    Version 1.6.3
 
                 </small>
 </div>
@@ -550,9 +552,9 @@ ATTACHMENTS
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-<script src="../../js/firebase/firebase-config.js?v=1.6.2"></script>
-<script src="../../js/firebase/firebase-service.js?v=1.6.2"></script>
-<script src="../../js/firebase/firebase-crud-service.js?v=1.6.2"></script>
+<script src="../../js/firebase/firebase-config.js?v=1.6.3"></script>
+<script src="../../js/firebase/firebase-service.js?v=1.6.3"></script>
+<script src="../../js/firebase/firebase-crud-service.js?v=1.6.3"></script>
 <!-- Common Utilities -->
 <script src="../../js/common/utils.js"></script>
 <!-- Master Data -->
@@ -564,9 +566,9 @@ ATTACHMENTS
 <script src="../../js/section-master.js"></script>
 <script src="../../js/priority-master.js"></script>
 <!-- CPGRAMS -->
-<script src="cpgrams-validator.js?v=1.6.2"></script>
-<script src="../../js/repository/base-repository.js?v=1.6.2"></script>
-<script src="../../js/repository/cpgrams-repository.js?v=1.6.2"></script>
+<script src="cpgrams-validator.js?v=1.6.3"></script>
+<script src="../../js/repository/base-repository.js?v=1.6.3"></script>
+<script src="../../js/repository/cpgrams-repository.js?v=1.6.3"></script>
 <script src="../../js/repository/attachment-repository.js"></script>
 <script src="../../js/services/storage-service.js"></script>
 <script src="attachment.js"></script>
@@ -579,7 +581,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="../../js/services/classification-engine.js"></script>
 <script src="../../js/services/parser/layout-detector.js"></script>
-<script src="../../js/services/parser/parser-utils.js?v=1.6.2"></script>
+<script src="../../js/services/parser/parser-utils.js?v=1.6.3"></script>
 <script src="../../js/services/parser/name-extractor.js"></script>
 <script src="../../js/services/parser/address-extractor.js"></script>
 <script src="../../js/services/parser/description-extractor.js"></script>
@@ -590,25 +592,25 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <script src="../../js/services/parser/subject-engine.js"></script>
 <script src="../../js/services/parser/parser-core.js"></script>
 <script src="../../js/services/form-filler.js"></script>
-<script src="../../js/services/document-parser.js?v=1.6.2"></script>
+<script src="../../js/services/document-parser.js?v=1.6.3"></script>
 <script src="../../js/services/parser/module-parsers.js"></script>
 <script src="../../js/document/document-engine.js"></script>
 <script src="../../js/services/fms-parser-service.js"></script>
 <script src="../../js/services/ocr-engine.js"></script>
-<script src="document-capture.js?v=1.6.2"></script>
+<script src="document-capture.js?v=1.6.3"></script>
 <script src="../../js/services/attachment-service.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
 <script src="../../js/services/whatsapp-service.js"></script>
-<script src="cpgrams.js?v=1.6.2"></script>
-<script src="../../js/record-consistency.js?v=1.6.2"></script>
-<script src="../../js/grievance-workspace.js?v=1.6.2"></script>
+<script src="cpgrams.js?v=1.6.3"></script>
+<script src="../../js/record-consistency.js?v=1.6.3"></script>
+<script src="../../js/grievance-workspace.js?v=1.6.3"></script>
 <!-- =====================================================
      FMS FIREBASE STARTUP
 ====================================================== -->
-<script src="../../js/firebase/firebase-loader.js?v=1.6.2"></script>
-<script src="../../js/firebase/firebase-ready.js?v=1.6.2"></script>
-<script src="../../js/services/office-processing-service.js?v=1.6.2"></script>
-<script src="../../js/master-option-loader.js?v=1.6.2"></script>
+<script src="../../js/firebase/firebase-loader.js?v=1.6.3"></script>
+<script src="../../js/firebase/firebase-ready.js?v=1.6.3"></script>
+<script src="../../js/services/office-processing-service.js?v=1.6.3"></script>
+<script src="../../js/master-option-loader.js?v=1.6.3"></script>
 <script src="../../js/module-navigation.js"></script>
 </body>
 </html>

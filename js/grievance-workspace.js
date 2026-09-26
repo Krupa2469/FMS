@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.6.0
+   FMS GRIEVANCES WORKSPACE - v1.6.3
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -68,21 +68,21 @@
         ["Total CPGRAMS",rows.length,"total","bi-collection","primary"],
         ["Within Due Date",rows.filter(withinDue).length,"within-due","bi-calendar-check","success"],
         ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
-        ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
+        ["Overdue",fyRows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
         ["ATR Awaited",rows.filter(r=>(String(r.atrStatus||"").toLowerCase().includes("awaited")||(w(r).memoIssued&&!w(r).atrReceived))&&!isClosed(r)).length,"atr-awaited","bi-hourglass-split","warning"],
         ["ATR Received",rows.filter(r=>w(r).atrReceived||/received|approved|sent to complainant|uploaded in cpgrams portal/i.test(String(r.atrStatus||""))).length,"atr-received","bi-inbox","success"],
         ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
       ];
     }else if(key==="prajavani"){
+      const totalRows=activeRows().filter(r=>rowType(r)==="prajavani");
+      const fy=currentFY();
+      const fyRows=P()?P().filterFY("cpgrams",totalRows,fy):totalRows.filter(r=>window.FMSFY?.filterFY?.([r],fy,["dateReceived","dateArised","date"])?.length);
+      const pair=(all,year)=>`Total: ${all} | ${fy}: ${year}`;
       cards=[
-        ["Total Prajavani",rows.length,"total","bi-collection","primary"],
-        ["Received from JC Admin",rows.filter(r=>/Received from JC/i.test(w(r).stage||"")).length,"received","bi-inbox","primary"],
-        ["Sent to Section",rows.filter(r=>/Sent to concerned section/i.test(w(r).stage||"")).length,"sent-section","bi-send","info"],
-        ["Reply Awaited",rows.filter(r=>/Reply Awaited|Sent to concerned/i.test(w(r).stage||"")).length,"reply-awaited","bi-hourglass-split","warning"],
-        ["Reply Received",rows.filter(r=>/Reply received/i.test(w(r).stage||"")).length,"reply-received","bi-inbox","success"],
-        ["Reply Sent to JC Admin",rows.filter(r=>/Reply sent to JC/i.test(w(r).stage||"")).length,"reply-sent","bi-send-check","success"],
-        ["Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"],
-        ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"]
+        ["Total Grievances",pair(totalRows.length,fyRows.length),"total","bi-collection","primary"],
+        ["Pending",pair(totalRows.filter(r=>!isClosed(r)).length,fyRows.filter(r=>!isClosed(r)).length),"pending","bi-hourglass-split","warning"],
+        ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
+        ["Disposed",pair(totalRows.filter(isClosed).length,fyRows.filter(isClosed).length),"disposed","bi-check-circle","success"]
       ];
     }else if(key==="laq"||key==="lcq"){
       cards=[
@@ -113,7 +113,9 @@
     const wf=w(r);
     switch(key){
       case "serial":return "";
-      case "registrationNo":return fv(r,"grievanceNumber")||fv(r,"registrationNumber")||fv(r,"grievanceNo")||"";
+      case "registrationNo":return fv(r,"prajavaniNo")||fv(r,"grievanceNumber")||fv(r,"registrationNumber")||fv(r,"grievanceNo")||"";
+      case "sentTo":return fv(r,"officeLetterAddressedTo")||fv(r,"addressedTo")||"";
+      case "communicationStatusView":return fv(r,"communicationStatus")||"Awaiting Approval";
       case "dateReceived":return P()?.formatDMY?.(fv(r,"dateReceived")||fv(r,"orgReceivedDate")||fv(r,"receivedDate")||fv(r,"questionReceivedDate"))||"";
       case "dueDate":return P()?.formatDMY?.(fv(r,"dueDate"))||"";
       case "daysStatus":return wf.dueLabel||"";
@@ -145,16 +147,27 @@
     const key=currentTypeKey();
     if(key==="laq"||key==="lcq")return [["questionNo",`${currentType().toUpperCase()} No.`],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer furnished by"],["answerFurnishedTo","Answer furnished to"],["answerFurnishedDate","Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"],["attachments","Upload Document"]];
     if(key==="cpgrams")return [["registrationNo","Grievance No."],["dateReceived","Date Received"],["complainantName","Complaint Name"],["subject","Subject"],["district","District"],["mandal","Mandal"],["village","Village"],["atrStatusView","ATR Status"],["finalStatusView","Grievance Status"]];
-    if(key==="prajavani")return [["registrationNo","Prajavani No."],["dateReceived","Received Date"],["receivedFrom","Received From"],["section","Concerned Section"],["sentToSectionDate","Sent to Section Date"],["subject","Subject"],["atrStatusView","Reply Status"],["atrDate","Reply Received Date"],["replyGovtStatus","Reply Sent to JC Admin"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
+    if(key==="prajavani")return [["registrationNo","Prajavani No."],["dateReceived","Date"],["subject","Subject"],["complainantName","Complainant Name"],["mobileNumber","Mobile Number"],["district","District"],["mandal","Mandal"],["village","Village"],["sentTo","Sent to"],["communicationStatusView","Communication Status"],["atrStatusView","ATR Status"],["finalStatusView","Status"]];
     return [["registrationNo","Reference / Memo No."],["dateReceived","Date Received"],["dueDate","Due Date"],["daysStatus","Days Left / Overdue Days"],["receivedFrom","From Whom Received"],["section","Concerned Section"],["subject","Subject"],["memoStatus","Communication Status"],["atrStatusView","Reply / ATR Status"],["approvalStatusView","Approval Status"],["replyGovtStatus","Reply to Government Status"],["workflowStage","Present Workflow Stage"],["finalStatusView","Final Status"]];
+  }
+  function serialTime(r){const raw=r?.createdOn||r?.createdAt||r?.dateReceived||r?.receivedDate; if(raw&&typeof raw.toDate==="function")return raw.toDate().getTime();if(raw&&raw.seconds!=null)return Number(raw.seconds)*1000;const d=P()?.parseDate?.(raw)||new Date(raw||0);return d instanceof Date&&!Number.isNaN(d.getTime())?d.getTime():0;}
+  function prajavaniSerial(r){
+    const ordered=activeRows().filter(x=>rowType(x)==="prajavani").slice().sort((a,b)=>serialTime(a)-serialTime(b));
+    const i=ordered.findIndex(x=>x.id===r.id); return i>=0?i+1:"";
+  }
+  function syncPrajavaniSerialField(){
+    const el=$("prajavaniSerial"); if(!el||currentTypeKey()!=="prajavani")return;
+    const params=new URLSearchParams(location.search), id=params.get("id");
+    if(id){const r=allRows.find(x=>x.id===id);el.value=r?prajavaniSerial(r):"";}
+    else el.value=activeRows().filter(x=>rowType(x)==="prajavani").length+1;
   }
   function renderRegister(rows){
     const head=$("grievanceInlineRegisterHead"), body=$("grievanceInlineRegisterBody"), title=$("grievanceInlineRegisterTitle"), count=$("grievanceInlineRecordCount");if(!head||!body)return;
     const cols=columns();title.textContent=`${currentType()} Register`;count.textContent=`Total Records : ${rows.length}`;
-    const includeSerial=currentTypeKey()!=="cpgrams";
-    head.innerHTML=`<tr>${includeSerial?"<th>Sl.No.</th>":""}${cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")}<th>Action</th></tr>`;
-    if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+(includeSerial?2:1)}" class="text-center text-muted py-4">No ${esc(currentType())} records available for Financial Year ${esc(currentFY())}.</td></tr>`;return;}
-    body.innerHTML=rows.map((r,i)=>`<tr class="${r.id===lastChangedId?'table-success':''}">${includeSerial?`<td>${i+1}</td>`:""}${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td></tr>`).join("");
+    const includeSerial=currentTypeKey()!=="cpgrams", includeAction=true;
+    head.innerHTML=`<tr>${includeSerial?"<th>S.No.</th>":""}${cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")}${includeAction?"<th>Action</th>":""}</tr>`;
+    if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+(includeSerial?1:0)+(includeAction?1:0)}" class="text-center text-muted py-4">No ${esc(currentType())} records available for Financial Year ${esc(currentFY())}.</td></tr>`;return;}
+    body.innerHTML=rows.map((r,i)=>`<tr class="${r.id===lastChangedId?'table-success':''}">${includeSerial?`<td>${currentTypeKey()==="prajavani"?prajavaniSerial(r):i+1}</td>`:""}${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}${includeAction?`<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td>`:""}</tr>`).join("");
     body.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.view,"view")));
     body.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.edit,"edit")));
     body.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>deleteRecord(b.dataset.delete)));
@@ -180,7 +193,7 @@
   }
   function getDb(){if(window.db)return window.db;if(window.fmsFirebase?.db)return window.fmsFirebase.db;try{if(typeof firebase!=="undefined"&&firebase.firestore)return firebase.firestore();}catch(_e){}return null;}
   function showContext(hasType){["grievanceFYPanel","moduleDashboardPanel","grievanceInlineRegisterPanel","cpgramsForm"].forEach(id=>$(id)?.classList.toggle("d-none",!hasType));const dataTitle=[...document.querySelectorAll("h4")].find(h=>h.textContent.includes("GRIEVANCES DATA ENTRY"));if(dataTitle)dataTitle.classList.toggle("d-none",!hasType);}
-  function syncContext(){const type=currentType();showContext(!!type);const heading=$("grievanceTypeHeading");if(heading)heading.textContent=type||"SELECT GRIEVANCE TYPE";const label=$("selectedGrievanceFormLabel");if(label)label.textContent="";const dataTitle=$("grievanceDataEntryTitle");if(dataTitle&&type)dataTitle.textContent=`${String(type).toUpperCase()} DATA ENTRY FORM`;if(!type)return;populateFY();const rows=rowsForContext();renderDashboard(rows);renderRegister(rows);const s=$("grievanceContextStatus");if(s){s.className="d-none";s.textContent="";}}
+  function syncContext(){const type=currentType();showContext(!!type);const heading=$("grievanceTypeHeading");if(heading)heading.textContent=type||"SELECT GRIEVANCE TYPE";const label=$("selectedGrievanceFormLabel");if(label)label.textContent="";const dataTitle=$("grievanceDataEntryTitle");if(dataTitle&&type)dataTitle.textContent=`${String(type).toUpperCase()} DATA ENTRY FORM`;if(!type)return;populateFY();const rows=rowsForContext();renderDashboard(rows);renderRegister(rows);syncPrajavaniSerialField();const s=$("grievanceContextStatus");if(s){s.className="d-none";s.textContent="";}}
   function upsertLocal(row){
     if(!row || !row.id) return false;
     const normalised={active:true,...row};

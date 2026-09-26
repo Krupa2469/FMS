@@ -1,12 +1,12 @@
 /******************************************************************
  * CPGRAMS DOCUMENT CAPTURE
- * Version 6.2
+ * Version 6.3
  * Parses uploaded grievance documents and populates the CPGRAMS form.
  ******************************************************************/
 
 "use strict";
 
-console.log("CPGRAMS Document Capture V6.2 loaded");
+console.log("CPGRAMS Document Capture V6.3 loaded");
 
 function cpDocNormalizeText(value) {
     return String(value || "")
@@ -426,6 +426,10 @@ async function captureDocument(event) {
         if (preview) preview.value = cpDocNormalizeText(rawText);
 
         const changed = fillCPGRAMSFromCentralResult(fields || {});
+        if (String(document.getElementById("grievanceType")?.value || "").toUpperCase() === "PRAJAVANI") {
+            const received = document.getElementById("dateReceived")?.value || fields.dateReceived || "";
+            if (received && typeof window.calculateDueDateFromDisplay === "function") window.calculateDueDateFromDisplay(received);
+        }
         if (window.FMSParserService?.notify) {
             window.FMSParserService.notify(
                 `Document parsed successfully. ${changed.length} field(s) populated. Please verify before Save / Update.`,
