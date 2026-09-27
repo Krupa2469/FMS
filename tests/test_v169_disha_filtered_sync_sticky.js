@@ -1,0 +1,13 @@
+const fs=require('fs'), assert=require('assert');
+const root=process.argv[2]||'/mnt/data/fms169';
+const reg=fs.readFileSync(root+'/modules/disha/disha-register.js','utf8');
+const data=fs.readFileSync(root+'/modules/disha/disha-data-2026-27.js','utf8');
+const home=fs.readFileSync(root+'/modules/disha/disha.html','utf8');
+const full=fs.readFileSync(root+'/js/filtered-register-mode.js','utf8');
+assert(reg.includes('isDishaMeetingHeld(record)'), 'filtered register must use robust held predicate');
+assert(reg.includes('case "held"') && reg.includes('filter(isDishaMeetingHeld)'), 'held filter must populate from meeting data even when legacy status is missing');
+assert(data.includes('slNo:index+1'), 'uploaded DISHA source data must carry synchronized Sl.No.');
+assert(data.includes('slNo:data.slNo'), 'source sync must update Sl.No. on existing matching records');
+assert(home.includes('position: sticky !important'), 'Save/Update/Delete toolbar must be locked while scrolling');
+assert(full.includes('modules/disha/disha.html') || full.includes('disha.html'), 'Exit Full Screen must route to DISHA home');
+console.log('v1.6.9 DISHA filtered/sync/sticky regression: PASS');

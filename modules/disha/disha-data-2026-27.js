@@ -1,7 +1,7 @@
 "use strict";
 /* DISHA FY 2026-27 source data supplied in DISHA Meetings_Status_2026_27.xlsx on 2026-09-27. */
 (function(){
-  const SOURCE_VERSION="DISHA-2026-27-2026-09-24";
+  const SOURCE_VERSION="DISHA-2026-27-2026-09-27-v169";
   const rows=[
     ["Sangareddy","2026-06-24","YES","YES","PoM Uploaded Already"],
     ["Mulugu","2026-06-19","YES","YES","PoM Uploaded Already"],
@@ -25,18 +25,18 @@
   const norm=v=>String(v||"").trim().toLowerCase().replace(/\s+/g," ");
   const key=(district,date)=>`${norm(district)}|${String(date||"").slice(0,10)}`;
   const due=date=>{const d=new Date(date+"T00:00:00");d.setDate(d.getDate()+30);return d.toISOString().slice(0,10);};
-  const payload=r=>({district:r[0],dateOfMeeting:r[1],meetingDataUploaded:r[2]==="YES"?"Yes":"No",pomUploaded:r[3]==="YES"?"Yes":"No",pomDueDate:due(r[1]),statusOfMeeting:new Date(r[1]+"T00:00:00")>new Date()?"To be held":"Held",remarks:r[4]||"",financialYear:"2026-27",sourceVersion:SOURCE_VERSION,active:true});
+  const payload=(r,index)=>({slNo:index+1,district:r[0],dateOfMeeting:r[1],meetingDataUploaded:r[2]==="YES"?"Yes":"No",pomUploaded:r[3]==="YES"?"Yes":"No",pomDueDate:due(r[1]),statusOfMeeting:new Date(r[1]+"T00:00:00")>new Date()?"To be held":"Held",remarks:r[4]||"",financialYear:"2026-27",sourceVersion:SOURCE_VERSION,active:true});
   async function sync(db){
     if(!db) return {created:0,updated:0};
     const snap=await db.collection("dishaMeetings").get();
     const existing=new Map();snap.forEach(doc=>{const d=doc.data()||{};existing.set(key(d.district||d.nameOfDistrict,d.dateOfMeeting||d.meetingDate),{id:doc.id,data:d});});
     let created=0,updated=0;
-    for(const r of rows){const data=payload(r), k=key(data.district,data.dateOfMeeting), hit=existing.get(k);
+    for(const [index,r] of rows.entries()){const data=payload(r,index), k=key(data.district,data.dateOfMeeting), hit=existing.get(k);
       if(hit){
-        if(hit.data.sourceVersion!==SOURCE_VERSION){await db.collection("dishaMeetings").doc(hit.id).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});updated++;}
+        if(hit.data.sourceVersion!==SOURCE_VERSION || Number(hit.data.slNo)!==data.slNo){await db.collection("dishaMeetings").doc(hit.id).set({...data,slNo:data.slNo,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});updated++;}
       }else{await db.collection("dishaMeetings").add({...data,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});created++;}
     }
     return {created,updated,total:rows.length};
   }
-  window.FMSDishaDataSync={SOURCE_VERSION,rows:rows.map(payload),key,sync};
+  window.FMSDishaDataSync={SOURCE_VERSION,rows:rows.map((r,index)=>payload(r,index)),key,sync};
 })();

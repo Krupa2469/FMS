@@ -1242,19 +1242,19 @@ async function loadFirestoreRecords() {
             .get();
 
 
-    return snapshot.docs.map(
-        function (doc) {
-
-            return {
-
-                id: doc.id,
-
-                ...doc.data()
-
-            };
-
-        }
-    );
+    const firestoreRows = snapshot.docs.map(function (doc) {
+        return { id: doc.id, ...doc.data() };
+    });
+    const sourceRows = window.FMSDishaDataSync?.rows || [];
+    const keyOf = r => window.FMSDishaDataSync?.key
+        ? window.FMSDishaDataSync.key(r.district || r.nameOfDistrict, r.dateOfMeeting || r.meetingDate)
+        : `${String(r.district || r.nameOfDistrict || "").trim().toLowerCase()}|${String(r.dateOfMeeting || r.meetingDate || "").slice(0,10)}`;
+    const seen = new Set(firestoreRows.map(keyOf));
+    sourceRows.forEach((r,index) => {
+        const k=keyOf(r);
+        if (!seen.has(k)) { firestoreRows.push({...r, slNo:Number(r.slNo || index+1), sourceFallback:true}); seen.add(k); }
+    });
+    return firestoreRows;
 
 }
 

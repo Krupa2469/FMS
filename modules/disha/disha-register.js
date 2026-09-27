@@ -303,6 +303,7 @@ async function loadDISHAmeetings() {
             }
         );
 
+        dishaMeetings = mergeDishaSourceRows(dishaMeetings);
 
         console.log(
             "DISHA meetings loaded:",
@@ -682,6 +683,30 @@ function updateSummaryCards(records) {
 }
 
 
+
+function isDishaMeetingHeld(record) {
+    const status = normalize(record?.statusOfMeeting || record?.meetingStatus || "");
+    if (status === "held" || status === "conducted") return true;
+    if (/postponed|cancelled|to be held|upcoming/.test(status)) return false;
+    const d = parseDate(record?.dateOfMeeting || record?.meetingDate || record?.proposedDateOfMeeting);
+    if (!d) return false;
+    const today = new Date(); today.setHours(23,59,59,999);
+    return d <= today;
+}
+
+function mergeDishaSourceRows(records) {
+    const out = [...(records || [])];
+    const source = window.FMSDishaDataSync?.rows || [];
+    const keyOf = r => window.FMSDishaDataSync?.key
+        ? window.FMSDishaDataSync.key(r.district || r.nameOfDistrict, r.dateOfMeeting || r.meetingDate)
+        : `${normalize(r.district || r.nameOfDistrict)}|${String(r.dateOfMeeting || r.meetingDate || "").slice(0,10)}`;
+    const seen = new Set(out.map(keyOf));
+    source.forEach((r,index) => {
+        const k=keyOf(r);
+        if (!seen.has(k)) { out.push({...r, slNo:Number(r.slNo || index+1), sourceFallback:true}); seen.add(k); }
+    });
+    return out;
+}
 /* ============================================================
    URL FILTER
    ============================================================ */
@@ -779,17 +804,7 @@ function applyURLFilter() {
         case "held":
 
             filteredMeetings =
-                currentFYRecords.filter(
-                    function (record) {
-
-                        return (
-                            normalize(
-                                record.statusOfMeeting
-                            ) === "held"
-                        );
-
-                    }
-                );
+                currentFYRecords.filter(isDishaMeetingHeld);
 
             break;
 
@@ -836,7 +851,7 @@ function applyURLFilter() {
 
 
         case "districts-conducted":
-            filteredMeetings = currentFYRecords.filter(r => normalize(r.statusOfMeeting) === "held");
+            filteredMeetings = currentFYRecords.filter(isDishaMeetingHeld);
             break;
 
         case "districts-no-meetings":
