@@ -51,6 +51,24 @@ function parseDate(value) {
 }
 
 
+/* Local display formatter: keeps the register self-contained. */
+function formatDate(value) {
+    const d = parseDate(value);
+    if (!d) return "";
+    return String(d.getDate()).padStart(2, "0") + "/" +
+        String(d.getMonth() + 1).padStart(2, "0") + "/" +
+        d.getFullYear();
+}
+
+/* Local FY helper: April-March financial year, e.g. 2026-27. */
+function getCurrentFinancialYear(referenceDate = new Date()) {
+    const d = parseDate(referenceDate) || new Date();
+    const year = d.getFullYear();
+    const startYear = (d.getMonth() + 1) >= 4 ? year : year - 1;
+    return `${startYear}-${String((startYear + 1) % 100).padStart(2, "0")}`;
+}
+
+
 /* ============================================================
    GLOBAL DATA
    ============================================================ */
