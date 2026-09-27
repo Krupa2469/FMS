@@ -25,6 +25,30 @@ console.log("DISHA Meeting Register JS Loaded...");
 
 const DISHA_COLLECTION = "dishaMeetings";
 const DISHA_FY_FIELDS = ["dateOfMeeting","meetingDate","proposedDateOfMeeting","date"];
+const DISHA_DISTRICTS = [
+  "Adilabad","Bhadradri Kothagudem","Hanumakonda","Hyderabad","Jagtial","Jangaon","Jayashankar Bhupalpally","Jogulamba Gadwal","Kamareddy","Karimnagar","Khammam","KB Asifabad","Mahabubabad","Mahabubnagar","Mancherial","Medak","Medchal-Malkajgiri","Mulugu","Nagarkurnool","Nalgonda","Narayanpet","Nirmal","Nizamabad","Peddapalli","Rajanna Sircilla","Rangareddy","Sangareddy","Siddipet","Suryapet","Vikarabad","Wanaparthy","Warangal","Yadadri Bhuvanagiri"
+];
+
+/* Local date parser: the register must not depend on another module exposing parseDate(). */
+function parseDate(value) {
+    if (!value) return null;
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+    if (typeof value.toDate === "function") {
+        const d = value.toDate();
+        return d instanceof Date && !Number.isNaN(d.getTime()) ? d : null;
+    }
+    if (value && value.seconds != null) {
+        const d = new Date(Number(value.seconds) * 1000);
+        return Number.isNaN(d.getTime()) ? null : d;
+    }
+    const text = String(value).trim();
+    let m = text.match(/^(\d{2})[\/-](\d{2})[\/-](\d{4})$/);
+    if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    m = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
 
 
 /* ============================================================
@@ -850,14 +874,43 @@ function applyURLFilter() {
             break;
 
 
-        case "districts-conducted":
-            filteredMeetings = currentFYRecords.filter(isDishaMeetingHeld);
+        case "districts-conducted": {
+            // One row per district, matching the dashboard's distinct-district count.
+            const latestByDistrict = new Map();
+            currentFYRecords.filter(isDishaMeetingHeld).forEach(record => {
+                const district = String(record.district || record.nameOfDistrict || "").trim();
+                if (!district) return;
+                const key = normalize(district);
+                const previous = latestByDistrict.get(key);
+                const currentDate = parseDate(record.dateOfMeeting || record.meetingDate || record.proposedDateOfMeeting);
+                const previousDate = previous && parseDate(previous.dateOfMeeting || previous.meetingDate || previous.proposedDateOfMeeting);
+                if (!previous || (currentDate?.getTime?.() || 0) > (previousDate?.getTime?.() || 0)) latestByDistrict.set(key, record);
+            });
+            filteredMeetings = [...latestByDistrict.values()];
             break;
+        }
 
-        case "districts-no-meetings":
-            // A no-meeting district has no meeting record to show in the meeting register.
-            filteredMeetings = [];
+        case "districts-no-meetings": {
+            // These districts have no meeting document, so synthesize register rows from the 33-district master list.
+            const conducted = new Set(
+                currentFYRecords.filter(isDishaMeetingHeld)
+                    .map(record => normalize(record.district || record.nameOfDistrict))
+                    .filter(Boolean)
+            );
+            filteredMeetings = DISHA_DISTRICTS
+                .filter(district => !conducted.has(normalize(district)))
+                .map((district, index) => ({
+                    id: "",
+                    district,
+                    dateOfMeeting: "",
+                    pomUploaded: "",
+                    statusOfBills: "",
+                    remarks: "No meeting conducted in selected financial year",
+                    syntheticNoMeeting: true,
+                    slNo: index + 1
+                }));
             break;
+        }
 
         /* ----------------------------------------------------
            DEFAULT
@@ -1074,7 +1127,8 @@ function renderRegisterTable(records) {
             return safe(meeting[key]||"");
         };
         const row=document.createElement("tr");
-        row.innerHTML=`<td>${index+1}</td>${columns.map(c=>`<td>${val(c[0])}</td>`).join("")}<td><button type="button" class="btn btn-info btn-sm me-1" onclick="viewDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-eye"></i> View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="editDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-pencil-square"></i> Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDISHARecordFromRegister('${safeJS(meeting.id)}')"><i class="bi bi-trash"></i> Delete</button></td>`;
+        const actions = meeting.syntheticNoMeeting ? '<span class="text-muted">No meeting record</span>' : `<button type="button" class="btn btn-info btn-sm me-1" onclick="viewDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-eye"></i> View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="editDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-pencil-square"></i> Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDISHARecordFromRegister('${safeJS(meeting.id)}')"><i class="bi bi-trash"></i> Delete</button>`;
+        row.innerHTML=`<td>${index+1}</td>${columns.map(c=>`<td>${val(c[0])}</td>`).join("")}<td>${actions}</td>`;
         tbody.appendChild(row);
     });
     updateRecordCount(sortedRecords.length);
