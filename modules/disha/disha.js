@@ -1308,7 +1308,11 @@ function renderDishaHomeRegister(records) {
           const bPending = Number.isFinite(pb);
           if (aPending !== bPending) return aPending ? -1 : 1;
           if (aPending && pa !== pb) return pb - pa;
-          return String(b.dateOfMeeting || b.meetingDate || "").localeCompare(String(a.dateOfMeeting || a.meetingDate || ""));
+          const districtCompare = String(a.district || a.nameOfDistrict || "").localeCompare(String(b.district || b.nameOfDistrict || ""), undefined, {sensitivity:"base"});
+          if (districtCompare !== 0) return districtCompare;
+          const da = a.dateOfMeeting || a.meetingDate || a.proposedDateOfMeeting || "";
+          const db = b.dateOfMeeting || b.meetingDate || b.proposedDateOfMeeting || "";
+          return String(db).localeCompare(String(da));
       });
     document.getElementById("dishaHomeRecordCount").textContent = `Records: ${active.length}`;
     if (!active.length) {

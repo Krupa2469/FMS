@@ -811,6 +811,9 @@ function applyURLFilter() {
         /* ----------------------------------------------------
            DASHBOARD CARD ALIASES
         ---------------------------------------------------- */
+        case "pom-not-uploaded":
+            filteredMeetings = currentFYRecords.filter(r => !/yes|uploaded|completed/i.test(String(r.pomUploaded || r.pomStatus || "")));
+            break;
         case "pom-pending":
         case "awaiting":
             filteredMeetings = currentFYRecords.filter(r => !/yes|uploaded|completed/i.test(String(r.pomUploaded || r.pomStatus || "")));
@@ -1145,6 +1148,8 @@ function renderRegisterTable(records) {
         const aPending=Number.isFinite(pa), bPending=Number.isFinite(pb);
         if(aPending!==bPending) return aPending?-1:1;
         if(aPending && pa!==pb) return pb-pa;
+        const districtCompare=String(a.district||a.nameOfDistrict||"").localeCompare(String(b.district||b.nameOfDistrict||""),undefined,{sensitivity:"base"});
+        if(districtCompare!==0) return districtCompare;
         const da=parseDate(a.dateOfMeeting||a.meetingDate||a.proposedDateOfMeeting),db=parseDate(b.dateOfMeeting||b.meetingDate||b.proposedDateOfMeeting);
         return (db?.getTime?.()||0)-(da?.getTime?.()||0);
     });
