@@ -820,6 +820,7 @@ function applyURLFilter() {
            PoM UPLOADED
         ---------------------------------------------------- */
 
+        case "pom-uploaded":
         case "uploaded":
 
             filteredMeetings =
@@ -833,6 +834,15 @@ function applyURLFilter() {
 
             break;
 
+
+        case "districts-conducted":
+            filteredMeetings = currentFYRecords.filter(r => normalize(r.statusOfMeeting) === "held");
+            break;
+
+        case "districts-no-meetings":
+            // A no-meeting district has no meeting record to show in the meeting register.
+            filteredMeetings = [];
+            break;
 
         /* ----------------------------------------------------
            DEFAULT

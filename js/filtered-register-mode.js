@@ -67,6 +67,10 @@
     const anchor=dataBlock || document.body.firstElementChild;
     anchor?.parentNode?.insertBefore(banner,anchor);
     document.getElementById("btnClearDashboardFilter")?.addEventListener("click",()=>{
+      if(path.includes("disha-register")){
+        location.href="disha.html";
+        return;
+      }
       if(path.includes("cpgrams-register")){
         const homeParams=new URLSearchParams();
         const grievanceType=params.get("grievanceType")||params.get("category")||"CPGRAMS";

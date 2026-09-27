@@ -1,0 +1,17 @@
+const fs=require('fs'), assert=require('assert');
+const root=process.argv[2]||'/mnt/data/fms168';
+const home=fs.readFileSync(root+'/modules/disha/disha.html','utf8');
+const js=fs.readFileSync(root+'/modules/disha/disha.js','utf8');
+const dash=fs.readFileSync(root+'/js/module-inline-dashboard.js','utf8');
+const full=fs.readFileSync(root+'/js/filtered-register-mode.js','utf8');
+assert(home.includes('id="dishaHomeRegisterBody"'),'DISHA home must contain embedded register');
+assert(home.includes('DISHA Meeting Register'),'DISHA home must show register title');
+assert(js.includes('renderDishaHomeRegister'),'DISHA home JS must render Firestore records');
+assert(js.includes('await refreshDishaHomeWorkspace()'),'save/update/delete must refresh home workspace');
+assert(dash.includes('`Total: ${heldRows.length} • ${fy}: ${heldFY.length}`'),'Meetings Held must use Total + CFY');
+assert(full.includes('location.href="disha.html"'),'Exit Full Screen must return to DISHA home');
+console.log('v1.6.8 DISHA home/register regression: PASS');
+const regjs=fs.readFileSync(root+'/modules/disha/disha-register.js','utf8');
+assert(regjs.includes('case "pom-uploaded"'),'PoM Uploaded dashboard filter must be supported');
+assert(regjs.includes('case "districts-conducted"'),'district conducted dashboard filter must be supported');
+assert(home.includes('position: sticky'),'Save/Update/Delete toolbar must remain sticky');

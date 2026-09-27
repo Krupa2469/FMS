@@ -70,7 +70,7 @@ async function initializeDISHA() {
 
     }
 
-    await loadRecords();
+    await refreshDishaHomeWorkspace();
 
 }
 
@@ -1115,6 +1115,7 @@ async function saveRecord(event) {
 
         showMessage("DISHA record saved successfully. Form cleared for new entry.", "success");
         await prepareNewRecord();
+        await refreshDishaHomeWorkspace();
         window.FMSInlineDashboard?.refresh?.();
         return true;
 
@@ -1161,6 +1162,7 @@ async function updateRecord(event) {
 
         showMessage("DISHA record updated successfully.", "success");
         if (window.FMSDishaAttachmentUI?.refresh) await window.FMSDishaAttachmentUI.refresh();
+        await refreshDishaHomeWorkspace();
         window.FMSInlineDashboard?.refresh?.();
         return true;
 
@@ -1208,7 +1210,7 @@ async function deleteRecord(event) {
 
         showMessage("DISHA record deleted successfully.", "success");
         await prepareNewRecord();
-        await loadRecords();
+        await refreshDishaHomeWorkspace();
         window.FMSInlineDashboard?.refresh?.();
         return true;
 
@@ -1229,20 +1231,11 @@ async function deleteRecord(event) {
 
 async function loadFirestoreRecords() {
 
-    if (
-        typeof db ===
-        "undefined"
-    ) {
-
-        throw new Error(
-            "Firebase Firestore 'db' is not initialized."
-        );
-
-    }
-
+    const fireDb = window.db || (window.FMSCrud?.waitForDb ? await window.FMSCrud.waitForDb() : null);
+    if (!fireDb) throw new Error("Firebase Firestore 'db' is not initialized.");
 
     const snapshot =
-        await db
+        await fireDb
             .collection(
                 DISHA_COLLECTION
             )
@@ -1301,6 +1294,65 @@ async function loadRecords() {
 
 }
 
+
+
+/* ================================================================
+   DISHA HOME REGISTER
+================================================================ */
+function dishaHomeEscape(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function dishaHomeDate(value) {
+    if (!value) return "";
+    if (value && typeof value.toDate === "function") value = value.toDate();
+    const d = value instanceof Date ? value : new Date(String(value).slice(0,10) + "T00:00:00");
+    if (Number.isNaN(d.getTime())) return dishaHomeEscape(value);
+    return d.toLocaleDateString("en-GB");
+}
+function dishaHomePendingDays(record) {
+    const uploaded = /yes|uploaded|completed/i.test(String(record.pomUploaded || ""));
+    if (uploaded) return "-";
+    const raw = record.dateOfMeeting || record.meetingDate || record.proposedDateOfMeeting;
+    if (!raw) return "-";
+    const d = raw && typeof raw.toDate === "function" ? raw.toDate() : new Date(String(raw).slice(0,10) + "T00:00:00");
+    if (Number.isNaN(d.getTime())) return "-";
+    const today = new Date(); today.setHours(0,0,0,0); d.setHours(0,0,0,0);
+    const days = Math.floor((today-d)/86400000);
+    return days >= 0 ? String(days) : "-";
+}
+function renderDishaHomeRegister(records) {
+    const body = document.getElementById("dishaHomeRegisterBody");
+    if (!body) return;
+    const active = (records || []).filter(r => r.active !== false && r.deleted !== true)
+      .sort((a,b) => String(b.dateOfMeeting || b.meetingDate || "").localeCompare(String(a.dateOfMeeting || a.meetingDate || "")));
+    document.getElementById("dishaHomeRecordCount").textContent = `Records: ${active.length}`;
+    if (!active.length) {
+        body.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No DISHA meetings found.</td></tr>';
+        return;
+    }
+    body.innerHTML = active.map((r,i) => {
+        const id = dishaHomeEscape(r.id || "");
+        const uploaded = /yes|uploaded|completed/i.test(String(r.pomUploaded || ""));
+        return `<tr><td>${i+1}</td><td>${dishaHomeEscape(r.district || r.nameOfDistrict || "")}</td><td>${dishaHomeDate(r.dateOfMeeting || r.meetingDate)}</td><td>${uploaded ? "Yes" : "No"}</td><td>${dishaHomePendingDays(r)}</td><td>${dishaHomeEscape(r.statusOfBills || r.billsStatus || "")}</td><td>${dishaHomeEscape(r.remarks || "")}</td><td class="text-nowrap"><button type="button" class="btn btn-info btn-sm me-1" onclick="openDishaRecord('${id}')">View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="openDishaRecord('${id}')">Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDishaHomeRecord('${id}')">Delete</button></td></tr>`;
+    }).join("");
+}
+async function refreshDishaHomeWorkspace() {
+    const records = await loadRecords();
+    renderDishaHomeRegister(records);
+    return records;
+}
+async function deleteDishaHomeRecord(id) {
+    if (!id || !confirm("Are you sure you want to delete this DISHA record?")) return;
+    try {
+        const result = window.FMSCrud ? await window.FMSCrud.softDelete(DISHA_COLLECTION,id) : null;
+        if (!result?.success) throw new Error(result?.message || "Unable to delete DISHA record.");
+        if (currentRecordId === id) { currentRecordId = null; await prepareNewRecord(); }
+        await refreshDishaHomeWorkspace();
+        await window.FMSInlineDashboard?.refresh?.();
+        showMessage("DISHA record deleted successfully.", "success");
+    } catch (error) { showMessage("Unable to delete record: " + (error.message || error), "danger"); }
+}
+window.deleteDishaHomeRecord = deleteDishaHomeRecord;
 
 /* ================================================================
    DATE HELPERS

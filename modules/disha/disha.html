@@ -144,6 +144,28 @@
 <div class="row g-3" id="moduleDashboardCards"></div>
 </section>
 <!-- =========================================================
+     DISHA MEETING REGISTER - HOME WORKSPACE
+========================================================= -->
+<div class="card section-card" id="dishaHomeRegisterCard">
+  <div class="card-header section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <span>DISHA Meeting Register</span>
+    <span class="badge bg-light text-dark" id="dishaHomeRecordCount">Records: 0</span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover table-striped mb-0">
+        <thead class="table-dark"><tr>
+          <th>Sl.No</th><th>District</th><th>Meeting Date</th><th>PoM Uploaded</th>
+          <th>PoM Pending Days</th><th>Bills Status</th><th>Remarks</th><th>Action</th>
+        </tr></thead>
+        <tbody id="dishaHomeRegisterBody">
+          <tr><td colspan="8" class="text-center text-muted py-4">Loading DISHA meetings...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- =========================================================
      DISHA DATA ENTRY
 ========================================================= -->
 <div class="card section-card">
@@ -617,10 +639,10 @@
 <script src="../../js/document/document-engine.js"></script>
 <script src="../../js/services/parser/module-parsers.js"></script>
 <script src="../../js/services/fms-parser-service.js"></script>
-<script src="disha-data-2026-27.js?v=1.6.7"></script>
-<script src="disha.js?v=1.6.7"></script>
+<script src="disha-data-2026-27.js?v=1.6.8"></script>
+<script src="disha.js?v=1.6.8"></script>
 <script src="../../js/record-consistency.js"></script>
-<script src="../../js/module-inline-dashboard.js?v=1.6.7"></script>
+<script src="../../js/module-inline-dashboard.js?v=1.6.8"></script>
 <!-- =====================================================
      FMS FIREBASE STARTUP
 ====================================================== -->

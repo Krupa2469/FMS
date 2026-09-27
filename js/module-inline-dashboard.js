@@ -55,7 +55,7 @@
       const noMeetAll=Math.max(0,districtCount-conductedAll);
       const noMeetFY=Math.max(0,districtCount-conductedFY);
       cards=[
-        ["Meetings Held",`Since Inception: ${heldRows.length} • ${fy}: ${heldFY.length}`,"held","bi-calendar-check","primary"],
+        ["Meetings Held",`Total: ${heldRows.length} • ${fy}: ${heldFY.length}`,"held","bi-calendar-check","primary"],
         ["PoM Uploaded",uploaded,"pom-uploaded","bi-cloud-check","success"],
         ["PoM Pending",`${pendingRows.length} pending • ${maxPending} day(s) after meeting`,"pom-pending","bi-clock-history","warning"],
         ["Districts with no meetings",`Total: ${noMeetAll} • ${fy}: ${noMeetFY}`,"districts-no-meetings","bi-geo-alt","danger"],
