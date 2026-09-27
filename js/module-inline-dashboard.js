@@ -18,9 +18,9 @@
   function isOverdue(r){return P()?.overdue?.(module,r)||false;}
   function isDueToday(r){return P()?.dueToday?.(module,r)||false;}
   function withinDue(r){return P()?.withinDue?.(module,r)||(!isClosed(r)&&!isOverdue(r)&&!isDueToday(r));}
-  function card(label,value,filter,icon,theme){const href=`${cfg.register}?filter=${encodeURIComponent(filter)}&fy=${encodeURIComponent(currentFY())}`;return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${href}"><div class="card h-100 shadow-sm border-0 fms-inline-metric-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="fs-3 fw-bold text-${theme} lh-1">${esc(value)}</div></div></div></a></div>`;}
+  function card(label,value,filter,icon,theme){const href=`${cfg.register}?filter=${encodeURIComponent(filter)}&fy=${encodeURIComponent(currentFY())}`;const valueClass=String(value??"").length>8?"fs-6 lh-sm":"fs-3 lh-1";return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${href}"><div class="card h-100 shadow-sm border-0 fms-inline-metric-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="${valueClass} fw-bold text-${theme}">${esc(value)}</div></div></div></a></div>`;}
   function render(rows){
-    const fy=currentFY();rows=(rows||[]).filter(r=>P()?P().inFY(module,r,fy):true);
+    const fy=currentFY(); if(module!=="disha") rows=(rows||[]).filter(r=>P()?P().inFY(module,r,fy):true);
     const statusEl=document.getElementById("moduleDashboardStatus");let cards=[];
     if(module==="rti"){
       cards=[
@@ -35,24 +35,31 @@
         ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
       ];
     } else {
-      const held=rows.filter(r=>/held/i.test(String(r.statusOfMeeting||r.meetingStatus||r.status||""))).length;
-      const postponed=rows.filter(r=>/postponed/i.test(String(r.statusOfMeeting||r.meetingStatus||r.status||""))).length;
-      const uploaded=rows.filter(r=>w(r).pomUploaded).length;
-      const notUploaded=rows.filter(r=>!w(r).pomUploaded).length;
-      const pending07=rows.filter(r=>!w(r).pomUploaded && ((P()?.diffDays?.(P()?.recordDate?.("disha",r),new Date())||0)>=0) && ((P()?.diffDays?.(P()?.recordDate?.("disha",r),new Date())||0)<=7)).length;
-      const pending815=rows.filter(r=>{const d=P()?.diffDays?.(P()?.recordDate?.("disha",r),new Date());return !w(r).pomUploaded&&d!=null&&d>=8&&d<=15;}).length;
-      const pending15=rows.filter(r=>{const d=P()?.diffDays?.(P()?.recordDate?.("disha",r),new Date());return !w(r).pomUploaded&&d!=null&&d>15;}).length;
-      const districts=new Set(rows.filter(r=>!w(r).pomUploaded).map(r=>String(r.district||r.nameOfDistrict||"").trim()).filter(Boolean));
+      const allRows=[...(rows||[])];
+      const fyRows=allRows.filter(r=>P()?P().inFY("disha",r,fy):true);
+      const heldRows=allRows.filter(r=>/held/i.test(String(r.statusOfMeeting||r.meetingStatus||r.status||"")));
+      const heldFY=fyRows.filter(r=>/held/i.test(String(r.statusOfMeeting||r.meetingStatus||r.status||"")));
+      const held=heldFY.length;
+      const uploaded=fyRows.filter(r=>w(r).pomUploaded).length;
+      const pendingRows=fyRows.filter(r=>{
+        if(w(r).pomUploaded) return false;
+        const d=P()?.recordDate?.("disha",r);
+        return d && P()?.diffDays?.(d,new Date())>=0;
+      });
+      const pendingDays=pendingRows.map(r=>P()?.diffDays?.(P()?.recordDate?.("disha",r),new Date())||0);
+      const maxPending=pendingDays.length?Math.max(...pendingDays):0;
+      const districtCount=33;
+      const norm=v=>String(v||"").trim().toLowerCase();
+      const conductedAll=new Set(heldRows.map(r=>norm(r.district||r.nameOfDistrict)).filter(Boolean)).size;
+      const conductedFY=new Set(heldFY.map(r=>norm(r.district||r.nameOfDistrict)).filter(Boolean)).size;
+      const noMeetAll=Math.max(0,districtCount-conductedAll);
+      const noMeetFY=Math.max(0,districtCount-conductedFY);
       cards=[
-        ["Total Meetings",rows.length,"total","bi-calendar3","primary"],
-        ["Meetings Held",held,"held","bi-check-circle","success"],
+        ["Meetings Held",`Since Inception: ${heldRows.length} • ${fy}: ${heldFY.length}`,"held","bi-calendar-check","primary"],
         ["PoM Uploaded",uploaded,"pom-uploaded","bi-cloud-check","success"],
-        ["PoM Not Uploaded",notUploaded,"pom-not-uploaded","bi-cloud-arrow-up","warning"],
-        ["PoM Pending 0–7 Days",pending07,"pom-0-7","bi-clock","info"],
-        ["PoM Pending 8–15 Days",pending815,"pom-8-15","bi-clock-history","warning"],
-        ["PoM Pending >15 Days",pending15,"pom-15-plus","bi-exclamation-triangle","danger"],
-        ["Districts Pending PoM",districts.size,"districts-pending","bi-geo-alt","secondary"],
-        ["Postponed Meetings",postponed,"postponed","bi-calendar-x","warning"]
+        ["PoM Pending",`${pendingRows.length} pending • ${maxPending} day(s) after meeting`,"pom-pending","bi-clock-history","warning"],
+        ["Districts with no meetings",`Total: ${noMeetAll} • ${fy}: ${noMeetFY}`,"districts-no-meetings","bi-geo-alt","danger"],
+        ["Districts conducted meetings",`Total: ${conductedAll} • ${fy}: ${conductedFY}`,"districts-conducted","bi-geo-alt-fill","success"]
       ];
     }
     host.innerHTML=cards.map(x=>card(...x)).join("");

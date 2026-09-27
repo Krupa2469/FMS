@@ -50,6 +50,7 @@ document.addEventListener(
 
         registerEvents();
 
+        await syncDishaSourceData();
         await loadDISHAmeetings();
 
         initializeDISHAFinancialYearFilter();
@@ -239,14 +240,33 @@ function registerEvents() {
 }
 
 
+async function waitForDISHADB() {
+    let db = getFirestoreDB();
+    if (db) return db;
+    if (window.FMSCrud?.waitForDb) { try { db = await window.FMSCrud.waitForDb(); } catch (_) {} }
+    if (db) return db;
+    await new Promise(resolve => {
+        let done=false; const finish=()=>{if(done)return;done=true;resolve();};
+        window.addEventListener("fmsFirebaseReady", finish, {once:true});
+        setTimeout(finish, 2500);
+    });
+    return getFirestoreDB();
+}
+
+async function syncDishaSourceData() {
+    const db = await waitForDISHADB();
+    if (!db || !window.FMSDishaDataSync?.sync) return;
+    try { await window.FMSDishaDataSync.sync(db); }
+    catch (e) { console.warn("DISHA source-data sync skipped:", e); }
+}
+
 /* ============================================================
    LOAD FIRESTORE RECORDS
    ============================================================ */
 
 async function loadDISHAmeetings() {
 
-    const db =
-        getFirestoreDB();
+    const db = await waitForDISHADB();
 
 
     if (!db) {
@@ -991,52 +1011,49 @@ window.exportDISHARegister=exportDISHARegister;
    RENDER REGISTER TABLE
    ============================================================ */
 
+function getPomPendingDays(meeting) {
+    const wf = window.FMSRecordPolicy?.workflow?.("disha", meeting) || {};
+    if (wf.pomUploaded || String(meeting.pomUploaded||"").toLowerCase()==="yes") return "";
+    const d = parseDate(meeting.dateOfMeeting || meeting.meetingDate || meeting.proposedDateOfMeeting);
+    if (!d) return "";
+    const days = Math.floor((new Date().setHours(0,0,0,0) - new Date(d).setHours(0,0,0,0))/86400000);
+    return days >= 0 ? days : "";
+}
+
 function renderRegisterTable(records) {
-    let tbody = document.getElementById("registerBody");
-    if (!tbody) tbody = document.querySelector("table tbody");
+    let tbody = document.getElementById("registerBody") || document.querySelector("table tbody");
     if (!tbody) { console.error("DISHA Register table tbody not found."); return; }
     const headerRow = document.querySelector("thead tr");
     const columns = [
         ["district", "District"],
         ["dateOfMeeting", "Meeting Date"],
-        ["meetingSubject", "Meeting Subject"],
-        ["statusOfMeeting", "Meeting Status"],
         ["pomUploaded", "PoM Uploaded"],
-        ["pomDisplay", "Days Elapsed / Yes"],
-        ["pomUploadDate", "PoM Upload Date"],
-        ["meetingExpenditure", "Expenditure"],
-        ["statusOfBills", "Bill Status"]
+        ["pomPendingDays", "PoM Pending Days"],
+        ["statusOfBills", "Bills Status"],
+        ["remarks", "Remarks"]
     ];
     if (headerRow) headerRow.innerHTML = `<th>Sl.No</th>${columns.map(c=>`<th>${safe(c[1])}</th>`).join("")}<th>Action</th>`;
     tbody.innerHTML = "";
     if (!records || records.length === 0) {
         tbody.innerHTML = `<tr><td colspan="${columns.length + 2}" class="text-center text-muted py-4">No DISHA meetings found.</td></tr>`;
-        updateRecordCount(0);
-        return;
+        updateRecordCount(0); return;
     }
-    const sortedRecords = [...records].sort(function(a,b){
-        const da = parseDate(a.dateOfMeeting || a.meetingDate || a.proposedDateOfMeeting);
-        const db = parseDate(b.dateOfMeeting || b.meetingDate || b.proposedDateOfMeeting);
-        return (db?.getTime?.() || 0) - (da?.getTime?.() || 0);
-    });
-    sortedRecords.forEach(function(meeting, index) {
-        const wf = window.FMSRecordPolicy?.workflow?.("disha", meeting) || {};
-        const val = key => {
-            if (key === "dateOfMeeting") return formatDate(meeting.dateOfMeeting || meeting.meetingDate || meeting.proposedDateOfMeeting);
-            if (key === "meetingSubject") return safe(meeting.meetingSubject || meeting.subject || meeting.remarks || "");
-            if (key === "pomUploaded") return wf.pomUploaded ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-warning text-dark">No</span>';
-            if (key === "pomDisplay") return safe(wf.pomDisplay || meeting.pomDisplay || "");
-            if (key === "pomUploadDate") return formatDate(meeting.pomUploadDate || meeting.uploadedDate || "");
-            if (key === "meetingExpenditure") return "₹" + formatAmount(meeting.meetingExpenditure || meeting.expenditureAmount || 0);
-            return safe(meeting[key] || meeting.nameOfDistrict || "");
+    const sortedRecords = [...records].sort((a,b)=>{const da=parseDate(a.dateOfMeeting||a.meetingDate||a.proposedDateOfMeeting),db=parseDate(b.dateOfMeeting||b.meetingDate||b.proposedDateOfMeeting);return (db?.getTime?.()||0)-(da?.getTime?.()||0);});
+    sortedRecords.forEach((meeting,index)=>{
+        const wf=window.FMSRecordPolicy?.workflow?.("disha",meeting)||{};
+        const val=key=>{
+            if(key==="dateOfMeeting") return formatDate(meeting.dateOfMeeting||meeting.meetingDate||meeting.proposedDateOfMeeting);
+            if(key==="pomUploaded") return (wf.pomUploaded||String(meeting.pomUploaded||"").toLowerCase()==="yes")?'<span class="badge bg-success">Yes</span>':'<span class="badge bg-warning text-dark">No</span>';
+            if(key==="pomPendingDays"){const d=getPomPendingDays(meeting);return d===""?"-":safe(d);}
+            if(key==="district") return safe(meeting.district||meeting.nameOfDistrict||"");
+            return safe(meeting[key]||"");
         };
         const row=document.createElement("tr");
-        row.innerHTML = `<td>${index+1}</td>${columns.map(c=>`<td>${val(c[0])}</td>`).join("")}<td><button type="button" class="btn btn-info btn-sm me-1" onclick="viewDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-eye"></i> View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="editDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-pencil-square"></i> Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDISHARecordFromRegister('${safeJS(meeting.id)}')"><i class="bi bi-trash"></i> Delete</button></td>`;
+        row.innerHTML=`<td>${index+1}</td>${columns.map(c=>`<td>${val(c[0])}</td>`).join("")}<td><button type="button" class="btn btn-info btn-sm me-1" onclick="viewDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-eye"></i> View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="editDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-pencil-square"></i> Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDISHARecordFromRegister('${safeJS(meeting.id)}')"><i class="bi bi-trash"></i> Delete</button></td>`;
         tbody.appendChild(row);
     });
     updateRecordCount(sortedRecords.length);
 }
-
 
 /* ============================================================
    OPEN DISHA RECORD

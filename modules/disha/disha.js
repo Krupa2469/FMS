@@ -50,6 +50,11 @@ async function initializeDISHA() {
 
     registerEvents();
 
+    try {
+        const readyDb = window.FMSCrud?.waitForDb ? await window.FMSCrud.waitForDb() : (window.db || (typeof db!=="undefined" ? db : null));
+        if (readyDb && window.FMSDishaDataSync?.sync) await window.FMSDishaDataSync.sync(readyDb);
+    } catch (e) { console.warn("DISHA source-data sync skipped:", e); }
+
     const requestedId =
         getRequestedRecordId();
 
@@ -1014,6 +1019,30 @@ function getPomDueDateInternal() {
 }
 
 
+function normalizeDishaDistrict(value) {
+    return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+async function validateUniqueDistrictMeetingDate(data, excludeId) {
+    const district = normalizeDishaDistrict(data?.district);
+    const meetingDate = String(data?.dateOfMeeting || "").slice(0,10);
+    if (!district || !meetingDate) return true;
+    const fireDb = window.db || (typeof db !== "undefined" ? db : null) || (window.FMSCrud?.waitForDb ? await window.FMSCrud.waitForDb() : null);
+    if (!fireDb) return true;
+    const snapshot = await fireDb.collection(DISHA_COLLECTION).get();
+    let duplicate = false;
+    snapshot.forEach(doc => {
+        if (excludeId && doc.id === excludeId) return;
+        const r = doc.data() || {};
+        if (r.active === false || r.deleted === true) return;
+        const sameDistrict = normalizeDishaDistrict(r.district || r.nameOfDistrict) === district;
+        const sameDate = String(r.dateOfMeeting || r.meetingDate || "").slice(0,10) === meetingDate;
+        if (sameDistrict && sameDate) duplicate = true;
+    });
+    if (duplicate) showMessage("A DISHA meeting for the same District and Meeting Date already exists.", "danger");
+    return !duplicate;
+}
+
 /* ================================================================
    VALIDATE
 ================================================================ */
@@ -1064,6 +1093,7 @@ async function saveRecord(event) {
         const data = getFormData();
 
         if (!validateForm(data)) return false;
+        if (!(await validateUniqueDistrictMeetingDate(data, null))) return false;
 
         const result = window.FMSCrud
             ? await window.FMSCrud.create(DISHA_COLLECTION, data)
@@ -1118,6 +1148,7 @@ async function updateRecord(event) {
 
         const data = getFormData();
         if (!validateForm(data)) return false;
+        if (!(await validateUniqueDistrictMeetingDate(data, currentRecordId))) return false;
 
         const result = window.FMSCrud
             ? await window.FMSCrud.update(DISHA_COLLECTION, currentRecordId, data)
