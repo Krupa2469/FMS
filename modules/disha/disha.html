@@ -95,10 +95,17 @@
         }
 
         .fms-action-toolbar {
-            position: sticky !important;
+            position: fixed !important;
             top: 0 !important;
-            z-index: 1035;
-            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            z-index: 1100 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,.14);
+        }
+        .fms-action-toolbar-spacer { height: 62px; }
+        @media (max-width: 576px) {
+            .fms-action-toolbar-spacer { height: 104px; }
         }
 
     </style>
@@ -135,6 +142,7 @@
 
             </button>
 </div></div></nav>
+<div class="fms-action-toolbar-spacer" aria-hidden="true"></div>
 <div class="container-fluid px-4">
 <!-- ===========================================================
      MODULE DASHBOARD CARDS
@@ -539,66 +547,6 @@
 </div>
 </div>
 <!-- =========================================================
-     CURRENT RECORD STATUS
-========================================================= -->
-<!-- =========================================================
-     CURRENT SELECTED RECORD STATUS
-========================================================= -->
-<div class="row g-3 mt-3">
-<!-- Days Left -->
-<div class="col-md-3">
-<div class="status-card">
-<div class="status-label">
-                Days Left for PoM Upload
-            </div>
-<div class="status-value" id="daysLeft">
-
-                -
-
-            </div>
-</div>
-</div>
-<!-- Days Delayed -->
-<div class="col-md-3">
-<div class="status-card">
-<div class="status-label">
-                Days Delayed after Due Date
-            </div>
-<div class="status-value" id="daysDelayed">
-
-                -
-
-            </div>
-</div>
-</div>
-<!-- PoM Status -->
-<div class="col-md-3">
-<div class="status-card">
-<div class="status-label">
-                PoM Upload Status
-            </div>
-<div class="status-value" id="pomStatus">
-
-                -
-
-            </div>
-</div>
-</div>
-<!-- Meeting Status -->
-<div class="col-md-3">
-<div class="status-card">
-<div class="status-label">
-                Meeting Status
-            </div>
-<div class="status-value" id="meetingStatusSummary">
-
-                -
-
-            </div>
-</div>
-</div>
-</div>
-<!-- =========================================================
      FOOTER
 ========================================================= -->
 <div class="text-center text-muted mt-4 mb-4">
@@ -640,7 +588,7 @@
 <script src="../../js/services/parser/module-parsers.js"></script>
 <script src="../../js/services/fms-parser-service.js"></script>
 <script src="disha-data-2026-27.js?v=1.7.0"></script>
-<script src="disha.js?v=1.7.0"></script>
+<script src="disha.js?v=1.7.3"></script>
 <script src="../../js/record-consistency.js"></script>
 <script src="../../js/module-inline-dashboard.js?v=1.7.0"></script>
 <!-- =====================================================
