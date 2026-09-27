@@ -21,7 +21,7 @@
   function isOverdue(r){return P()?.overdue?.(module,r)||false;}
   function isDueToday(r){return P()?.dueToday?.(module,r)||false;}
   function withinDue(r){return P()?.withinDue?.(module,r)||(!isClosed(r)&&!isOverdue(r)&&!isDueToday(r));}
-  function metricLink(value,filter,scope,theme,fy){const href=`${cfg.register}?filter=${encodeURIComponent(filter)}${scope==="fy"?`&fy=${encodeURIComponent(fy)}`:""}`;return `<a class="text-${theme} text-decoration-none fw-bold" href="${href}">${esc(value)}</a>`;}
+  function metricLink(value,filter,scope,theme,fy){const href=`${cfg.register}?filter=${encodeURIComponent(filter)}&scope=${scope==="all"?"all":"fy"}${scope==="fy"?`&fy=${encodeURIComponent(fy)}`:""}`;return `<a class="text-${theme} text-decoration-none fw-bold" href="${href}">${esc(value)}</a>`;}
   function card(label,value,filter,icon,theme){const valueClass=String(value??"").length>8?"fs-6 lh-sm":"fs-3 lh-1";return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><div class="card h-100 shadow-sm border-0 fms-inline-metric-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="${valueClass} fw-bold text-${theme}">${value}</div></div></div></div>`;}
   function render(rows){
     const fy=selectedFY(); if(module!=="disha") rows=(rows||[]).filter(r=>P()?P().inFY(module,r,fy):true);
@@ -65,7 +65,6 @@
         ["Meetings Held",`Total: ${metricLink(heldRows.length,"held","all","primary",fy)} • ${esc(fy)}: ${metricLink(heldFY.length,"held","fy","primary",fy)}`,"held","bi-calendar-check","primary"],
         ["PoM Uploaded",metricLink(uploaded,"pom-uploaded","fy","success",fy),"pom-uploaded","bi-cloud-check","success"],
         ["PoM Not Uploaded",metricLink(notUploaded,"pom-not-uploaded","fy","danger",fy),"pom-not-uploaded","bi-cloud-slash","danger"],
-        ["PoM Pending",`${metricLink(pendingRows.length,"pom-pending","fy","warning",fy)} pending • ${esc(maxPending)} day(s) after meeting`,"pom-pending","bi-clock-history","warning"],
         ["Districts with no meetings",`Total: ${metricLink(noMeetAll,"districts-no-meetings","all","danger",fy)} • ${esc(fy)}: ${metricLink(noMeetFY,"districts-no-meetings","fy","danger",fy)}`,"districts-no-meetings","bi-geo-alt","danger"],
         ["Districts conducted meetings",`Total: ${metricLink(conductedAll,"districts-conducted","all","success",fy)} • ${esc(fy)}: ${metricLink(conductedFY,"districts-conducted","fy","success",fy)}`,"districts-conducted","bi-geo-alt-fill","success"]
       ];

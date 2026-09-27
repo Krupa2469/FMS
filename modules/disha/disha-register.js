@@ -799,8 +799,10 @@ function applyURLFilter() {
      * on the current Financial Year.
      */
 
-    const currentFYRecords =
-        getSelectedDISHAFYRecords();
+    const scope = normalize(params.get("scope"));
+    const currentFYRecords = scope === "all"
+        ? (dishaMeetings || []).filter(record => record && record.active !== false && record.deleted !== true)
+        : getSelectedDISHAFYRecords();
 
 
     switch (
