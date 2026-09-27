@@ -320,7 +320,7 @@ function applyRTIFYFilter(){
     updateSummaryCards(records);
     renderRegister(records);
 }
-function newRTI(){ window.location.href="rti.html"; }
+function newRTI(){ window.location.href="rti.html?mode=new&fullscreenForm=1"; }
 function loadRTIRecords(){ initializeRTIRegister(); }
 function goBackToRTI(){ window.location.href="rti.html"; }
 function goHome(){ window.location.href="../../index.html"; }
@@ -977,7 +977,8 @@ function editRTIRecord(id) {
 
 async function deleteRTIRecordFromRegister(id) {
     if (!id) return;
-    if (!confirm("Delete this RTI application from the register?")) return;
+    window.location.href="rti.html?mode=delete&fullscreenForm=1&id="+encodeURIComponent(id);
+    return;
     try {
         const result = window.FMSCrud ? await window.FMSCrud.softDelete(RTI_COLLECTION, id) : null;
         if (!result) {
@@ -1552,7 +1553,8 @@ function editRTIRecord(id) {
 
 async function deleteRTIRecordFromRegister(id) {
     if (!id) return;
-    if (!confirm("Delete this RTI application from the register?")) return;
+    window.location.href="rti.html?mode=delete&fullscreenForm=1&id="+encodeURIComponent(id);
+    return;
     try {
         const result = window.FMSCrud ? await window.FMSCrud.softDelete(RTI_COLLECTION, id) : null;
         if (!result) {

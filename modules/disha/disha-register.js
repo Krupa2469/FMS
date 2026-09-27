@@ -1409,7 +1409,8 @@ function editDISHARecord(id) {
 
 async function deleteDISHARecordFromRegister(id) {
     if (!id) return;
-    if (!confirm("Delete this DISHA record from the register?")) return;
+    window.location.href="disha.html?mode=delete&fullscreenForm=1&id="+encodeURIComponent(id);
+    return;
     try {
         const result = window.FMSCrud ? await window.FMSCrud.softDelete(DISHA_COLLECTION, id) : null;
         if (!result) {
