@@ -25,6 +25,7 @@
   function render(rows){
     const fy=selectedFY(); if(module!=="disha") rows=(rows||[]).filter(r=>P()?P().inFY(module,r,fy):true);
     const statusEl=document.getElementById("moduleDashboardStatus");let cards=[];
+    let dashboardFyRows=rows||[], dashboardAllRows=rows||[];
     if(module==="rti"){
       cards=[
         ["Total RTI Applications",rows.length,"total","bi-collection","primary"],
@@ -40,6 +41,7 @@
     } else {
       const allRows=[...(rows||[])].filter(r=>r && r.active!==false && r.deleted!==true);
       const fyRows=allRows.filter(r=>recordFY(r)===fy);
+      dashboardAllRows=allRows; dashboardFyRows=fyRows;
       const heldRows=allRows.filter(r=>/held/i.test(String(r.statusOfMeeting||r.meetingStatus||r.status||"")));
       const heldFY=fyRows.filter(r=>/held/i.test(String(r.statusOfMeeting||r.meetingStatus||r.status||"")));
       const held=heldFY.length;
@@ -66,7 +68,7 @@
       ];
     }
     host.innerHTML=cards.map(x=>card(...x)).join("");
-    if(statusEl){statusEl.className="alert alert-success py-2 mb-3";statusEl.textContent=module==="disha"?`DISHA workflow dashboard • Financial Year ${fy}: ${fyRows.length} record(s) • All years: ${allRows.length} record(s)`:`${module.toUpperCase()} workflow dashboard • Financial Year ${fy} • ${rows.length} record(s)`;}
+    if(statusEl){statusEl.className="alert alert-success py-2 mb-3";statusEl.textContent=module==="disha"?`DISHA workflow dashboard • Financial Year ${fy}: ${dashboardFyRows.length} record(s) • All years: ${dashboardAllRows.length} record(s)`:`${module.toUpperCase()} workflow dashboard • Financial Year ${fy} • ${rows.length} record(s)`;}
   }
   async function load(){const s=document.getElementById("moduleDashboardStatus"),db=getDb();if(!db){if(s){s.className="alert alert-warning py-2 mb-3";s.textContent="Dashboard is waiting for Firebase...";}return false;}try{const snap=await db.collection(cfg.collection).get();render(snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>P()?P().active(r):r.active!==false));return true;}catch(e){console.error(`${module} inline dashboard error`,e);if(s){s.className="alert alert-danger py-2 mb-3";s.textContent="Unable to load dashboard: "+(e.message||e);}return false;}}
   async function start(){if(await load())return;window.addEventListener("fmsFirebaseReady",load,{once:true});setTimeout(load,1800);}
