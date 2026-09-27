@@ -395,11 +395,17 @@ function initializeDISHAFinancialYearFilter(){
  if(current==="all") el.value="all";
  el.onchange=applyDISHAFinancialYear;
 }
+function getDISHARecordFY(record){
+ const d=parseDate(record?.dateOfMeeting || record?.meetingDate || record?.proposedDateOfMeeting || record?.date);
+ if(d){const y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1;return `${y}-${String(y+1).slice(-2)}`;}
+ return String(record?.financialYear || record?.fy || "").trim();
+}
 function getSelectedDISHAFYRecords(){
  const params=new URLSearchParams(location.search);
- const fy=params.get("fy") || document.getElementById("financialYear")?.value || FMSFY?.getCurrentFY();
- if(fy==="all") return dishaMeetings.filter(r=>r.active!==false && r.deleted!==true);
- return FMSFY ? FMSFY.filterFY(dishaMeetings,fy,DISHA_FY_FIELDS) : dishaMeetings.filter(isCurrentFinancialYear);
+ const fy=params.get("fy") || document.getElementById("financialYear")?.value || FMSFY?.getCurrentFY() || getCurrentFinancialYear();
+ const active=dishaMeetings.filter(r=>r.active!==false && r.deleted!==true);
+ if(fy==="all") return active;
+ return active.filter(r=>getDISHARecordFY(r)===fy);
 }
 function applyDISHAFinancialYear(){
  filteredMeetings=getSelectedDISHAFYRecords();
@@ -1134,7 +1140,14 @@ function renderRegisterTable(records) {
         tbody.innerHTML = `<tr><td colspan="${columns.length + 2}" class="text-center text-muted py-4">No DISHA meetings found.</td></tr>`;
         updateRecordCount(0); return;
     }
-    const sortedRecords = [...records].sort((a,b)=>{const da=parseDate(a.dateOfMeeting||a.meetingDate||a.proposedDateOfMeeting),db=parseDate(b.dateOfMeeting||b.meetingDate||b.proposedDateOfMeeting);return (db?.getTime?.()||0)-(da?.getTime?.()||0);});
+    const sortedRecords = [...records].sort((a,b)=>{
+        const pa=getPomPendingDays(a), pb=getPomPendingDays(b);
+        const aPending=Number.isFinite(pa), bPending=Number.isFinite(pb);
+        if(aPending!==bPending) return aPending?-1:1;
+        if(aPending && pa!==pb) return pb-pa;
+        const da=parseDate(a.dateOfMeeting||a.meetingDate||a.proposedDateOfMeeting),db=parseDate(b.dateOfMeeting||b.meetingDate||b.proposedDateOfMeeting);
+        return (db?.getTime?.()||0)-(da?.getTime?.()||0);
+    });
     sortedRecords.forEach((meeting,index)=>{
         const wf=window.FMSRecordPolicy?.workflow?.("disha",meeting)||{};
         const val=key=>{

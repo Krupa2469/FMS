@@ -12,15 +12,18 @@
   const P=()=>window.FMSRecordPolicy;
   const esc=s=>String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]));
   function currentFY(){return P()?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || (()=>{const d=new Date(),y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1;return `${y}-${String(y+1).slice(-2)}`;})();}
+  function selectedFY(){const home=document.getElementById("dishaWorkspaceFY")?.value; if(home&&/^\d{4}-\d{2}$/.test(home))return home; const q=new URLSearchParams(location.search).get("fy");return q&&/^\d{4}-\d{2}$/.test(q)?q:currentFY();}
+  function asDate(v){if(!v)return null;if(v?.toDate)return v.toDate();const d=new Date(v);return Number.isNaN(d.getTime())?null:d;}
+  function recordFY(r){const d=asDate(r?.dateOfMeeting||r?.meetingDate||r?.proposedDateOfMeeting||r?.date);if(d){const y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1;return `${y}-${String(y+1).slice(-2)}`;}return String(r?.financialYear||r?.fy||"").trim();}
   function getDb(){if(window.db)return window.db;if(window.fmsFirebase?.db)return window.fmsFirebase.db;try{if(typeof firebase!=="undefined"&&firebase.firestore)return firebase.firestore();}catch(_e){}return null;}
   function w(r){return P()?.workflow?.(module,r)||{};}
   function isClosed(r){return P()?.closed?.(module,r)||false;}
   function isOverdue(r){return P()?.overdue?.(module,r)||false;}
   function isDueToday(r){return P()?.dueToday?.(module,r)||false;}
   function withinDue(r){return P()?.withinDue?.(module,r)||(!isClosed(r)&&!isOverdue(r)&&!isDueToday(r));}
-  function card(label,value,filter,icon,theme){const href=`${cfg.register}?filter=${encodeURIComponent(filter)}&fy=${encodeURIComponent(currentFY())}`;const valueClass=String(value??"").length>8?"fs-6 lh-sm":"fs-3 lh-1";return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${href}"><div class="card h-100 shadow-sm border-0 fms-inline-metric-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="${valueClass} fw-bold text-${theme}">${esc(value)}</div></div></div></a></div>`;}
+  function card(label,value,filter,icon,theme){const href=`${cfg.register}?filter=${encodeURIComponent(filter)}&fy=${encodeURIComponent(selectedFY())}`;const valueClass=String(value??"").length>8?"fs-6 lh-sm":"fs-3 lh-1";return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><a class="text-decoration-none text-reset" href="${href}"><div class="card h-100 shadow-sm border-0 fms-inline-metric-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="${valueClass} fw-bold text-${theme}">${esc(value)}</div></div></div></a></div>`;}
   function render(rows){
-    const fy=currentFY(); if(module!=="disha") rows=(rows||[]).filter(r=>P()?P().inFY(module,r,fy):true);
+    const fy=selectedFY(); if(module!=="disha") rows=(rows||[]).filter(r=>P()?P().inFY(module,r,fy):true);
     const statusEl=document.getElementById("moduleDashboardStatus");let cards=[];
     if(module==="rti"){
       cards=[
@@ -35,8 +38,8 @@
         ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
       ];
     } else {
-      const allRows=[...(rows||[])];
-      const fyRows=allRows.filter(r=>P()?P().inFY("disha",r,fy):true);
+      const allRows=[...(rows||[])].filter(r=>r && r.active!==false && r.deleted!==true);
+      const fyRows=allRows.filter(r=>recordFY(r)===fy);
       const heldRows=allRows.filter(r=>/held/i.test(String(r.statusOfMeeting||r.meetingStatus||r.status||"")));
       const heldFY=fyRows.filter(r=>/held/i.test(String(r.statusOfMeeting||r.meetingStatus||r.status||"")));
       const held=heldFY.length;
@@ -63,7 +66,7 @@
       ];
     }
     host.innerHTML=cards.map(x=>card(...x)).join("");
-    if(statusEl){statusEl.className="alert alert-success py-2 mb-3";statusEl.textContent=`${module.toUpperCase()} workflow dashboard • Financial Year ${fy} • ${rows.length} record(s)`;}
+    if(statusEl){statusEl.className="alert alert-success py-2 mb-3";statusEl.textContent=module==="disha"?`DISHA workflow dashboard • Financial Year ${fy}: ${fyRows.length} record(s) • All years: ${allRows.length} record(s)`:`${module.toUpperCase()} workflow dashboard • Financial Year ${fy} • ${rows.length} record(s)`;}
   }
   async function load(){const s=document.getElementById("moduleDashboardStatus"),db=getDb();if(!db){if(s){s.className="alert alert-warning py-2 mb-3";s.textContent="Dashboard is waiting for Firebase...";}return false;}try{const snap=await db.collection(cfg.collection).get();render(snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>P()?P().active(r):r.active!==false));return true;}catch(e){console.error(`${module} inline dashboard error`,e);if(s){s.className="alert alert-danger py-2 mb-3";s.textContent="Unable to load dashboard: "+(e.message||e);}return false;}}
   async function start(){if(await load())return;window.addEventListener("fmsFirebaseReady",load,{once:true});setTimeout(load,1800);}

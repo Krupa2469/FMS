@@ -395,67 +395,25 @@ function clearForm() {
 ================================================================ */
 
 async function setNextSlNo() {
-
     try {
-
-        const records =
-            await loadFirestoreRecords();
-
-
-        let nextNumber = 1;
-
-
-        if (records.length > 0) {
-
-            const numbers =
-                records
-                    .map(
-                        record =>
-                            Number(
-                                record.slNo
-                            )
-                    )
-                    .filter(
-                        number =>
-                            !isNaN(number)
-                    );
-
-
-            if (numbers.length > 0) {
-
-                nextNumber =
-                    Math.max(
-                        ...numbers
-                    ) + 1;
-
-            }
-
-        }
-
-
-        const slNo =
-            document.getElementById(
-                "slNo"
-            );
-
-
-        if (slNo) {
-
-            slNo.value =
-                nextNumber;
-
-        }
-
+        const records = await loadFirestoreRecords();
+        const active = records.filter(r => r.active !== false && r.deleted !== true);
+        const slNo = document.getElementById("slNo");
+        if (slNo) slNo.value = active.length + 1;
+    } catch (error) {
+        console.error("Unable to generate dynamic Sl. No.:", error);
     }
-    catch (error) {
+}
 
-        console.error(
-            "Unable to generate Sl. No.:",
-            error
-        );
-
-    }
-
+function sortDishaForDynamicSl(records) {
+    return [...(records || [])].filter(r => r.active !== false && r.deleted !== true)
+      .sort((a,b) => String(b.dateOfMeeting || b.meetingDate || "").localeCompare(String(a.dateOfMeeting || a.meetingDate || "")));
+}
+async function setDynamicSlNoForRecord(recordId) {
+    const records = sortDishaForDynamicSl(await loadFirestoreRecords());
+    const index = records.findIndex(r => String(r.id || "") === String(recordId || ""));
+    const el = document.getElementById("slNo");
+    if (el && index >= 0) el.value = index + 1;
 }
 
 
@@ -873,6 +831,7 @@ async function loadRecordById(
         populateForm(
             record
         );
+        await setDynamicSlNoForRecord(doc.id);
 
 
         showMessage(
@@ -1320,11 +1279,37 @@ function dishaHomePendingDays(record) {
     const days = Math.floor((today-d)/86400000);
     return days >= 0 ? String(days) : "-";
 }
+function dishaRecordFY(record) {
+    const raw = record.dateOfMeeting || record.meetingDate || record.proposedDateOfMeeting || record.date;
+    const d = raw && typeof raw.toDate === "function" ? raw.toDate() : raw ? new Date(String(raw).slice(0,10) + "T00:00:00") : null;
+    if (d && !Number.isNaN(d.getTime())) { const y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1; return `${y}-${String(y+1).slice(-2)}`; }
+    return String(record.financialYear || record.fy || "").trim();
+}
+function currentDishaFY() { const d=new Date(), y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1; return `${y}-${String(y+1).slice(-2)}`; }
+function selectedDishaWorkspaceFY() { return document.getElementById("dishaWorkspaceFY")?.value || new URLSearchParams(location.search).get("fy") || currentDishaFY(); }
+function initDishaWorkspaceFY(records) {
+    const el=document.getElementById("dishaWorkspaceFY"); if(!el) return;
+    const fys=[...new Set((records||[]).map(dishaRecordFY).filter(Boolean))].sort().reverse();
+    const wanted=new URLSearchParams(location.search).get("fy") || currentDishaFY();
+    el.innerHTML=fys.map(f=>`<option value="${f}">${f}</option>`).join("");
+    if(!fys.includes(wanted)){const o=document.createElement("option");o.value=wanted;o.textContent=wanted;el.prepend(o);}
+    el.value=wanted;
+    el.onchange=()=>{const u=new URL(location.href);u.searchParams.set("fy",el.value);history.replaceState(null,"",u);renderDishaHomeRegister(records);window.FMSInlineDashboard?.refresh?.();};
+}
 function renderDishaHomeRegister(records) {
     const body = document.getElementById("dishaHomeRegisterBody");
     if (!body) return;
-    const active = (records || []).filter(r => r.active !== false && r.deleted !== true)
-      .sort((a,b) => String(b.dateOfMeeting || b.meetingDate || "").localeCompare(String(a.dateOfMeeting || a.meetingDate || "")));
+    const fy = selectedDishaWorkspaceFY();
+    const active = (records || []).filter(r => r.active !== false && r.deleted !== true && dishaRecordFY(r) === fy)
+      .sort((a,b) => {
+          const pa = Number.parseInt(dishaHomePendingDays(a), 10);
+          const pb = Number.parseInt(dishaHomePendingDays(b), 10);
+          const aPending = Number.isFinite(pa);
+          const bPending = Number.isFinite(pb);
+          if (aPending !== bPending) return aPending ? -1 : 1;
+          if (aPending && pa !== pb) return pb - pa;
+          return String(b.dateOfMeeting || b.meetingDate || "").localeCompare(String(a.dateOfMeeting || a.meetingDate || ""));
+      });
     document.getElementById("dishaHomeRecordCount").textContent = `Records: ${active.length}`;
     if (!active.length) {
         body.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No DISHA meetings found.</td></tr>';
@@ -1338,6 +1323,7 @@ function renderDishaHomeRegister(records) {
 }
 async function refreshDishaHomeWorkspace() {
     const records = await loadRecords();
+    initDishaWorkspaceFY(records);
     renderDishaHomeRegister(records);
     return records;
 }
