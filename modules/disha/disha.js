@@ -728,7 +728,8 @@ function getRequestedRecordId() {
 ================================================================ */
 
 function openDishaRecord(
-    recordId
+    recordId,
+    mode = "view"
 ) {
 
     if (!recordId) {
@@ -750,10 +751,10 @@ function openDishaRecord(
 
 
     window.location.href =
-        "disha.html?id=" +
+        "disha.html?mode=" + encodeURIComponent(mode) + "&fullscreenForm=1&id=" +
         encodeURIComponent(
             recordId
-        );
+        ) + "&fy=" + encodeURIComponent(selectedDishaWorkspaceFY());
 
 }
 
@@ -1322,7 +1323,7 @@ function renderDishaHomeRegister(records) {
     body.innerHTML = active.map((r,i) => {
         const id = dishaHomeEscape(r.id || "");
         const uploaded = /yes|uploaded|completed/i.test(String(r.pomUploaded || ""));
-        return `<tr><td>${i+1}</td><td>${dishaHomeEscape(r.district || r.nameOfDistrict || "")}</td><td>${dishaHomeDate(r.dateOfMeeting || r.meetingDate)}</td><td>${uploaded ? "Yes" : "No"}</td><td>${dishaHomePendingDays(r)}</td><td>${dishaHomeEscape(r.statusOfBills || r.billsStatus || "")}</td><td>${dishaHomeEscape(r.remarks || "")}</td><td class="text-nowrap"><button type="button" class="btn btn-info btn-sm me-1" onclick="openDishaRecord('${id}')">View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="openDishaRecord('${id}')">Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDishaHomeRecord('${id}')">Delete</button></td></tr>`;
+        return `<tr><td>${i+1}</td><td>${dishaHomeEscape(r.district || r.nameOfDistrict || "")}</td><td>${dishaHomeDate(r.dateOfMeeting || r.meetingDate)}</td><td>${uploaded ? "Yes" : "No"}</td><td>${dishaHomePendingDays(r)}</td><td>${dishaHomeEscape(r.statusOfBills || r.billsStatus || "")}</td><td>${dishaHomeEscape(r.remarks || "")}</td><td class="text-nowrap"><button type="button" class="btn btn-info btn-sm me-1" onclick="openDishaRecord('${id}','view')">View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="openDishaRecord('${id}','edit')">Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDishaHomeRecord('${id}')">Delete</button></td></tr>`;
     }).join("");
 }
 async function refreshDishaHomeWorkspace() {
@@ -1332,15 +1333,8 @@ async function refreshDishaHomeWorkspace() {
     return records;
 }
 async function deleteDishaHomeRecord(id) {
-    if (!id || !confirm("Are you sure you want to delete this DISHA record?")) return;
-    try {
-        const result = window.FMSCrud ? await window.FMSCrud.softDelete(DISHA_COLLECTION,id) : null;
-        if (!result?.success) throw new Error(result?.message || "Unable to delete DISHA record.");
-        if (currentRecordId === id) { currentRecordId = null; await prepareNewRecord(); }
-        await refreshDishaHomeWorkspace();
-        await window.FMSInlineDashboard?.refresh?.();
-        showMessage("DISHA record deleted successfully.", "success");
-    } catch (error) { showMessage("Unable to delete record: " + (error.message || error), "danger"); }
+    if (!id) return;
+    window.location.href = "disha.html?mode=delete&fullscreenForm=1&id=" + encodeURIComponent(id) + "&fy=" + encodeURIComponent(selectedDishaWorkspaceFY());
 }
 window.deleteDishaHomeRecord = deleteDishaHomeRecord;
 

@@ -1203,7 +1203,7 @@ function openDISHARecord(
 function newDISHAmeeting() {
 
     window.location.href =
-        "disha.html";
+        "disha.html?mode=new&fullscreenForm=1";
 
 }
 

@@ -940,7 +940,8 @@ function getStatusHTML(
    ============================================================ */
 
 function openRTIRecord(
-    id
+    id,
+    mode = "edit"
 ) {
 
     if (!id) {
@@ -957,7 +958,7 @@ function openRTIRecord(
 
 
     window.location.href =
-        "rti.html?mode=edit&fullscreenForm=1&id=" +
+        "rti.html?mode=" + encodeURIComponent(mode) + "&fullscreenForm=1&id=" +
         encodeURIComponent(
             id
         );
@@ -968,11 +969,11 @@ function openRTIRecord(
 
 
 function viewRTIRecord(id) {
-    openRTIRecord(id);
+    openRTIRecord(id, "view");
 }
 
 function editRTIRecord(id) {
-    openRTIRecord(id);
+    openRTIRecord(id, "edit");
 }
 
 async function deleteRTIRecordFromRegister(id) {
@@ -1544,11 +1545,11 @@ window.clearRTISearch =
 
 
 function viewRTIRecord(id) {
-    openRTIRecord(id);
+    openRTIRecord(id, "view");
 }
 
 function editRTIRecord(id) {
-    openRTIRecord(id);
+    openRTIRecord(id, "edit");
 }
 
 async function deleteRTIRecordFromRegister(id) {

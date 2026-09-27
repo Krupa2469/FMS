@@ -1,0 +1,25 @@
+const fs=require('fs'),assert=require('assert');
+const root=process.argv[2]||'/mnt/data/fms183';
+const focus=fs.readFileSync(root+'/js/form-focus-mode.js','utf8');
+const disha=fs.readFileSync(root+'/modules/disha/disha.js','utf8');
+const rti=fs.readFileSync(root+'/modules/rti/rti-register.js','utf8');
+const cpreg=fs.readFileSync(root+'/modules/cpgrams/cpgrams-register.js','utf8');
+const cpws=fs.readFileSync(root+'/js/grievance-workspace.js','utf8');
+const dh=fs.readFileSync(root+'/modules/disha/disha.html','utf8');
+const rh=fs.readFileSync(root+'/modules/rti/rti.html','utf8');
+const ch=fs.readFileSync(root+'/modules/cpgrams/cpgrams.html','utf8');
+
+assert(focus.includes('fms-form-focus-overlay'), 'foreground mode must create a dedicated viewport overlay');
+assert(focus.includes('document.body.appendChild'), 'foreground overlay must be attached directly to body');
+assert(/cpgrams[^\n]+cpgramsForm/.test(focus) || focus.includes("return document.getElementById('cpgramsForm')"), 'CPGRAMS focus target must be the data-entry form, not a broad page container');
+assert(focus.includes("'view'") && focus.includes('makeViewReadOnly'), 'foreground mode must recognize View mode');
+assert(focus.includes('MutationObserver') || focus.includes('setTimeout'), 'foreground activation must retry if the form is not ready on first pass');
+assert(disha.includes("openDishaRecord('${id}','view')") || disha.includes('openDishaRecord(\'${id}\',\'view\')'), 'DISHA inline View must open explicit view mode');
+assert(disha.includes("openDishaRecord('${id}','edit')") || disha.includes('openDishaRecord(\'${id}\',\'edit\')'), 'DISHA inline Edit must open explicit edit mode');
+assert(/mode=delete&fullscreenForm=1/.test(disha), 'DISHA inline Delete must open foreground delete form before deletion');
+assert(/function openRTIRecord\([\s\S]*mode/.test(rti), 'RTI open function must accept CRUD mode');
+assert(/viewRTIRecord\(id\)[\s\S]{0,120}openRTIRecord\(id,[\s\S]{0,40}["']view["']/.test(rti), 'RTI View must preserve view mode');
+assert(/editRTIRecord\(id\)[\s\S]{0,120}openRTIRecord\(id,[\s\S]{0,40}["']edit["']/.test(rti), 'RTI Edit must preserve edit mode');
+assert(cpreg.includes('fullscreenForm=1') && cpws.includes('fullscreenForm=1'), 'CPGRAMS register/workspace actions must request foreground mode');
+assert(dh.includes('form-focus-mode.js?v=1.8.3') && rh.includes('form-focus-mode.js?v=1.8.3') && ch.includes('form-focus-mode.js?v=1.8.3'), 'all CRUD pages must load the cache-busted foreground script');
+console.log('v1.8.3 foreground CRUD regression: PASS');
