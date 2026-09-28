@@ -176,5 +176,17 @@
     setTimeout(() => observer.disconnect(), 5000);
   }
 
-  window.FMSFormFocus = { activate: ensureActivated, close: closeFocus, completeCrud: function(){ if(overlay){ setTimeout(closeFocus, 80); return true; } return false; } };
+  function clearCrudForm(){
+    const box = movedTarget || target();
+    if(!box) return;
+    box.querySelectorAll('input,select,textarea').forEach(el=>{
+      if(el.type==='button'||el.type==='submit'||el.type==='reset') return;
+      if(el.type==='checkbox'||el.type==='radio') el.checked=false;
+      else if(el.tagName==='SELECT') el.selectedIndex=0;
+      else el.value='';
+      el.setCustomValidity?.('');
+    });
+    window.FMSDateUI?.refreshDisplays?.();
+  }
+  window.FMSFormFocus = { activate: ensureActivated, close: closeFocus, clearForm: clearCrudForm, completeCrud: function(){ clearCrudForm(); if(overlay){ setTimeout(closeFocus, 80); return true; } return false; } };
 })();

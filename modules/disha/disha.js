@@ -1122,6 +1122,11 @@ async function updateRecord(event) {
         if (!result.success) throw new Error(result.message || "Unable to update DISHA record.");
 
         showMessage("DISHA record updated successfully.", "success");
+        sessionStorage.removeItem("selectedDishaRecordId");
+        sessionStorage.removeItem("selectedDishaMeeting");
+        currentRecordId = null;
+        clearForm();
+        window.FMSDateUI?.refreshDisplays?.();
         if (window.FMSDishaAttachmentUI?.refresh) await window.FMSDishaAttachmentUI.refresh();
         await refreshDishaHomeWorkspace();
         window.FMSInlineDashboard?.refresh?.();
