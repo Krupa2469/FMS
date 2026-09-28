@@ -21,11 +21,14 @@
     el.style.display='none'; el.insertAdjacentElement('afterend',visible);
     let last=el.value;
     function fromVisible(){const iso=displayToIso(visible.value);if(iso===null){visible.setCustomValidity('Enter date as DD/MM/YYYY');return;}visible.setCustomValidity('');if(el.value!==iso){el.value=iso;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}last=el.value;visible.value=isoToDisplay(el.value);}
-    visible.addEventListener('change',fromVisible); visible.addEventListener('blur',fromVisible);
+    visible.addEventListener('input',()=>{const v=visible.value.trim();if(!v || /^\d{2}\/\d{2}\/\d{4}$/.test(v))fromVisible();}); visible.addEventListener('change',fromVisible); visible.addEventListener('blur',fromVisible);
     setInterval(()=>{if(el.value!==last && document.activeElement!==visible){last=el.value;visible.value=isoToDisplay(el.value);} visible.disabled=el.disabled; visible.readOnly=el.readOnly;},250);
   }
   function init(){document.querySelectorAll('input[type="date"]').forEach(adapt);}
+  function syncAll(){document.querySelectorAll('[data-fms-date-display-for]').forEach(visible=>{const id=visible.dataset.fmsDateDisplayFor;if(!id)return;const el=document.getElementById(id);if(!el)return;const iso=displayToIso(visible.value);if(iso!==null){visible.setCustomValidity('');el.value=iso;}else visible.setCustomValidity('Enter date as DD/MM/YYYY');});}
+  document.addEventListener('click',e=>{const b=e.target.closest('button,input[type="button"],input[type="submit"]');if(!b)return;const label=String(b.textContent||b.value||'').trim().toLowerCase();if(label.includes('save')||label.includes('update'))syncAll();},true);
+  document.addEventListener('submit',syncAll,true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
   new MutationObserver(init).observe(document.documentElement,{childList:true,subtree:true});
-  window.FMSDateUI={isoToDisplay,displayToIso,refresh:init};
+  window.FMSDateUI={isoToDisplay,displayToIso,refresh:init,syncAll};
 })();
