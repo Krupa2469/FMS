@@ -1118,14 +1118,24 @@ window.exportDISHARegister=exportDISHARegister;
    RENDER REGISTER TABLE
    ============================================================ */
 
-function getPomPendingDays(meeting) {
-    const wf = window.FMSRecordPolicy?.workflow?.("disha", meeting) || {};
-    if (wf.pomUploaded || String(meeting.pomUploaded||"").toLowerCase()==="yes") return "";
-    const d = parseDate(meeting.dateOfMeeting || meeting.meetingDate || meeting.proposedDateOfMeeting);
-    if (!d) return "";
-    const days = Math.floor((new Date().setHours(0,0,0,0) - new Date(d).setHours(0,0,0,0))/86400000);
-    return days >= 0 ? days : "";
+function getPomPendingRawDays(meeting) {
+    const wf=window.FMSRecordPolicy?.workflow?.("disha",meeting)||{};
+    if(wf.pomUploaded||String(meeting.pomUploaded||"").toLowerCase()==="yes") return null;
+    const d=parseDate(meeting.dateOfMeeting||meeting.meetingDate||meeting.proposedDateOfMeeting); if(!d)return null;
+    const today=new Date();today.setHours(0,0,0,0);d.setHours(0,0,0,0); return Math.floor((today-d)/86400000);
 }
+function formatPomPendingDuration(meeting) {
+    const raw=getPomPendingRawDays(meeting); if(raw===null||raw<0)return "";
+    const from=parseDate(meeting.dateOfMeeting||meeting.meetingDate||meeting.proposedDateOfMeeting),to=new Date();to.setHours(0,0,0,0);from.setHours(0,0,0,0);
+    let years=to.getFullYear()-from.getFullYear(),anchor=new Date(from);anchor.setFullYear(from.getFullYear()+years);if(anchor>to){years--;anchor=new Date(from);anchor.setFullYear(from.getFullYear()+years);}
+    let months=0;while(months<11){const n=new Date(anchor);n.setMonth(n.getMonth()+1);if(n>to)break;anchor=n;months++;}
+    const days=Math.floor((to-anchor)/86400000),parts=[];if(years)parts.push(`${years} year${years===1?'':'s'}`);if(months)parts.push(`${months} month${months===1?'':'s'}`);if(days||!parts.length)parts.push(`${days} day${days===1?'':'s'}`);return parts.join(' ');
+}
+function getDishaAutomaticRemark(meeting) {
+    const wf=window.FMSRecordPolicy?.workflow?.("disha",meeting)||{};if(wf.pomUploaded||String(meeting.pomUploaded||"").toLowerCase()==="yes")return meeting.remarks||"";
+    const raw=getPomPendingRawDays(meeting);if(raw===null)return meeting.remarks||"";if(raw>0)return `PoM pending for ${raw} days`;if(raw<0)return `${Math.abs(raw)} days left for the meeting to be held`;return "Meeting is scheduled for today";
+}
+function getPomPendingDays(meeting){return formatPomPendingDuration(meeting);}
 
 function renderRegisterTable(records) {
     let tbody = document.getElementById("registerBody") || document.querySelector("table tbody");
@@ -1146,8 +1156,8 @@ function renderRegisterTable(records) {
         updateRecordCount(0); return;
     }
     const sortedRecords = [...records].sort((a,b)=>{
-        const pa=getPomPendingDays(a), pb=getPomPendingDays(b);
-        const aPending=Number.isFinite(pa), bPending=Number.isFinite(pb);
+        const pa=getPomPendingRawDays(a), pb=getPomPendingRawDays(b);
+        const aPending=Number.isFinite(pa)&&pa>=0, bPending=Number.isFinite(pb)&&pb>=0;
         if(aPending!==bPending) return aPending?-1:1;
         if(aPending && pa!==pb) return pb-pa;
         const districtCompare=String(a.district||a.nameOfDistrict||"").localeCompare(String(b.district||b.nameOfDistrict||""),undefined,{sensitivity:"base"});
@@ -1162,6 +1172,7 @@ function renderRegisterTable(records) {
             if(key==="pomUploaded") return (wf.pomUploaded||String(meeting.pomUploaded||"").toLowerCase()==="yes")?'<span class="badge bg-success">Yes</span>':'<span class="badge bg-warning text-dark">No</span>';
             if(key==="pomPendingDays"){const d=getPomPendingDays(meeting);return d===""?"-":safe(d);}
             if(key==="district") return safe(meeting.district||meeting.nameOfDistrict||"");
+            if(key==="remarks") return safe(getDishaAutomaticRemark(meeting));
             return safe(meeting[key]||"");
         };
         const row=document.createElement("tr");

@@ -65,8 +65,8 @@
         ["Meetings Held",`Total: ${metricLink(heldRows.length,"held","all","primary",fy)} • ${esc(fy)}: ${metricLink(heldFY.length,"held","fy","primary",fy)}`,"held","bi-calendar-check","primary"],
         ["PoM Uploaded",metricLink(uploaded,"pom-uploaded","fy","success",fy),"pom-uploaded","bi-cloud-check","success"],
         ["PoM Not Uploaded",metricLink(notUploaded,"pom-not-uploaded","fy","danger",fy),"pom-not-uploaded","bi-cloud-slash","danger"],
-        ["Districts with no meetings",`Total: ${metricLink(noMeetAll,"districts-no-meetings","all","danger",fy)} • ${esc(fy)}: ${metricLink(noMeetFY,"districts-no-meetings","fy","danger",fy)}`,"districts-no-meetings","bi-geo-alt","danger"],
-        ["Districts conducted meetings",`Total: ${metricLink(conductedAll,"districts-conducted","all","success",fy)} • ${esc(fy)}: ${metricLink(conductedFY,"districts-conducted","fy","success",fy)}`,"districts-conducted","bi-geo-alt-fill","success"]
+        ["Districts with no meetings",`${esc(fy)}: ${metricLink(noMeetFY,"districts-no-meetings","fy","danger",fy)}`,"districts-no-meetings","bi-geo-alt","danger"],
+        ["Districts conducted meetings",`${esc(fy)}: ${metricLink(conductedFY,"districts-conducted","fy","success",fy)}`,"districts-conducted","bi-geo-alt-fill","success"]
       ];
     }
     host.innerHTML=cards.map(x=>card(...x)).join("");

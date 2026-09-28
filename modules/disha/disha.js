@@ -1277,16 +1277,41 @@ function dishaHomeDate(value) {
     if (Number.isNaN(d.getTime())) return dishaHomeEscape(value);
     return d.toLocaleDateString("en-GB");
 }
-function dishaHomePendingDays(record) {
-    const uploaded = /yes|uploaded|completed/i.test(String(record.pomUploaded || ""));
-    if (uploaded) return "-";
+function dishaHomeMeetingDate(record) {
     const raw = record.dateOfMeeting || record.meetingDate || record.proposedDateOfMeeting;
-    if (!raw) return "-";
-    const d = raw && typeof raw.toDate === "function" ? raw.toDate() : new Date(String(raw).slice(0,10) + "T00:00:00");
-    if (Number.isNaN(d.getTime())) return "-";
-    const today = new Date(); today.setHours(0,0,0,0); d.setHours(0,0,0,0);
-    const days = Math.floor((today-d)/86400000);
-    return days >= 0 ? String(days) : "-";
+    if (!raw) return null;
+    if (raw && typeof raw.toDate === "function") { const d=raw.toDate(); d.setHours(0,0,0,0); return d; }
+    const text=String(raw).trim();
+    let d;
+    const gb=text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (gb) d=new Date(+gb[3],+gb[2]-1,+gb[1]); else d=new Date(text.slice(0,10)+"T00:00:00");
+    if (Number.isNaN(d.getTime())) return null; d.setHours(0,0,0,0); return d;
+}
+function dishaHomePendingRawDays(record) {
+    if (/yes|uploaded|completed/i.test(String(record.pomUploaded || ""))) return null;
+    const d=dishaHomeMeetingDate(record); if(!d) return null;
+    const today=new Date(); today.setHours(0,0,0,0);
+    return Math.floor((today-d)/86400000);
+}
+function dishaElapsedYMD(fromDate,toDate) {
+    let years=toDate.getFullYear()-fromDate.getFullYear();
+    let anchor=new Date(fromDate); anchor.setFullYear(fromDate.getFullYear()+years);
+    if(anchor>toDate){years--;anchor=new Date(fromDate);anchor.setFullYear(fromDate.getFullYear()+years);}
+    let months=0; while(months<11){const n=new Date(anchor);n.setMonth(n.getMonth()+1);if(n>toDate)break;anchor=n;months++;}
+    const days=Math.floor((toDate-anchor)/86400000);
+    const parts=[]; if(years)parts.push(`${years} year${years===1?'':'s'}`); if(months)parts.push(`${months} month${months===1?'':'s'}`); if(days||!parts.length)parts.push(`${days} day${days===1?'':'s'}`); return parts.join(' ');
+}
+function dishaHomePendingDays(record) {
+    const days=dishaHomePendingRawDays(record); if(days===null || days<0) return "-";
+    const d=dishaHomeMeetingDate(record), today=new Date(); today.setHours(0,0,0,0);
+    return dishaElapsedYMD(d,today);
+}
+function dishaHomeRemarks(record) {
+    if (/yes|uploaded|completed/i.test(String(record.pomUploaded || ""))) return record.remarks || "";
+    const days=dishaHomePendingRawDays(record); if(days===null) return record.remarks || "";
+    if(days>0) return `PoM pending for ${days} days`;
+    if(days<0) return `${Math.abs(days)} days left for the meeting to be held`;
+    return "Meeting is scheduled for today";
 }
 function dishaRecordFY(record) {
     const raw = record.dateOfMeeting || record.meetingDate || record.proposedDateOfMeeting || record.date;
@@ -1311,10 +1336,10 @@ function renderDishaHomeRegister(records) {
     const fy = selectedDishaWorkspaceFY();
     const active = (records || []).filter(r => r.active !== false && r.deleted !== true && dishaRecordFY(r) === fy)
       .sort((a,b) => {
-          const pa = Number.parseInt(dishaHomePendingDays(a), 10);
-          const pb = Number.parseInt(dishaHomePendingDays(b), 10);
-          const aPending = Number.isFinite(pa);
-          const bPending = Number.isFinite(pb);
+          const pa = dishaHomePendingRawDays(a);
+          const pb = dishaHomePendingRawDays(b);
+          const aPending = Number.isFinite(pa) && pa >= 0;
+          const bPending = Number.isFinite(pb) && pb >= 0;
           if (aPending !== bPending) return aPending ? -1 : 1;
           if (aPending && pa !== pb) return pb - pa;
           const districtCompare = String(a.district || a.nameOfDistrict || "").localeCompare(String(b.district || b.nameOfDistrict || ""), undefined, {sensitivity:"base"});
@@ -1331,7 +1356,7 @@ function renderDishaHomeRegister(records) {
     body.innerHTML = active.map((r,i) => {
         const id = dishaHomeEscape(r.id || "");
         const uploaded = /yes|uploaded|completed/i.test(String(r.pomUploaded || ""));
-        return `<tr><td>${i+1}</td><td>${dishaHomeEscape(r.district || r.nameOfDistrict || "")}</td><td>${dishaHomeDate(r.dateOfMeeting || r.meetingDate)}</td><td>${uploaded ? "Yes" : "No"}</td><td>${dishaHomePendingDays(r)}</td><td>${dishaHomeEscape(r.statusOfBills || r.billsStatus || "")}</td><td>${dishaHomeEscape(r.remarks || "")}</td><td class="text-nowrap"><button type="button" class="btn btn-info btn-sm me-1" onclick="openDishaRecord('${id}','view')">View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="openDishaRecord('${id}','edit')">Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDishaHomeRecord('${id}')">Delete</button></td></tr>`;
+        return `<tr><td>${i+1}</td><td>${dishaHomeEscape(r.district || r.nameOfDistrict || "")}</td><td>${dishaHomeDate(r.dateOfMeeting || r.meetingDate)}</td><td>${uploaded ? "Yes" : "No"}</td><td>${dishaHomePendingDays(r)}</td><td>${dishaHomeEscape(r.statusOfBills || r.billsStatus || "")}</td><td>${dishaHomeEscape(dishaHomeRemarks(r))}</td><td class="text-nowrap"><button type="button" class="btn btn-info btn-sm me-1" onclick="openDishaRecord('${id}','view')">View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="openDishaRecord('${id}','edit')">Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDishaHomeRecord('${id}')">Delete</button></td></tr>`;
     }).join("");
 }
 async function refreshDishaHomeWorkspace() {
