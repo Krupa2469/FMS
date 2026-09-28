@@ -176,5 +176,5 @@
     setTimeout(() => observer.disconnect(), 5000);
   }
 
-  window.FMSFormFocus = { activate: ensureActivated, close: closeFocus };
+  window.FMSFormFocus = { activate: ensureActivated, close: closeFocus, completeCrud: function(){ if(overlay){ setTimeout(closeFocus, 80); return true; } return false; } };
 })();

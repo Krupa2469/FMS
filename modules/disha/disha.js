@@ -1077,6 +1077,7 @@ async function saveRecord(event) {
         await prepareNewRecord();
         await refreshDishaHomeWorkspace();
         window.FMSInlineDashboard?.refresh?.();
+        window.FMSFormFocus?.completeCrud?.();
         return true;
 
     }
@@ -1124,6 +1125,7 @@ async function updateRecord(event) {
         if (window.FMSDishaAttachmentUI?.refresh) await window.FMSDishaAttachmentUI.refresh();
         await refreshDishaHomeWorkspace();
         window.FMSInlineDashboard?.refresh?.();
+        window.FMSFormFocus?.completeCrud?.();
         return true;
 
     }
@@ -1172,6 +1174,7 @@ async function deleteRecord(event) {
         await prepareNewRecord();
         await refreshDishaHomeWorkspace();
         window.FMSInlineDashboard?.refresh?.();
+        window.FMSFormFocus?.completeCrud?.();
         return true;
 
     }

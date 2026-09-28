@@ -1245,6 +1245,7 @@ async function saveGrievance(event) {
             `Grievance saved successfully.${uploadedText}${failedText}`,
             uploadSummary.failed.length ? "warning" : "success"
         );
+        window.FMSFormFocus?.completeCrud?.();
         return true;
     }
     catch (error) {
@@ -1312,6 +1313,7 @@ async function updateGrievance(event) {
             `Grievance updated successfully.${uploadedText}${failedText}`,
             uploadSummary.failed.length ? "warning" : "success"
         );
+        window.FMSFormFocus?.completeCrud?.();
     }
     catch (error) {
         hideLoading?.();
@@ -1375,6 +1377,7 @@ async function deleteGrievance(event) {
         clearForm();
 
         refreshButtons();
+        window.FMSFormFocus?.completeCrud?.();
 
     }
     catch (error) {

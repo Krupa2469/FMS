@@ -409,6 +409,7 @@ async function saveRTIRecord(){
         renderRTIAttachments();
         history.replaceState({}, document.title, "rti.html");
         window.FMSInlineDashboard?.refresh?.();
+        window.FMSFormFocus?.completeCrud?.();
 
         return true;
 
@@ -456,6 +457,7 @@ async function updateRTIRecord(){
         renderRTIAttachments();
 
         showRTIMessage("RTI application updated successfully in Firestore.","success");
+        window.FMSFormFocus?.completeCrud?.();
         return true;
 
     } catch(e) {
@@ -480,6 +482,7 @@ async function deleteRTIRecord(event){
         if(!result.success) throw new Error(result.message || "Unable to delete RTI application.");
         currentRTIRecordId=null; rtiDocuments=[]; clearRTIForm(); renderRTIAttachments(); window.FMSInlineDashboard?.refresh?.();
         showRTIMessage("RTI application deleted successfully.","success");
+        window.FMSFormFocus?.completeCrud?.();
     }
     catch(e){ showRTIMessage("Unable to delete RTI application: "+(e.message||e),"danger"); }
 }
