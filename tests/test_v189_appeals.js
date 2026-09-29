@@ -1,0 +1,10 @@
+const fs=require('fs'), assert=require('assert');
+const rti=fs.readFileSync('modules/rti/rti.html','utf8');
+const rtijs=fs.readFileSync('modules/rti/rti-register.js','utf8');
+const cp=fs.readFileSync('modules/cpgrams/cpgrams.html','utf8');
+const cpjs=fs.readFileSync('modules/cpgrams/cpgrams-register.js','utf8');
+['firstAppealNumber','firstAppealDate','firstAppealStatus','secondAppealNumber','secondAppealDate','secondAppealStatus'].forEach(id=>assert(rti.includes(`id="${id}"`),`missing RTI ${id}`));
+['appealNumber','appealDate','appealStatus','appealAuthority','appealRemarks'].forEach(id=>assert(cp.includes(`id="${id}"`),`missing CPGRAMS ${id}`));
+assert(rtijs.includes('Appeal Status'),'RTI register missing appeal status');
+assert(cpjs.includes('Appeal Status'),'CPGRAMS register missing appeal status');
+console.log('v1.8.9 appeal regression checks passed');

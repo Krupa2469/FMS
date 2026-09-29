@@ -49,6 +49,7 @@
       case "replyComplainantStatus":return wf.replySentToComplainant?"Sent":"Pending";
       case "workflowStage":return wf.stage||"";
       case "finalStatusView":return wf.finalStatus||first(r,["finalStatus","currentStatus","officeStatus"])||"Pending";
+      case "appealStatusView":return first(r,["appealStatus"])||"No Appeal";
       case "questionNo":return first(r,["questionSerialNo","laqNo","lcqNo"]);
       case "questionReceivedDate":return fmt(first(r,["questionReceivedDate","dateReceived"]));
       case "attachments":{const a=r?.attachments;if(Array.isArray(a))return a.map(x=>x?.name||x?.fileName||x?.filename||"Document").join(", ");return first(r,["attachmentCount","fileAttachmentName","attachmentName"]);}
@@ -58,7 +59,7 @@
   function columnsForType(){
     const k=selectedTypeKey();
     if(k==="laq"||k==="lcq")return [["questionNo",`${displayType(k)} No.`],["questionType","Question Type"],["questionReceivedDate","Received Date"],["questionConcernedSection","Concerned Section"],["question","Question"],["answer","Answer"],["answerFurnishedBy","Answer furnished by"],["answerFurnishedTo","Answer furnished to"],["answerFurnishedDate","Date"],["questionCommunicationType","Communication Type"],["questionFileNumber","File No."],["questionCommunicationDate","Communication Date"],["questionFileStatus","File Status"],["attachments","Upload Document"]];
-    return [["registrationNo","Grievance No."],["dateReceived","Date Received"],["complainantName","Complaint Name"],["subject","Subject"],["district","District"],["mandal","Mandal"],["village","Village"],["atrStatusView","ATR Status"],["finalStatusView","Grievance Status"]];
+    return [["registrationNo","Grievance No."],["dateReceived","Date Received"],["complainantName","Complaint Name"],["subject","Subject"],["district","District"],["mandal","Mandal"],["village","Village"],["atrStatusView","ATR Status"],["finalStatusView","Grievance Status"],["appealStatusView","Appeal Status"]];
   }
   function populateTypeDropdown(){const s=$("searchGrievanceType");if(!s)return;const chosen=selectedType();s.innerHTML=TYPES.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");s.value=TYPES.includes(chosen)?chosen:"CPGRAMS";}
   function populateFY(){const s=$("financialYear");if(!s)return;const pref=new URLSearchParams(location.search).get("fy")||s.value||currentFY();const years=new Set();let start=new Date().getFullYear()-(new Date().getMonth()<3?1:0);for(let y=start;y>=2014;y--)years.add(`${y}-${String(y+1).slice(-2)}`);allRecords.forEach(r=>{const fy=recordFY(r);if(fy)years.add(fy);});const list=[...years].sort((a,b)=>+b.slice(0,4)-+a.slice(0,4));s.innerHTML=`<option value="all">All Years</option>`+list.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join("");s.value=(pref==="all")?"all":(list.includes(pref)?pref:(list.includes(currentFY())?currentFY():list[0]||""));}

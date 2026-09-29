@@ -739,7 +739,8 @@ function renderRegister(records) {
         ["replyStatusView", "Reply Status"],
         ["replySentStatus", "Reply Sent Status"],
         ["workflowStage", "Present Workflow Stage"],
-        ["finalStatusView", "Final Status"]
+        ["finalStatusView", "Final Status"],
+        ["appealStatusView", "Appeal Status"]
     ];
     if (headerRow) headerRow.innerHTML = `<th>Sl.No</th>${columns.map(c=>`<th>${escapeHTML(c[1])}</th>`).join("")}<th>Action</th>`;
     if (!tbody) return;
@@ -760,6 +761,7 @@ function renderRegister(records) {
             if (key === "replySentStatus") return wf.replySent ? "Sent" : "Pending";
             if (key === "workflowStage") return escapeHTML(wf.stage || record.workflowStage || "RTI application received");
             if (key === "finalStatusView") return escapeHTML(wf.finalStatus || record.finalStatus || record.presentStatus || "Pending");
+            if (key === "appealStatusView") return escapeHTML(record.secondAppealStatus || record.firstAppealStatus || "No Appeal");
             return escapeHTML(record[key] || "-");
         };
         const tr=document.createElement("tr");

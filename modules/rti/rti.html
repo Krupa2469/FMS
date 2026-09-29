@@ -126,8 +126,31 @@ body{background:#f4f6f9;font-family:Arial,sans-serif;margin:0}.page-header{backg
 <!-- 5 DISPOSAL -->
 
 
+<!-- 5 APPEALS -->
+<div class="section-header mt-4"><i class="bi bi-arrow-up-circle"></i> 5. APPEALS</div>
+<div class="sub-card">
+<h5 class="mb-3">First Appeal</h5><div class="row g-3">
+<div class="col-md-3"><label class="form-label" for="firstAppealNumber">First Appeal No.</label><input class="form-control" id="firstAppealNumber" type="text"/></div>
+<div class="col-md-3"><label class="form-label" for="firstAppealDate">Appeal Date</label><input class="form-control" id="firstAppealDate" type="date"/></div>
+<div class="col-md-3"><label class="form-label" for="firstAppealReceivedDate">Received Date</label><input class="form-control" id="firstAppealReceivedDate" type="date"/></div>
+<div class="col-md-3"><label class="form-label" for="firstAppealStatus">Status</label><select class="form-select" id="firstAppealStatus"><option value="">-- Select --</option><option>Pending</option><option>Under Process</option><option>Disposed</option></select></div>
+<div class="col-md-6"><label class="form-label" for="firstAppealAuthority">First Appellate Authority</label><input class="form-control" id="firstAppealAuthority" type="text"/></div>
+<div class="col-md-3"><label class="form-label" for="firstAppealOrderDate">Order / Disposal Date</label><input class="form-control" id="firstAppealOrderDate" type="date"/></div>
+<div class="col-md-3"><label class="form-label" for="firstAppealOrderNo">Order No.</label><input class="form-control" id="firstAppealOrderNo" type="text"/></div>
+<div class="col-12"><label class="form-label" for="firstAppealGrounds">Grounds / Remarks</label><textarea class="form-control" id="firstAppealGrounds" rows="3"></textarea></div>
+</div><hr class="my-4"/>
+<h5 class="mb-3">Second Appeal</h5><div class="row g-3">
+<div class="col-md-3"><label class="form-label" for="secondAppealNumber">Second Appeal No.</label><input class="form-control" id="secondAppealNumber" type="text"/></div>
+<div class="col-md-3"><label class="form-label" for="secondAppealDate">Appeal Date</label><input class="form-control" id="secondAppealDate" type="date"/></div>
+<div class="col-md-3"><label class="form-label" for="secondAppealReceivedDate">Received Date</label><input class="form-control" id="secondAppealReceivedDate" type="date"/></div>
+<div class="col-md-3"><label class="form-label" for="secondAppealStatus">Status</label><select class="form-select" id="secondAppealStatus"><option value="">-- Select --</option><option>Pending</option><option>Under Process</option><option>Disposed</option></select></div>
+<div class="col-md-6"><label class="form-label" for="secondAppealAuthority">Second Appellate Authority / Information Commission</label><input class="form-control" id="secondAppealAuthority" type="text"/></div>
+<div class="col-md-3"><label class="form-label" for="secondAppealOrderDate">Order / Disposal Date</label><input class="form-control" id="secondAppealOrderDate" type="date"/></div>
+<div class="col-md-3"><label class="form-label" for="secondAppealOrderNo">Order No.</label><input class="form-control" id="secondAppealOrderNo" type="text"/></div>
+<div class="col-12"><label class="form-label" for="secondAppealGrounds">Grounds / Remarks</label><textarea class="form-control" id="secondAppealGrounds" rows="3"></textarea></div>
+</div></div>
 <!-- 6 ATTACHMENTS -->
-<div class="section-header mt-4"><i class="bi bi-paperclip"></i> 5. ATTACHMENTS UPLOAD — SAVED TO FIRESTORE</div>
+<div class="section-header mt-4"><i class="bi bi-paperclip"></i> 6. ATTACHMENTS UPLOAD — SAVED TO FIRESTORE</div>
 <div class="attachment-box">
 <div class="d-flex align-items-center gap-3 flex-wrap">
 <input accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.webp" class="form-control" id="attachmentFile" style="max-width:650px;" type="file"/>
@@ -164,7 +187,7 @@ body{background:#f4f6f9;font-family:Arial,sans-serif;margin:0}.page-header{backg
 <script src="../../js/module-inline-dashboard.js"></script>
 <script src="../../js/master-option-loader.js"></script>
 <script src="../../js/module-navigation.js?v=1.6.4"></script>
-<script src="../../js/form-focus-mode.js?v=1.8.6"></script>
-<script src="../../js/date-ui-format.js?v=1.8.6"></script>
+<script src="../../js/form-focus-mode.js?v=1.8.9"></script>
+<script src="../../js/date-ui-format.js?v=1.8.9"></script>
 </body>
 </html>

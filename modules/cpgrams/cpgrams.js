@@ -403,6 +403,7 @@ function updateGrievanceFormLayout() {
     });
     document.querySelectorAll(".prajavani-only").forEach(el => el.classList.toggle("d-none", !prajavaniMode));
     document.querySelectorAll(".prajavani-hide").forEach(el => el.classList.toggle("d-none", prajavaniMode));
+    document.querySelectorAll(".cpgrams-appeal-card").forEach(el => el.classList.toggle("d-none", !cpgramsMode));
     const grievanceNumberField = document.querySelector(".prajavani-number-field");
     if (grievanceNumberField) grievanceNumberField.classList.toggle("d-none", !(cpgramsMode || prajavaniMode));
     const numberLabel = getControl("grievanceNumberLabel");
