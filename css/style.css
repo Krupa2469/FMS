@@ -449,3 +449,6 @@ table td {
         font-size: 1.35rem !important;
     }
 }
+
+/* v1.9.4: keep grievance/registration numbers fully readable */
+#registerTable th:first-child,#registerTable td:first-child{min-width:230px;white-space:nowrap;overflow:visible;text-overflow:clip;}

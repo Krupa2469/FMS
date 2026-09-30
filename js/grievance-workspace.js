@@ -89,7 +89,6 @@
         ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
         ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
         ["ATR Awaited",rows.filter(r=>(String(r.atrStatus||"").toLowerCase().includes("awaited")||(w(r).memoIssued&&!w(r).atrReceived))&&!isClosed(r)).length,"atr-awaited","bi-hourglass-split","warning"],
-        ["ATR Received",rows.filter(r=>w(r).atrReceived||/received|approved|sent to complainant|uploaded in cpgrams portal/i.test(String(r.atrStatus||""))).length,"atr-received","bi-inbox","success"],
         ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
       ];
       if(key==="cpgrams"){
