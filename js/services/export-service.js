@@ -105,6 +105,7 @@
     const cols=normalizeColumns(rows,opts.columns),{jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:opts.orientation||"landscape",unit:"mm",format:"a4"});
     const pageWidth=doc.internal.pageSize.getWidth();
+    const reportMargin=8,reportTableWidth=pageWidth-(reportMargin*2);
     let y=10;
     const center=(text,size,bold=false)=>{doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.text(String(text),pageWidth/2,y,{align:"center"});y+=size*0.42+2;};
     const headers=headerLines(opts);
@@ -120,12 +121,12 @@
     doc.autoTable({
       head:[["Summary","Value"]],body:summary.map(x=>[x.label,x.value]),startY:y,
       theme:"grid",styles:{fontSize:8,cellPadding:1.5},headStyles:{fontStyle:"bold"},
-      margin:{left:12,right:12},tableWidth:95
+      margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth
     });
     y=(doc.lastAutoTable?.finalY||y)+5;
     doc.autoTable({
       head:[cols.map(c=>c.label||c.key)],body:rows.map(r=>cols.map(c=>clean(r?.[c.key]))),startY:y,
-      styles:{fontSize:7,cellPadding:1.5,overflow:"linebreak"},headStyles:{fontStyle:"bold"},margin:{left:8,right:8}
+      styles:{fontSize:7,cellPadding:1.5,overflow:"linebreak"},headStyles:{fontStyle:"bold"},margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth
     });
     return doc;
   }
@@ -137,16 +138,17 @@
   function buildExportSheet(opts={}){
     const rows=opts.rows||[],cols=normalizeColumns(rows,opts.columns),headers=headerLines(opts),summary=summaryItems(opts,rows);
     const wrap=document.createElement("div");
-    wrap.style.cssText="position:fixed;left:-100000px;top:0;background:#fff;color:#111;padding:28px;width:max-content;min-width:1200px;z-index:-1;font-family:Arial,sans-serif";
+    const reportWidth=Math.max(1200,cols.length*170);
+    wrap.style.cssText=`position:fixed;left:-100000px;top:0;background:#fff;color:#111;padding:28px;width:${reportWidth}px;box-sizing:border-box;z-index:-1;font-family:Arial,sans-serif`;
     const addLine=(text,css)=>{const d=document.createElement("div");d.textContent=text;d.style.cssText=css;wrap.appendChild(d);};
     addLine(headers[0]||"","text-align:center;font-weight:700;font-size:24px;margin-bottom:5px");
     addLine(headers[1]||"","text-align:center;font-weight:700;font-size:17px;margin-bottom:4px");
     addLine(headers[2]||"","text-align:center;font-size:14px;margin-bottom:14px");
     addLine(opts.title||"FMS Report","text-align:center;font-weight:700;font-size:20px;margin-bottom:5px");
     metaLines(opts,rows).forEach(line=>addLine(line,"text-align:center;font-size:12px;margin-bottom:3px"));
-    const sum=document.createElement("table");sum.style.cssText="border-collapse:collapse;margin:14px auto 16px;font-size:12px;min-width:520px";
+    const sum=document.createElement("table");sum.style.cssText="border-collapse:collapse;width:100%;margin:14px 0 16px;font-size:12px;table-layout:fixed";
     sum.innerHTML='<thead><tr><th colspan="2" style="border:1px solid #555;padding:6px;background:#eee">SUMMARY</th></tr></thead><tbody>'+summary.map(x=>`<tr><td style="border:1px solid #777;padding:6px;font-weight:600">${escapeHtml(x.label)}</td><td style="border:1px solid #777;padding:6px;text-align:right">${escapeHtml(x.value)}</td></tr>`).join("")+"</tbody>";wrap.appendChild(sum);
-    const table=document.createElement("table");table.style.cssText="border-collapse:collapse;width:100%;font-size:12px";
+    const table=document.createElement("table");table.style.cssText="border-collapse:collapse;width:100%;font-size:12px;table-layout:fixed";
     const trh=document.createElement("tr");cols.forEach(c=>{const th=document.createElement("th");th.textContent=c.label||c.key;th.style.cssText="border:1px solid #555;padding:6px;background:#eee;text-align:center;white-space:nowrap";trh.appendChild(th);});
     const thead=document.createElement("thead");thead.appendChild(trh);table.appendChild(thead);
     const tbody=document.createElement("tbody");rows.forEach(r=>{const tr=document.createElement("tr");cols.forEach(c=>{const td=document.createElement("td");td.textContent=clean(r?.[c.key]);td.style.cssText="border:1px solid #777;padding:5px;vertical-align:top;max-width:300px;white-space:pre-wrap";tr.appendChild(td);});tbody.appendChild(tr);});table.appendChild(tbody);wrap.appendChild(table);document.body.appendChild(wrap);return wrap;
@@ -211,7 +213,7 @@
     const w=window.open("","_blank","width=1200,height=800");if(!w)throw new Error("Popup blocked. Please allow popups for printing.");
     const htmlRows=rows.map(r=>`<tr>${cols.map(c=>`<td>${escapeHtml(clean(r?.[c.key]))}</td>`).join("")}</tr>`).join("");
     const sumRows=summary.map(x=>`<tr><td>${escapeHtml(x.label)}</td><td style="text-align:right">${escapeHtml(x.value)}</td></tr>`).join("");
-    w.document.write(`<!doctype html><html><head><title>${escapeHtml(opts.title||"FMS Report")}</title><style>body{font-family:Arial;padding:18px;color:#111}.gov{text-align:center;margin:0}.gov1{font-size:22px;font-weight:700}.gov2{font-size:15px;font-weight:700;margin-top:4px}.gov3{font-size:13px;margin-top:4px}.title{text-align:center;font-size:18px;font-weight:700;margin:14px 0 5px}.meta{text-align:center;font-size:11px;margin:2px}.summary{border-collapse:collapse;min-width:480px;margin:14px auto}table.data{border-collapse:collapse;width:100%;font-size:11px}th,td{border:1px solid #555;padding:5px;vertical-align:top}th{background:#eee}@media print{button{display:none}}</style></head><body><div class="gov gov1">${escapeHtml(headers[0]||"")}</div><div class="gov gov2">${escapeHtml(headers[1]||"")}</div><div class="gov gov3">${escapeHtml(headers[2]||"")}</div><div class="title">${escapeHtml(opts.title||"FMS Report")}</div>${metaLines(opts,rows).map(x=>`<div class="meta">${escapeHtml(x)}</div>`).join("")}<table class="summary"><thead><tr><th colspan="2">SUMMARY</th></tr></thead><tbody>${sumRows}</tbody></table><table class="data"><thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${htmlRows}</tbody></table><script>window.onload=()=>{window.print();}<\/script></body></html>`);w.document.close();
+    w.document.write(`<!doctype html><html><head><title>${escapeHtml(opts.title||"FMS Report")}</title><style>body{font-family:Arial;padding:18px;color:#111}.report-shell{width:100%;margin:0 auto}.gov{text-align:center;margin:0;width:100%}.gov1{font-size:22px;font-weight:700}.gov2{font-size:15px;font-weight:700;margin-top:4px}.gov3{font-size:13px;margin-top:4px}.title{text-align:center;font-size:18px;font-weight:700;margin:14px 0 5px}.meta{text-align:center;font-size:11px;margin:2px}.summary{border-collapse:collapse;width:100%;margin:14px 0;table-layout:fixed;font-size:11px}table.data{border-collapse:collapse;width:100%;font-size:11px;table-layout:fixed}th,td{border:1px solid #555;padding:5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eee}@media print{button{display:none}}</style></head><body><div class="report-shell"><div class="gov gov1">${escapeHtml(headers[0]||"")}</div><div class="gov gov2">${escapeHtml(headers[1]||"")}</div><div class="gov gov3">${escapeHtml(headers[2]||"")}</div><div class="title">${escapeHtml(opts.title||"FMS Report")}</div>${metaLines(opts,rows).map(x=>`<div class="meta">${escapeHtml(x)}</div>`).join("")}<table class="summary"><thead><tr><th colspan="2">SUMMARY</th></tr></thead><tbody>${sumRows}</tbody></table><table class="data"><thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${htmlRows}</tbody></table></div><script>window.onload=()=>{window.print();}<\/script></body></html>`);w.document.close();
   }
   function fromTable(table,options={}){
     if(!table)return {rows:[],columns:[]};
