@@ -118,9 +118,10 @@
     y+=2;
     if(typeof doc.autoTable!=="function")throw new Error("PDF table library is not loaded.");
     const summary=summaryItems(opts,rows);
+    doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text("SUMMARY",pageWidth/2,y,{align:"center"});y+=3;
+    const summaryCardRows=[];for(let i=0;i<summary.length;i+=4){const row=[];for(let j=0;j<4;j++){const x=summary[i+j];row.push(x?`${x.label}\n${x.value}`:"");}summaryCardRows.push(row);}
     doc.autoTable({
-      head:[["Summary","Value"]],body:summary.map(x=>[x.label,x.value]),startY:y,
-      theme:"grid",styles:{fontSize:8,cellPadding:1.5},headStyles:{fontStyle:"bold"},
+      body:summaryCardRows,startY:y,theme:"grid",styles:{fontSize:8,cellPadding:2.2,halign:"center",valign:"middle",fontStyle:"bold"},
       margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth
     });
     y=(doc.lastAutoTable?.finalY||y)+5;
@@ -144,10 +145,11 @@
     addLine(headers[0]||"","text-align:center;font-weight:700;font-size:24px;margin-bottom:5px");
     addLine(headers[1]||"","text-align:center;font-weight:700;font-size:17px;margin-bottom:4px");
     addLine(headers[2]||"","text-align:center;font-size:14px;margin-bottom:14px");
-    addLine(opts.title||"FMS Report","text-align:center;font-weight:700;font-size:20px;margin-bottom:5px");
+    addLine(opts.title||"FMS Report","text-align:center;font-weight:700;font-size:17px;margin-bottom:5px");
     metaLines(opts,rows).forEach(line=>addLine(line,"text-align:center;font-size:12px;margin-bottom:3px"));
-    const sum=document.createElement("table");sum.style.cssText="border-collapse:collapse;width:100%;margin:14px 0 16px;font-size:12px;table-layout:fixed";
-    sum.innerHTML='<thead><tr><th colspan="2" style="border:1px solid #555;padding:6px;background:#eee">SUMMARY</th></tr></thead><tbody>'+summary.map(x=>`<tr><td style="border:1px solid #777;padding:6px;font-weight:600">${escapeHtml(x.label)}</td><td style="border:1px solid #777;padding:6px;text-align:right">${escapeHtml(x.value)}</td></tr>`).join("")+"</tbody>";wrap.appendChild(sum);
+    const sumHeading=document.createElement("div");sumHeading.textContent="SUMMARY";sumHeading.style.cssText="width:100%;box-sizing:border-box;text-align:center;font-weight:700;background:#eee;border:1px solid #555;padding:7px;margin-top:14px";wrap.appendChild(sumHeading);
+    const sum=document.createElement("div");sum.className="summary-cards";sum.style.cssText="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:8px 0 16px";
+    sum.innerHTML=summary.map(x=>`<div style="border:1px solid #777;border-radius:5px;padding:9px 7px;text-align:center;min-height:58px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:600">${escapeHtml(x.label)}</div><div style="font-size:18px;font-weight:700;margin-top:4px">${escapeHtml(x.value)}</div></div>`).join("");wrap.appendChild(sum);
     const table=document.createElement("table");table.style.cssText="border-collapse:collapse;width:100%;font-size:12px;table-layout:fixed";
     const trh=document.createElement("tr");cols.forEach(c=>{const th=document.createElement("th");th.textContent=c.label||c.key;th.style.cssText="border:1px solid #555;padding:6px;background:#eee;text-align:center;white-space:nowrap";trh.appendChild(th);});
     const thead=document.createElement("thead");thead.appendChild(trh);table.appendChild(thead);
@@ -212,8 +214,8 @@
     const rows=opts.rows||[];ensureRows(rows);const cols=normalizeColumns(rows,opts.columns),headers=headerLines(opts),summary=summaryItems(opts,rows);
     const w=window.open("","_blank","width=1200,height=800");if(!w)throw new Error("Popup blocked. Please allow popups for printing.");
     const htmlRows=rows.map(r=>`<tr>${cols.map(c=>`<td>${escapeHtml(clean(r?.[c.key]))}</td>`).join("")}</tr>`).join("");
-    const sumRows=summary.map(x=>`<tr><td>${escapeHtml(x.label)}</td><td style="text-align:right">${escapeHtml(x.value)}</td></tr>`).join("");
-    w.document.write(`<!doctype html><html><head><title>${escapeHtml(opts.title||"FMS Report")}</title><style>body{font-family:Arial;padding:18px;color:#111}.report-shell{width:100%;margin:0 auto}.gov{text-align:center;margin:0;width:100%}.gov1{font-size:22px;font-weight:700}.gov2{font-size:15px;font-weight:700;margin-top:4px}.gov3{font-size:13px;margin-top:4px}.title{text-align:center;font-size:18px;font-weight:700;margin:14px 0 5px}.meta{text-align:center;font-size:11px;margin:2px}.summary{border-collapse:collapse;width:100%;margin:14px 0;table-layout:fixed;font-size:11px}table.data{border-collapse:collapse;width:100%;font-size:11px;table-layout:fixed}th,td{border:1px solid #555;padding:5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eee}@media print{button{display:none}}</style></head><body><div class="report-shell"><div class="gov gov1">${escapeHtml(headers[0]||"")}</div><div class="gov gov2">${escapeHtml(headers[1]||"")}</div><div class="gov gov3">${escapeHtml(headers[2]||"")}</div><div class="title">${escapeHtml(opts.title||"FMS Report")}</div>${metaLines(opts,rows).map(x=>`<div class="meta">${escapeHtml(x)}</div>`).join("")}<table class="summary"><thead><tr><th colspan="2">SUMMARY</th></tr></thead><tbody>${sumRows}</tbody></table><table class="data"><thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${htmlRows}</tbody></table></div><script>window.onload=()=>{window.print();}<\/script></body></html>`);w.document.close();
+    const sumCards=summary.map(x=>`<div class="summary-card"><div class="summary-label">${escapeHtml(x.label)}</div><div class="summary-value">${escapeHtml(x.value)}</div></div>`).join("");
+    w.document.write(`<!doctype html><html><head><title>${escapeHtml(opts.title||"FMS Report")}</title><style>body{font-family:Arial;padding:18px;color:#111}.report-shell{width:100%;margin:0 auto}.gov{text-align:center;margin:0;width:100%}.gov1{font-size:22px;font-weight:700}.gov2{font-size:15px;font-weight:700;margin-top:4px}.gov3{font-size:13px;margin-top:4px}.title{text-align:center;font-size:16px;font-weight:700;margin:14px 0 5px}.meta{text-align:center;font-size:11px;margin:2px}.summary-heading{text-align:center;font-weight:700;background:#eee;border:1px solid #555;padding:6px;margin-top:14px}.summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;width:100%;margin:8px 0 14px;box-sizing:border-box}.summary-card{border:1px solid #777;border-radius:4px;padding:8px;text-align:center;min-height:52px;display:flex;flex-direction:column;justify-content:center}.summary-label{font-size:10px;font-weight:600}.summary-value{font-size:16px;font-weight:700;margin-top:3px}table.data{border-collapse:collapse;width:100%;font-size:11px;table-layout:fixed}th,td{border:1px solid #555;padding:5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eee}@media print{button{display:none}}</style></head><body><div class="report-shell"><div class="gov gov1">${escapeHtml(headers[0]||"")}</div><div class="gov gov2">${escapeHtml(headers[1]||"")}</div><div class="gov gov3">${escapeHtml(headers[2]||"")}</div><div class="title">${escapeHtml(opts.title||"FMS Report")}</div>${metaLines(opts,rows).map(x=>`<div class="meta">${escapeHtml(x)}</div>`).join("")}<div class="summary-heading">SUMMARY</div><div class="summary-cards">${sumCards}</div><table class="data"><thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${htmlRows}</tbody></table></div><script>window.onload=()=>{window.print();}<\/script></body></html>`);w.document.close();
   }
   function fromTable(table,options={}){
     if(!table)return {rows:[],columns:[]};
