@@ -1182,6 +1182,14 @@ function processURLFilter() {
         if (filter === "reply-received") return wf.replyReceived;
         if (filter === "reply-sent") return wf.replySent;
         if (filter === "circulation") return window.FMSRecordPolicy?.circulation?.("rti", record);
+        const hasAppeal = prefix => ["Number","Date","ReceivedDate","Status","Authority","OrderDate","OrderNo","Grounds"].some(s => String(record?.[prefix+s] || "").trim());
+        const appealDisposed = prefix => hasAppeal(prefix) && (/disposed|closed|completed/i.test(String(record?.[prefix+"Status"] || "")) || !!String(record?.[prefix+"OrderDate"] || "").trim());
+        if (filter === "first-appeals-received") return hasAppeal("firstAppeal");
+        if (filter === "first-appeals-pending") return hasAppeal("firstAppeal") && !appealDisposed("firstAppeal");
+        if (filter === "first-appeals-disposed") return appealDisposed("firstAppeal");
+        if (filter === "second-appeals-received") return hasAppeal("secondAppeal");
+        if (filter === "second-appeals-pending") return hasAppeal("secondAppeal") && !appealDisposed("secondAppeal");
+        if (filter === "second-appeals-disposed") return appealDisposed("secondAppeal");
         return true;
     });
     displayedRecords = filtered;

@@ -21,6 +21,9 @@
   function isOverdue(r){return P()?.overdue?.(module,r)||false;}
   function isDueToday(r){return P()?.dueToday?.(module,r)||false;}
   function withinDue(r){return P()?.withinDue?.(module,r)||(!isClosed(r)&&!isOverdue(r)&&!isDueToday(r));}
+  function hasAppeal(r,prefix){return ["Number","Date","ReceivedDate","Status","Authority","OrderDate","OrderNo","Grounds"].some(s=>String(r?.[prefix+s]||"").trim());}
+  function appealDisposed(r,prefix){return hasAppeal(r,prefix) && (/disposed|closed|completed/i.test(String(r?.[prefix+"Status"]||"")) || !!String(r?.[prefix+"OrderDate"]||"").trim());}
+  function appealPending(r,prefix){return hasAppeal(r,prefix) && !appealDisposed(r,prefix);}
   function metricLink(value,filter,scope,theme,fy){const href=`${cfg.register}?filter=${encodeURIComponent(filter)}&scope=${scope==="all"?"all":"fy"}${scope==="fy"?`&fy=${encodeURIComponent(fy)}`:""}`;return `<a class="text-${theme} text-decoration-none fw-bold" href="${href}">${esc(value)}</a>`;}
   function card(label,value,filter,icon,theme){const valueClass=String(value??"").length>8?"fs-6 lh-sm":"fs-3 lh-1";return `<div class="col-6 col-md-4 col-lg-3 col-xl-2"><div class="card h-100 shadow-sm border-0 fms-inline-metric-card"><div class="card-body text-center py-2 px-2"><div class="fs-4 text-${theme}"><i class="bi ${icon}"></i></div><div class="text-muted small mt-1 lh-sm">${esc(label)}</div><div class="${valueClass} fw-bold text-${theme}">${value}</div></div></div></div>`;}
   function render(rows){
@@ -37,7 +40,13 @@
         ["Reply Awaited",rows.filter(r=>w(r).sentToSection&&!w(r).replyReceived&&!isClosed(r)).length,"reply-awaited","bi-hourglass-split","warning"],
         ["Reply Received",rows.filter(r=>w(r).replyReceived).length,"reply-received","bi-inbox","success"],
         ["Reply Sent to Applicant",rows.filter(r=>w(r).replySent).length,"reply-sent","bi-send-check","success"],
-        ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
+        ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"],
+        ["First Appeals Received",metricLink(rows.filter(r=>hasAppeal(r,"firstAppeal")).length,"first-appeals-received","fy","primary",fy),"first-appeals-received","bi-1-circle","primary"],
+        ["First Appeals Pending",metricLink(rows.filter(r=>appealPending(r,"firstAppeal")).length,"first-appeals-pending","fy","warning",fy),"first-appeals-pending","bi-hourglass-split","warning"],
+        ["First Appeals Disposed",metricLink(rows.filter(r=>appealDisposed(r,"firstAppeal")).length,"first-appeals-disposed","fy","success",fy),"first-appeals-disposed","bi-check-circle","success"],
+        ["Second Appeals Received",metricLink(rows.filter(r=>hasAppeal(r,"secondAppeal")).length,"second-appeals-received","fy","primary",fy),"second-appeals-received","bi-2-circle","primary"],
+        ["Second Appeals Pending",metricLink(rows.filter(r=>appealPending(r,"secondAppeal")).length,"second-appeals-pending","fy","warning",fy),"second-appeals-pending","bi-hourglass-split","warning"],
+        ["Second Appeals Disposed",metricLink(rows.filter(r=>appealDisposed(r,"secondAppeal")).length,"second-appeals-disposed","fy","success",fy),"second-appeals-disposed","bi-check2-circle","success"]
       ];
     } else {
       const allRows=[...(rows||[])].filter(r=>r && r.active!==false && r.deleted!==true);

@@ -59,6 +59,9 @@
   function isOverdue(r){return P()?.overdue?.("cpgrams",r)||false;}
   function isDueToday(r){return P()?.dueToday?.("cpgrams",r)||false;}
   function withinDue(r){return P()?.withinDue?.("cpgrams",r)||(!isClosed(r)&&!isOverdue(r)&&!isDueToday(r));}
+  function hasCpgramsAppeal(r){return ["appealNumber","appealDate","appealReceivedDate","appealStatus","appealAuthority","appealCommunicationNo","appealDisposalDate","appealRemarks"].some(k=>String(r?.[k]||"").trim());}
+  function cpgramsAppealDisposed(r){return hasCpgramsAppeal(r) && (/disposed|closed|completed/i.test(String(r?.appealStatus||"")) || !!String(r?.appealDisposalDate||"").trim());}
+  function cpgramsAppealPending(r){return hasCpgramsAppeal(r) && !cpgramsAppealDisposed(r);}
   function fullRegisterUrl(filter="total"){
     const p=new URLSearchParams();p.set("filter",filter);p.set("fullscreen","1");p.set("grievanceType",currentType());p.set("fy",currentFY());
     return `cpgrams-register.html?${p}`;
@@ -89,6 +92,13 @@
         ["ATR Received",rows.filter(r=>w(r).atrReceived||/received|approved|sent to complainant|uploaded in cpgrams portal/i.test(String(r.atrStatus||""))).length,"atr-received","bi-inbox","success"],
         ["Disposed / Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
       ];
+      if(key==="cpgrams"){
+        cards.push(
+          ["Appeals Received",rows.filter(hasCpgramsAppeal).length,"appeals-received","bi-arrow-up-circle","primary"],
+          ["Appeals Pending",rows.filter(cpgramsAppealPending).length,"appeals-pending","bi-hourglass-split","warning"],
+          ["Appeals Disposed",rows.filter(cpgramsAppealDisposed).length,"appeals-disposed","bi-check2-circle","success"]
+        );
+      }
     }
     host.innerHTML=cards.map(x=>card(...x)).join("");
     if(status){status.className="alert alert-success py-2 mb-3";status.textContent=`${currentType()} Dashboard • Financial Year ${currentFY()} • ${rows.length} active record(s)`;}
