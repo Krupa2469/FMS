@@ -9,7 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
 <link href="css/style.css" rel="stylesheet"/>
 <style>
-body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 10px;text-align:center}.home-header h2{font-weight:700;margin:3px 0;font-size:1.85rem}.metric-card{border:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);min-height:0}.metric-value{font-size:30px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.14)!important}.fy-bar{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.home-top-summary{font-size:1.02rem;letter-spacing:.01em}.home-quick-btn{min-width:150px}.home-shell{display:grid;grid-template-columns:235px minmax(0,1fr);gap:16px;align-items:start}.home-sidebar{position:sticky;top:12px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);overflow:hidden}.home-sidebar-title{background:#212529;color:#fff;font-weight:700;padding:11px 14px}.home-sidebar-links{padding:8px}.home-sidebar a{display:flex;align-items:center;gap:9px;padding:9px 10px;margin:3px 0;border-radius:7px;text-decoration:none;color:#212529;font-weight:600;border:1px solid transparent}.home-sidebar a:hover{background:#eef4ff;border-color:#cfe2ff;color:#0d6efd}.home-sidebar a.sidebar-rti{color:#8a6200}.home-sidebar a.sidebar-disha{color:#087990}.home-main{min-width:0}@media(max-width:991.98px){.home-shell{grid-template-columns:1fr}.home-sidebar{position:static}.home-sidebar-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.home-sidebar a{margin:0}}@media(max-width:575.98px){.home-sidebar-links{grid-template-columns:1fr}}
+body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 10px;text-align:center}.home-header h2{font-weight:700;margin:3px 0;font-size:1.85rem}.metric-card{border:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);min-height:0}.metric-value{font-size:30px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.14)!important}.fy-bar{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.home-shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}.home-sidebar{position:sticky;top:12px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);overflow:hidden}.home-sidebar-links{padding:10px}.home-sidebar a{display:flex;align-items:center;gap:9px;padding:10px 11px;margin:3px 0;border-radius:7px;text-decoration:none;color:#212529;font-weight:700;font-size:1rem;line-height:1.2;border:1px solid transparent}.home-sidebar a:hover{background:#eef4ff;border-color:#cfe2ff;color:#0d6efd}.home-sidebar a.sidebar-rti{color:#8a6200}.home-sidebar a.sidebar-disha{color:#087990}.home-sidebar .sidebar-system{border-top:1px solid #dee2e6;margin-top:8px;padding-top:8px}.home-main{min-width:0}@media(max-width:991.98px){.home-shell{grid-template-columns:1fr}.home-sidebar{position:static}.home-sidebar-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.home-sidebar a{margin:0}}@media(max-width:575.98px){.home-sidebar-links{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -22,7 +22,6 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 
 <main class="container-fluid py-3">
 <div class="home-shell">
 <aside class="home-sidebar" aria-label="FMS modules">
-<div class="home-sidebar-title"><i class="bi bi-layout-sidebar-inset"></i> Modules</div>
 <div class="home-sidebar-links">
 <a class="" href="modules/cpgrams/cpgrams.html?grievanceType=CPGRAMS"><i class="bi bi-file-earmark-text"></i><span>CPGRAMS</span></a>
 <a class="" href="modules/cpgrams/cpgrams.html?grievanceType=Prajavani"><i class="bi bi-megaphone"></i><span>Prajavani</span></a>
@@ -38,35 +37,31 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 
 <a class="" href="modules/cpgrams/cpgrams.html?grievanceType=Vigilance%20Cases"><i class="bi bi-shield-exclamation"></i><span>Vigilance Cases</span></a>
 <a class="sidebar-rti" href="modules/rti/rti.html"><i class="bi bi-journal-text"></i><span>RTI</span></a>
 <a class="sidebar-disha" href="modules/disha/disha.html"><i class="bi bi-people"></i><span>DISHA</span></a>
+<div class="sidebar-system">
+<a href="pages/utilities.html"><i class="bi bi-tools"></i><span>Utilities</span></a>
+<a href="pages/admin/master-management.html"><i class="bi bi-database-gear"></i><span>Master Tables</span></a>
+<a href="pages/reports.html"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
+</div>
 </div>
 </aside>
 <section class="home-main">
-<div class="card fy-bar p-3 mb-4">
-<div class="text-center fw-bold text-success home-top-summary mb-3" id="dashboardReady">Loading current financial year dashboard...</div>
-<div class="d-flex gap-2 flex-wrap justify-content-end">
-<button class="btn btn-outline-secondary home-quick-btn" onclick="openUtilities()"><i class="bi bi-tools"></i> Utilities</button>
-<button class="btn btn-outline-dark home-quick-btn" onclick="location.href='pages/admin/master-management.html'"><i class="bi bi-database-gear"></i> Master Tables</button>
-<button class="btn btn-outline-primary home-quick-btn" onclick="location.href='pages/reports.html'"><i class="bi bi-bar-chart-line"></i> Reports</button>
-</div>
-<div class="d-none" id="homeStatus"></div>
-</div>
 <div class="row g-4" id="homeModuleCards"></div>
 </section>
 </div>
 </main>
 <footer class="bg-light text-center p-3"><small>© <span id="currentYear"></span> File Management System (FMS) | Version <span id="appVersion"></span></small></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/app.js?v=1.9.6"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js?v=1.9.6"></script>
+<script src="js/app.js?v=1.9.8"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js?v=1.9.8"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase/firebase-bootstrap.js"></script>
-<script src="js/progress-report-import-30092026.js?v=1.9.6"></script>
-<script src="js/record-consistency.js?v=1.9.6"></script>
+<script src="js/progress-report-import-30092026.js?v=1.9.8"></script>
+<script src="js/record-consistency.js?v=1.9.8"></script>
 <script>
 /* ==========================================================
    FMS HOME DASHBOARD - ROBUST FY + FIRESTORE LOADING
-   Current FY only on Home.
-   Sidebar opens module homes; dashboard cards open current-FY filtered registers.
+   Home shows all-years Total values only.
+   Sidebar opens module homes; specific module dashboards show current-FY values only.
 ========================================================== */
 const homeCollections={cpgrams:'cpgrams',rti:'rtiApplications',disha:'dishaMeetings'};
 const homeDateFields={cpgrams:['dateReceived','orgReceivedDate','receivedDate','grievanceDate','dateOfReceipt','receiptDate','dateArised','questionReceivedDate','date'],rti:['applicationDate','dateReceived','date'],disha:['dateOfMeeting','meetingDate','proposedDateOfMeeting','date']};
@@ -120,34 +115,30 @@ function homeCard(title,value,icon,color,target){
 }
 
 function openHomeCard(category,target){
-  const fy=window.FMSFY?.getCurrentFY?.()||'2026-27';
-  const p=new URLSearchParams();p.set('filter','total');p.set('fullscreen','1');p.set('fy',fy);
+  // Home cards represent all-years totals. Open the matching all-years register.
+  const p=new URLSearchParams();p.set('filter','total');p.set('fullscreen','1');p.set('fy','all');p.set('scope','all');
   if(target==='cpgrams'){if(category&&homeCategoryKey(category)!=='cpgrams'&&homeCategoryKey(category)!=='grievances')p.set('grievanceType',category);else p.set('grievanceType','CPGRAMS');location.href='modules/cpgrams/cpgrams-register.html?'+p.toString();return;}
   if(target==='rti'){location.href='modules/rti/rti-register.html?'+p.toString();return;}
   if(target==='disha'){location.href='modules/disha/disha-register.html?'+p.toString();return;}
   goModule(target);
 }
 function updateHomeCards(){
-  const fy=window.FMSFY?.getCurrentFY?.()||'2026-27';
-  const cpFY=homeRows.cpgrams.filter(r=>homeRecordFY(r,homeDateFields.cpgrams,"cpgrams")===fy);
-  const cpCurrent=cpFY.filter(r=>homeCategoryKey(grievanceTypeOfHome(r))==="cpgrams");
-  const rtiFY=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti,"rti")===fy).length;
-  const dishaFY=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha,"disha")===fy).length;
+  // Main Home shows Total values across all financial years.
+  const cpAll=(homeRows.cpgrams||[]).filter(r=>r && r.active!==false && r.deleted!==true);
+  const cpgramsTotal=cpAll.filter(r=>homeCategoryKey(grievanceTypeOfHome(r))==="cpgrams").length;
+  const rtiTotal=(homeRows.rti||[]).filter(r=>r && r.active!==false && r.deleted!==true).length;
+  const dishaTotal=(homeRows.disha||[]).filter(r=>r && r.active!==false && r.deleted!==true).length;
   const icons=['bi-file-earmark-text','bi-megaphone','bi-chat-left-text','bi-person-raised-hand','bi-question-square','bi-question-diamond','bi-bank','bi-star','bi-person-badge','bi-envelope-paper','bi-clipboard-check','bi-shield-exclamation'];
   const colors=['primary','success','info','warning','secondary','dark','dark','danger','primary','success','warning','danger'];
   let html='';
   HOME_CATEGORIES.forEach((cat,i)=>{
     const key=homeCategoryKey(cat);
-    const current=key==="cpgrams" ? cpCurrent.length : cpFY.filter(r=>categoryMatchesHome(r,cat)).length;
-    html+=homeCard(cat,current,icons[i],colors[i],'cpgrams');
+    const total=key==="cpgrams" ? cpgramsTotal : cpAll.filter(r=>categoryMatchesHome(r,cat)).length;
+    html+=homeCard(cat,total,icons[i],colors[i],'cpgrams');
   });
-  html+=homeCard('RTI',rtiFY,'bi-journal-text','warning','rti');
-  html+=homeCard('DISHA',dishaFY,'bi-people','info','disha');
+  html+=homeCard('RTI',rtiTotal,'bi-journal-text','warning','rti');
+  html+=homeCard('DISHA',dishaTotal,'bi-people','info','disha');
   const container=document.getElementById('homeModuleCards'); if(container) container.innerHTML=html;
-  const ready=document.getElementById('dashboardReady');
-  if(ready) ready.textContent=`Financial Year ${fy} | CPGRAMS: ${cpCurrent.length}, RTI: ${rtiFY}, DISHA: ${dishaFY}.`;
-  const status=document.getElementById('homeStatus');
-  if(status){status.textContent='';status.className='d-none';}
 }
 async function readCollectionSafely(name){
   try{
@@ -158,7 +149,7 @@ async function readCollectionSafely(name){
 }
 async function loadHome(){
   if(homeInitialized) return;
-  if(!window.db){const ready=document.getElementById('dashboardReady');if(ready)ready.textContent='Firebase is not ready. Please wait and refresh.';return;}
+  if(!window.db){console.warn('FMS Home: Firebase is not ready yet.');return;}
   homeInitialized=true;
   try{
     if(window.FMSProgressReportImport30092026?.run){try{await window.FMSProgressReportImport30092026.run();}catch(e){console.warn('FMS Home: progress-report import did not complete',e);}}
@@ -167,7 +158,7 @@ async function loadHome(){
     updateHomeCards();
     const errors=[cp,rti,disha].filter(x=>x.error);
     if(errors.length){console.warn('FMS Home: some modules could not be read from Firebase.');}
-  }catch(e){console.error('FMS Home dashboard error:',e);homeInitialized=false;const ready=document.getElementById('dashboardReady');if(ready){ready.className='fw-bold text-danger home-top-summary mb-3';ready.textContent='Unable to load dashboard: '+(e.message||e);} }
+  }catch(e){console.error('FMS Home dashboard error:',e);homeInitialized=false;}
 }
 function initHomeDashboard(){
   if(window.db) loadHome(); else window.addEventListener('fmsFirebaseReady',loadHome,{once:true});

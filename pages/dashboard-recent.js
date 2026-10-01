@@ -1,7 +1,7 @@
 /*==========================================================
     FILE MANAGEMENT SYSTEM (FMS)
     File        : dashboard-recent.js
-    Version     : 1.9.5
+    Version     : 1.9.8
 ==========================================================*/
 
 "use strict";

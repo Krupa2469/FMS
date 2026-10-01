@@ -1,0 +1,23 @@
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const read=f=>fs.readFileSync(path.join(root,f),'utf8');
+const home=read('index.html');
+const gw=read('js/grievance-workspace.js');
+const dash=read('js/module-inline-dashboard.js');
+const disha=read('modules/disha/disha.js');
+const app=read('js/app.js');
+function a(c,m){if(!c)throw new Error(m)}
+a(!home.includes('id="homeFY"'),'Home FY dropdown must remain removed');
+a(home.includes('Main Home shows Total values across all financial years.'),'Home must explicitly use all-years totals');
+a(home.includes("const cpAll=(homeRows.cpgrams||[]).filter"),'Home grievance cards must use all active rows');
+a(home.includes("const rtiTotal=(homeRows.rti||[]).filter"),'Home RTI card must use total rows');
+a(home.includes("const dishaTotal=(homeRows.disha||[]).filter"),'Home DISHA card must use total rows');
+a(!home.includes('const cpFY=homeRows.cpgrams.filter'),'Home must not compute card values from current FY');
+a(home.includes("p.set('fy','all')") && home.includes("p.set('scope','all')"),'Home card click must open all-years register');
+a(!home.includes('dashboardReady') && !home.includes('Total Records | CPGRAMS:'),'Home summary/title strip must be removed; totals remain on cards only');
+a(gw.includes('function currentFY(){return P()?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";}'),'Grievances home must remain current FY');
+a(dash.includes('function selectedFY(){return currentFY();}'),'RTI/DISHA dashboards must remain current FY');
+a(disha.includes('function selectedDishaWorkspaceFY() { return currentDishaFY(); }'),'DISHA workspace must remain current FY');
+a(app.includes('VERSION: "1.9.8"'),'App version must be 1.9.8');
+console.log('v1.9.8 Home-total / module-current-FY checks passed');

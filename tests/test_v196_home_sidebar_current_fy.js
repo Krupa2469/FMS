@@ -27,5 +27,5 @@ a(dash.includes('function selectedFY(){return currentFY();}'),'RTI/DISHA dashboa
 a(!dash.includes('All years:'),'All-years workflow title must be removed');
 a(!dash.includes('Total: ${metricLink(heldRows.length'),'DISHA meeting card must not mix all-years total');
 a(disha.includes('function selectedDishaWorkspaceFY() { return currentDishaFY(); }'),'DISHA home workspace must force current FY');
-a(app.includes('VERSION: "1.9.6"'),'App version must be 1.9.6');
+a(app.includes('VERSION: "1.9.8"'),'App version must be current release 1.9.8');
 console.log('v1.9.6 home sidebar/current-FY dashboard checks passed');
