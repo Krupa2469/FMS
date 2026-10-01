@@ -199,6 +199,11 @@ console.log("Current Document ID:", currentGrievance.id);
 
     refreshButtons();
 
+    const focusTarget = new URLSearchParams(window.location.search).get("focus");
+    if (focusTarget === "appeal") {
+        setTimeout(() => document.getElementById("cpgramsAppealCard")?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+    }
+
 }
 
 /*==========================================================
@@ -986,7 +991,7 @@ function buildGrievanceObject() {
     grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || grievance.registrationNumber || "")
         .trim().toUpperCase().replace(/\s+/g, "");
     grievance.updatedOn = new Date();
-    grievance.version = "1.6.6";
+    grievance.version = "1.9.9";
     return grievance;
 }
 /*==========================================================
@@ -1122,6 +1127,7 @@ async function uploadSelectedCPGRAMSDocuments(recordId) {
 
     const fileInputs = [
         { id: "fileDocument", role: "Grievance Document" },
+        { id: "appealDocument", role: "Appeal Document" },
         { id: "memoDocument", role: "UO Note/Memo/Letter" },
         { id: "fileAttachment", role: "Attachment" }
     ];

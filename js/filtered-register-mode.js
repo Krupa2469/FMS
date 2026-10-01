@@ -13,16 +13,21 @@
     let dataBlock=null;
 
     if(path.includes("cpgrams-register")){
-      // Dashboard-card drill-down: show only the filtered Grievances register.
+      // CPGRAMS sidebar/dashboard drill-down can target either Grievances or Appeals.
       document.querySelectorAll("header, nav, footer, .fms-module-nav, .fms-action-toolbar").forEach(hide);
-      const table=document.getElementById("registerTable");
+      const registerView=(params.get("register")||"grievances").toLowerCase();
+      const table=registerView==="appeals" ? document.getElementById("appealsRegisterTable") : document.getElementById("registerTable");
       dataBlock=table?.closest(".card") || table?.parentElement;
       document.querySelectorAll(".card").forEach(el=>{
         if(dataBlock && el!==dataBlock && !el.contains(table) && !el.closest(".modal")) hide(el);
       });
       // Hide search/summary/export/advanced panels even when their markup changes.
       ["searchFilters","summaryDashboard","exportOptions","advancedSearch"].forEach(id=>hide(document.getElementById(id)));
-      document.querySelectorAll(".container-fluid > .row.mt-3, .container-fluid > .row.mt-4, .container-fluid > .card.shadow-sm.mt-4").forEach(el=>{ if(!el.contains(table)) hide(el); });
+      document.querySelectorAll(".container-fluid > .row.mt-3, .container-fluid > .row.mt-4, .container-fluid > .card.shadow-sm.mt-4").forEach(el=>{
+        if(el.id==="grievancePaginationRow" && registerView!=="appeals") return;
+        if(!el.contains(table)) hide(el);
+      });
+      if(registerView==="appeals") hide(document.getElementById("grievancePaginationRow"));
     }
     else if(path.includes("rti-register")){
       document.querySelectorAll("header, nav, footer, .main-header, .navigation-bar, .fms-module-nav, .fms-action-toolbar").forEach(hide);

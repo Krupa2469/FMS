@@ -36,7 +36,7 @@ Rural Development
 <div class="col-md-2 text-end">
 <span class="badge bg-light text-dark fs-6">
 
-Version 1.9.8
+Version 1.9.9
 
 </span>
 </div>
@@ -150,7 +150,7 @@ Search
 <!-- ==========================================
 REGISTER TABLE
 =========================================== -->
-<div class="card shadow mt-4">
+<div class="card shadow mt-4" id="grievanceRegisterCard">
 <div class="card-header bg-primary text-white">
 <div class="row">
 <div class="col-md-6">
@@ -177,7 +177,7 @@ REGISTER TABLE
 <!-- ==========================================
 PAGINATION
 =========================================== -->
-<div class="row mt-3">
+<div class="row mt-3" id="grievancePaginationRow">
 <div class="col-md-6">
 <small class="text-muted" id="pageInfo">
 
@@ -210,6 +210,25 @@ PAGINATION
 
             <i class="bi bi-chevron-double-right"></i>
 </button>
+</div>
+</div>
+<!-- ==========================================
+CPGRAMS APPEALS REGISTER
+=========================================== -->
+<div class="card shadow mt-4 d-none" id="appealsRegisterCard">
+<div class="card-header bg-secondary text-white">
+<div class="row align-items-center">
+<div class="col-md-6"><h5 class="mb-0">APPEALS REGISTER</h5></div>
+<div class="col-md-6 text-end"><span class="badge bg-warning text-dark fs-6" id="appealRecordCount">Total Records : 0</span></div>
+</div>
+</div>
+<div class="card-body p-0">
+<div class="table-responsive">
+<table class="table table-bordered table-hover table-striped mb-0 align-middle" id="appealsRegisterTable">
+<thead class="table-dark"><tr><th>Sl.No.</th><th>Appeal No.</th><th>Date Received</th><th>Appellant Name</th><th>Corresponding Grievance No.</th><th>Appeal Status</th><th>Action</th></tr></thead>
+<tbody id="appealsRegisterBody"><tr><td colspan="7" class="text-center text-muted py-4">No Appeals Available</td></tr></tbody>
+</table>
+</div>
 </div>
 </div>
 <!-- ==========================================
@@ -485,7 +504,7 @@ FOOTER
 <small class="text-muted">
 
                     Grievances File Management System
-                    Version 1.9.8
+                    Version 1.9.9
 
                 </small>
 </div>
@@ -522,8 +541,8 @@ APPLICATION SCRIPTS
 <script src="../../js/repository/cpgrams-repository.js?v=1.6.6"></script>
 <script src="cpgrams-validator.js?v=1.6.6"></script>
 <!-- Register -->
-<script src="../../js/record-consistency.js?v=1.9.8"></script>
-<script src="cpgrams-register.js?v=1.6.6"></script>
+<script src="../../js/record-consistency.js?v=1.9.9"></script>
+<script src="cpgrams-register.js?v=1.9.9"></script>
 <!-- Firebase Configuration -->
 <!-- Application Scripts -->
 <!-- ==========================================
@@ -535,7 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("===================================");
 
-    console.log("Grievance Register Version 1.9.8");
+    console.log("Grievance Register Version 1.9.9");
 
     console.log("Initializing Register...");
 
@@ -547,7 +566,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
 <script src="../../js/services/whatsapp-service.js"></script>
 <script src="../../js/services/excel-report-service.js"></script>
-<script src="../../js/filtered-register-mode.js?v=1.6.6"></script>
+<script src="../../js/filtered-register-mode.js?v=1.9.9"></script>
 <script>
 window.openCPGRAMSSummaryFilter=function(filter){
   const p=new URLSearchParams();p.set("filter",filter||"total");
@@ -558,6 +577,6 @@ window.openCPGRAMSSummaryFilter=function(filter){
 </script>
 <script src="../../js/module-navigation.js?v=1.6.6"></script>
 </div><script src="../../js/date-ui-format.js?v=1.8.9"></script>
-<script src="../../js/register-field-tools.js?v=1.9.8"></script>
+<script src="../../js/register-field-tools.js?v=1.9.9"></script>
 </body>
 </html>
