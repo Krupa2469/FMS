@@ -4,7 +4,6 @@
    Module    : RTI
    File      : rti-reports.js
    Version   : 1.0
-   Developer : Lekha Technologies
 
    Purpose:
    RTI Reports / Summary Hyperlinks

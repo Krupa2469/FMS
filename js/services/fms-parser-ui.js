@@ -2,7 +2,7 @@
    FMS CENTRAL PARSER UI
    Version 1.0
    Adds the same Parse & Fill workflow to data-entry modules.
-   Lekha Technologies
+   Office of the Commissioner, Rural Development
 ========================================================= */
 (function (window, document) {
     "use strict";

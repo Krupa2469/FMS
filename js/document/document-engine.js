@@ -10,7 +10,7 @@
    - OCR fallback using Tesseract.js
    - Module-specific parser routing
 
-   Lekha Technologies
+   Office of the Commissioner, Rural Development
    ========================================================= */
 
 (function () {

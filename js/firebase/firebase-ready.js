@@ -8,8 +8,7 @@ firebase-ready.js
 Purpose:
 Common Firebase readiness controller for all FMS modules
 
-Developer:
-Lekha Technologies
+Office of the Commissioner, Rural Development
 
 Version:
 1.0

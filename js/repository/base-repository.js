@@ -2,7 +2,6 @@
  FILE MANAGEMENT SYSTEM (FMS)
  File        : base-repository.js
  Version     : 5.0
- Developer   : Lekha Technologies
  Description : Base Firestore Repository
 ==========================================================*/
 

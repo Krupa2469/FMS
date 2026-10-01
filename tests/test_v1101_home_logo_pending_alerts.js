@@ -1,0 +1,20 @@
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
+function a(cond,msg){if(!cond){throw new Error(msg);}}
+a(index.includes('images/telangana-logo.png'),'Telangana logo must be shown on Home');
+a(index.includes('id="pendingRoll"'),'Pending roll popup must exist');
+a(index.includes('CPGRAMS Grievances pending for'),'CPGRAMS grievance age alert missing');
+a(index.includes('CPGRAMS Appeals pending for'),'CPGRAMS appeal age alert missing');
+a(index.includes('RTI replies pending for'),'RTI pending age alert missing');
+a(index.includes('DISHA meeting PoMs Pending'),'DISHA PoM alert missing');
+a(index.includes('No. of Districts with no meetings'),'DISHA no-meeting alert missing');
+a(index.includes("homeRecordFY(r,homeDateFields.disha,'disha')===fy"),'DISHA pending alert must use current FY');
+a(index.includes("if(wrap)wrap.hidden=n<=0"),'Sidebar zero counts must be hidden');
+a(index.includes('class="sidebar-count-wrap" hidden'),'Sidebar count wrappers must start hidden');
+a(app.includes('VERSION: "1.10.1"'),'App version must be 1.10.1');
+a(app.includes('productionMessage'),'Production message filter must exist');
+a(!index.includes('Lekha Technologies'),'Home must not contain developer branding');
+console.log('v1.10.1 Home logo / pending alerts / production messages checks passed');

@@ -3,7 +3,6 @@
  Module      : CPGRAMS
  File        : cpgrams.js
  Version     : 6.0
- Developer   : Lekha Technologies
  Description : CPGRAMS Controller
 ==========================================================*/
 
@@ -991,7 +990,7 @@ function buildGrievanceObject() {
     grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || grievance.registrationNumber || "")
         .trim().toUpperCase().replace(/\s+/g, "");
     grievance.updatedOn = new Date();
-    grievance.version = "1.10.0";
+    grievance.version = "1.10.1";
     return grievance;
 }
 /*==========================================================
@@ -1212,7 +1211,7 @@ async function saveGrievance(event) {
             return false;
         }
 
-        if (!currentDocumentId) throw new Error("Record was saved but Firestore did not return the document ID.");
+        if (!currentDocumentId) throw new Error("The record was saved, but the confirmation could not be completed. Please refresh the register before editing it again.");
         console.log("CPGRAMS new record saved:", currentDocumentId);
 
         // Update the visible dashboard/register immediately from the saved row.

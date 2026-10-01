@@ -1,7 +1,7 @@
 /*==========================================================
     FILE MANAGEMENT SYSTEM (FMS)
     File        : dashboard.js
-    Version     : 1.10.0
+    Version     : 1.10.1
 ==========================================================*/
 
 "use strict";
@@ -121,7 +121,7 @@ function openModule(module)
             break;
 
         default:
-            alert("Module under development.");
+            alert("This feature is not available yet.");
     }
 }
 
@@ -167,7 +167,7 @@ function loadSystemInformation()
         records.length;
 
     document.getElementById("appVersion").textContent =
-        "1.10.0";
+        "1.10.1";
 }
 
 /*==========================================================

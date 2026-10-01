@@ -3,7 +3,6 @@
  Module      : Attachment Repository
  File        : attachment-repository.js
  Version     : 2.2
- Developer   : Lekha Technologies
  Description : Storage upload with Firestore inline fallback
 ==========================================================*/
 

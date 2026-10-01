@@ -8,8 +8,7 @@ firebase-loader.js
 Purpose:
 Load Firebase SDK files before Firebase Bootstrap
 
-Developer:
-Lekha Technologies
+Office of the Commissioner, Rural Development
 
 Version:
 1.0

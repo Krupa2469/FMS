@@ -36,7 +36,7 @@ function openModule(module) {
             break;
 
         default:
-            alert("Module under development.");
+            alert("This feature is not available yet.");
 
     }
 }

@@ -1,7 +1,7 @@
 /*==========================================================
     FILE MANAGEMENT SYSTEM (FMS)
     File        : app.js
-    Version     : 1.10.0
+    Version     : 1.10.1
     Description : Application Controller
 ==========================================================*/
 
@@ -17,7 +17,7 @@ const APP = {
 
     SHORT_NAME: "FMS",
 
-    VERSION: "1.10.0",
+    VERSION: "1.10.1",
 
     DEPARTMENT: "Office of the Commissioner, Rural Development",
 
@@ -39,16 +39,47 @@ INITIALIZE APPLICATION
 
 function initializeApplication()
 {
-    console.log("======================================");
-    console.log(APP.NAME);
-    console.log("Version : " + APP.VERSION);
-    console.log("======================================");
-
+    installProductionMessageFilter();
     showCurrentYear();
-
     showVersion();
+    applyProductionTooltips();
 }
 
+
+
+/*==========================================================
+PRODUCTION USER MESSAGES AND TOOLTIPS
+==========================================================*/
+function productionMessage(message)
+{
+    const text = String(message == null ? "" : message);
+    if (!text) return "Please try again.";
+    if (/firebase|firestore|sdk|rest fallback|crud|database is not initialized|database is not ready/i.test(text))
+        return "The data service is temporarily unavailable. Please check your connection, refresh the page and try again.";
+    if (/parser is not available|parsing failed|ocr/i.test(text))
+        return "Automatic document reading is unavailable right now. You can continue by entering the details manually.";
+    if (/module under development/i.test(text))
+        return "This feature is not available yet.";
+    if (/technical|internal error/i.test(text))
+        return "Something went wrong while completing this action. Please try again.";
+    return text;
+}
+function installProductionMessageFilter()
+{
+    if (window.__fmsProductionMessageFilterInstalled) return;
+    window.__fmsProductionMessageFilterInstalled = true;
+    const nativeAlert = window.alert.bind(window);
+    window.alert = function(message){ nativeAlert(productionMessage(message)); };
+    window.FMSProductionMessage = productionMessage;
+}
+function applyProductionTooltips()
+{
+    document.querySelectorAll("button,a,input,select,textarea").forEach(function(el){
+        if (el.title) return;
+        const label = String(el.getAttribute("aria-label") || el.textContent || el.placeholder || "").trim().replace(/\s+/g," ");
+        if (label && label.length <= 90) el.title = label;
+    });
+}
 
 /*==========================================================
 SHOW APPLICATION VERSION

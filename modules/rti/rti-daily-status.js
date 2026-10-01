@@ -4,7 +4,6 @@
    Module    : RTI
    File      : rti-daily-status.js
    Version   : 3.1
-   Developer : Lekha Technologies
 
    Purpose:
    RTI Daily Status Report

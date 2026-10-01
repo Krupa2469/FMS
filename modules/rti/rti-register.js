@@ -3,7 +3,6 @@
    Module    : RTI
    File      : rti-register.js
    Version   : 4.1
-   Developer : Lekha Technologies
 
    Purpose:
    RTI Application Register
@@ -96,7 +95,7 @@ async function initializeRTIRegister() {
         ) {
 
             throw new Error(
-                "Firebase Firestore database is not initialized."
+                "The data service is still loading. Please wait a moment and try again."
             );
 
         }
@@ -164,7 +163,7 @@ async function loadRTIRecordsFromFirestore() {
     const database = getRTIRegisterDB();
 
     if (!database) {
-        throw new Error("Firebase Firestore is not available.");
+        throw new Error("The data service is temporarily unavailable. Please refresh and try again.");
     }
 
 
@@ -254,7 +253,7 @@ async function loadRTIRecordsFromFirestore() {
         );
 
         showError(
-            "Unable to load RTI applications from Firestore."
+            "Unable to load RTI applications. Please refresh and try again."
         );
 
         throw error;
@@ -1002,7 +1001,7 @@ async function deleteRTIRecordFromRegister(id) {
         const result = window.FMSCrud ? await window.FMSCrud.softDelete(RTI_COLLECTION, id) : null;
         if (!result) {
             const database = getRTIRegisterDB();
-            if (!database) throw new Error("Firebase Firestore is not available.");
+            if (!database) throw new Error("The data service is temporarily unavailable. Please refresh and try again.");
             const ts = firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();
             await database.collection(RTI_COLLECTION).doc(id).set({ active: false, deletedOn: ts, updatedOn: ts }, { merge: true });
         } else if (!result.success) {
@@ -1586,7 +1585,7 @@ async function deleteRTIRecordFromRegister(id) {
         const result = window.FMSCrud ? await window.FMSCrud.softDelete(RTI_COLLECTION, id) : null;
         if (!result) {
             const database = getRTIRegisterDB();
-            if (!database) throw new Error("Firebase Firestore is not available.");
+            if (!database) throw new Error("The data service is temporarily unavailable. Please refresh and try again.");
             const ts = firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();
             await database.collection(RTI_COLLECTION).doc(id).set({ active: false, deletedOn: ts, updatedOn: ts }, { merge: true });
         } else if (!result.success) {

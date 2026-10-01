@@ -2,7 +2,6 @@
 ==========================================================
 FMS RTI MASTER SERVICE
 Version : 1.0.0
-Developer: Lekha Technologies
 
 Purpose:
 Central master handling for the RTI data-entry form.

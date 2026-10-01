@@ -81,7 +81,7 @@
     host.innerHTML=cards.map(x=>card(...x)).join("");
     if(statusEl){statusEl.className="d-none";statusEl.textContent="";}
   }
-  async function load(){const s=document.getElementById("moduleDashboardStatus"),db=getDb();if(!db){if(s){s.className="alert alert-warning py-2 mb-3";s.textContent="Dashboard is waiting for Firebase...";}return false;}try{const snap=await db.collection(cfg.collection).get();render(snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>P()?P().active(r):r.active!==false));return true;}catch(e){console.error(`${module} inline dashboard error`,e);if(s){s.className="alert alert-danger py-2 mb-3";s.textContent="Unable to load dashboard: "+(e.message||e);}return false;}}
+  async function load(){const s=document.getElementById("moduleDashboardStatus"),db=getDb();if(!db){if(s){s.className="alert alert-warning py-2 mb-3";s.textContent="Loading dashboard data...";}return false;}try{const snap=await db.collection(cfg.collection).get();render(snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>P()?P().active(r):r.active!==false));return true;}catch(e){console.error(`${module} inline dashboard error`,e);if(s){s.className="alert alert-danger py-2 mb-3";s.textContent="Unable to load dashboard data. Please refresh and try again.";}return false;}}
   async function start(){if(await load())return;window.addEventListener("fmsFirebaseReady",load,{once:true});setTimeout(load,1800);}
   document.addEventListener("DOMContentLoaded",start);window.FMSInlineDashboard={refresh:load};
 })();

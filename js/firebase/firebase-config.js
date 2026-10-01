@@ -9,8 +9,7 @@ firebase-config.js
 Purpose:
 Initializes Firebase App, Firestore and Authentication
 
-Developer:
-Lekha Technologies
+Office of the Commissioner, Rural Development
 
 Version:
 2.0

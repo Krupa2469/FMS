@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   CPGRAMS / GRIEVANCES REGISTER CONTROLLER - v1.10.0
+   CPGRAMS / GRIEVANCES REGISTER CONTROLLER - v1.10.1
    - CPGRAMS has separate Grievances and Appeals registers.
    - Grievance / Appeal numbers open their uploaded documents.
    - Registers default to latest Date Received first.
@@ -34,7 +34,7 @@
   function isDueToday(r){return P()?.dueToday?.("cpgrams",r)||false;}
   function withinDue(r){return P()?.withinDue?.("cpgrams",r)||(!isClosed(r)&&!isOverdue(r)&&!isDueToday(r));}
   function isCirculation(r){return P()?.circulation?.("cpgrams",r)||false;}
-  function hasAppeal(r){return ["appealNumber","appealDate","appealReceivedDate","appellantName","appealStatus","appealAuthority","appealCommunicationNo","appealDisposalDate","appealRemarks","appealDocumentName"].some(k=>String(r?.[k]||"").trim());}
+  function hasAppeal(r){const identifying=["appealNumber","appealDate","appealReceivedDate","appellantName","appealAuthority","appealCommunicationNo","appealDisposalDate","appealRemarks","appealDocumentName"];if(identifying.some(k=>String(r?.[k]||"").trim()))return true;const status=String(r?.appealStatus||"").trim();return !!status&&!/^no\s*appeal$/i.test(status);}
   function appealDisposed(r){return hasAppeal(r) && (/disposed|closed|completed/i.test(String(r?.appealStatus||"")) || !!String(r?.appealDisposalDate||"").trim());}
   function appealPending(r){return hasAppeal(r) && !appealDisposed(r);}
   function fv(r,key){return r?.[key]??"";}
@@ -200,7 +200,7 @@
 
   function bind(){["searchGrievanceType","financialYear","searchDistrict","searchStatus","searchCategory","searchPriority","fromDate","toDate"].forEach(id=>{const e=$(id);if(!e)return;e.addEventListener("change",applyFilters);e.addEventListener("keyup",applyFilters);});$("btnSearch")?.addEventListener("click",applyFilters);$("btnRefresh")?.addEventListener("click",loadRegister);$("btnRefreshData")?.addEventListener("click",loadRegister);$("btnNew")?.addEventListener("click",()=>{sessionStorage.removeItem("selectedGrievance");location.href=`cpgrams.html?mode=new&fullscreenForm=1&grievanceType=${encodeURIComponent(selectedType())}`;});$("btnHome")?.addEventListener("click",()=>location.href="../../index.html");$("btnDashboard")?.addEventListener("click",()=>location.href=`cpgrams.html?grievanceType=${encodeURIComponent(selectedType())}`);$("btnFirst")?.addEventListener("click",()=>{currentPage=1;renderTable();});$("btnPrevious")?.addEventListener("click",()=>{currentPage=Math.max(1,currentPage-1);renderTable();});$("btnNext")?.addEventListener("click",()=>{currentPage=Math.min(Math.ceil(filteredRecords.length/PAGE_SIZE)||1,currentPage+1);renderTable();});$("btnLast")?.addEventListener("click",()=>{currentPage=Math.ceil(filteredRecords.length/PAGE_SIZE)||1;renderTable();});$("btnWhatsApp")?.addEventListener("click",async()=>{await window.FMSWhatsAppService?.compose?.({module:"GRIEVANCES",title:`${selectedType()} Register Message`,defaultMessage:`${selectedType()} Register Update\nFY: ${selectedFY()}\nRecords: ${filteredRecords.length}\n\n${($("registerBody")?.innerText||"").slice(0,2800)}`,message:m=>showMessage("info",m)});});}
   function bindExternalRefresh(){const reload=()=>loadRegister();window.addEventListener("fmsRecordChanged",event=>{if(!event?.detail?.module||event.detail.module==="cpgrams")reload();});window.addEventListener("storage",event=>{if(event.key==="fms_cpgrams_record_changed"&&event.newValue)reload();});try{if("BroadcastChannel" in window){const channel=new BroadcastChannel("fms-cpgrams-records");channel.addEventListener("message",reload);window.addEventListener("beforeunload",()=>channel.close(),{once:true});}}catch(_e){}}
-  function init(){console.log("CPGRAMS Registers v1.10.0 loaded");populateTypeDropdown();populateFY();bind();bindExternalRefresh();renderTable();loadRegister();}
+  function init(){console.log("CPGRAMS Registers v1.10.1 loaded");populateTypeDropdown();populateFY();bind();bindExternalRefresh();renderTable();loadRegister();}
 
   window.openCPGRAMSSummaryFilter=f=>{const p=new URLSearchParams();p.set("filter",f||"total");p.set("fullscreen","1");p.set("fy",selectedFY());p.set("grievanceType",selectedType());if(String(f||"").startsWith("appeals-"))p.set("register","appeals");location.href="cpgrams-register.html?"+p;};
   window.viewRecord=id=>openRecord(id,"view");window.editRecord=id=>openRecord(id,"edit");window.deleteRecordFromGrid=deleteRecord;window.searchRecords=applyFilters;window.applyFinancialYearFilter=applyFilters;window.applyURLFilter=applyFilters;window.refreshRegister=loadRegister;window.goHome=()=>location.href="../../index.html";window.openDashboard=()=>location.href=`cpgrams.html?grievanceType=${encodeURIComponent(selectedType())}`;

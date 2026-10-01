@@ -34,7 +34,7 @@ async function refreshCPGRAMSSearch(){
         renderCPGRAMSSearch();
     }catch(error){
         console.error("CPGRAMS search load error", error);
-        alert("Unable to load grievance records. Please check the Firebase connection.");
+        alert("Unable to load grievance records. Please check your connection and try again.");
     }
 }
 

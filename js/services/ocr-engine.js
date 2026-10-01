@@ -2,7 +2,7 @@
  * ocr-engine.js
  * Intelligent OCR Engine
  * Version 1.0
- * Lekha Technologies
+ * Office of the Commissioner, Rural Development
  ******************************************************************/
 
 console.log("OCR Engine Loaded");

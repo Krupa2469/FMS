@@ -2,7 +2,7 @@
 ==========================================================
 FMS OFFICE PROCESSING MASTER ADMINISTRATION
 Version 1.0.0
-Lekha Technologies
+Office of the Commissioner, Rural Development
 ==========================================================
 */
 "use strict";
@@ -90,7 +90,7 @@ Lekha Technologies
 
         const database = await readyDb();
         if (!database) {
-            body.innerHTML = '<tr><td colspan="5">Firebase is not ready.</td></tr>';
+            body.innerHTML = '<tr><td colspan="5">The data service is loading. Please try again in a moment.</td></tr>';
             return;
         }
 
@@ -135,7 +135,7 @@ Lekha Technologies
 
         const database = await readyDb();
         if (!database) {
-            alert("Firebase is not ready.");
+            alert("The data service is loading. Please try again in a moment.");
             return;
         }
 

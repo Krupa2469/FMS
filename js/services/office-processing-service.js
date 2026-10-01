@@ -3,7 +3,6 @@
 FILE MANAGEMENT SYSTEM (FMS)
 File        : office-processing-service.js
 Version     : 1.0.0
-Developer   : Lekha Technologies
 
 Purpose:
 Central Office Processing section shared by CPGRAMS, RTI and

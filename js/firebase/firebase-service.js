@@ -4,7 +4,6 @@ FILE MANAGEMENT SYSTEM (FMS)
 
 firebase-service.js
 
-Developer : Lekha Technologies
 Version    : 1.0
 
 Reusable Firestore Functions

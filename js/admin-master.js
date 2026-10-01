@@ -2,7 +2,6 @@
  * FILE MANAGEMENT SYSTEM (FMS)
  * File        : admin-master.js
  * Version     : 3.0
- * Developer   : Lekha Technologies
  *
  * Description :
  * Master Data Administration Controller

@@ -2,7 +2,6 @@
 ================================================================
  FMS - RTI MODULE
  Version : 4.1
- Developer: Lekha Technologies
 
  Four-section RTI data entry:
  1. Application Details
@@ -66,7 +65,7 @@ function rtiStorage() {
 }
 function rtiReady() {
     if (rtiDb()) return true;
-    showRTIMessage("Firebase is not ready. Please wait a moment and try again.", "warning");
+    showRTIMessage("The data service is still loading. Please wait a moment and try again.", "warning");
     return false;
 }
 function rtiServerTimestamp() {
@@ -315,12 +314,12 @@ async function uploadFileToRTI(file,type,recordId){
             return {name:file.name,type,contentType:file.type||"",size:file.size||0,path,url,storageProvider:"firebase-storage",uploadedAt:new Date().toISOString()};
         }catch(e){
             console.warn("RTI Storage upload failed. Trying Firestore inline fallback.", e);
-            if((file.size||0)>700*1024) throw new Error("Firebase Storage upload failed and this file is too large for Firestore fallback. Deploy the updated storage.rules, then try again.");
+            if((file.size||0)>700*1024) throw new Error("This file could not be uploaded because it is too large for the available upload method. Please use a smaller file and try again.");
             const url=await readRTIFileAsDataURL(file);
             return {name:file.name,type,contentType:file.type||"",size:file.size||0,path:"",url,storageProvider:"firestore-inline",storageError:e.message||String(e),uploadedAt:new Date().toISOString()};
         }
     }
-    if((file.size||0)>700*1024) throw new Error("Firebase Storage is not available and this file is too large for Firestore fallback. Deploy the updated storage.rules, then try again.");
+    if((file.size||0)>700*1024) throw new Error("This file is too large to upload right now. Please use a smaller file and try again.");
     const url=await readRTIFileAsDataURL(file);
     return {name:file.name,type,contentType:file.type||"",size:file.size||0,path:"",url,storageProvider:"firestore-inline",uploadedAt:new Date().toISOString()};
 }
@@ -364,7 +363,7 @@ async function saveRTIRecord(){
         if(!validateRTIForm(data)) return false;
 
         const database=window.FMSCrud ? await window.FMSCrud.waitForDb() : rtiDb();
-        if(!database) throw new Error("Firestore is not available.");
+        if(!database) throw new Error("The data service is temporarily unavailable. Please refresh and try again.");
 
         const existingId = await findExistingRTIIdForSave(data.applicationNumber);
         let createResult;
@@ -441,7 +440,7 @@ async function updateRTIRecord(){
         if(!validateRTIForm(data)) return false;
 
         const database=window.FMSCrud ? await window.FMSCrud.waitForDb() : rtiDb();
-        if(!database) throw new Error("Firestore is not available.");
+        if(!database) throw new Error("The data service is temporarily unavailable. Please refresh and try again.");
 
         let docs=[...rtiDocuments];
         docs=await persistPendingRTIApplication(currentRTIRecordId,docs);
@@ -456,7 +455,7 @@ async function updateRTIRecord(){
         pendingRTIApplicationMeta=null;
         renderRTIAttachments();
 
-        showRTIMessage("RTI application updated successfully in Firestore.","success");
+        showRTIMessage("RTI application updated successfully.","success");
         window.FMSFormFocus?.completeCrud?.();
         return true;
 
@@ -693,12 +692,12 @@ function fallbackFill(fields,mapping){
 async function uploadRTIAttachment(type="Attachment",inputId="attachmentFile"){
     const file=document.getElementById(inputId)?.files?.[0];
     if(!file){ showRTIMessage("Please choose an attachment first.","warning"); return; }
-    if(!currentRTIRecordId){ showRTIMessage("Please save the RTI application first. The attachment will then be stored in Firestore.","warning"); return; }
+    if(!currentRTIRecordId){ showRTIMessage("Please save the RTI application first, then upload the attachment.","warning"); return; }
     try {
         const meta=await uploadFileToRTI(file,"Attachment",currentRTIRecordId);
         rtiDocuments.push(meta);
         await rtiDb().collection(RTI_COLLECTION).doc(currentRTIRecordId).update({documents:rtiDocuments,attachments:rtiDocuments,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-        document.getElementById(inputId).value=""; renderRTIAttachments(); showRTIMessage("Attachment saved to Firestore.","success");
+        document.getElementById(inputId).value=""; renderRTIAttachments(); showRTIMessage("Attachment saved successfully.","success");
     } catch(e){ console.error(e); showRTIMessage(`Unable to save attachment: ${e.message}`,"danger"); }
 }
 

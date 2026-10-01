@@ -2,7 +2,7 @@
    FMS CENTRAL PARSER SERVICE
    Version 1.0
    One entry point for document parsing in all FMS modules.
-   Lekha Technologies
+   Office of the Commissioner, Rural Development
 ========================================================= */
 (function (window) {
     "use strict";

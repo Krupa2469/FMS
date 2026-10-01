@@ -21,7 +21,7 @@ body{background:#f4f6f9}.hero{background:#0d6efd;color:#fff;padding:18px}.metric
 <a class="btn btn-dark" href="../../index.html"><i class="bi bi-house"></i> Home</a>
 <a class="btn btn-outline-secondary" href="master-management.html"><i class="bi bi-database"></i> Master Tables</a>
 <a class="btn btn-outline-primary" href="../../modules/cpgrams/cpgrams.html"><i class="bi bi-inbox"></i> Grievances</a>
-<span id="dbState" class="ms-auto align-self-center small text-muted">Connecting to Firebase...</span>
+<span id="dbState" class="ms-auto align-self-center small text-muted">Connecting to data service...</span>
 </div></nav>
 
 <main class="container-fluid py-3">
@@ -96,7 +96,7 @@ async function loadPrepared(){
   document.getElementById("previewBody").innerHTML=prepared.map(r=>`<tr><td>${r.sourceSerialNo}</td><td>${esc(r.grievanceType)}</td><td>${esc(r.grievanceNumber)}</td><td>${esc(r.complainantName)}</td><td>${esc(r.dateReceived)}</td><td>${esc(r.diaryDate)}</td></tr>`).join("");
 }
 async function getExisting(){
-  const db=getDb(); if(!db) throw new Error("Firestore is not ready.");
+  const db=getDb(); if(!db) throw new Error("The data service is not ready. Please wait and try again.");
   const snap=await db.collection(COLLECTION).get();
   const docs=snap.docs.map(d=>({id:d.id,ref:d.ref,...d.data()}));
   document.getElementById("existingCount").textContent=docs.filter(x=>x.active!==false).length;
@@ -112,7 +112,7 @@ async function verify(){
     const matched=prepared.length-missing.length;
     document.getElementById("updatedCount").textContent=matched;
     if(missing.length===0){
-      setStatus("success",`Verification complete. <strong>All ${prepared.length} supplied registration numbers are present in Firestore.</strong>`);
+      setStatus("success",`Verification complete. <strong>All ${prepared.length} supplied registration numbers are present in the system.</strong>`);
     }else{
       setStatus("warning",`Verification complete. ${matched} of ${prepared.length} supplied records are present; <strong>${missing.length} are missing</strong>.`);
     }
@@ -120,11 +120,11 @@ async function verify(){
 }
 async function importData(){
   if(!prepared.length){setStatus("danger","Prepared data is not loaded.");return;}
-  if(!confirm(`Import / update ${prepared.length} CPGRAMS records in Firestore? Existing records with the same Registration Number will be updated only for the supplied fields. Other fields will be preserved.`)) return;
+  if(!confirm(`Import / update ${prepared.length} CPGRAMS records? Existing records with the same Registration Number will be updated only for the supplied fields. Other fields will be preserved.`)) return;
   const btn=document.getElementById("btnImport");btn.disabled=true;
   try{
     setStatus("info","Reading existing CPGRAMS records...");
-    const db=getDb(); if(!db) throw new Error("Firestore is not ready.");
+    const db=getDb(); if(!db) throw new Error("The data service is not ready. Please wait and try again.");
     const existing=await getExisting();
     const byNo=new Map();
     existing.forEach(d=>{
@@ -177,7 +177,7 @@ async function importData(){
 }
 async function init(){
   try{await loadPrepared();}catch(e){setStatus("danger",esc(e.message||e));}
-  const connect=async()=>{try{await getExisting();document.getElementById("dbState").textContent="Firestore connected";}catch(e){document.getElementById("dbState").textContent="Firestore not ready";}};
+  const connect=async()=>{try{await getExisting();document.getElementById("dbState").textContent="Data service connected";}catch(e){document.getElementById("dbState").textContent="Data service not ready";}};
   if(getDb())connect();else window.addEventListener("fmsFirebaseReady",connect,{once:true});
 }
 document.getElementById("btnImport").addEventListener("click",importData);

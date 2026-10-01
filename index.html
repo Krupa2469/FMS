@@ -9,11 +9,14 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
 <link href="css/style.css" rel="stylesheet"/>
 <style>
-body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 10px;text-align:center}.home-header h2{font-weight:700;margin:3px 0;font-size:1.85rem}.metric-card{border:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);min-height:0}.metric-value{font-size:30px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.14)!important}.fy-bar{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.home-shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}.home-sidebar{position:sticky;top:12px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);overflow:hidden}.home-sidebar-links{padding:10px}.home-sidebar a{display:flex;align-items:center;gap:9px;padding:10px 11px;margin:3px 0;border-radius:7px;text-decoration:none;color:#212529;font-weight:700;font-size:1rem;line-height:1.2;border:1px solid transparent}.home-sidebar a:hover{background:#eef4ff;border-color:#cfe2ff;color:#0d6efd}.home-sidebar .sidebar-cpgrams-group{margin-bottom:4px}.home-sidebar .sidebar-cpgrams-parent{margin-bottom:0}.home-sidebar .sidebar-subitem{margin-left:26px;padding:7px 10px;font-size:.95rem;background:#f8f9fa;border-left:3px solid #0d6efd;border-radius:6px}.home-sidebar .sidebar-subitem .sidebar-count{margin-left:auto;font-weight:800}.home-sidebar a.sidebar-rti{color:#8a6200}.home-sidebar a.sidebar-disha{color:#087990}.home-sidebar .sidebar-system{border-top:1px solid #dee2e6;margin-top:8px;padding-top:8px}.home-main{min-width:0}@media(max-width:991.98px){.home-shell{grid-template-columns:1fr}.home-sidebar{position:static}.home-sidebar-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.home-sidebar a{margin:0}}@media(max-width:575.98px){.home-sidebar-links{grid-template-columns:1fr}}
+body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 110px;text-align:center;position:relative;min-height:130px;display:flex;flex-direction:column;justify-content:center}.home-header h2{font-weight:700;margin:3px 0;font-size:1.85rem}.metric-card{border:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);min-height:0}.metric-value{font-size:30px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.14)!important}.fy-bar{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.home-shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}.home-sidebar{position:sticky;top:12px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);overflow:hidden}.home-sidebar-links{padding:10px}.home-sidebar a{display:flex;align-items:center;gap:9px;padding:10px 11px;margin:3px 0;border-radius:7px;text-decoration:none;color:#212529;font-weight:700;font-size:1rem;line-height:1.2;border:1px solid transparent}.home-sidebar a:hover{background:#eef4ff;border-color:#cfe2ff;color:#0d6efd}.home-sidebar .sidebar-cpgrams-group{margin-bottom:4px}.home-sidebar .sidebar-cpgrams-parent{margin-bottom:0}.home-sidebar .sidebar-subitem{margin-left:26px;padding:7px 10px;font-size:.95rem;background:#f8f9fa;border-left:3px solid #0d6efd;border-radius:6px}.home-sidebar .sidebar-subitem .sidebar-count{margin-left:auto;font-weight:800}.home-sidebar a.sidebar-rti{color:#8a6200}.home-sidebar a.sidebar-disha{color:#087990}.home-sidebar .sidebar-system{border-top:1px solid #dee2e6;margin-top:8px;padding-top:8px}.home-main{min-width:0}@media(max-width:991.98px){.home-shell{grid-template-columns:1fr}.home-sidebar{position:static}.home-sidebar-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.home-sidebar a{margin:0}}@media(max-width:575.98px){.home-sidebar-links{grid-template-columns:1fr}.home-header{padding:14px 70px}.home-state-logo{left:12px;width:58px;height:58px}}
+.home-state-logo{position:absolute;left:28px;top:50%;transform:translateY(-50%);width:86px;height:86px;object-fit:contain;border-radius:50%;background:#fff;padding:5px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.sidebar-count-wrap[hidden]{display:none!important}.pending-roll[hidden]{display:none!important}.pending-roll{position:fixed;right:24px;top:145px;width:min(390px,calc(100vw - 36px));z-index:1080;background:linear-gradient(180deg,#fffdf4 0%,#fff8dc 55%,#f7edc8 100%);border:1px solid #d7c58a;border-radius:10px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:22px 18px 18px;color:#3b331f;max-height:calc(100vh - 175px);overflow-y:auto}.pending-roll:before,.pending-roll:after{content:"";position:absolute;left:12px;right:12px;height:14px;border:1px solid #cbb777;background:linear-gradient(180deg,#f7edc8,#e7d7a4);border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.14)}.pending-roll:before{top:-8px}.pending-roll:after{bottom:-8px}.pending-roll-header{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px dashed #c9b875;padding-bottom:9px;margin-bottom:8px}.pending-roll-title{font-size:1.05rem;font-weight:800;letter-spacing:.2px}.pending-roll-close{border:0;background:transparent;font-size:1.2rem;line-height:1;color:#6b5d2f;padding:2px 4px}.pending-roll-item{display:flex;gap:8px;align-items:flex-start;padding:8px 2px;border-bottom:1px dotted rgba(110,92,40,.28);font-weight:650;line-height:1.35}.pending-roll-item:last-child{border-bottom:0}.pending-roll-item a{color:#3b331f;text-decoration:none;flex:1}.pending-roll-item a:hover{text-decoration:underline}.pending-roll-item i{margin-top:2px;color:#9a6a00}.pending-roll-subtle{font-size:.78rem;color:#76683e;margin-top:8px}.home-sidebar a[title]{cursor:pointer}@media(max-width:767.98px){.pending-roll{right:12px;top:118px;width:calc(100vw - 24px)}}
 </style>
 </head>
 <body>
 <header class="home-header">
+<img class="home-state-logo" src="images/telangana-logo.png" alt="Government of Telangana emblem" title="Government of Telangana"/>
 <div>GOVERNMENT OF TELANGANA</div>
 <div class="small">OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT</div>
 <h2>FILE MANAGEMENT SYSTEM (FMS)</h2>
@@ -24,27 +27,27 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 
 <aside class="home-sidebar" aria-label="FMS modules">
 <div class="home-sidebar-links">
 <div class="sidebar-cpgrams-group">
-<a class="sidebar-cpgrams-parent" href="modules/cpgrams/cpgrams.html?grievanceType=CPGRAMS"><i class="bi bi-file-earmark-text"></i><span>CPGRAMS</span></a>
-<a class="sidebar-subitem" id="sidebarCpgramsGrievances" href="modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-inbox"></i><span>Grievances (<span id="sidebarCpgramsGrievanceOpenCount">0</span>)</span></a>
-<a class="sidebar-subitem" id="sidebarCpgramsAppeals" href="modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=appeals-pending&fullscreen=1&register=appeals"><i class="bi bi-arrow-up-circle"></i><span>Appeals (<span id="sidebarCpgramsAppealOpenCount">0</span>)</span></a>
+<a class="sidebar-cpgrams-parent" href="modules/cpgrams/cpgrams.html?grievanceType=CPGRAMS" title="Open CPGRAMS workspace"><i class="bi bi-file-earmark-text"></i><span>CPGRAMS</span></a>
+<a class="sidebar-subitem" id="sidebarCpgramsGrievances" href="modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=pending&fullscreen=1&register=grievances" title="Show pending CPGRAMS grievances"><i class="bi bi-inbox"></i><span>Grievances<span class="sidebar-count-wrap" hidden> (<span id="sidebarCpgramsGrievanceOpenCount">0</span>)</span></span></a>
+<a class="sidebar-subitem" id="sidebarCpgramsAppeals" href="modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=appeals-pending&fullscreen=1&register=appeals" title="Show pending CPGRAMS appeals"><i class="bi bi-arrow-up-circle"></i><span>Appeals<span class="sidebar-count-wrap" hidden> (<span id="sidebarCpgramsAppealOpenCount">0</span>)</span></span></a>
 </div>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Prajavani&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-megaphone"></i><span>Prajavani (<span class="sidebar-count" id="sidebarPrajavaniPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Public%20Grievances&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-chat-left-text"></i><span>Public Grievances (<span class="sidebar-count" id="sidebarPublicGrievancesPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Direct%20Complaints&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-person-raised-hand"></i><span>Direct Complaints (<span class="sidebar-count" id="sidebarDirectComplaintsPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=LAQ&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-question-square"></i><span>LAQ (<span class="sidebar-count" id="sidebarLAQPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=LCQ&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-question-diamond"></i><span>LCQ (<span class="sidebar-count" id="sidebarLCQPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Court%20Cases&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-bank"></i><span>Court Cases (<span class="sidebar-count" id="sidebarCourtCasesPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=VIP%20References&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-star"></i><span>VIP References (<span class="sidebar-count" id="sidebarVIPReferencesPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=CMO%20References&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-person-badge"></i><span>CMO References (<span class="sidebar-count" id="sidebarCMOReferencesPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=PMO%20References&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-envelope-paper"></i><span>PMO References (<span class="sidebar-count" id="sidebarPMOReferencesPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Audit%20Paras&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-clipboard-check"></i><span>Audit Paras (<span class="sidebar-count" id="sidebarAuditParasPendingCount">0</span>)</span></a>
-<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Vigilance%20Cases&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-shield-exclamation"></i><span>Vigilance Cases (<span class="sidebar-count" id="sidebarVigilanceCasesPendingCount">0</span>)</span></a>
-<a class="sidebar-rti" href="modules/rti/rti-register.html?fy=all&filter=pending&fullscreen=1"><i class="bi bi-journal-text"></i><span>RTI (<span class="sidebar-count" id="sidebarRTIPendingCount">0</span>)</span></a>
-<a class="sidebar-disha" href="modules/disha/disha-register.html?fy=all&scope=all&filter=pending-files&fullscreen=1"><i class="bi bi-people"></i><span>DISHA (<span class="sidebar-count" id="sidebarDISHAPendingCount">0</span>)</span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Prajavani&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-megaphone"></i><span>Prajavani<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarPrajavaniPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Public%20Grievances&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-chat-left-text"></i><span>Public Grievances<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarPublicGrievancesPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Direct%20Complaints&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-person-raised-hand"></i><span>Direct Complaints<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarDirectComplaintsPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=LAQ&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-question-square"></i><span>LAQ<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarLAQPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=LCQ&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-question-diamond"></i><span>LCQ<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarLCQPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Court%20Cases&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-bank"></i><span>Court Cases<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarCourtCasesPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=VIP%20References&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-star"></i><span>VIP References<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarVIPReferencesPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=CMO%20References&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-person-badge"></i><span>CMO References<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarCMOReferencesPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=PMO%20References&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-envelope-paper"></i><span>PMO References<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarPMOReferencesPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Audit%20Paras&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-clipboard-check"></i><span>Audit Paras<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarAuditParasPendingCount">0</span>)</span></span></a>
+<a href="modules/cpgrams/cpgrams-register.html?grievanceType=Vigilance%20Cases&fy=all&filter=pending&fullscreen=1&register=grievances"><i class="bi bi-shield-exclamation"></i><span>Vigilance Cases<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarVigilanceCasesPendingCount">0</span>)</span></span></a>
+<a class="sidebar-rti" href="modules/rti/rti-register.html?fy=all&filter=pending&fullscreen=1"><i class="bi bi-journal-text"></i><span>RTI<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarRTIPendingCount">0</span>)</span></span></a>
+<a class="sidebar-disha" href="modules/disha/disha-register.html?fy=all&scope=all&filter=pending-files&fullscreen=1"><i class="bi bi-people"></i><span>DISHA<span class="sidebar-count-wrap" hidden> (<span class="sidebar-count" id="sidebarDISHAPendingCount">0</span>)</span></span></a>
 <div class="sidebar-system">
-<a href="pages/utilities.html"><i class="bi bi-tools"></i><span>Utilities</span></a>
-<a href="pages/admin/master-management.html"><i class="bi bi-database-gear"></i><span>Master Tables</span></a>
-<a href="pages/reports.html"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
+<a href="pages/utilities.html" title="Open FMS utilities"><i class="bi bi-tools"></i><span>Utilities</span></a>
+<a href="pages/admin/master-management.html" title="Maintain master tables"><i class="bi bi-database-gear"></i><span>Master Tables</span></a>
+<a href="pages/reports.html" title="Open reports"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
 </div>
 </div>
 </aside>
@@ -53,14 +56,22 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 
 </section>
 </div>
 </main>
+
+<div class="pending-roll" id="pendingRoll" hidden role="dialog" aria-live="polite" aria-label="Pending alerts">
+  <div class="pending-roll-header">
+    <div class="pending-roll-title"><i class="bi bi-bell-fill me-2"></i>Pending Alerts</div>
+    <button type="button" class="pending-roll-close" id="pendingRollClose" aria-label="Close pending alerts" title="Close pending alerts"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div id="pendingRollList"></div>
+</div>
 <footer class="bg-light text-center p-3"><small>© <span id="currentYear"></span> File Management System (FMS) | Version <span id="appVersion"></span></small></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/app.js?v=1.10.0"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js?v=1.10.0"></script>
+<script src="js/app.js?v=1.10.1"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js?v=1.10.1"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase/firebase-bootstrap.js"></script>
-<script src="js/progress-report-import-30092026.js?v=1.10.0"></script>
-<script src="js/record-consistency.js?v=1.10.0"></script>
+<script src="js/progress-report-import-30092026.js?v=1.10.1"></script>
+<script src="js/record-consistency.js?v=1.10.1"></script>
 <script>
 /* ==========================================================
    FMS HOME DASHBOARD - ROBUST FY + FIRESTORE LOADING
@@ -116,7 +127,10 @@ function homeCpgramsClosed(row){
   return /disposed|closed|completed/i.test(String(row?.finalStatus||row?.currentStatus||row?.officeStatus||""));
 }
 function homeHasAppeal(row){
-  return ["appealNumber","appealDate","appealReceivedDate","appellantName","appealStatus","appealAuthority","appealCommunicationNo","appealDisposalDate","appealRemarks","appealDocumentName"].some(k=>String(row?.[k]||"").trim());
+  const identifying=["appealNumber","appealDate","appealReceivedDate","appellantName","appealAuthority","appealCommunicationNo","appealDisposalDate","appealRemarks","appealDocumentName"];
+  if(identifying.some(k=>String(row?.[k]||"").trim())) return true;
+  const status=String(row?.appealStatus||"").trim();
+  return !!status && !/^no\s*appeal$/i.test(status);
 }
 function homeAppealClosed(row){
   return homeHasAppeal(row) && (/disposed|closed|completed/i.test(String(row?.appealStatus||"")) || !!String(row?.appealDisposalDate||"").trim());
@@ -125,8 +139,8 @@ function updateCpgramsSidebarCounts(cpRows){
   const rows=(cpRows||[]).filter(r=>r && r.active!==false && r.deleted!==true && rowTypeHome(r)==="cpgrams");
   const grievanceOpen=rows.filter(r=>!homeCpgramsClosed(r)).length;
   const appealOpen=rows.filter(r=>homeHasAppeal(r)&&!homeAppealClosed(r)).length;
-  const g=document.getElementById('sidebarCpgramsGrievanceOpenCount'); if(g) g.textContent=String(grievanceOpen);
-  const a=document.getElementById('sidebarCpgramsAppealOpenCount'); if(a) a.textContent=String(appealOpen);
+  setHomeSidebarCount('sidebarCpgramsGrievanceOpenCount',grievanceOpen);
+  setHomeSidebarCount('sidebarCpgramsAppealOpenCount',appealOpen);
 }
 function homeRTIClosed(row){
   if(window.FMSRecordPolicy?.closed) return !!window.FMSRecordPolicy.closed("rti",row);
@@ -149,7 +163,7 @@ const HOME_PENDING_COUNT_IDS={
   "audit paras":"sidebarAuditParasPendingCount",
   "vigilance cases":"sidebarVigilanceCasesPendingCount"
 };
-function setHomeSidebarCount(id,value){const el=document.getElementById(id);if(el)el.textContent=String(value||0);}
+function setHomeSidebarCount(id,value){const el=document.getElementById(id);if(!el)return;const n=Number(value)||0;el.textContent=String(n);const wrap=el.closest('.sidebar-count-wrap');if(wrap)wrap.hidden=n<=0;}
 function updateHomeSidebarPendingCounts(cpRows,rtiRows,dishaRows){
   const cp=(cpRows||[]).filter(r=>r && r.active!==false && r.deleted!==true);
   updateCpgramsSidebarCounts(cp);
@@ -161,6 +175,50 @@ function updateHomeSidebarPendingCounts(cpRows,rtiRows,dishaRows){
   const dishaPending=(dishaRows||[]).filter(r=>r && r.active!==false && r.deleted!==true && homeDishaFilePending(r)).length;
   setHomeSidebarCount('sidebarRTIPendingCount',rtiPending);
   setHomeSidebarCount('sidebarDISHAPendingCount',dishaPending);
+}
+function homeParseDate(value){
+  if(!value) return null;
+  if(value instanceof Date) return Number.isNaN(value.getTime())?null:value;
+  if(typeof value?.toDate==='function'){const d=value.toDate();return Number.isNaN(d.getTime())?null:d;}
+  if(value?.seconds!=null){const d=new Date(Number(value.seconds)*1000);return Number.isNaN(d.getTime())?null:d;}
+  const t=String(value).trim();let m=t.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);
+  m=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+  const d=new Date(t);return Number.isNaN(d.getTime())?null:d;
+}
+function homeAgeDays(rows,fields){
+  const today=new Date();today.setHours(0,0,0,0);let max=null;
+  (rows||[]).forEach(r=>{for(const f of fields){const d=homeParseDate(r?.[f]);if(!d)continue;d.setHours(0,0,0,0);const days=Math.max(0,Math.floor((today-d)/86400000));if(max===null||days>max)max=days;break;}});
+  return max;
+}
+function homePomUploaded(row){return /yes|uploaded|completed/i.test(String(row?.pomUploaded||row?.pomStatus||''));}
+function homeDishaMeetingHeld(row){
+  const status=String(row?.statusOfMeeting||row?.meetingStatus||'').trim().toLowerCase();
+  if(status==='held'||status==='conducted')return true;
+  if(/postponed|cancelled|to be held|upcoming/.test(status))return false;
+  const d=homeParseDate(row?.dateOfMeeting||row?.meetingDate||row?.proposedDateOfMeeting);if(!d)return false;
+  const today=new Date();today.setHours(23,59,59,999);return d<=today;
+}
+const HOME_DISHA_DISTRICTS=["Adilabad","Bhadradri Kothagudem","Hanumakonda","Hyderabad","Jagtial","Jangaon","Jayashankar Bhupalpally","Jogulamba Gadwal","Kamareddy","Karimnagar","Khammam","Kumuram Bheem","Mahabubabad","Mahabubnagar","Mancherial","Medak","Medchal-Malkajgiri","Mulugu","Nagarkurnool","Nalgonda","Narayanpet","Nirmal","Nizamabad","Peddapalli","Rajanna Sircilla","Rangareddy","Sangareddy","Siddipet","Suryapet","Vikarabad","Wanaparthy","Warangal","Yadadri Bhuvanagiri"];
+function homeDistrictKey(v){let s=String(v||'').trim().toLowerCase().replace(/[–—]/g,'-').replace(/\s+/g,' ');if(s==='kb asifabad'||s==='komaram bheem asifabad'||s==='kumuram bheem asifabad')s='kumuram bheem';return s;}
+function pendingRollRow(text,href){return `<div class="pending-roll-item"><i class="bi bi-hourglass-split"></i>${href?`<a href="${href}">${text}</a>`:`<span>${text}</span>`}</div>`;}
+function renderPendingRoll(cpRows,rtiRows,dishaRows){
+  const roll=document.getElementById('pendingRoll'),list=document.getElementById('pendingRollList');if(!roll||!list)return;
+  const cp=(cpRows||[]).filter(r=>r&&r.active!==false&&r.deleted!==true);const lines=[];
+  const cpGrievances=cp.filter(r=>rowTypeHome(r)==='cpgrams'&&!homeCpgramsClosed(r));
+  if(cpGrievances.length){const days=homeAgeDays(cpGrievances,homeDateFields.cpgrams);lines.push(pendingRollRow(`CPGRAMS Grievances pending for ${days===null?'—':days} days`,`modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=pending&fullscreen=1&register=grievances`));}
+  const cpAppeals=cp.filter(r=>rowTypeHome(r)==='cpgrams'&&homeHasAppeal(r)&&!homeAppealClosed(r));
+  if(cpAppeals.length){const days=homeAgeDays(cpAppeals,['appealReceivedDate','appealDate','dateReceived','orgReceivedDate']);lines.push(pendingRollRow(`CPGRAMS Appeals pending for ${days===null?'—':days} days`,`modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=appeals-pending&fullscreen=1&register=appeals`));}
+  HOME_CATEGORIES.filter(c=>homeCategoryKey(c)!=='cpgrams').forEach(cat=>{const rows=cp.filter(r=>categoryMatchesHome(r,cat)&&!homeCpgramsClosed(r));if(!rows.length)return;const days=homeAgeDays(rows,homeDateFields.cpgrams);lines.push(pendingRollRow(`${cat} pending for ${days===null?'—':days} days`,`modules/cpgrams/cpgrams-register.html?grievanceType=${encodeURIComponent(cat)}&fy=all&filter=pending&fullscreen=1&register=grievances`));});
+  const rti=(rtiRows||[]).filter(r=>r&&r.active!==false&&r.deleted!==true&&!homeRTIClosed(r));
+  if(rti.length){const days=homeAgeDays(rti,homeDateFields.rti);lines.push(pendingRollRow(`RTI replies pending for ${days===null?'—':days} days`,`modules/rti/rti-register.html?fy=all&filter=pending&fullscreen=1`));}
+  const fy=populateHomeFY();
+  const disha=(dishaRows||[]).filter(r=>r&&r.active!==false&&r.deleted!==true&&homeRecordFY(r,homeDateFields.disha,'disha')===fy);
+  const pomPending=disha.filter(r=>homeDishaMeetingHeld(r)&&!homePomUploaded(r));
+  if(pomPending.length)lines.push(pendingRollRow(`DISHA meeting PoMs Pending (${fy}): ${pomPending.length}`,`modules/disha/disha-register.html?fy=${encodeURIComponent(fy)}&scope=current&filter=pom-pending&fullscreen=1`));
+  const conducted=new Set(disha.filter(homeDishaMeetingHeld).map(r=>homeDistrictKey(r.district||r.nameOfDistrict)).filter(Boolean));
+  const noMeetings=HOME_DISHA_DISTRICTS.filter(d=>!conducted.has(homeDistrictKey(d))).length;
+  if(noMeetings>0)lines.push(pendingRollRow(`No. of Districts with no meetings: ${noMeetings}`,`modules/disha/disha-register.html?fy=${encodeURIComponent(fy)}&scope=current&filter=districts-no-meetings&fullscreen=1`));
+  list.innerHTML=lines.join('');roll.hidden=lines.length===0;
 }
 function populateHomeFY(){ return window.FMSFY?.getCurrentFY?.() || '2026-27';
 }
@@ -195,6 +253,7 @@ function updateHomeCards(){
   html+=homeCard('DISHA',dishaTotal,'bi-people','info','disha');
   const container=document.getElementById('homeModuleCards'); if(container) container.innerHTML=html;
   updateHomeSidebarPendingCounts(cpAll,homeRows.rti||[],homeRows.disha||[]);
+  renderPendingRoll(cpAll,homeRows.rti||[],homeRows.disha||[]);
 }
 async function readCollectionSafely(name){
   try{
@@ -221,5 +280,5 @@ function initHomeDashboard(){
   setTimeout(()=>{if(window.db)loadHome();},2500);
 }
 window.addEventListener('fmsFirebaseReady',loadHome,{once:true});
-document.addEventListener('DOMContentLoaded',initHomeDashboard);</script>
+document.addEventListener('DOMContentLoaded',()=>{initHomeDashboard();document.getElementById('pendingRollClose')?.addEventListener('click',()=>{const roll=document.getElementById('pendingRoll');if(roll)roll.hidden=true;});});</script>
 </body></html>

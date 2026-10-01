@@ -5,7 +5,6 @@
    File     : disha-daily-status.js
    Version  : 1.0
    Project  : CRD-TG-FMS
-   Developer: Lekha Technologies
 
    Purpose:
    DISHA Daily Status Report

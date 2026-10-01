@@ -4,7 +4,6 @@
  * Module    : DISHA
  * File      : disha.js
  * Version   : 2.0 - FIRESTORE
- * Developer : Lekha Technologies
  *
  * Storage:
  * Firebase Firestore
@@ -100,7 +99,7 @@ async function parseSelectedDishaDocument() {
     if (status) status.textContent = `Selected: ${file.name}. Parsing and normalising text...`;
 
     if (!window.FMSDocumentEngine || typeof window.FMSDocumentEngine.parse !== "function") {
-        if (status) status.textContent = "Document parser is not available. The file can still be uploaded after saving.";
+        if (status) status.textContent = "Automatic document reading is unavailable right now. You can continue by entering the details manually and upload the file after saving.";
         return;
     }
 

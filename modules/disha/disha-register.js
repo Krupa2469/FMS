@@ -3,7 +3,6 @@
    File        : disha-register.js
    Version     : 2.0
    Project     : CRD-TG-FMS
-   Developer   : Lekha Technologies
 
    Purpose:
    - Load DISHA meetings from Firestore
@@ -126,7 +125,7 @@ function getFirestoreDB() {
 
 
     console.error(
-        "Firestore database is not available."
+        "The data service is temporarily unavailable. Please refresh and try again."
     );
 
     return null;
@@ -314,7 +313,7 @@ async function loadDISHAmeetings() {
     if (!db) {
 
         console.error(
-            "Firestore is not initialized."
+            "The data service is still loading. Please wait and try again."
         );
 
         return;
@@ -1448,7 +1447,7 @@ async function deleteDISHARecordFromRegister(id) {
         const result = window.FMSCrud ? await window.FMSCrud.softDelete(DISHA_COLLECTION, id) : null;
         if (!result) {
             const database = getFirestoreDB();
-            if (!database) throw new Error("Firebase Firestore is not available.");
+            if (!database) throw new Error("The data service is temporarily unavailable. Please refresh and try again.");
             const ts = firebase?.firestore?.FieldValue?.serverTimestamp?.() || new Date();
             await database.collection(DISHA_COLLECTION).doc(id).set({ active: false, deletedOn: ts, updatedAt: ts, updatedOn: ts }, { merge: true });
         } else if (!result.success) {

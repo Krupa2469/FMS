@@ -2,7 +2,6 @@
 =========================================================
 Government of Telangana - File Management System (FMS)
 Master Data - Districts
-Developer: Lekha Technologies
 Version: 2.0
 
 Districts are loaded from Firestore when available, with a complete

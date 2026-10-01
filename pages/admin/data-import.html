@@ -620,7 +620,7 @@ async function extract(){
   }
 }
 async function getExistingDocs(type){
-  const db=getDb(); if(!db)throw new Error("Firestore is not ready.");
+  const db=getDb(); if(!db)throw new Error("The data service is not ready. Please wait a moment and try again.");
   const snap=await db.collection(collectionForType(type)).get();
   const docs=snap.docs.map(d=>({id:d.id,ref:d.ref,...d.data()}));
   $("existingCount").textContent=docs.filter(x=>x.active!==false).length;
@@ -682,11 +682,11 @@ function cleanPayload(record,type){
 async function importData(){
   const type=$("importType").value;
   if(!extractedRecords.length){setStatus("warning","No records to import.");return;}
-  if(!confirm(`Import / update ${extractedRecords.length} ${type} record(s) into Firestore? Existing matching records will be updated with supplied fields and other fields will be preserved.`))return;
+  if(!confirm(`Import / update ${extractedRecords.length} ${type} record(s)? Existing matching records will be updated with supplied fields and other fields will be preserved.`))return;
   const btn=$("btnImport");btn.disabled=true;
   try{
-    setStatus("info","Preparing Firestore import...");
-    const db=getDb(); if(!db)throw new Error("Firestore is not ready.");
+    setStatus("info","Preparing data import...");
+    const db=getDb(); if(!db)throw new Error("The data service is not ready. Please wait a moment and try again.");
     const existing=await getExistingDocs(type);
     const map=new Map(); existing.forEach(d=>{const k=existingKey(d,type);if(k&&!map.has(k))map.set(k,d);});
     let batch=db.batch(),ops=0,created=0,updated=0,failed=0;
@@ -714,7 +714,7 @@ function downloadJson(){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`fms-import-${$("importType").value.toLowerCase().replace(/[^a-z0-9]+/g,"-")}-${todayISO()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 function clearAll(){extractedRecords=[];$("rawText").value="";$("sourceFile").value="";resetLog();setStatus("info","Upload or paste a document, then click <strong>Extract Fields</strong>.");renderPreview();$("createdCount").textContent="0";$("updatedCount").textContent="0";}
-async function connect(){try{await getExistingDocs($("importType").value);$("dbState").textContent="Firestore connected";}catch(e){$("dbState").textContent="Firestore not ready";}}
+async function connect(){try{await getExistingDocs($("importType").value);$("dbState").textContent="Data service connected";}catch(e){$("dbState").textContent="Data service not ready";}}
 $("btnExtract").addEventListener("click",extract);
 $("btnImport").addEventListener("click",importData);
 $("btnVerify").addEventListener("click",verify);

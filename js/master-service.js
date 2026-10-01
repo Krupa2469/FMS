@@ -2,7 +2,6 @@
  * FILE MANAGEMENT SYSTEM (FMS)
  * File        : master-service.js
  * Version     : 3.0
- * Developer   : Lekha Technologies
  *
  * Description :
  * Firestore Master Data Service

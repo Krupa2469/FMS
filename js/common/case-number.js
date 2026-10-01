@@ -2,7 +2,6 @@
  * FILE MANAGEMENT SYSTEM (FMS)
  * File        : case-number.js
  * Version     : 3.1
- * Developer   : Lekha Technologies
  *
  * Description :
  * Generic Case Number Generator

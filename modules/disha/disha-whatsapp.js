@@ -4,7 +4,6 @@
  * Module    : DISHA
  * File      : disha-whatsapp.js
  * Version   : 1.0
- * Developer : Lekha Technologies
  *
  * Purpose:
  * Prepare DISHA Daily Status Report message and share through
@@ -639,7 +638,7 @@ function buildDishaWhatsAppMessage(
         "Generated from FMS\n";
 
     message +=
-        "Lekha Technologies";
+        "Office of the Commissioner, Rural Development";
 
 
     return message;

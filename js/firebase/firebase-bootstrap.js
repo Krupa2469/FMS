@@ -8,8 +8,7 @@ firebase-bootstrap.js
 Purpose:
 Common Firebase initialization for the entire FMS
 
-Developer:
-Lekha Technologies
+Office of the Commissioner, Rural Development
 
 Version:
 1.0

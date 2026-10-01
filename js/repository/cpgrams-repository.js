@@ -3,7 +3,6 @@
  Module      : CPGRAMS
  File        : cpgrams-repository.js
  Version     : 5.0
- Developer   : Lekha Technologies
  Description : CPGRAMS Repository
 ==========================================================*/
 

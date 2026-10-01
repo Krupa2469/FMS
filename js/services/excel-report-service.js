@@ -3,7 +3,7 @@
    Version 1.0
    Purpose: Export WhatsApp Daily Status reports to Excel
    in the approved CPGRAMS / DISHA formats.
-   Lekha Technologies
+   Office of the Commissioner, Rural Development
 ============================================================ */
 (function(window, document){
     "use strict";
