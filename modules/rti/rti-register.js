@@ -698,6 +698,37 @@ function calculateRTIStatus(
 
 
 /* ============================================================
+   RTI APPLICATION DOCUMENT LINK
+   - The Application Number opens the uploaded RTI Application document.
+============================================================ */
+function getRTIApplicationDocument(record){
+    const docs=Array.isArray(record?.documents)?record.documents:(Array.isArray(record?.attachments)?record.attachments:[]);
+    return docs.find(d=>/rti application/i.test(String(d?.type||d?.fileRole||d?.role||""))) || docs.find(d=>String(d?.url||d?.downloadURL||"").trim()) || null;
+}
+function getRTIApplicationDocumentURL(record){
+    const doc=getRTIApplicationDocument(record);
+    return String(doc?.url||doc?.downloadURL||record?.applicationDocumentURL||record?.applicationDocumentUrl||record?.documentURL||record?.documentUrl||"").trim();
+}
+function openRTIApplicationDocument(recordId){
+    const record=(rtiRecords||[]).find(r=>String(r.id)===String(recordId));
+    if(!record)return;
+    const url=getRTIApplicationDocumentURL(record);
+    if(!url){alert("No RTI Application document is uploaded for this application.");return;}
+    let openUrl=url,revoke=false;
+    if(/^data:/i.test(url)){
+        try{
+            const comma=url.indexOf(","),meta=url.slice(5,comma),payload=url.slice(comma+1),isBase64=/;base64/i.test(meta),mime=(meta.split(";")[0]||"application/octet-stream");
+            const binary=isBase64?atob(payload):decodeURIComponent(payload),bytes=new Uint8Array(binary.length);
+            for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i)&255;
+            openUrl=URL.createObjectURL(new Blob([bytes],{type:mime}));revoke=true;
+        }catch(_e){}
+    }
+    const a=document.createElement("a");a.href=openUrl;a.target="_blank";a.rel="noopener noreferrer";document.body.appendChild(a);a.click();a.remove();
+    if(revoke)setTimeout(()=>URL.revokeObjectURL(openUrl),60000);
+}
+window.openRTIApplicationDocument=openRTIApplicationDocument;
+
+/* ============================================================
    RENDER REGISTER
    ============================================================ */
 
@@ -742,9 +773,17 @@ function renderRegister(records) {
             return escapeHTML(record[key] || "-");
         };
         const tr=document.createElement("tr");
-        tr.innerHTML = `<td>${index+1}</td>${columns.map(c=>`<td>${value(c[0])}</td>`).join("")}<td><button type="button" class="btn-open" onclick="viewRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-eye"></i> View</button><button type="button" class="btn-open" style="background:#ffc107;color:#111;margin-left:4px;" onclick="editRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button><button type="button" class="btn-open" style="background:#dc3545;color:white;margin-left:4px;" onclick="deleteRTIRecordFromRegister('${escapeHTML(record.id)}')"><i class="fa-solid fa-trash"></i> Delete</button></td>`;
+        const cells=columns.map(c=>{
+            if(c[0]==="applicationNumber"){
+                const label=value(c[0]);
+                return `<td><button type="button" class="btn btn-link p-0 fw-semibold text-decoration-underline text-start" data-rti-application-doc="${escapeHTML(record.id)}">${label}</button></td>`;
+            }
+            return `<td>${value(c[0])}</td>`;
+        }).join("");
+        tr.innerHTML = `<td>${index+1}</td>${cells}<td><button type="button" class="btn-open" onclick="viewRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-eye"></i> View</button><button type="button" class="btn-open" style="background:#ffc107;color:#111;margin-left:4px;" onclick="editRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button><button type="button" class="btn-open" style="background:#dc3545;color:white;margin-left:4px;" onclick="deleteRTIRecordFromRegister('${escapeHTML(record.id)}')"><i class="fa-solid fa-trash"></i> Delete</button></td>`;
         tbody.appendChild(tr);
     });
+    tbody.querySelectorAll("[data-rti-application-doc]").forEach(btn=>btn.addEventListener("click",()=>openRTIApplicationDocument(btn.dataset.rtiApplicationDoc)));
 }
 
 

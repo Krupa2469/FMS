@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   CPGRAMS / GRIEVANCES REGISTER CONTROLLER - v1.9.9
+   CPGRAMS / GRIEVANCES REGISTER CONTROLLER - v1.10.0
    - CPGRAMS has separate Grievances and Appeals registers.
    - Grievance / Appeal numbers open their uploaded documents.
    - Registers default to latest Date Received first.
@@ -99,7 +99,13 @@
     const keys=kind==="appeal"?["appealDocumentURL","appealDocumentUrl","appealDownloadURL"]:["fileDocumentURL","fileDocumentUrl","grievanceDocumentURL","grievanceDocumentUrl","documentURL","documentUrl"];
     for(const k of keys){const v=String(record?.[k]||"").trim();if(v)return v;}return "";
   }
-  function documentUrl(record,kind){const a=attachmentFor(record?.id,kind);return String(a?.downloadURL||a?.url||directDocumentUrl(record,kind)||"").trim();}
+  function documentUrl(record,kind){
+    const a=attachmentFor(record?.id,kind);
+    const embedded=Array.isArray(record?.attachments)?record.attachments:[];
+    const roleRx=kind==="appeal"?/appeal document/i:/grievance document|application document|question document/i;
+    const e=embedded.find(x=>roleRx.test(String(x?.fileRole||x?.role||x?.type||"")))||embedded.find(x=>String(x?.url||x?.downloadURL||"").trim())||null;
+    return String(a?.downloadURL||a?.url||e?.downloadURL||e?.url||directDocumentUrl(record,kind)||"").trim();
+  }
   function browserOpenUrl(url){
     if(!/^data:/i.test(url))return {url,revoke:false};
     try{
@@ -119,7 +125,7 @@
     if(target.revoke)setTimeout(()=>URL.revokeObjectURL(target.url),60000);
   }
   function linkCell(record,kind,text){const label=esc(text||"");return `<button type="button" class="btn btn-link p-0 fw-semibold text-decoration-underline text-start" data-open-doc="${kind}" data-record-id="${esc(record.id)}">${label||"Open document"}</button>`;}
-  function actionButtons(r,focus){return `<button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}" data-focus="${focus}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}" data-focus="${focus}">Edit</button>${focus==="grievance"?`<button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button>`:""}`;}
+  function actionButtons(r,focus){return `<div class="fms-register-actions"><button type="button" class="btn btn-sm btn-info" data-view="${esc(r.id)}" data-focus="${focus}">View</button><button type="button" class="btn btn-sm btn-warning" data-edit="${esc(r.id)}" data-focus="${focus}">Edit</button>${focus==="grievance"?`<button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button>`:""}</div>`;}
   function bindRenderedActions(scope){
     scope?.querySelectorAll("[data-open-doc]").forEach(b=>b.addEventListener("click",()=>openDocument(b.dataset.recordId,b.dataset.openDoc)));
     scope?.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.view,"view",b.dataset.focus)));
@@ -128,22 +134,26 @@
   }
 
   function renderTable(){
-    const head=$("registerHeaderRow"),body=$("registerBody"),cols=columnsForType(),k=selectedTypeKey();
+    const head=$("registerHeaderRow"),body=$("registerBody"),cols=columnsForType(),k=selectedTypeKey(),view=selectedRegisterView();
+    const grievanceCard=$("grievanceRegisterCard"),pagination=$("grievancePaginationRow");
+    if(view==="appeals"){grievanceCard?.classList.add("d-none");pagination?.classList.add("d-none");updateTitle();renderAppealsRegister();return;}
+    grievanceCard?.classList.remove("d-none");pagination?.classList.remove("d-none");
     const includeSerial=k==="cpgrams"||k==="laq"||k==="lcq";
     updateTitle();
     if($("recordCount"))$("recordCount").textContent=`Total Records : ${filteredRecords.length}`;
-    if(head)head.innerHTML=(includeSerial?'<th>Sl.No.</th>':'')+cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")+'<th>Action</th>';
+    if(head)head.innerHTML=(includeSerial?'<th>Sl.No.</th>':'')+cols.map(c=>`<th>${esc(c[1])}</th>`).join("")+'<th>Action</th>';
     if(!body)return;
     if(!filteredRecords.length){body.innerHTML=`<tr><td colspan="${cols.length+(includeSerial?1:0)+1}" class="text-center text-muted py-5">No ${esc(selectedType())} records available${selectedFY()&&selectedFY()!=="all"?` for Financial Year ${esc(selectedFY())}`:""}.</td></tr>`;updatePageInfo();renderAppealsRegister();return;}
     const start=(currentPage-1)*PAGE_SIZE,rows=filteredRecords.slice(start,start+PAGE_SIZE);
     body.innerHTML=rows.map((r,i)=>{
       const cells=cols.map(c=>{
         const value=displayValue(r,c[0]);
-        if(k==="cpgrams"&&c[0]==="registrationNo")return `<td>${linkCell(r,"grievance",value)}</td>`;
+        if(c[0]==="registrationNo")return `<td>${linkCell(r,"grievance",value)}</td>`;
+        if((k==="laq"||k==="lcq")&&c[0]==="questionNo")return `<td>${linkCell(r,"grievance",value)}</td>`;
         return `<td>${esc(value)}</td>`;
       }).join("");
       const serial=includeSerial?`<td>${k==="prajavani"?prajavaniSerial(r):start+i+1}</td>`:"";
-      return `<tr>${serial}${cells}<td class="text-nowrap">${actionButtons(r,"grievance")}</td></tr>`;
+      return `<tr>${serial}${cells}<td>${actionButtons(r,"grievance")}</td></tr>`;
     }).join("");
     bindRenderedActions(body);updatePageInfo();renderAppealsRegister();
   }
@@ -160,15 +170,15 @@
     return rows;
   }
   function renderAppealsRegister(){
-    const card=$("appealsRegisterCard"),body=$("appealsRegisterBody"),count=$("appealRecordCount");
+    const card=$("appealsRegisterCard"),body=$("appealsRegisterBody"),count=$("appealRecordCount"),view=selectedRegisterView();
     if(!card||!body)return;
-    if(selectedTypeKey()!=="cpgrams"){card.classList.add("d-none");return;}
+    if(selectedTypeKey()!=="cpgrams"||view==="grievances"){card.classList.add("d-none");return;}
     card.classList.remove("d-none");
     const rows=appealRows();if(count)count.textContent=`Total Records : ${rows.length}`;
     if(!rows.length){body.innerHTML='<tr><td colspan="7" class="text-center text-muted py-4">No appeals available.</td></tr>';return;}
     body.innerHTML=rows.map((r,i)=>{
       const appealNo=first(r,["appealNumber"]),received=fmt(first(r,["appealReceivedDate","appealDate"])),appellant=first(r,["appellantName","complainantName"]),grievanceNo=first(r,["grievanceNumber","registrationNumber","grievanceNo"]),status=first(r,["appealStatus"])||(appealDisposed(r)?"Disposed":"Pending");
-      return `<tr><td>${i+1}</td><td>${linkCell(r,"appeal",appealNo)}</td><td>${esc(received)}</td><td>${esc(appellant)}</td><td>${linkCell(r,"grievance",grievanceNo)}</td><td>${esc(status)}</td><td class="text-nowrap">${actionButtons(r,"appeal")}</td></tr>`;
+      return `<tr><td>${i+1}</td><td>${linkCell(r,"appeal",appealNo)}</td><td>${esc(received)}</td><td>${esc(appellant)}</td><td>${linkCell(r,"grievance",grievanceNo)}</td><td>${esc(status)}</td><td>${actionButtons(r,"appeal")}</td></tr>`;
     }).join("");
     bindRenderedActions(body);
   }
@@ -190,7 +200,7 @@
 
   function bind(){["searchGrievanceType","financialYear","searchDistrict","searchStatus","searchCategory","searchPriority","fromDate","toDate"].forEach(id=>{const e=$(id);if(!e)return;e.addEventListener("change",applyFilters);e.addEventListener("keyup",applyFilters);});$("btnSearch")?.addEventListener("click",applyFilters);$("btnRefresh")?.addEventListener("click",loadRegister);$("btnRefreshData")?.addEventListener("click",loadRegister);$("btnNew")?.addEventListener("click",()=>{sessionStorage.removeItem("selectedGrievance");location.href=`cpgrams.html?mode=new&fullscreenForm=1&grievanceType=${encodeURIComponent(selectedType())}`;});$("btnHome")?.addEventListener("click",()=>location.href="../../index.html");$("btnDashboard")?.addEventListener("click",()=>location.href=`cpgrams.html?grievanceType=${encodeURIComponent(selectedType())}`);$("btnFirst")?.addEventListener("click",()=>{currentPage=1;renderTable();});$("btnPrevious")?.addEventListener("click",()=>{currentPage=Math.max(1,currentPage-1);renderTable();});$("btnNext")?.addEventListener("click",()=>{currentPage=Math.min(Math.ceil(filteredRecords.length/PAGE_SIZE)||1,currentPage+1);renderTable();});$("btnLast")?.addEventListener("click",()=>{currentPage=Math.ceil(filteredRecords.length/PAGE_SIZE)||1;renderTable();});$("btnWhatsApp")?.addEventListener("click",async()=>{await window.FMSWhatsAppService?.compose?.({module:"GRIEVANCES",title:`${selectedType()} Register Message`,defaultMessage:`${selectedType()} Register Update\nFY: ${selectedFY()}\nRecords: ${filteredRecords.length}\n\n${($("registerBody")?.innerText||"").slice(0,2800)}`,message:m=>showMessage("info",m)});});}
   function bindExternalRefresh(){const reload=()=>loadRegister();window.addEventListener("fmsRecordChanged",event=>{if(!event?.detail?.module||event.detail.module==="cpgrams")reload();});window.addEventListener("storage",event=>{if(event.key==="fms_cpgrams_record_changed"&&event.newValue)reload();});try{if("BroadcastChannel" in window){const channel=new BroadcastChannel("fms-cpgrams-records");channel.addEventListener("message",reload);window.addEventListener("beforeunload",()=>channel.close(),{once:true});}}catch(_e){}}
-  function init(){console.log("CPGRAMS Registers v1.9.9 loaded");populateTypeDropdown();populateFY();bind();bindExternalRefresh();renderTable();loadRegister();}
+  function init(){console.log("CPGRAMS Registers v1.10.0 loaded");populateTypeDropdown();populateFY();bind();bindExternalRefresh();renderTable();loadRegister();}
 
   window.openCPGRAMSSummaryFilter=f=>{const p=new URLSearchParams();p.set("filter",f||"total");p.set("fullscreen","1");p.set("fy",selectedFY());p.set("grievanceType",selectedType());if(String(f||"").startsWith("appeals-"))p.set("register","appeals");location.href="cpgrams-register.html?"+p;};
   window.viewRecord=id=>openRecord(id,"view");window.editRecord=id=>openRecord(id,"edit");window.deleteRecordFromGrid=deleteRecord;window.searchRecords=applyFilters;window.applyFinancialYearFilter=applyFilters;window.applyURLFilter=applyFilters;window.refreshRegister=loadRegister;window.goHome=()=>location.href="../../index.html";window.openDashboard=()=>location.href=`cpgrams.html?grievanceType=${encodeURIComponent(selectedType())}`;

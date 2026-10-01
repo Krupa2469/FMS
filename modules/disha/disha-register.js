@@ -732,6 +732,11 @@ function updateSummaryCards(records) {
 
 
 
+
+function isDishaFilePending(record) {
+    const status = normalize(record?.officeStatus || record?.statusOfFile || record?.fileStatus || record?.status || "");
+    return !/closed|disposed|completed/.test(status);
+}
 function isDishaMeetingHeld(record) {
     const status = normalize(record?.statusOfMeeting || record?.meetingStatus || "");
     if (status === "held" || status === "conducted") return true;
@@ -832,8 +837,12 @@ function applyURLFilter() {
                 return meetingStatus === "to be held" || (!!d && d >= new Date() && meetingStatus !== "held" && meetingStatus !== "postponed");
             });
             break;
+        case "file-pending":
+        case "pending-files":
+            filteredMeetings = currentFYRecords.filter(isDishaFilePending);
+            break;
         case "circulation":
-            filteredMeetings = currentFYRecords.filter(r => /under circulation|circulation/i.test(String(r.statusOfFile||r.status||"")));
+            filteredMeetings = currentFYRecords.filter(r => /under circulation|circulation/i.test(String(r.officeStatus||r.statusOfFile||r.fileStatus||r.status||"")));
             break;
 
         /* ----------------------------------------------------
@@ -1146,7 +1155,15 @@ function renderRegisterTable(records) {
     let tbody = document.getElementById("registerBody") || document.querySelector("table tbody");
     if (!tbody) { console.error("DISHA Register table tbody not found."); return; }
     const headerRow = document.querySelector("thead tr");
-    const columns = [
+    const filterName=normalize(new URLSearchParams(location.search).get("filter"));
+    const filePendingView=filterName==="file-pending" || filterName==="pending-files";
+    const columns = filePendingView ? [
+        ["district", "District"],
+        ["officeFileNo", "File No."],
+        ["officeStatus", "File Status"],
+        ["dateOfMeeting", "Meeting Date"],
+        ["remarks", "Remarks"]
+    ] : [
         ["district", "District"],
         ["dateOfMeeting", "Meeting Date"],
         ["pomUploaded", "PoM Uploaded"],
@@ -1157,7 +1174,8 @@ function renderRegisterTable(records) {
     if (headerRow) headerRow.innerHTML = `<th>Sl.No</th>${columns.map(c=>`<th>${safe(c[1])}</th>`).join("")}<th>Action</th>`;
     tbody.innerHTML = "";
     if (!records || records.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${columns.length + 2}" class="text-center text-muted py-4">No DISHA meetings found.</td></tr>`;
+        const emptyMessage=filePendingView?"No pending DISHA files found.":"No DISHA meetings found.";
+        tbody.innerHTML = `<tr><td colspan="${columns.length + 2}" class="text-center text-muted py-4">${emptyMessage}</td></tr>`;
         updateRecordCount(0); return;
     }
     const sortedRecords = [...records].sort((a,b)=>{
@@ -1174,6 +1192,8 @@ function renderRegisterTable(records) {
             if(key==="pomUploaded") return (wf.pomUploaded||String(meeting.pomUploaded||"").toLowerCase()==="yes")?'<span class="badge bg-success">Yes</span>':'<span class="badge bg-warning text-dark">No</span>';
             if(key==="pomPendingDays"){const d=getPomPendingDays(meeting);return d===""?"-":safe(d);}
             if(key==="district") return safe(meeting.district||meeting.nameOfDistrict||"");
+            if(key==="officeFileNo") return safe(meeting.officeFileNo||meeting.fileNo||meeting.fileNumber||"");
+            if(key==="officeStatus") return safe(meeting.officeStatus||meeting.statusOfFile||meeting.fileStatus||meeting.status||"Pending");
             if(key==="remarks") return safe(getDishaAutomaticRemark(meeting));
             return safe(meeting[key]||"");
         };
