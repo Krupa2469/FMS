@@ -1,7 +1,7 @@
 /*==========================================================
     FILE MANAGEMENT SYSTEM (FMS)
     File        : dashboard.js
-    Version     : 1.0.0
+    Version     : 1.9.5
 ==========================================================*/
 
 "use strict";
@@ -167,7 +167,7 @@ function loadSystemInformation()
         records.length;
 
     document.getElementById("appVersion").textContent =
-        "1.0.0";
+        "1.9.5";
 }
 
 /*==========================================================

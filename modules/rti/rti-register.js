@@ -202,37 +202,14 @@ async function loadRTIRecordsFromFirestore() {
          * Latest applications first.
          */
 
-        rtiRecords.sort(
-            function (a, b) {
-
-                const dateA =
-                    getDateValue(
-                        a.applicationDate
-                    );
-
-                const dateB =
-                    getDateValue(
-                        b.applicationDate
-                    );
-
-
-                if (!dateA && !dateB) {
-                    return 0;
-                }
-
-                if (!dateA) {
-                    return 1;
-                }
-
-                if (!dateB) {
-                    return -1;
-                }
-
-
-                return dateB - dateA;
-
-            }
-        );
+        rtiRecords.sort(function (a, b) {
+            const dateA = window.FMSRecordPolicy?.recordDate?.("rti", a) || getDateValue(a.applicationDate || a.dateReceived || a.date);
+            const dateB = window.FMSRecordPolicy?.recordDate?.("rti", b) || getDateValue(b.applicationDate || b.dateReceived || b.date);
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateB - dateA;
+        });
 
 
         /*

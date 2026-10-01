@@ -27,12 +27,13 @@
   function currentFY(){return $(FY_SELECT)?.value || P()?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";}
   function activeRows(){return allRows.filter(r=>P()?P().active(r):r?.active!==false);}
   function rowTime(r){
-    const raw=r?.updatedOn||r?.updatedAt||r?.createdOn||r?.createdAt||r?.dateReceived||r?.orgReceivedDate||r?.receivedDate||r?.questionReceivedDate;
+    const recordDate=P()?.recordDate?.("cpgrams",r);
+    if(recordDate instanceof Date&&!Number.isNaN(recordDate.getTime()))return recordDate.getTime();
+    const raw=r?.dateReceived||r?.orgReceivedDate||r?.receivedDate||r?.grievanceDate||r?.dateOfReceipt||r?.receiptDate||r?.questionReceivedDate||r?.date;
     if(raw&&typeof raw.toDate==="function") return raw.toDate().getTime();
     if(raw&&raw.seconds!=null) return Number(raw.seconds)*1000;
     const d=P()?.parseDate?.(raw) || new Date(raw||0);
-    const t=d instanceof Date && !Number.isNaN(d.getTime()) ? d.getTime() : 0;
-    return t;
+    return d instanceof Date && !Number.isNaN(d.getTime()) ? d.getTime() : 0;
   }
   function rowsForContext(){
     const type=currentType();if(!type)return [];
@@ -40,11 +41,7 @@
     let rows=activeRows().filter(r=>rowType(r)===key);
     if(P()) rows=P().filterFY("cpgrams",rows,fy);
     else if(window.FMSFY) rows=FMSFY.filterFY(rows,fy,["dateReceived","dateArised","receivedDate","questionReceivedDate","date"]);
-    return rows.slice().sort((a,b)=>{
-      if(lastChangedId && a.id===lastChangedId) return -1;
-      if(lastChangedId && b.id===lastChangedId) return 1;
-      return rowTime(b)-rowTime(a);
-    });
+    return rows.slice().sort((a,b)=>rowTime(b)-rowTime(a));
   }
   function populateFY(){
     const el=$(FY_SELECT);if(!el)return;

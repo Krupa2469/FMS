@@ -1085,7 +1085,12 @@ function applySearch() {
    REGISTER EXPORTS
 ============================================================ */
 function getDISHAExportRows(){
-    return (filteredMeetings||[]).map((m,index)=>({
+    const rows=(filteredMeetings||[]).slice().sort((a,b)=>{
+        const da=parseDate(a.dateOfMeeting||a.meetingDate||a.proposedDateOfMeeting||a.date);
+        const db=parseDate(b.dateOfMeeting||b.meetingDate||b.proposedDateOfMeeting||b.date);
+        return (db?.getTime?.()||0)-(da?.getTime?.()||0);
+    });
+    return rows.map((m,index)=>({
         sl:index+1,
         district:m.district||m.nameOfDistrict||"",
         dateOfMeeting:formatDate(m.dateOfMeeting),
@@ -1156,14 +1161,11 @@ function renderRegisterTable(records) {
         updateRecordCount(0); return;
     }
     const sortedRecords = [...records].sort((a,b)=>{
-        const pa=getPomPendingRawDays(a), pb=getPomPendingRawDays(b);
-        const aPending=Number.isFinite(pa)&&pa>=0, bPending=Number.isFinite(pb)&&pb>=0;
-        if(aPending!==bPending) return aPending?-1:1;
-        if(aPending && pa!==pb) return pb-pa;
-        const districtCompare=String(a.district||a.nameOfDistrict||"").localeCompare(String(b.district||b.nameOfDistrict||""),undefined,{sensitivity:"base"});
-        if(districtCompare!==0) return districtCompare;
-        const da=parseDate(a.dateOfMeeting||a.meetingDate||a.proposedDateOfMeeting),db=parseDate(b.dateOfMeeting||b.meetingDate||b.proposedDateOfMeeting);
-        return (db?.getTime?.()||0)-(da?.getTime?.()||0);
+        const da=parseDate(a.dateOfMeeting||a.meetingDate||a.proposedDateOfMeeting||a.date);
+        const db=parseDate(b.dateOfMeeting||b.meetingDate||b.proposedDateOfMeeting||b.date);
+        const dt=(db?.getTime?.()||0)-(da?.getTime?.()||0);
+        if(dt!==0)return dt;
+        return String(a.district||a.nameOfDistrict||"").localeCompare(String(b.district||b.nameOfDistrict||""),undefined,{sensitivity:"base"});
     });
     sortedRecords.forEach((meeting,index)=>{
         const wf=window.FMSRecordPolicy?.workflow?.("disha",meeting)||{};

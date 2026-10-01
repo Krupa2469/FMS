@@ -7,7 +7,7 @@
 (function(window){
   const DAY=86400000;
   const CONFIG={
-    cpgrams:{dateFields:["dateReceived","dateArised","receivedDate","questionReceivedDate","orgReceivedDate","diaryDate","dairyDate","date"],dueFields:["dueDate","atrDueDate"],dueDays:21},
+    cpgrams:{dateFields:["dateReceived","orgReceivedDate","receivedDate","grievanceDate","dateOfReceipt","receiptDate","dateArised","questionReceivedDate","diaryDate","dairyDate","date"],dueFields:["dueDate","atrDueDate"],dueDays:21},
     rti:{dateFields:["applicationDate","dateReceived","date"],dueFields:["dueDate"],dueDays:30},
     disha:{dateFields:["dateOfMeeting","meetingDate","proposedDateOfMeeting","date"],dueFields:["pomDueDate"],dueDays:0}
   };
@@ -90,8 +90,15 @@
     return "";
   }
   function recordFY(module,r){
-    // The FY selected while saving is the authoritative source. This prevents
-    // parsed/legacy secondary dates from moving a valid record into another FY.
+    // Prajavani/Public Grievances must follow the actual receipt date so legacy
+    // records with a stale saved FY still appear in the correct dashboard year.
+    if(module==="cpgrams"){
+      const t=rowType(r);
+      if(t==="prajavani"||t==="public grievances"){
+        const datedFY=fyOfDate(recordDate(module,r));
+        if(datedFY)return datedFY;
+      }
+    }
     const explicitKeys=module==="cpgrams"
       ? ["financialYear","grievanceFinancialYear","fy","financial_year"]
       : module==="rti"
