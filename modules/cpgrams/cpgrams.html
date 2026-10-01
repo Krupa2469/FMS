@@ -41,7 +41,7 @@
 <div class="col-md-2 text-end">
 <span class="badge bg-light text-dark fs-6">
 
-                    Version 1.6.6
+                    Version 1.9.6
 
                 </span>
 </div>
@@ -67,25 +67,15 @@
 </div>
 </nav>
 <div class="container-fluid mt-2" id="actionMessageArea" aria-live="polite"></div>
-<section class="container-fluid py-3 bg-light border-bottom" id="grievanceContextPanel"><div class="card shadow-sm mb-3" id="grievanceTypeSelectorCard">
-<div class="card-header bg-dark text-white py-2"><h5 class="mb-0" id="grievanceTypeHeading">CPGRAMS</h5></div>
-<div class="card-body py-2"><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label fw-bold mb-1" for="grievanceFinancialYear">Financial Year</label><select class="form-select form-select-lg" id="grievanceFinancialYear"></select></div><div class="col-md-8"><label class="form-label fw-bold mb-1" for="grievanceType">Grievance Type <span class="text-danger">*</span></label><select class="form-select form-select-lg" id="grievanceType" required="">
-<option value="">Select Grievance Type</option>
-<option selected="" value="CPGRAMS">CPGRAMS</option>
-<option value="Prajavani">Prajavani</option>
-<option value="Public Grievances">Public Grievances</option>
-<option value="Direct Complaints">Direct Complaints</option>
-<option value="LAQ">LAQ</option>
-<option value="LCQ">LCQ</option>
-<option value="Court Cases">Court Cases</option>
-<option value="VIP References">VIP References</option>
-<option value="CMO References">CMO References</option>
-<option value="PMO References">PMO References</option>
-<option value="Audit Paras">Audit Paras</option>
-<option value="Vigilance Cases">Vigilance Cases</option>
-</select></div></div></div>
-</div><section class="container-fluid py-3 bg-light border-bottom d-none" id="moduleDashboardPanel">
-<div class="alert alert-info py-2 mb-3" id="moduleDashboardStatus">Loading dashboard...</div>
+<section class="container-fluid py-3 bg-light border-bottom" id="grievanceContextPanel">
+<div class="d-none" aria-hidden="true">
+<select id="grievanceFinancialYear"></select>
+<select id="grievanceType">
+<option value="CPGRAMS">CPGRAMS</option><option value="Prajavani">Prajavani</option><option value="Public Grievances">Public Grievances</option><option value="Direct Complaints">Direct Complaints</option><option value="LAQ">LAQ</option><option value="LCQ">LCQ</option><option value="Court Cases">Court Cases</option><option value="VIP References">VIP References</option><option value="CMO References">CMO References</option><option value="PMO References">PMO References</option><option value="Audit Paras">Audit Paras</option><option value="Vigilance Cases">Vigilance Cases</option>
+</select>
+</div>
+<section class="container-fluid py-3 bg-light border-bottom d-none" id="moduleDashboardPanel">
+<div class="d-none" id="moduleDashboardStatus"></div>
 <div class="row g-3" id="moduleDashboardCards"></div>
 </section><section class="card shadow-sm mb-3 d-none" id="grievanceInlineRegisterPanel">
 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -472,7 +462,7 @@ ATTACHMENTS
 
                     File Management System |
                     GRIEVANCES Module |
-                    Version 1.6.6
+                    Version 1.9.6
 
                 </small>
 </div>
@@ -604,8 +594,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
 <script src="../../js/services/whatsapp-service.js"></script>
 <script src="cpgrams.js?v=1.6.6"></script>
-<script src="../../js/record-consistency.js?v=1.9.5"></script>
-<script src="../../js/grievance-workspace.js?v=1.6.6"></script>
+<script src="../../js/record-consistency.js?v=1.9.6"></script>
+<script src="../../js/grievance-workspace.js?v=1.9.6"></script>
 <!-- =====================================================
      FMS FIREBASE STARTUP
 ====================================================== -->
@@ -616,7 +606,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 <script src="../../js/module-navigation.js?v=1.6.6"></script>
 <script src="../../js/form-focus-mode.js?v=1.8.9"></script>
 <script src="../../js/date-ui-format.js?v=1.8.9"></script>
-<script src="../../js/register-field-tools.js?v=1.9.5"></script>
-<script src="../../js/progress-report-import-30092026.js?v=1.9.5"></script>
+<script src="../../js/register-field-tools.js?v=1.9.6"></script>
+<script src="../../js/progress-report-import-30092026.js?v=1.9.6"></script>
 </body>
 </html>

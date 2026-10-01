@@ -12,7 +12,7 @@
   const P=()=>window.FMSRecordPolicy;
   const esc=s=>String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]));
   function currentFY(){return P()?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || (()=>{const d=new Date(),y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1;return `${y}-${String(y+1).slice(-2)}`;})();}
-  function selectedFY(){const home=document.getElementById("dishaWorkspaceFY")?.value; if(home&&/^\d{4}-\d{2}$/.test(home))return home; const q=new URLSearchParams(location.search).get("fy");return q&&/^\d{4}-\d{2}$/.test(q)?q:currentFY();}
+  function selectedFY(){return currentFY();}
   function asDate(v){if(!v)return null;if(v?.toDate)return v.toDate();const d=new Date(v);return Number.isNaN(d.getTime())?null:d;}
   function recordFY(r){const d=asDate(r?.dateOfMeeting||r?.meetingDate||r?.proposedDateOfMeeting||r?.date);if(d){const y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1;return `${y}-${String(y+1).slice(-2)}`;}return String(r?.financialYear||r?.fy||"").trim();}
   function getDb(){if(window.db)return window.db;if(window.fmsFirebase?.db)return window.fmsFirebase.db;try{if(typeof firebase!=="undefined"&&firebase.firestore)return firebase.firestore();}catch(_e){}return null;}
@@ -32,7 +32,7 @@
     let dashboardFyRows=rows||[], dashboardAllRows=rows||[];
     if(module==="rti"){
       cards=[
-        ["Total RTI Applications",rows.length,"total","bi-collection","primary"],
+        ["RTI Applications",rows.length,"total","bi-collection","primary"],
         ["Within Due Date",rows.filter(withinDue).length,"within-due","bi-calendar-check","success"],
         ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
         ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
@@ -71,15 +71,15 @@
       const noMeetAll=Math.max(0,districtCount-conductedAll);
       const noMeetFY=Math.max(0,districtCount-conductedFY);
       cards=[
-        ["Meetings Held",`Total: ${metricLink(heldRows.length,"held","all","primary",fy)} • ${esc(fy)}: ${metricLink(heldFY.length,"held","fy","primary",fy)}`,"held","bi-calendar-check","primary"],
+        ["Meetings Held",metricLink(heldFY.length,"held","fy","primary",fy),"held","bi-calendar-check","primary"],
         ["PoM Uploaded",metricLink(uploaded,"pom-uploaded","fy","success",fy),"pom-uploaded","bi-cloud-check","success"],
         ["PoM Not Uploaded",metricLink(notUploaded,"pom-not-uploaded","fy","danger",fy),"pom-not-uploaded","bi-cloud-slash","danger"],
-        ["Districts with no meetings",`${esc(fy)}: ${metricLink(noMeetFY,"districts-no-meetings","fy","danger",fy)}`,"districts-no-meetings","bi-geo-alt","danger"],
-        ["Districts conducted meetings",`${esc(fy)}: ${metricLink(conductedFY,"districts-conducted","fy","success",fy)}`,"districts-conducted","bi-geo-alt-fill","success"]
+        ["Districts with no meetings",metricLink(noMeetFY,"districts-no-meetings","fy","danger",fy),"districts-no-meetings","bi-geo-alt","danger"],
+        ["Districts conducted meetings",metricLink(conductedFY,"districts-conducted","fy","success",fy),"districts-conducted","bi-geo-alt-fill","success"]
       ];
     }
     host.innerHTML=cards.map(x=>card(...x)).join("");
-    if(statusEl){statusEl.className="alert alert-success py-2 mb-3";statusEl.textContent=module==="disha"?`DISHA workflow dashboard • Financial Year ${fy}: ${dashboardFyRows.length} record(s) • All years: ${dashboardAllRows.length} record(s)`:`${module.toUpperCase()} workflow dashboard • Financial Year ${fy} • ${rows.length} record(s)`;}
+    if(statusEl){statusEl.className="d-none";statusEl.textContent="";}
   }
   async function load(){const s=document.getElementById("moduleDashboardStatus"),db=getDb();if(!db){if(s){s.className="alert alert-warning py-2 mb-3";s.textContent="Dashboard is waiting for Firebase...";}return false;}try{const snap=await db.collection(cfg.collection).get();render(snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>P()?P().active(r):r.active!==false));return true;}catch(e){console.error(`${module} inline dashboard error`,e);if(s){s.className="alert alert-danger py-2 mb-3";s.textContent="Unable to load dashboard: "+(e.message||e);}return false;}}
   async function start(){if(await load())return;window.addEventListener("fmsFirebaseReady",load,{once:true});setTimeout(load,1800);}

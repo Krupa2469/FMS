@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.6.6
+   FMS GRIEVANCES WORKSPACE - v1.9.6
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -24,7 +24,7 @@
   function rowType(r){return P()?.rowType?.(r)||"cpgrams";}
   function currentType(){return pretty($(TYPE_SELECT)?.value || "CPGRAMS");}  
   function currentTypeKey(){return normType(currentType())||"cpgrams";}
-  function currentFY(){return $(FY_SELECT)?.value || P()?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";}
+  function currentFY(){return P()?.currentFY?.() || window.FMSFY?.getCurrentFY?.() || "";}
   function activeRows(){return allRows.filter(r=>P()?P().active(r):r?.active!==false);}
   function rowTime(r){
     const recordDate=P()?.recordDate?.("cpgrams",r);
@@ -45,11 +45,9 @@
   }
   function populateFY(){
     const el=$(FY_SELECT);if(!el)return;
-    const keep=el.value;const current=P()?.currentFY?.()||window.FMSFY?.getCurrentFY?.();
-    let startYear=new Date().getFullYear()-(new Date().getMonth()<3?1:0);
-    const opts=[];for(let y=startYear;y>=2014;y--)opts.push(`${y}-${String(y+1).slice(-2)}`);
-    el.innerHTML=opts.map(f=>`<option value="${f}">${f}</option>`).join("");
-    el.value=(keep&&opts.includes(keep))?keep:(current&&opts.includes(current)?current:opts[0]);
+    const current=currentFY();
+    el.innerHTML=current?`<option value="${current}">${current}</option>`:"";
+    if(current) el.value=current;
   }
   function w(r){return P()?.workflow?.("cpgrams",r)||{};}
   function isClosed(r){return P()?.closed?.("cpgrams",r)||false;}
@@ -74,14 +72,14 @@
     const key=currentTypeKey();let cards=[];
     if(key==="laq"||key==="lcq"){
       cards=[
-        [`Total ${currentType().toUpperCase()}`,rows.length,"total","bi-collection","primary"],
+        [`${currentType().toUpperCase()}`,rows.length,"total","bi-collection","primary"],
         ["With Section",rows.filter(r=>/With concerned section/i.test(w(r).stage||"")).length,"with-section","bi-building","info"],
         ["Answer Furnished",rows.filter(r=>/Answer furnished/i.test(w(r).stage||"")).length,"answer-furnished","bi-chat-square-text","success"],
         ["Closed",rows.filter(isClosed).length,"closed","bi-check-circle","success"]
       ];
     }else{
       cards=[
-        [`Total ${currentType()}`,rows.length,"total","bi-collection","primary"],
+        [`${currentType()}`,rows.length,"total","bi-collection","primary"],
         ["Within Due Date",rows.filter(withinDue).length,"within-due","bi-calendar-check","success"],
         ["Due Today",rows.filter(isDueToday).length,"due-today","bi-calendar-event","warning"],
         ["Overdue",rows.filter(isOverdue).length,"overdue","bi-exclamation-triangle","danger"],
@@ -97,7 +95,7 @@
       }
     }
     host.innerHTML=cards.map(x=>card(...x)).join("");
-    if(status){status.className="alert alert-success py-2 mb-3";status.textContent=`${currentType()} Dashboard • Financial Year ${currentFY()} • ${rows.length} active record(s)`;}
+    if(status){status.className="d-none";status.textContent="";}
   }
   function fv(r,key){return P()?.first?.(r,[key])||r?.[key]||"";}
   function displayValue(r,key){
@@ -243,12 +241,11 @@
     const type=$(TYPE_SELECT),fy=$(FY_SELECT);if(!type)return;
     const queryParams=new URLSearchParams(location.search);
     const requestedType=queryParams.get("grievanceType");
-    const requestedFY=queryParams.get("fy");
     if(requestedType){const k=normType(requestedType);const mapped=TYPES.find(t=>normType(t)===k);if(mapped)type.value=mapped;}
     // Open CPGRAMS by default when the Grievances module is opened from Home.
     // Users can still change this dropdown to Prajavani, LAQ, LCQ, etc.
     if(!type.value) type.value="CPGRAMS";
-    populateFY();if(requestedFY && fy && Array.from(fy.options).some(o=>o.value===requestedFY)) fy.value=requestedFY;type.addEventListener("change",()=>{if(typeof window.updateGrievanceFormLayout==="function")window.updateGrievanceFormLayout();syncContext();});fy?.addEventListener("change",syncContext);
+    populateFY();type.addEventListener("change",()=>{if(typeof window.updateGrievanceFormLayout==="function")window.updateGrievanceFormLayout();syncContext();});
     $("btnOpenFullGrievanceRegister")?.addEventListener("click",()=>{location.href=fullRegisterUrl("total");});
     showContext(!!currentType());
     if(typeof window.updateGrievanceFormLayout==="function") window.updateGrievanceFormLayout();
@@ -266,7 +263,7 @@
         window.addEventListener("beforeunload",()=>channel.close(),{once:true});
       }
     }catch(_e){}
-    console.log("FMS Grievances Workspace v1.6.0 loaded");
+    console.log("FMS Grievances Workspace v1.9.6 loaded");
     if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();

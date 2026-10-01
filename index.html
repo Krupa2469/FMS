@@ -9,7 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
 <link href="css/style.css" rel="stylesheet"/>
 <style>
-body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 10px;text-align:center}.home-header h2{font-weight:700;margin:3px 0;font-size:1.85rem}.nav-btn{min-width:110px}.metric-card{border:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);min-height:0}.metric-value{font-size:30px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.14)!important}.fy-bar{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.home-top-summary{font-size:1.02rem;letter-spacing:.01em}.home-quick-btn{min-width:150px}
+body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 10px;text-align:center}.home-header h2{font-weight:700;margin:3px 0;font-size:1.85rem}.metric-card{border:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);min-height:0}.metric-value{font-size:30px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.14)!important}.fy-bar{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.home-top-summary{font-size:1.02rem;letter-spacing:.01em}.home-quick-btn{min-width:150px}.home-shell{display:grid;grid-template-columns:235px minmax(0,1fr);gap:16px;align-items:start}.home-sidebar{position:sticky;top:12px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);overflow:hidden}.home-sidebar-title{background:#212529;color:#fff;font-weight:700;padding:11px 14px}.home-sidebar-links{padding:8px}.home-sidebar a{display:flex;align-items:center;gap:9px;padding:9px 10px;margin:3px 0;border-radius:7px;text-decoration:none;color:#212529;font-weight:600;border:1px solid transparent}.home-sidebar a:hover{background:#eef4ff;border-color:#cfe2ff;color:#0d6efd}.home-sidebar a.sidebar-rti{color:#8a6200}.home-sidebar a.sidebar-disha{color:#087990}.home-main{min-width:0}@media(max-width:991.98px){.home-shell{grid-template-columns:1fr}.home-sidebar{position:static}.home-sidebar-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.home-sidebar a{margin:0}}@media(max-width:575.98px){.home-sidebar-links{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -19,44 +19,54 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:14px 
 <h2>FILE MANAGEMENT SYSTEM (FMS)</h2>
 <div class="opacity-75">FMS Home Dashboard</div>
 </header>
-<nav class="navbar bg-white border-bottom shadow-sm">
-<div class="container-fluid p-2 d-flex gap-2 flex-wrap">
-<button class="btn btn-primary nav-btn" onclick="goModule('cpgrams')"><i class="bi bi-file-earmark-text"></i> GRIEVANCES</button>
-<button class="btn btn-warning nav-btn" onclick="goModule('rti')"><i class="bi bi-journal-text"></i> RTI</button>
-<button class="btn btn-info text-white nav-btn" onclick="goModule('disha')"><i class="bi bi-people"></i> DISHA</button>
-</div>
-</nav>
 <main class="container-fluid py-3">
+<div class="home-shell">
+<aside class="home-sidebar" aria-label="FMS modules">
+<div class="home-sidebar-title"><i class="bi bi-layout-sidebar-inset"></i> Modules</div>
+<div class="home-sidebar-links">
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=CPGRAMS"><i class="bi bi-file-earmark-text"></i><span>CPGRAMS</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=Prajavani"><i class="bi bi-megaphone"></i><span>Prajavani</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=Public%20Grievances"><i class="bi bi-chat-left-text"></i><span>Public Grievances</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=Direct%20Complaints"><i class="bi bi-person-raised-hand"></i><span>Direct Complaints</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=LAQ"><i class="bi bi-question-square"></i><span>LAQ</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=LCQ"><i class="bi bi-question-diamond"></i><span>LCQ</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=Court%20Cases"><i class="bi bi-bank"></i><span>Court Cases</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=VIP%20References"><i class="bi bi-star"></i><span>VIP References</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=CMO%20References"><i class="bi bi-person-badge"></i><span>CMO References</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=PMO%20References"><i class="bi bi-envelope-paper"></i><span>PMO References</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=Audit%20Paras"><i class="bi bi-clipboard-check"></i><span>Audit Paras</span></a>
+<a class="" href="modules/cpgrams/cpgrams.html?grievanceType=Vigilance%20Cases"><i class="bi bi-shield-exclamation"></i><span>Vigilance Cases</span></a>
+<a class="sidebar-rti" href="modules/rti/rti.html"><i class="bi bi-journal-text"></i><span>RTI</span></a>
+<a class="sidebar-disha" href="modules/disha/disha.html"><i class="bi bi-people"></i><span>DISHA</span></a>
+</div>
+</aside>
+<section class="home-main">
 <div class="card fy-bar p-3 mb-4">
-<div class="text-center fw-bold text-success home-top-summary mb-3" id="dashboardReady">CPGRAMS: 0, RTI: 0, DISHA: 0. FY 2026-27 | CPGRAMS: 0, RTI: 0, DISHA: 0.</div>
-<div class="row align-items-end g-3">
-<div class="col-lg-3 col-md-4"><label class="form-label fw-bold mb-1" for="homeFY">Financial Year</label><select class="form-select" id="homeFY"></select></div>
-<div class="col-lg-9 col-md-8">
-  <div class="d-flex gap-2 flex-wrap justify-content-md-end">
-    <button class="btn btn-outline-secondary home-quick-btn" onclick="openUtilities()"><i class="bi bi-tools"></i> Utilities</button>
-    <button class="btn btn-outline-dark home-quick-btn" onclick="location.href='pages/admin/master-management.html'"><i class="bi bi-database-gear"></i> Master Tables</button>
-    <button class="btn btn-outline-primary home-quick-btn" onclick="location.href='pages/reports.html'"><i class="bi bi-bar-chart-line"></i> Reports</button>
-  </div>
-  <div class="d-none" id="homeStatus"></div>
+<div class="text-center fw-bold text-success home-top-summary mb-3" id="dashboardReady">Loading current financial year dashboard...</div>
+<div class="d-flex gap-2 flex-wrap justify-content-end">
+<button class="btn btn-outline-secondary home-quick-btn" onclick="openUtilities()"><i class="bi bi-tools"></i> Utilities</button>
+<button class="btn btn-outline-dark home-quick-btn" onclick="location.href='pages/admin/master-management.html'"><i class="bi bi-database-gear"></i> Master Tables</button>
+<button class="btn btn-outline-primary home-quick-btn" onclick="location.href='pages/reports.html'"><i class="bi bi-bar-chart-line"></i> Reports</button>
 </div>
+<div class="d-none" id="homeStatus"></div>
 </div>
-</div>
-
 <div class="row g-4" id="homeModuleCards"></div>
+</section>
+</div>
 </main>
 <footer class="bg-light text-center p-3"><small>© <span id="currentYear"></span> File Management System (FMS) | Version <span id="appVersion"></span></small></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/app.js?v=1.9.5"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js?v=1.9.5"></script>
+<script src="js/app.js?v=1.9.6"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js?v=1.9.6"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase/firebase-bootstrap.js"></script>
-<script src="js/progress-report-import-30092026.js?v=1.9.5"></script>
-<script src="js/record-consistency.js?v=1.9.5"></script>
+<script src="js/progress-report-import-30092026.js?v=1.9.6"></script>
+<script src="js/record-consistency.js?v=1.9.6"></script>
 <script>
 /* ==========================================================
    FMS HOME DASHBOARD - ROBUST FY + FIRESTORE LOADING
-   FY range: 2014-15 through current FY
-   Grievance-type cards open the corresponding filtered register.
+   Current FY only on Home.
+   Sidebar opens module homes; dashboard cards open current-FY filtered registers.
 ========================================================== */
 const homeCollections={cpgrams:'cpgrams',rti:'rtiApplications',disha:'dishaMeetings'};
 const homeDateFields={cpgrams:['dateReceived','orgReceivedDate','receivedDate','grievanceDate','dateOfReceipt','receiptDate','dateArised','questionReceivedDate','date'],rti:['applicationDate','dateReceived','date'],disha:['dateOfMeeting','meetingDate','proposedDateOfMeeting','date']};
@@ -102,54 +112,40 @@ function categoryMatchesHome(row,category){
   if(selected==="cpgrams"||selected==="grievances") return rowTypeHome(row)==="cpgrams";
   return grievanceTypeOfHome(row)===selected;
 }
-function populateHomeFY(){
-  const sel=document.getElementById('homeFY'); if(!sel) return;
-  const all=[...homeRows.cpgrams,...homeRows.rti,...homeRows.disha];
-  const current=window.FMSFY?.getCurrentFY?.() || '2026-27';
-  if(window.FMSFY?.populateFYSelect){
-    window.FMSFY.populateFYSelect(sel, all, ['dateReceived','dateArised','receivedDate','applicationDate','date','dateOfMeeting','meetingDate'], current);
-  } else {
-    sel.innerHTML='';
-    const startYear=new Date().getFullYear()-(new Date().getMonth()<3?1:0);
-    for(let y=startYear;y>=2014;y--) sel.insertAdjacentHTML('beforeend',`<option value="${y}-${String(y+1).slice(-2)}">${y}-${String(y+1).slice(-2)}</option>`);
-    sel.value=current;
-  }
+function populateHomeFY(){ return window.FMSFY?.getCurrentFY?.() || '2026-27';
 }
-function homeCard(title,totalValue,fyValue,icon,color,target,fyLabel){
-  const safe=String(title).replace(/'/g,"\\'");
-  const selectedFY=String(fyLabel||document.getElementById('homeFY')?.value||'Selected FY');
-  return `<div class="col-xl-3 col-lg-4 col-md-6"><div class="card metric-card h-100 dashboard-home-card fms-compact-dashboard-card"><div class="card-body text-center py-3 px-2"><i class="bi ${icon} fs-3 text-${color}"></i><h6 class="mt-2 mb-2 fw-semibold">${title}</h6><div class="row g-2"><div class="col-6"><button type="button" class="btn btn-sm btn-outline-${color} w-100 py-1" onclick="openHomeCard('${safe}','${target}','all')"><div class="small lh-sm">Total</div><div class="fw-bold fs-5 lh-sm">${totalValue}</div></button></div><div class="col-6"><button type="button" class="btn btn-sm btn-${color} w-100 py-1" onclick="openHomeCard('${safe}','${target}','current')"><div class="small lh-sm">${selectedFY}</div><div class="fw-bold fs-5 lh-sm">${fyValue}</div></button></div></div></div></div></div>`;
+function homeCard(title,value,icon,color,target){
+  const safe=String(title).replace(/'/g,"\'");
+  return `<div class="col-xl-3 col-lg-4 col-md-6"><div class="card metric-card h-100 dashboard-home-card fms-compact-dashboard-card"><div class="card-body text-center py-3 px-2"><i class="bi ${icon} fs-3 text-${color}"></i><h6 class="mt-2 mb-2 fw-semibold">${title}</h6><button type="button" class="btn btn-sm btn-${color} w-100 py-2" onclick="openHomeCard('${safe}','${target}')"><div class="fw-bold fs-4 lh-sm">${value}</div></button></div></div></div>`;
 }
 
-function openHomeCard(category,target,period='current'){
-  const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'');
-  const p=new URLSearchParams();p.set('filter','total');p.set('fullscreen','1');
-  if(period==='all') p.set('fy','all'); else if(fy)p.set('fy',fy);
+function openHomeCard(category,target){
+  const fy=window.FMSFY?.getCurrentFY?.()||'2026-27';
+  const p=new URLSearchParams();p.set('filter','total');p.set('fullscreen','1');p.set('fy',fy);
   if(target==='cpgrams'){if(category&&homeCategoryKey(category)!=='cpgrams'&&homeCategoryKey(category)!=='grievances')p.set('grievanceType',category);else p.set('grievanceType','CPGRAMS');location.href='modules/cpgrams/cpgrams-register.html?'+p.toString();return;}
   if(target==='rti'){location.href='modules/rti/rti-register.html?'+p.toString();return;}
   if(target==='disha'){location.href='modules/disha/disha-register.html?'+p.toString();return;}
   goModule(target);
 }
 function updateHomeCards(){
-  const fy=document.getElementById('homeFY')?.value || (window.FMSFY?.getCurrentFY?.()||'2026-27');
-  const cpAll=homeRows.cpgrams.filter(r=>homeCategoryKey(grievanceTypeOfHome(r))==="cpgrams");
-  const cpFY=cpAll.filter(r=>homeRecordFY(r,homeDateFields.cpgrams,"cpgrams")===fy);
-  const rtiAll=homeRows.rti.length, rtiFY=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti,"rti")===fy).length;
-  const dishaAll=homeRows.disha.length, dishaFY=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha,"disha")===fy).length;
+  const fy=window.FMSFY?.getCurrentFY?.()||'2026-27';
+  const cpFY=homeRows.cpgrams.filter(r=>homeRecordFY(r,homeDateFields.cpgrams,"cpgrams")===fy);
+  const cpCurrent=cpFY.filter(r=>homeCategoryKey(grievanceTypeOfHome(r))==="cpgrams");
+  const rtiFY=homeRows.rti.filter(r=>homeRecordFY(r,homeDateFields.rti,"rti")===fy).length;
+  const dishaFY=homeRows.disha.filter(r=>homeRecordFY(r,homeDateFields.disha,"disha")===fy).length;
   const icons=['bi-file-earmark-text','bi-megaphone','bi-chat-left-text','bi-person-raised-hand','bi-question-square','bi-question-diamond','bi-bank','bi-star','bi-person-badge','bi-envelope-paper','bi-clipboard-check','bi-shield-exclamation'];
   const colors=['primary','success','info','warning','secondary','dark','dark','danger','primary','success','warning','danger'];
   let html='';
   HOME_CATEGORIES.forEach((cat,i)=>{
     const key=homeCategoryKey(cat);
-    const total=key==="cpgrams" ? cpAll.length : homeRows.cpgrams.filter(r=>categoryMatchesHome(r,cat)).length;
-    const current=key==="cpgrams" ? cpFY.length : cpFY.filter(r=>categoryMatchesHome(r,cat)).length;
-    html+=homeCard(cat,total,current,icons[i],colors[i],'cpgrams',fy);
+    const current=key==="cpgrams" ? cpCurrent.length : cpFY.filter(r=>categoryMatchesHome(r,cat)).length;
+    html+=homeCard(cat,current,icons[i],colors[i],'cpgrams');
   });
-  html+=homeCard('RTI',rtiAll,rtiFY,'bi-journal-text', 'warning','rti',fy);
-  html+=homeCard('DISHA',dishaAll,dishaFY,'bi-people','info','disha',fy);
+  html+=homeCard('RTI',rtiFY,'bi-journal-text','warning','rti');
+  html+=homeCard('DISHA',dishaFY,'bi-people','info','disha');
   const container=document.getElementById('homeModuleCards'); if(container) container.innerHTML=html;
   const ready=document.getElementById('dashboardReady');
-  if(ready) ready.textContent=`CPGRAMS: ${cpAll.length}, RTI: ${rtiAll}, DISHA: ${dishaAll}. FY ${fy} | CPGRAMS: ${cpFY.length}, RTI: ${rtiFY}, DISHA: ${dishaFY}.`;
+  if(ready) ready.textContent=`Financial Year ${fy} | CPGRAMS: ${cpCurrent.length}, RTI: ${rtiFY}, DISHA: ${dishaFY}.`;
   const status=document.getElementById('homeStatus');
   if(status){status.textContent='';status.className='d-none';}
 }
@@ -168,8 +164,6 @@ async function loadHome(){
     if(window.FMSProgressReportImport30092026?.run){try{await window.FMSProgressReportImport30092026.run();}catch(e){console.warn('FMS Home: progress-report import did not complete',e);}}
     const [cp,rti,disha]=await Promise.all([readCollectionSafely(homeCollections.cpgrams),readCollectionSafely(homeCollections.rti),readCollectionSafely(homeCollections.disha)]);
     homeRows={cpgrams:cp.rows,rti:rti.rows,disha:disha.rows};
-    populateHomeFY();
-    document.getElementById('homeFY')?.addEventListener('change',updateHomeCards);
     updateHomeCards();
     const errors=[cp,rti,disha].filter(x=>x.error);
     if(errors.length){console.warn('FMS Home: some modules could not be read from Firebase.');}

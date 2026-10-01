@@ -1320,15 +1320,12 @@ function dishaRecordFY(record) {
     return String(record.financialYear || record.fy || "").trim();
 }
 function currentDishaFY() { const d=new Date(), y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1; return `${y}-${String(y+1).slice(-2)}`; }
-function selectedDishaWorkspaceFY() { return document.getElementById("dishaWorkspaceFY")?.value || new URLSearchParams(location.search).get("fy") || currentDishaFY(); }
+function selectedDishaWorkspaceFY() { return currentDishaFY(); }
 function initDishaWorkspaceFY(records) {
     const el=document.getElementById("dishaWorkspaceFY"); if(!el) return;
-    const fys=[...new Set((records||[]).map(dishaRecordFY).filter(Boolean))].sort().reverse();
-    const wanted=new URLSearchParams(location.search).get("fy") || currentDishaFY();
-    el.innerHTML=fys.map(f=>`<option value="${f}">${f}</option>`).join("");
-    if(!fys.includes(wanted)){const o=document.createElement("option");o.value=wanted;o.textContent=wanted;el.prepend(o);}
-    el.value=wanted;
-    el.onchange=()=>{const u=new URL(location.href);u.searchParams.set("fy",el.value);history.replaceState(null,"",u);renderDishaHomeRegister(records);window.FMSInlineDashboard?.refresh?.();};
+    const current=currentDishaFY();
+    el.innerHTML=`<option value="${current}">${current}</option>`;
+    el.value=current;
 }
 function renderDishaHomeRegister(records) {
     const body = document.getElementById("dishaHomeRegisterBody");
@@ -1336,17 +1333,11 @@ function renderDishaHomeRegister(records) {
     const fy = selectedDishaWorkspaceFY();
     const active = (records || []).filter(r => r.active !== false && r.deleted !== true && dishaRecordFY(r) === fy)
       .sort((a,b) => {
-          const pa = dishaHomePendingRawDays(a);
-          const pb = dishaHomePendingRawDays(b);
-          const aPending = Number.isFinite(pa) && pa >= 0;
-          const bPending = Number.isFinite(pb) && pb >= 0;
-          if (aPending !== bPending) return aPending ? -1 : 1;
-          if (aPending && pa !== pb) return pb - pa;
-          const districtCompare = String(a.district || a.nameOfDistrict || "").localeCompare(String(b.district || b.nameOfDistrict || ""), undefined, {sensitivity:"base"});
-          if (districtCompare !== 0) return districtCompare;
-          const da = a.dateOfMeeting || a.meetingDate || a.proposedDateOfMeeting || "";
-          const db = b.dateOfMeeting || b.meetingDate || b.proposedDateOfMeeting || "";
-          return String(db).localeCompare(String(da));
+          const asDate=v=>{ if(!v) return 0; if(typeof v.toDate==="function") return v.toDate().getTime(); if(v.seconds!=null) return Number(v.seconds)*1000; const d=new Date(String(v).slice(0,10)+"T00:00:00"); return Number.isNaN(d.getTime())?0:d.getTime(); };
+          const da=asDate(a.dateOfMeeting || a.meetingDate || a.proposedDateOfMeeting || a.date);
+          const db=asDate(b.dateOfMeeting || b.meetingDate || b.proposedDateOfMeeting || b.date);
+          if(db!==da) return db-da;
+          return String(a.district || a.nameOfDistrict || "").localeCompare(String(b.district || b.nameOfDistrict || ""), undefined, {sensitivity:"base"});
       });
     document.getElementById("dishaHomeRecordCount").textContent = `Records: ${active.length}`;
     if (!active.length) {

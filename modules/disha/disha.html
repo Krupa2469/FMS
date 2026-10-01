@@ -168,8 +168,8 @@
      MODULE DASHBOARD CARDS
 ============================================================ -->
 <section class="container-fluid py-3 bg-light border-bottom" id="moduleDashboardPanel">
-<div class="d-flex justify-content-end align-items-center gap-2 mb-3"><label for="dishaWorkspaceFY" class="fw-bold mb-0">Financial Year</label><select id="dishaWorkspaceFY" class="form-select form-select-sm" style="width:auto;min-width:130px"></select></div>
-<div class="alert alert-info py-2 mb-3" id="moduleDashboardStatus">Loading dashboard...</div>
+<div class="d-none" aria-hidden="true"><select id="dishaWorkspaceFY"></select></div>
+<div class="d-none" id="moduleDashboardStatus"></div>
 <div class="row g-3" id="moduleDashboardCards"></div>
 </section>
 <!-- =========================================================
@@ -611,9 +611,9 @@
 <script src="../../js/services/parser/module-parsers.js"></script>
 <script src="../../js/services/fms-parser-service.js"></script>
 <script src="disha-data-2026-27.js?v=1.7.0"></script>
-<script src="disha.js?v=1.8.8"></script>
+<script src="disha.js?v=1.9.6"></script>
 <script src="../../js/record-consistency.js"></script>
-<script src="../../js/module-inline-dashboard.js?v=1.8.7"></script>
+<script src="../../js/module-inline-dashboard.js?v=1.9.6"></script>
 <!-- =====================================================
      FMS FIREBASE STARTUP
 ====================================================== -->
@@ -624,6 +624,6 @@
 <script src="../../js/module-navigation.js?v=1.7.4"></script>
 <script src="../../js/form-focus-mode.js?v=1.8.6"></script>
 <script src="../../js/date-ui-format.js?v=1.8.6"></script>
-<script src="../../js/register-field-tools.js?v=1.9.5"></script>
+<script src="../../js/register-field-tools.js?v=1.9.6"></script>
 </body>
 </html>
