@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.10.7
+   FMS GRIEVANCES WORKSPACE - v1.10.8
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -263,7 +263,7 @@
         window.addEventListener("beforeunload",()=>channel.close(),{once:true});
       }
     }catch(_e){}
-    console.log("FMS Grievances Workspace v1.10.7 loaded");
+    console.log("FMS Grievances Workspace v1.10.8 loaded");
     if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
