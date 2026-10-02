@@ -14,5 +14,5 @@ a(cfg.includes('columnsFor'),'Register master config service missing');
 a(cp.includes('cpgrams-grievances')&&cp.includes('cpgrams-appeals'),'CPGRAMS register master integration missing');
 a(rti.includes('rti-applications'),'RTI register master integration missing');
 a(disha.includes('disha-meetings')&&disha.includes('disha-pending-files'),'DISHA register master integration missing');
-a(read('js/app.js').includes('VERSION: "1.10.6"'),'Application version must be 1.10.6');
-console.log('v1.10.6 Registers Master checks passed');
+a(read('js/app.js').includes('VERSION: "1.10.7"'),'Application version must be 1.10.7');
+console.log('v1.10.7 Registers Master checks passed');

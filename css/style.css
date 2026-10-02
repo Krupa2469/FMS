@@ -454,7 +454,7 @@ table td {
 #registerTable th:first-child,#registerTable td:first-child{min-width:230px;white-space:nowrap;overflow:visible;text-overflow:clip;}
 
 /*==========================================================
-FMS v1.10.6 - OPERATIONAL DESK INSPIRED UI REFRESH
+FMS v1.10.7 - OPERATIONAL DESK INSPIRED UI REFRESH
 Sidebar, dashboard cards, registers and forms redesigned
 ==========================================================*/
 :root{
@@ -847,7 +847,7 @@ main.container-fluid.py-3{padding-left:18px!important;padding-right:18px!importa
 }
 
 /*==========================================================
-FMS v1.10.6 - GLOBAL LIGHT DASHBOARD CARDS
+FMS v1.10.7 - GLOBAL LIGHT DASHBOARD CARDS
 Keep RTI five-card layout while using the unified light theme
 ==========================================================*/
 #moduleDashboardCards.fms-rti-dashboard{
@@ -873,4 +873,49 @@ Keep RTI five-card layout while using the unified light theme
 }
 @media(max-width:575.98px){
     #moduleDashboardCards.fms-rti-dashboard > div{flex:0 0 100%!important;max-width:100%!important}
+}
+
+
+/*==========================================================
+FMS v1.10.7 - HOME HEADER + LIGHT BLUE SIDEBAR
+==========================================================*/
+.home-sidebar{
+    background:#dcebff!important;
+    border:1px solid #c5dcf7!important;
+    box-shadow:0 10px 26px rgba(30,86,150,.12)!important;
+}
+.home-sidebar a{
+    color:#183b64!important;
+}
+.home-sidebar a i{
+    color:#236db8!important;
+}
+.home-sidebar a:hover,
+.home-sidebar a:focus{
+    background:#c8e0fb!important;
+    color:#0b4f99!important;
+    transform:translateX(2px);
+}
+.home-sidebar .sidebar-subitem{
+    background:#cfe5ff!important;
+    border-left:3px solid #2f80d1!important;
+    color:#173f6d!important;
+}
+.home-sidebar .sidebar-subitem:hover,
+.home-sidebar .sidebar-subitem:focus{
+    background:#bcdafd!important;
+}
+.home-sidebar .sidebar-system{
+    border-top:1px solid #aecbea!important;
+}
+.home-sidebar .sidebar-count-wrap{
+    color:#b56b00!important;
+}
+.home-sidebar .sidebar-rti,
+.home-sidebar .sidebar-disha{
+    color:#183b64!important;
+}
+.home-sidebar a,
+.home-sidebar .sidebar-subitem{
+    cursor:pointer!important;
 }
