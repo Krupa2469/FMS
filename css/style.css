@@ -454,7 +454,7 @@ table td {
 #registerTable th:first-child,#registerTable td:first-child{min-width:230px;white-space:nowrap;overflow:visible;text-overflow:clip;}
 
 /*==========================================================
-FMS v1.10.3 - OPERATIONAL DESK INSPIRED UI REFRESH
+FMS v1.10.5 - OPERATIONAL DESK INSPIRED UI REFRESH
 Sidebar, dashboard cards, registers and forms redesigned
 ==========================================================*/
 :root{
@@ -780,4 +780,70 @@ main.container-fluid.py-3{padding-left:18px!important;padding-right:18px!importa
     .fms-compact-dashboard-card .card-body,
     .fms-inline-metric-card .card-body,
     .dashboard-card .card-body{min-height:118px}
+}
+
+/*==========================================================
+FMS v1.10.5 - RTI SUMMARY DASHBOARD
+Five essential cards with elegant light backgrounds
+==========================================================*/
+#moduleDashboardCards.fms-rti-dashboard{
+    --rti-card-shadow:0 7px 18px rgba(37,61,91,.08);
+}
+#moduleDashboardCards.fms-rti-dashboard > div{
+    flex:0 0 20%!important;
+    max-width:20%!important;
+}
+#moduleDashboardCards.fms-rti-dashboard .fms-rti-dashboard-card{
+    border:1px solid #dbe5ef!important;
+    box-shadow:var(--rti-card-shadow)!important;
+    color:#24364b!important;
+    min-height:148px;
+}
+#moduleDashboardCards.fms-rti-dashboard > div:nth-child(1) .fms-rti-dashboard-card{
+    background:#eef6ff!important;
+    border-color:#cfe2f6!important;
+}
+#moduleDashboardCards.fms-rti-dashboard > div:nth-child(2) .fms-rti-dashboard-card{
+    background:#eef9f4!important;
+    border-color:#d2eadf!important;
+}
+#moduleDashboardCards.fms-rti-dashboard > div:nth-child(3) .fms-rti-dashboard-card{
+    background:#fff8e8!important;
+    border-color:#f0e0b8!important;
+}
+#moduleDashboardCards.fms-rti-dashboard > div:nth-child(4) .fms-rti-dashboard-card{
+    background:#fff1f1!important;
+    border-color:#f0d1d1!important;
+}
+#moduleDashboardCards.fms-rti-dashboard > div:nth-child(5) .fms-rti-dashboard-card{
+    background:#f1f8f7!important;
+    border-color:#d2e8e4!important;
+}
+#moduleDashboardCards.fms-rti-dashboard .fms-rti-dashboard-card .text-muted{
+    color:#42566d!important;
+    font-weight:700!important;
+    font-size:.95rem!important;
+}
+#moduleDashboardCards.fms-rti-dashboard .fms-rti-dashboard-card .fw-bold{
+    color:#20354b!important;
+}
+#moduleDashboardCards.fms-rti-dashboard .fms-rti-dashboard-card .fs-4{
+    color:#3e6f9f!important;
+}
+#moduleDashboardCards.fms-rti-dashboard > div:nth-child(2) .fs-4{color:#3d8b67!important}
+#moduleDashboardCards.fms-rti-dashboard > div:nth-child(3) .fs-4{color:#c58b26!important}
+#moduleDashboardCards.fms-rti-dashboard > div:nth-child(4) .fs-4{color:#c85c5c!important}
+#moduleDashboardCards.fms-rti-dashboard > div:nth-child(5) .fs-4{color:#4f8d82!important}
+#moduleDashboardCards.fms-rti-dashboard .fms-rti-dashboard-card:hover{
+    transform:translateY(-3px)!important;
+    box-shadow:0 12px 25px rgba(37,61,91,.12)!important;
+}
+@media(max-width:1199.98px){
+    #moduleDashboardCards.fms-rti-dashboard > div{flex:0 0 33.333333%!important;max-width:33.333333%!important}
+}
+@media(max-width:767.98px){
+    #moduleDashboardCards.fms-rti-dashboard > div{flex:0 0 50%!important;max-width:50%!important}
+}
+@media(max-width:575.98px){
+    #moduleDashboardCards.fms-rti-dashboard > div{flex:0 0 100%!important;max-width:100%!important}
 }

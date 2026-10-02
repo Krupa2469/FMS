@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FMS Registers Master</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../css/style.css?v=1.10.5">
+<style>
+body{background:#f4f6f9}.hero{background:#0d6efd;color:#fff;padding:18px}.card{border:0}.field-box{height:300px}.sticky-tools{position:sticky;top:0;z-index:50}.small-help{font-size:.82rem}.target-note{font-size:.78rem;color:#65758b}.definition-row-active{box-shadow:inset 4px 0 #198754}
+</style>
+</head>
+<body>
+<header class="hero text-center">
+<div class="fw-semibold">GOVERNMENT OF TELANGANA</div>
+<div>Office of the Commissioner, Rural Development</div>
+<h2 class="mb-0">REGISTERS MASTER</h2>
+</header>
+<nav class="navbar bg-white border-bottom shadow-sm sticky-tools">
+<div class="container-fluid d-flex gap-2 flex-wrap p-2">
+<button id="btnHome" class="btn btn-dark"><i class="bi bi-house"></i> Home</button>
+<button id="btnMasters" class="btn btn-secondary"><i class="bi bi-database"></i> Master Tables</button>
+<button id="btnReportsMaster" class="btn btn-outline-primary"><i class="bi bi-sliders"></i> Reports Master</button>
+<button id="btnSeedDefaults" class="btn btn-outline-success"><i class="bi bi-arrow-repeat"></i> Restore Default Registers</button>
+<span id="status" class="ms-auto small text-muted align-self-center"></span>
+</div>
+</nav>
+<main class="container-fluid py-3">
+<div class="row g-3">
+<div class="col-xl-5 col-lg-6">
+<section class="card shadow-sm">
+<div class="card-header bg-primary text-white fw-bold">Register Definition</div>
+<div class="card-body">
+<form id="registerDefForm">
+<input type="hidden" id="definitionId">
+<div class="row g-3">
+<div class="col-md-7">
+<label class="form-label">Register Name *</label>
+<input id="registerName" class="form-control" required maxlength="100" placeholder="e.g. RTI Applications Register">
+</div>
+<div class="col-md-5">
+<label class="form-label">Target Register *</label>
+<select id="target" class="form-select" required>
+<option value="cpgrams-grievances">CPGRAMS - Grievances</option>
+<option value="cpgrams-appeals">CPGRAMS - Appeals</option>
+<option value="cpgrams-other">Other Grievance Types</option>
+<option value="cpgrams-questions">LAQ / LCQ</option>
+<option value="rti-applications">RTI Applications</option>
+<option value="disha-meetings">DISHA Meetings</option>
+<option value="disha-pending-files">DISHA Pending Files</option>
+</select>
+<div class="target-note mt-1">One active definition is used for each target register.</div>
+</div>
+<div class="col-12">
+<label class="form-label">Fields / Columns *</label>
+<select id="fields" class="form-select field-box" multiple required></select>
+<div class="form-text">Ctrl/Command-click to select multiple columns. Columns appear in the register in the order shown here.</div>
+</div>
+<div class="col-md-6">
+<label class="form-label">Default Sort Field</label>
+<select id="sortField" class="form-select"></select>
+</div>
+<div class="col-md-6">
+<label class="form-label">Sort Direction</label>
+<select id="sortDirection" class="form-select"><option value="desc">Latest / Descending</option><option value="asc">Oldest / Ascending</option></select>
+</div>
+<div class="col-12">
+<label class="form-label">Description</label>
+<textarea id="description" class="form-control" rows="2" placeholder="Purpose or notes for this register layout"></textarea>
+</div>
+<div class="col-md-6">
+<div class="form-check mt-2"><input id="active" type="checkbox" class="form-check-input" checked><label class="form-check-label" for="active">Active</label></div>
+</div>
+<div class="col-md-6">
+<div class="form-check mt-2"><input id="autoFit" type="checkbox" class="form-check-input" checked><label class="form-check-label" for="autoFit">Auto-fit columns</label></div>
+</div>
+</div>
+<div class="d-flex gap-2 flex-wrap mt-3">
+<button class="btn btn-success" type="submit"><i class="bi bi-save"></i> Save</button>
+<button id="btnUpdate" type="button" class="btn btn-warning"><i class="bi bi-pencil"></i> Update</button>
+<button id="btnDelete" type="button" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+<button id="btnClear" type="button" class="btn btn-outline-secondary">Clear</button>
+</div>
+</form>
+</div>
+</section>
+</div>
+<div class="col-xl-7 col-lg-6">
+<section class="card shadow-sm">
+<div class="card-header bg-dark text-white d-flex justify-content-between align-items-center"><span class="fw-bold">Register Definitions</span><span id="recordCount" class="badge bg-light text-dark">0 records</span></div>
+<div class="card-body">
+<input id="search" class="form-control mb-2" placeholder="Search register definitions...">
+<div class="table-responsive">
+<table id="definitionsTable" class="table table-bordered table-striped table-hover align-middle mb-0">
+<thead><tr><th>Sl.No.</th><th>Register Name</th><th>Target</th><th>Columns</th><th>Sort</th><th>Status</th><th>Action</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
+<script src="../../js/firebase/firebase-bootstrap.js"></script>
+<script src="../../js/firebase/firebase-crud-service.js"></script>
+<script src="../../js/registers-master.js?v=1.10.5"></script>
+</body>
+</html>

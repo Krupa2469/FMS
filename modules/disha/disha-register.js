@@ -92,6 +92,7 @@ document.addEventListener(
         registerEvents();
 
         await syncDishaSourceData();
+        await window.FMSRegisterMasterConfig?.ready?.(await waitForDISHADB());
         await loadDISHAmeetings();
 
         initializeDISHAFinancialYearFilter();
@@ -1156,7 +1157,7 @@ function renderRegisterTable(records) {
     const headerRow = document.querySelector("thead tr");
     const filterName=normalize(new URLSearchParams(location.search).get("filter"));
     const filePendingView=filterName==="file-pending" || filterName==="pending-files";
-    const columns = filePendingView ? [
+    const fallbackColumns = filePendingView ? [
         ["district", "District"],
         ["officeFileNo", "File No."],
         ["officeStatus", "File Status"],
@@ -1170,6 +1171,8 @@ function renderRegisterTable(records) {
         ["statusOfBills", "Bills Status"],
         ["remarks", "Remarks"]
     ];
+    const target=filePendingView?"disha-pending-files":"disha-meetings";
+    const columns = window.FMSRegisterMasterConfig?.columnsFor?.(target,fallbackColumns) || fallbackColumns;
     if (headerRow) headerRow.innerHTML = `<th>Sl.No</th>${columns.map(c=>`<th>${safe(c[1])}</th>`).join("")}<th>Action</th>`;
     tbody.innerHTML = "";
     if (!records || records.length === 0) {

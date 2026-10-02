@@ -101,6 +101,7 @@ async function initializeRTIRegister() {
         }
 
 
+        await window.FMSRegisterMasterConfig?.ready?.(getRTIRegisterDB());
         await loadRTIRecordsFromFirestore();
 
         const btnWhatsApp = document.getElementById("btnWhatsApp");
@@ -735,7 +736,7 @@ function renderRegister(records) {
     const tbody = document.getElementById("rtiRegisterBody");
     const recordCount = document.getElementById("recordCount");
     const headerRow = document.querySelector("thead tr");
-    const columns = [
+    const fallbackColumns = [
         ["applicationNumber", "RTI Application No."],
         ["applicationDate", "Application Date"],
         ["dueDate", "Due Date"],
@@ -749,6 +750,7 @@ function renderRegister(records) {
         ["finalStatusView", "Final Status"],
         ["appealStatusView", "Appeal Status"]
     ];
+    const columns = window.FMSRegisterMasterConfig?.columnsFor?.("rti-applications",fallbackColumns) || fallbackColumns;
     if (headerRow) headerRow.innerHTML = `<th>Sl.No</th>${columns.map(c=>`<th>${escapeHTML(c[1])}</th>`).join("")}<th>Action</th>`;
     if (!tbody) return;
     if (recordCount) recordCount.textContent = `Records : ${records.length}`;

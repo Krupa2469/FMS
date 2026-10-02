@@ -1,0 +1,18 @@
+const fs=require('fs');
+const root=require('path').resolve(__dirname,'..');
+const read=p=>fs.readFileSync(require('path').join(root,p),'utf8');
+const a=(c,m)=>{if(!c)throw new Error(m)};
+const master=read('pages/admin/registers-master.html');
+const masterJs=read('js/registers-master.js');
+const cfg=read('js/register-master-config.js');
+const cp=read('modules/cpgrams/cpgrams-register.js');
+const rti=read('modules/rti/rti-register.js');
+const disha=read('modules/disha/disha-register.js');
+a(master.includes('REGISTERS MASTER'),'Registers Master page missing');
+a(masterJs.includes('registerDefinitions'),'Register definitions collection missing');
+a(cfg.includes('columnsFor'),'Register master config service missing');
+a(cp.includes('cpgrams-grievances')&&cp.includes('cpgrams-appeals'),'CPGRAMS register master integration missing');
+a(rti.includes('rti-applications'),'RTI register master integration missing');
+a(disha.includes('disha-meetings')&&disha.includes('disha-pending-files'),'DISHA register master integration missing');
+a(read('js/app.js').includes('VERSION: "1.10.5"'),'Application version must be 1.10.5');
+console.log('v1.10.5 Registers Master checks passed');
