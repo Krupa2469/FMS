@@ -454,7 +454,7 @@ table td {
 #registerTable th:first-child,#registerTable td:first-child{min-width:230px;white-space:nowrap;overflow:visible;text-overflow:clip;}
 
 /*==========================================================
-FMS v1.10.2 - OPERATIONAL DESK INSPIRED UI REFRESH
+FMS v1.10.3 - OPERATIONAL DESK INSPIRED UI REFRESH
 Sidebar, dashboard cards, registers and forms redesigned
 ==========================================================*/
 :root{
@@ -483,7 +483,7 @@ header,
 header.bg-primary,
 .home-header,
 .hero{
-    background:linear-gradient(90deg,#27303a 0%,#20262e 55%,#293341 100%)!important;
+    background:#0d6efd!important;
     color:#fff!important;
     position:relative;
     overflow:hidden;
@@ -494,7 +494,7 @@ header.bg-primary::after,
     content:"";
     position:absolute;
     left:0;right:0;bottom:0;height:4px;
-    background:linear-gradient(90deg,var(--fms-accent),#f0b25a,var(--fms-accent-2));
+    background:#0a58ca;
 }
 header h3,header h4,header h5,header h6,
 .home-header h2,.hero h2{color:#fff!important;letter-spacing:.2px}
@@ -543,7 +543,7 @@ nav.navbar,
 .card{overflow:hidden}
 .card-body{min-height:auto!important;padding:1.15rem!important}
 .card-header{
-    background:linear-gradient(90deg,#2d3640 0%,#1f252d 100%)!important;
+    background:#0d6efd!important;
     color:#fff!important;
     border-bottom:0!important;
     font-weight:800!important;
@@ -555,7 +555,7 @@ nav.navbar,
 .card-header.bg-warning,
 .bg-primary,
 .bg-info{
-    background:linear-gradient(90deg,#2d3640 0%,#1f252d 100%)!important;
+    background:#0d6efd!important;
     color:#fff!important;
 }
 .card-header .badge,
@@ -580,7 +580,7 @@ body .left-sidebar{
     border-radius:22px!important;
 }
 .home-sidebar{
-    background:linear-gradient(180deg,#353a42 0%,#272c33 100%)!important;
+    background:#0b5ed7!important;
     box-shadow:0 14px 34px rgba(0,0,0,.18)!important;
     border:0!important;
 }
@@ -598,16 +598,16 @@ body .left-sidebar{
 .home-sidebar a:hover,
 .home-sidebar a:focus{background:rgba(255,255,255,.10)!important;color:#fff!important;transform:translateX(2px)}
 .home-sidebar .sidebar-subitem{
-    background:rgba(48,166,218,.12)!important;
-    border-left:3px solid #2db0d8!important;
+    background:rgba(255,255,255,.14)!important;
+    border-left:3px solid #9ec5fe!important;
     margin-left:18px!important;
     padding:10px 12px!important;
     font-size:.96rem!important;
 }
 .home-sidebar .sidebar-system{border-top:1px solid rgba(255,255,255,.12)!important;margin-top:10px!important;padding-top:12px!important}
-.home-sidebar .sidebar-count-wrap{font-weight:800;color:#ffd982}
-.home-sidebar .sidebar-rti{color:#ffd068!important}
-.home-sidebar .sidebar-disha{color:#68d8f5!important}
+.home-sidebar .sidebar-count-wrap{font-weight:800;color:#fff3b0}
+.home-sidebar .sidebar-rti{color:#ffffff!important}
+.home-sidebar .sidebar-disha{color:#ffffff!important}
 
 /* Dashboard cards */
 .metric-card,
