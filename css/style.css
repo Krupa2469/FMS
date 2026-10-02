@@ -454,7 +454,7 @@ table td {
 #registerTable th:first-child,#registerTable td:first-child{min-width:230px;white-space:nowrap;overflow:visible;text-overflow:clip;}
 
 /*==========================================================
-FMS v1.10.8 - OPERATIONAL DESK INSPIRED UI REFRESH
+FMS v1.10.9 - OPERATIONAL DESK INSPIRED UI REFRESH
 Sidebar, dashboard cards, registers and forms redesigned
 ==========================================================*/
 :root{
@@ -847,7 +847,7 @@ main.container-fluid.py-3{padding-left:18px!important;padding-right:18px!importa
 }
 
 /*==========================================================
-FMS v1.10.8 - GLOBAL LIGHT DASHBOARD CARDS
+FMS v1.10.9 - GLOBAL LIGHT DASHBOARD CARDS
 Keep RTI five-card layout while using the unified light theme
 ==========================================================*/
 #moduleDashboardCards.fms-rti-dashboard{
@@ -877,7 +877,7 @@ Keep RTI five-card layout while using the unified light theme
 
 
 /*==========================================================
-FMS v1.10.8 - HOME HEADER + LIGHT BLUE SIDEBAR
+FMS v1.10.9 - HOME HEADER + LIGHT BLUE SIDEBAR
 ==========================================================*/
 .home-sidebar{
     background:#dcebff!important;
@@ -921,7 +921,7 @@ FMS v1.10.8 - HOME HEADER + LIGHT BLUE SIDEBAR
 }
 
 /*==========================================================
-FMS v1.10.8 - COMMON HEADER ON ALL SCREENS
+FMS v1.10.9 - COMMON HEADER ON ALL SCREENS
 ==========================================================*/
 body > header:not(.fms-global-header),
 body > .page-header:not(.fms-global-header),
@@ -1004,4 +1004,130 @@ body > .hero:not(.fms-global-header){
     .fms-global-office{font-size:16pt!important}
     .fms-global-address{font-size:10pt!important}
     .fms-global-system{font-size:15pt!important}
+}
+
+/*==========================================================
+FMS v1.10.9 - SINGLE HEADER, MODULE TITLE, COMPLETE NAVIGATION
+AND BOTTOM DATA-ENTRY ACTIONS
+==========================================================*/
+.fms-legacy-header-hidden,
+body > .main-header,
+body > .page-header:not(.fms-global-header){
+    display:none!important;
+}
+
+.fms-module-title-strip{
+    background:#eaf4ff!important;
+    color:#123f70!important;
+    border-bottom:1px solid #c8ddf5!important;
+    padding:10px 18px!important;
+    text-align:center!important;
+    font-size:18pt!important;
+    line-height:1.2!important;
+    font-weight:800!important;
+    letter-spacing:.15px!important;
+}
+
+.fms-module-nav{
+    position:sticky!important;
+    top:0!important;
+    left:auto!important;
+    right:auto!important;
+    width:100%!important;
+    z-index:1055!important;
+    background:#fff!important;
+    border-bottom:1px solid #dbe4ee!important;
+    box-shadow:0 3px 10px rgba(28,70,115,.08)!important;
+    padding:8px 10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:thin;
+}
+.fms-module-nav-inner{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    gap:7px!important;
+    min-width:max-content!important;
+}
+.fms-module-nav .fms-nav-item{
+    display:inline-flex!important;
+    align-items:center!important;
+    gap:6px!important;
+    flex:0 0 auto!important;
+    text-decoration:none!important;
+    background:#eef6ff!important;
+    color:#174a7e!important;
+    border:1px solid #c9def5!important;
+    border-radius:10px!important;
+    padding:8px 11px!important;
+    font-size:.9rem!important;
+    font-family:"Segoe UI",Arial,sans-serif!important;
+    font-weight:750!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+}
+.fms-module-nav .fms-nav-item:hover,
+.fms-module-nav .fms-nav-item:focus{
+    background:#dceeff!important;
+    color:#0b4f99!important;
+    border-color:#a9ccef!important;
+}
+.fms-module-nav .fms-nav-item.current{
+    background:#0d6efd!important;
+    color:#fff!important;
+    border-color:#0d6efd!important;
+    box-shadow:0 3px 9px rgba(13,110,253,.18)!important;
+}
+.fms-module-nav .nav-home{
+    background:#e7edf4!important;
+    color:#24364b!important;
+    border-color:#ccd7e3!important;
+}
+.fms-module-nav .fms-nav-icon{font-weight:800!important}
+
+.fms-bottom-form-actions{
+    margin:18px 0 28px!important;
+    padding:15px 18px!important;
+    background:#f7fbff!important;
+    border:1px solid #ccdeef!important;
+    border-radius:16px!important;
+    box-shadow:0 5px 16px rgba(28,70,115,.08)!important;
+}
+.fms-bottom-form-actions-label{
+    color:#36536f!important;
+    font-size:.85rem!important;
+    font-weight:800!important;
+    margin-bottom:9px!important;
+    text-transform:uppercase!important;
+    letter-spacing:.4px!important;
+}
+.fms-bottom-form-actions-buttons{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:10px!important;
+}
+.fms-bottom-form-actions-buttons .btn{
+    min-width:112px!important;
+    padding:.65rem 1rem!important;
+}
+.fms-empty-toolbar{display:none!important}
+body[data-fms-module="disha"] .fms-action-toolbar-spacer{display:none!important}
+body[data-fms-module="disha"] .fms-module-nav{
+    position:sticky!important;
+    top:0!important;
+}
+body[data-fms-module="disha"] .page-header{display:none!important}
+body[data-fms-module="disha"] .fms-action-toolbar{
+    position:static!important;
+    top:auto!important;
+    left:auto!important;
+    right:auto!important;
+    width:auto!important;
+}
+
+@media(max-width:620px){
+    .fms-module-title-strip{font-size:15pt!important;padding:9px 10px!important}
+    .fms-module-nav .fms-nav-item{padding:7px 9px!important;font-size:.84rem!important}
+    .fms-bottom-form-actions-buttons .btn{flex:1 1 100%!important;width:100%!important}
 }

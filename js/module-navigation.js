@@ -1,85 +1,186 @@
 "use strict";
-/* Common module navigation: Home, Grievances, RTI and DISHA on every module screen. v1.6.5 */
+/* FMS v1.10.9 - Common module title + complete navigation row + bottom form actions */
 (function(window,document){
-  function init(){
-    if(document.querySelector(".fms-module-nav")) return;
-    const path=location.pathname.toLowerCase();
-    if(!path.includes("/modules/")) return;
-    const current=path.includes("/cpgrams/")?"grievances":path.includes("/rti/")?"rti":path.includes("/disha/")?"disha":"";
+  const TYPE_LINKS=[
+    {key:"cpgrams",label:"CPGRAMS",icon:"▣",href:"../cpgrams/cpgrams.html?grievanceType=CPGRAMS"},
+    {key:"cpgrams-grievances",label:"Grievances",icon:"▤",href:"../cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=pending&fullscreen=1&register=grievances"},
+    {key:"cpgrams-appeals",label:"Appeals",icon:"↥",href:"../cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=appeals-pending&fullscreen=1&register=appeals"},
+    {key:"prajavani",label:"Prajavani",icon:"◉",href:"../cpgrams/cpgrams.html?grievanceType=Prajavani"},
+    {key:"public-grievances",label:"Public Grievances",icon:"▤",href:"../cpgrams/cpgrams.html?grievanceType=Public%20Grievances"},
+    {key:"direct-complaints",label:"Direct Complaints",icon:"♙",href:"../cpgrams/cpgrams.html?grievanceType=Direct%20Complaints"},
+    {key:"laq",label:"LAQ",icon:"?",href:"../cpgrams/cpgrams.html?grievanceType=LAQ"},
+    {key:"lcq",label:"LCQ",icon:"◇",href:"../cpgrams/cpgrams.html?grievanceType=LCQ"},
+    {key:"court-cases",label:"Court Cases",icon:"▥",href:"../cpgrams/cpgrams.html?grievanceType=Court%20Cases"},
+    {key:"vip-references",label:"VIP References",icon:"☆",href:"../cpgrams/cpgrams.html?grievanceType=VIP%20References"},
+    {key:"cmo-references",label:"CMO References",icon:"▣",href:"../cpgrams/cpgrams.html?grievanceType=CMO%20References"},
+    {key:"pmo-references",label:"PMO References",icon:"✉",href:"../cpgrams/cpgrams.html?grievanceType=PMO%20References"},
+    {key:"audit-paras",label:"Audit Paras",icon:"✓",href:"../cpgrams/cpgrams.html?grievanceType=Audit%20Paras"},
+    {key:"vigilance-cases",label:"Vigilance Cases",icon:"!",href:"../cpgrams/cpgrams.html?grievanceType=Vigilance%20Cases"},
+    {key:"rti",label:"RTI",icon:"▤",href:"../rti/rti.html"},
+    {key:"disha",label:"DISHA",icon:"♧",href:"../disha/disha.html"},
+    {key:"utilities",label:"Utilities",icon:"⚒",href:"../../pages/utilities.html"},
+    {key:"master-tables",label:"Master Tables",icon:"▦",href:"../../pages/admin/master-management.html"},
+    {key:"reports",label:"Reports",icon:"▥",href:"../../pages/reports.html"}
+  ];
 
-    if(!document.getElementById("fmsModuleNavStyle")){
-      const style=document.createElement("style");
-      style.id="fmsModuleNavStyle";
-      style.textContent=`
-        .fms-module-nav{background:#fff;border-bottom:1px solid #d9dee5;box-shadow:0 2px 7px rgba(0,0,0,.08);padding:9px 12px;position:sticky;top:0;z-index:1055}
-        .fms-module-nav-inner{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-        .fms-module-nav a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;border:1px solid #6c757d;border-radius:6px;padding:8px 14px;font-family:Arial,Helvetica,sans-serif;font-weight:600;line-height:1.2;background:#fff;color:#212529}
-        .fms-module-nav a:hover{filter:brightness(.97)}
-        .fms-module-nav .nav-home{background:#212529;color:#fff;border-color:#212529}
-        .fms-module-nav .nav-grievances{border-color:#0d6efd;color:#0d6efd}
-        .fms-module-nav .nav-rti{border-color:#d99b00;color:#9a6c00}
-        .fms-module-nav .nav-disha{border-color:#0dcaf0;color:#087990}
-        .fms-module-nav .current.nav-grievances{background:#0d6efd;color:#fff}
-        .fms-module-nav .current.nav-rti{background:#ffc107;color:#212529}
-        .fms-module-nav .current.nav-disha{background:#0dcaf0;color:#fff}
-      `;
-      document.head.appendChild(style);
+  const clean=s=>String(s||"").trim();
+  const slug=s=>clean(s).toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const params=()=>new URLSearchParams(location.search);
+  const path=()=>location.pathname.toLowerCase();
+
+  function contextKey(){
+    const p=path(), q=params();
+    if(p.includes("/rti/")) return "rti";
+    if(p.includes("/disha/")) return "disha";
+    if(p.includes("/cpgrams/")){
+      const type=clean(q.get("grievanceType")||document.getElementById("grievanceType")?.value||"CPGRAMS");
+      if(/^cpgrams$/i.test(type)){
+        if(q.get("register")==="appeals" || /appeal/i.test(q.get("filter")||"")) return "cpgrams-appeals";
+        if(q.get("register")==="grievances" && q.get("filter") && q.get("filter")!=="total") return "cpgrams-grievances";
+        return "cpgrams";
+      }
+      return slug(type);
     }
+    return "";
+  }
 
-    const nav=document.createElement("nav");
-    nav.className="fms-module-nav";
-    nav.setAttribute("aria-label","FMS module navigation");
-    nav.innerHTML=`<div class="fms-module-nav-inner">
-      <a class="nav-home" href="../../index.html">⌂ Home</a>
-      <a class="nav-grievances ${current==="grievances"?"current":""}" href="../cpgrams/cpgrams.html">▣ GRIEVANCES</a>
-      <a class="nav-rti ${current==="rti"?"current":""}" href="../rti/rti.html">▤ RTI</a>
-      <a class="nav-disha ${current==="disha"?"current":""}" href="../disha/disha.html">♧ DISHA</a>
-    </div>`;
-    const anchor=document.querySelector("header")||document.querySelector(".main-header")||document.querySelector(".page-header")||document.body.firstElementChild;
-    if(anchor&&anchor.parentNode) anchor.parentNode.insertBefore(nav,anchor.nextSibling); else document.body.prepend(nav);
+  function moduleTitle(){
+    const p=path(), q=params();
+    if(p.includes("/rti/")) return "RTI";
+    if(p.includes("/disha/")) return "DISHA";
+    if(p.includes("/cpgrams/")){
+      const type=clean(q.get("grievanceType")||document.getElementById("grievanceType")?.value||"CPGRAMS");
+      if(/^cpgrams$/i.test(type) && (q.get("register")==="appeals" || /appeal/i.test(q.get("filter")||""))) return "CPGRAMS APPEALS";
+      return (type||"CPGRAMS").toUpperCase();
+    }
+    return "FILE MANAGEMENT SYSTEM";
+  }
 
-    // The common bar is the single Home navigation on module screens.
+  function renderTitle(){
+    let title=document.querySelector(".fms-module-title-strip");
+    const header=document.querySelector(".fms-global-header");
+    if(!header) return null;
+    if(!title){
+      title=document.createElement("div");
+      title.className="fms-module-title-strip";
+      title.setAttribute("role","heading");
+      title.setAttribute("aria-level","1");
+      header.insertAdjacentElement("afterend",title);
+    }
+    title.textContent=moduleTitle();
+    return title;
+  }
+
+  function renderNav(title){
+    document.querySelectorAll(".fms-module-nav").forEach((n,i)=>{if(i>0)n.remove();});
+    let nav=document.querySelector(".fms-module-nav");
+    if(!nav){
+      nav=document.createElement("nav");
+      nav.className="fms-module-nav";
+      nav.setAttribute("aria-label","FMS navigation");
+    }
+    const current=contextKey();
+    const links=[{key:"home",label:"Home",icon:"⌂",href:"../../index.html"},...TYPE_LINKS];
+    nav.innerHTML=`<div class="fms-module-nav-inner">${links.map(x=>`<a class="fms-nav-item nav-${x.key}${x.key===current?" current":""}" href="${x.href}" title="Open ${x.label}"><span class="fms-nav-icon">${x.icon}</span><span>${x.label}</span></a>`).join("")}</div>`;
+    if(title) title.insertAdjacentElement("afterend",nav);
+    return nav;
+  }
+
+  function hideLegacyHeaders(){
+    document.querySelectorAll("body > header:not(.fms-global-header), body > .main-header, body > .page-header:not(.fms-global-header), body > .hero:not(.fms-global-header)").forEach(el=>{
+      el.classList.add("fms-legacy-header-hidden");
+      el.setAttribute("aria-hidden","true");
+    });
+  }
+
+  function moveFormActions(){
+    const p=path();
+    const save=document.getElementById("btnSave"), update=document.getElementById("btnUpdate"), del=document.getElementById("btnDelete");
+    if(!save && !update && !del) return;
+    let target=null;
+    if(p.includes("/cpgrams/")) target=document.getElementById("cpgramsForm");
+    else if(p.includes("/rti/")) target=document.getElementById("rtiForm");
+    else if(p.includes("/disha/")) target=document.getElementById("dishaDataEntryFocus");
+    if(!target) return;
+
+    let actions=document.getElementById("fmsBottomFormActions");
+    if(!actions){
+      actions=document.createElement("div");
+      actions.id="fmsBottomFormActions";
+      actions.className="fms-bottom-form-actions";
+      actions.innerHTML='<div class="fms-bottom-form-actions-label">Data Entry Actions</div><div class="fms-bottom-form-actions-buttons"></div>';
+      target.insertAdjacentElement("afterend",actions);
+    }
+    const host=actions.querySelector(".fms-bottom-form-actions-buttons");
+    [save,update,del].filter(Boolean).forEach(btn=>host.appendChild(btn));
+
+    document.querySelectorAll(".fms-action-toolbar").forEach(toolbar=>{
+      if(toolbar.querySelector("#btnSave,#btnUpdate,#btnDelete")) return;
+      if(!clean(toolbar.textContent) && !toolbar.querySelector("button,a,input,select")) toolbar.classList.add("fms-empty-toolbar");
+    });
+    document.querySelectorAll(".fms-action-toolbar-spacer").forEach(s=>s.classList.add("d-none"));
+  }
+
+  function hideDuplicateHomeButtons(){
     document.querySelectorAll("#btnHome, button[onclick*='goHome()']").forEach(el=>{
       if(!el.closest('.fms-module-nav')) el.style.display="none";
     });
-
-    activateDataEntryFullscreen(path);
   }
 
-  function activateDataEntryFullscreen(path){
-    const params=new URLSearchParams(location.search);
-    const mode=String(params.get("mode")||"").toLowerCase();
-    const requested=params.get("fullscreenForm")==="1" || params.get("formFullscreen")==="1";
-    const isDataEntry=/\/modules\/(cpgrams|rti|disha)\/(cpgrams|rti|disha)(?:\.html)?$/i.test(path);
-    if(!isDataEntry) return;
-    if(!(requested || ((mode==="view" || mode==="edit") && (params.get("id") || params.get("recordId") || params.get("docId"))))) return;
-    document.body.classList.add("fms-data-entry-fullscreen");
-    document.querySelectorAll("header, footer, .fms-module-nav, .page-footer, #moduleDashboardPanel, #grievanceContextPanel, #grievanceInlineRegisterPanel").forEach(el=>el.classList.add("d-none"));
-    document.querySelectorAll("main,.container,.container-fluid,.form-container").forEach(el=>{
-      Object.assign(el.style,{maxWidth:"none",width:"100%"});
+  function watchCpgramsType(){
+    const sel=document.getElementById("grievanceType");
+    if(!sel) return;
+    sel.addEventListener("change",()=>{
+      const q=params();
+      q.set("grievanceType",sel.value||"CPGRAMS");
+      const title=document.querySelector(".fms-module-title-strip");
+      if(title) title.textContent=(sel.value||"CPGRAMS").toUpperCase();
+      document.querySelectorAll(".fms-module-nav .current").forEach(a=>a.classList.remove("current"));
+      const key=slug(sel.value||"CPGRAMS");
+      document.querySelector(`.fms-module-nav .nav-${key}`)?.classList.add("current");
     });
-    const title=document.querySelector("h4.text-center, .form-container h2, .form-container h3, .page-title");
-    if(title && !document.getElementById("fmsDataEntryFullscreenBanner")){
+  }
+
+  function activateDataEntryFullscreen(p){
+    const q=params();
+    const mode=String(q.get("mode")||"").toLowerCase();
+    const requested=q.get("fullscreenForm")==="1" || q.get("formFullscreen")==="1";
+    const isDataEntry=/\/modules\/(cpgrams|rti|disha)\/(cpgrams|rti|disha)(?:\.html)?$/i.test(p);
+    if(!isDataEntry) return;
+    if(!(requested || ((mode==="view" || mode==="edit") && (q.get("id") || q.get("recordId") || q.get("docId"))))) return;
+    document.body.classList.add("fms-data-entry-fullscreen");
+    document.querySelectorAll("header, footer, .fms-module-nav, .fms-module-title-strip, .page-footer, #moduleDashboardPanel, #grievanceContextPanel, #grievanceInlineRegisterPanel").forEach(el=>el.classList.add("d-none"));
+    document.querySelectorAll("main,.container,.container-fluid,.form-container").forEach(el=>Object.assign(el.style,{maxWidth:"none",width:"100%"}));
+    if(!document.getElementById("fmsDataEntryFullscreenBanner")){
       const banner=document.createElement("div");
       banner.id="fmsDataEntryFullscreenBanner";
       banner.className="alert alert-primary rounded-0 mb-2 d-flex justify-content-between align-items-center flex-wrap gap-2";
-      banner.innerHTML=`<span><strong>Data Entry Full Screen:</strong> ${mode?mode.toUpperCase():"EDIT"} mode</span><button type="button" class="btn btn-sm btn-outline-primary" id="btnExitDataEntryFullscreen">Back to Register</button>`;
-      const anchor=document.querySelector(".fms-action-toolbar,.navigation-bar") || document.body.firstElementChild;
-      anchor?.parentNode?.insertBefore(banner, anchor.nextSibling);
+      banner.innerHTML=`<span><strong>Data Entry:</strong> ${mode?mode.toUpperCase():"EDIT"} mode</span><button type="button" class="btn btn-sm btn-outline-primary" id="btnExitDataEntryFullscreen">Back to Register</button>`;
+      document.body.prepend(banner);
       document.getElementById("btnExitDataEntryFullscreen")?.addEventListener("click",()=>{
-        if(path.includes("/cpgrams/")){
+        if(p.includes("/cpgrams/")){
           const target=new URLSearchParams();
-          const grievanceType=params.get("grievanceType") || document.getElementById("grievanceType")?.value || "CPGRAMS";
-          const fy=params.get("fy") || document.getElementById("grievanceFinancialYear")?.value || "";
-          target.set("grievanceType",grievanceType);
-          if(fy) target.set("fy",fy);
-          location.href="cpgrams.html?"+target.toString();
-        }
-        else if(path.includes("/rti/")) location.href="rti-register.html?fullscreen=1";
-        else if(path.includes("/disha/")) location.href="disha-register.html?fullscreen=1";
+          const grievanceType=q.get("grievanceType") || document.getElementById("grievanceType")?.value || "CPGRAMS";
+          const fy=q.get("fy") || document.getElementById("grievanceFinancialYear")?.value || "";
+          target.set("grievanceType",grievanceType); if(fy) target.set("fy",fy);
+          location.href="cpgrams-register.html?"+target.toString();
+        } else if(p.includes("/rti/")) location.href="rti-register.html?fullscreen=1";
+        else if(p.includes("/disha/")) location.href="disha-register.html?fullscreen=1";
         else history.back();
       });
     }
   }
+
+  function init(){
+    if(!path().includes("/modules/")) return;
+    hideLegacyHeaders();
+    const title=renderTitle();
+    renderNav(title);
+    moveFormActions();
+    hideDuplicateHomeButtons();
+    watchCpgramsType();
+    activateDataEntryFullscreen(path());
+  }
+
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
 })(window,document);
