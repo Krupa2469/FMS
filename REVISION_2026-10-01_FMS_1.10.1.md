@@ -1,4 +1,4 @@
-# FMS Version 1.10.1 — 01-Oct-2026
+# FMS Version 1.10.2 — 01-Oct-2026
 
 ## Home presentation
 - Added the Government of Telangana emblem on the left side of the FMS Home header.
@@ -26,4 +26,4 @@
 - Removed standalone Firebase test pages from the production copy.
 
 ## Version
-- Application version updated to 1.10.1 and changed script references cache-busted accordingly.
+- Application version updated to 1.10.2 and changed script references cache-busted accordingly.
