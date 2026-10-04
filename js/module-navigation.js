@@ -1,10 +1,8 @@
 "use strict";
-/* FMS v1.10.9 - Common module title + complete navigation row + bottom form actions */
+/* FMS v1.10.10 - Common module title + streamlined navigation row + bottom form actions */
 (function(window,document){
   const TYPE_LINKS=[
     {key:"cpgrams",label:"CPGRAMS",icon:"▣",href:"../cpgrams/cpgrams.html?grievanceType=CPGRAMS"},
-    {key:"cpgrams-grievances",label:"Grievances",icon:"▤",href:"../cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=pending&fullscreen=1&register=grievances"},
-    {key:"cpgrams-appeals",label:"Appeals",icon:"↥",href:"../cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=appeals-pending&fullscreen=1&register=appeals"},
     {key:"prajavani",label:"Prajavani",icon:"◉",href:"../cpgrams/cpgrams.html?grievanceType=Prajavani"},
     {key:"public-grievances",label:"Public Grievances",icon:"▤",href:"../cpgrams/cpgrams.html?grievanceType=Public%20Grievances"},
     {key:"direct-complaints",label:"Direct Complaints",icon:"♙",href:"../cpgrams/cpgrams.html?grievanceType=Direct%20Complaints"},
@@ -34,11 +32,7 @@
     if(p.includes("/disha/")) return "disha";
     if(p.includes("/cpgrams/")){
       const type=clean(q.get("grievanceType")||document.getElementById("grievanceType")?.value||"CPGRAMS");
-      if(/^cpgrams$/i.test(type)){
-        if(q.get("register")==="appeals" || /appeal/i.test(q.get("filter")||"")) return "cpgrams-appeals";
-        if(q.get("register")==="grievances" && q.get("filter") && q.get("filter")!=="total") return "cpgrams-grievances";
-        return "cpgrams";
-      }
+      if(/^cpgrams$/i.test(type)) return "cpgrams";
       return slug(type);
     }
     return "";
@@ -50,7 +44,6 @@
     if(p.includes("/disha/")) return "DISHA";
     if(p.includes("/cpgrams/")){
       const type=clean(q.get("grievanceType")||document.getElementById("grievanceType")?.value||"CPGRAMS");
-      if(/^cpgrams$/i.test(type) && (q.get("register")==="appeals" || /appeal/i.test(q.get("filter")||""))) return "CPGRAMS APPEALS";
       return (type||"CPGRAMS").toUpperCase();
     }
     return "FILE MANAGEMENT SYSTEM";

@@ -454,7 +454,7 @@ table td {
 #registerTable th:first-child,#registerTable td:first-child{min-width:230px;white-space:nowrap;overflow:visible;text-overflow:clip;}
 
 /*==========================================================
-FMS v1.10.9 - OPERATIONAL DESK INSPIRED UI REFRESH
+FMS v1.10.10 - OPERATIONAL DESK INSPIRED UI REFRESH
 Sidebar, dashboard cards, registers and forms redesigned
 ==========================================================*/
 :root{
@@ -847,7 +847,7 @@ main.container-fluid.py-3{padding-left:18px!important;padding-right:18px!importa
 }
 
 /*==========================================================
-FMS v1.10.9 - GLOBAL LIGHT DASHBOARD CARDS
+FMS v1.10.10 - GLOBAL LIGHT DASHBOARD CARDS
 Keep RTI five-card layout while using the unified light theme
 ==========================================================*/
 #moduleDashboardCards.fms-rti-dashboard{
@@ -877,7 +877,7 @@ Keep RTI five-card layout while using the unified light theme
 
 
 /*==========================================================
-FMS v1.10.9 - HOME HEADER + LIGHT BLUE SIDEBAR
+FMS v1.10.10 - HOME HEADER + LIGHT BLUE SIDEBAR
 ==========================================================*/
 .home-sidebar{
     background:#dcebff!important;
@@ -921,7 +921,7 @@ FMS v1.10.9 - HOME HEADER + LIGHT BLUE SIDEBAR
 }
 
 /*==========================================================
-FMS v1.10.9 - COMMON HEADER ON ALL SCREENS
+FMS v1.10.10 - COMMON HEADER ON ALL SCREENS
 ==========================================================*/
 body > header:not(.fms-global-header),
 body > .page-header:not(.fms-global-header),
@@ -1007,7 +1007,7 @@ body > .hero:not(.fms-global-header){
 }
 
 /*==========================================================
-FMS v1.10.9 - SINGLE HEADER, MODULE TITLE, COMPLETE NAVIGATION
+FMS v1.10.10 - SINGLE HEADER, MODULE TITLE, COMPLETE NAVIGATION
 AND BOTTOM DATA-ENTRY ACTIONS
 ==========================================================*/
 .fms-legacy-header-hidden,
