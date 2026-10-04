@@ -450,11 +450,9 @@ table td {
     }
 }
 
-/* v1.9.4: keep grievance/registration numbers fully readable */
-#registerTable th:first-child,#registerTable td:first-child{min-width:230px;white-space:nowrap;overflow:visible;text-overflow:clip;}
 
 /*==========================================================
-FMS v1.10.10 - OPERATIONAL DESK INSPIRED UI REFRESH
+FMS v1.10.11 - OPERATIONAL DESK INSPIRED UI REFRESH
 Sidebar, dashboard cards, registers and forms redesigned
 ==========================================================*/
 :root{
@@ -847,7 +845,7 @@ main.container-fluid.py-3{padding-left:18px!important;padding-right:18px!importa
 }
 
 /*==========================================================
-FMS v1.10.10 - GLOBAL LIGHT DASHBOARD CARDS
+FMS v1.10.11 - GLOBAL LIGHT DASHBOARD CARDS
 Keep RTI five-card layout while using the unified light theme
 ==========================================================*/
 #moduleDashboardCards.fms-rti-dashboard{
@@ -877,7 +875,7 @@ Keep RTI five-card layout while using the unified light theme
 
 
 /*==========================================================
-FMS v1.10.10 - HOME HEADER + LIGHT BLUE SIDEBAR
+FMS v1.10.11 - HOME HEADER + LIGHT BLUE SIDEBAR
 ==========================================================*/
 .home-sidebar{
     background:#dcebff!important;
@@ -921,7 +919,7 @@ FMS v1.10.10 - HOME HEADER + LIGHT BLUE SIDEBAR
 }
 
 /*==========================================================
-FMS v1.10.10 - COMMON HEADER ON ALL SCREENS
+FMS v1.10.11 - COMMON HEADER ON ALL SCREENS
 ==========================================================*/
 body > header:not(.fms-global-header),
 body > .page-header:not(.fms-global-header),
@@ -1007,7 +1005,7 @@ body > .hero:not(.fms-global-header){
 }
 
 /*==========================================================
-FMS v1.10.10 - SINGLE HEADER, MODULE TITLE, COMPLETE NAVIGATION
+FMS v1.10.11 - SINGLE HEADER, MODULE TITLE, COMPLETE NAVIGATION
 AND BOTTOM DATA-ENTRY ACTIONS
 ==========================================================*/
 .fms-legacy-header-hidden,
@@ -1130,4 +1128,71 @@ body[data-fms-module="disha"] .fms-action-toolbar{
     .fms-module-title-strip{font-size:15pt!important;padding:9px 10px!important}
     .fms-module-nav .fms-nav-item{padding:7px 9px!important;font-size:.84rem!important}
     .fms-bottom-form-actions-buttons .btn{flex:1 1 100%!important;width:100%!important}
+}
+
+
+/*==========================================================
+FMS v1.10.11 - REGISTER COLUMN AUTO-FIT
+All on-screen registers use content-based column widths.
+==========================================================*/
+.table-responsive > table,
+#registerTable,
+#appealsRegisterTable,
+#grievanceInlineRegisterTable,
+#reportTable,
+#exportPreviewTable,
+#definitionsTable,
+#masterGrid,
+#officeMasterGrid {
+    width:100%!important;
+    table-layout:auto!important;
+}
+.table-responsive > table th,
+.table-responsive > table td,
+#registerTable th,#registerTable td,
+#appealsRegisterTable th,#appealsRegisterTable td,
+#grievanceInlineRegisterTable th,#grievanceInlineRegisterTable td,
+#reportTable th,#reportTable td,
+#definitionsTable th,#definitionsTable td,
+#masterGrid th,#masterGrid td,
+#officeMasterGrid th,#officeMasterGrid td {
+    min-width:0!important;
+    max-width:none!important;
+    width:auto!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+}
+/* Keep the serial-number column narrow wherever a register starts with Sl.No/S.No. */
+#registerTable th:first-child,#registerTable td:first-child,
+#appealsRegisterTable th:first-child,#appealsRegisterTable td:first-child,
+#grievanceInlineRegisterTable th:first-child,#grievanceInlineRegisterTable td:first-child,
+#definitionsTable th:first-child,#definitionsTable td:first-child,
+#masterGrid th:first-child,#masterGrid td:first-child,
+#officeMasterGrid th:first-child,#officeMasterGrid td:first-child,
+.register-container table th:first-child,.register-container table td:first-child,
+body[data-fms-module="disha"] .table-responsive table th:first-child,
+body[data-fms-module="disha"] .table-responsive table td:first-child {
+    width:1%!important;
+    min-width:44px!important;
+    max-width:72px!important;
+    white-space:nowrap!important;
+    text-align:center!important;
+}
+/* Action columns stay compact while other columns share remaining width naturally. */
+#registerTable th:last-child,#registerTable td:last-child,
+#appealsRegisterTable th:last-child,#appealsRegisterTable td:last-child,
+.register-container table th:last-child,.register-container table td:last-child,
+body[data-fms-module="disha"] .table-responsive table th:last-child,
+body[data-fms-module="disha"] .table-responsive table td:last-child {
+    width:1%!important;
+    white-space:nowrap!important;
+}
+/* Generic register first column: keep serial/index fields compact. */
+.table-responsive > table th:first-child,
+.table-responsive > table td:first-child{
+    width:1%!important;
+    min-width:44px!important;
+    max-width:80px!important;
+    white-space:nowrap!important;
 }

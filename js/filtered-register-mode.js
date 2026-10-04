@@ -64,11 +64,8 @@
     const banner=document.createElement("div");
     banner.className="alert alert-primary rounded-0 mb-2 d-flex justify-content-between align-items-center flex-wrap gap-2";
     banner.id="filteredRegisterBanner";
-    const category=params.get("category") || params.get("grievanceType"), fy=params.get("fy");
-    const details=[filter?String(filter).replace(/-/g," "):"Full Register", category?`Grievance Type: ${category}`:"", fy?`FY: ${fy}`:""].filter(Boolean).join(" • ");
-    const label=filter?"Filtered Register":"Full Register";
-    banner.classList.add("fms-register-fullscreen-banner");
-    banner.innerHTML=`<span><strong>${label}:</strong> ${details}</span><button type="button" class="btn btn-sm btn-outline-primary" id="btnClearDashboardFilter">Exit Full Screen</button>`;
+    banner.classList.add("fms-register-fullscreen-banner","justify-content-end");
+    banner.innerHTML=`<button type="button" class="btn btn-sm btn-outline-primary" id="btnClearDashboardFilter">Exit Full Screen</button>`;
     const anchor=dataBlock || document.body.firstElementChild;
     anchor?.parentNode?.insertBefore(banner,anchor);
     document.getElementById("btnClearDashboardFilter")?.addEventListener("click",()=>{

@@ -990,7 +990,7 @@ function buildGrievanceObject() {
     grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || grievance.registrationNumber || "")
         .trim().toUpperCase().replace(/\s+/g, "");
     grievance.updatedOn = new Date();
-    grievance.version = "1.10.10";
+    grievance.version = "1.10.11";
     return grievance;
 }
 /*==========================================================
