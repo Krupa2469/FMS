@@ -12,4 +12,4 @@ const disha=read('modules/disha/disha.html');
 ok(!disha.includes('position: fixed !important;'),'DISHA must not contain legacy fixed layout rules');
 ok(disha.includes('position: sticky !important;'),'DISHA navigation should use normal sticky navigation');
 ok(disha.indexOf('class="fms-global-header"') < disha.indexOf('id="moduleDashboardPanel"'),'DISHA common header must appear before dashboard content');
-console.log('v1.10.11 navigation / DISHA header checks passed');
+console.log('v1.10.12 navigation / DISHA header checks passed');

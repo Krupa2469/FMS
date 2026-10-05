@@ -14,7 +14,7 @@ a(index.includes('No. of Districts with no meetings'),'DISHA no-meeting alert mi
 a(index.includes("homeRecordFY(r,homeDateFields.disha,'disha')===fy"),'DISHA pending alert must use current FY');
 a(index.includes("if(wrap)wrap.hidden=n<=0"),'Sidebar zero counts must be hidden');
 a(index.includes('class="sidebar-count-wrap" hidden'),'Sidebar count wrappers must start hidden');
-a(app.includes('VERSION: "1.10.11"'),'App version must be 1.10.11');
+a(app.includes('VERSION: "1.10.12"'),'App version must be 1.10.12');
 a(app.includes('productionMessage'),'Production message filter must exist');
 a(!index.includes('Lekha Technologies'),'Home must not contain developer branding');
-console.log('v1.10.11 Home logo / pending alerts / production messages checks passed');
+console.log('v1.10.12 Home logo / pending alerts / production messages checks passed');
