@@ -452,7 +452,7 @@ table td {
 
 
 /*==========================================================
-FMS v1.10.12 - OPERATIONAL DESK INSPIRED UI REFRESH
+FMS v1.10.13 - OPERATIONAL DESK INSPIRED UI REFRESH
 Sidebar, dashboard cards, registers and forms redesigned
 ==========================================================*/
 :root{
@@ -845,7 +845,7 @@ main.container-fluid.py-3{padding-left:18px!important;padding-right:18px!importa
 }
 
 /*==========================================================
-FMS v1.10.12 - GLOBAL LIGHT DASHBOARD CARDS
+FMS v1.10.13 - GLOBAL LIGHT DASHBOARD CARDS
 Keep RTI five-card layout while using the unified light theme
 ==========================================================*/
 #moduleDashboardCards.fms-rti-dashboard{
@@ -875,7 +875,7 @@ Keep RTI five-card layout while using the unified light theme
 
 
 /*==========================================================
-FMS v1.10.12 - HOME HEADER + LIGHT BLUE SIDEBAR
+FMS v1.10.13 - HOME HEADER + LIGHT BLUE SIDEBAR
 ==========================================================*/
 .home-sidebar{
     background:#dcebff!important;
@@ -919,7 +919,7 @@ FMS v1.10.12 - HOME HEADER + LIGHT BLUE SIDEBAR
 }
 
 /*==========================================================
-FMS v1.10.12 - COMMON HEADER ON ALL SCREENS
+FMS v1.10.13 - COMMON HEADER ON ALL SCREENS
 ==========================================================*/
 body > header:not(.fms-global-header),
 body > .page-header:not(.fms-global-header),
@@ -1005,7 +1005,7 @@ body > .hero:not(.fms-global-header){
 }
 
 /*==========================================================
-FMS v1.10.12 - SINGLE HEADER, MODULE TITLE, COMPLETE NAVIGATION
+FMS v1.10.13 - SINGLE HEADER, MODULE TITLE, COMPLETE NAVIGATION
 AND BOTTOM DATA-ENTRY ACTIONS
 ==========================================================*/
 .fms-legacy-header-hidden,
@@ -1132,7 +1132,7 @@ body[data-fms-module="disha"] .fms-action-toolbar{
 
 
 /*==========================================================
-FMS v1.10.12 - REGISTER / REPORT COLUMN AUTO-FIT
+FMS v1.10.13 - REGISTER / REPORT COLUMN AUTO-FIT
 Keep complete column headings readable and align headers with data.
 ==========================================================*/
 .table-responsive{
@@ -1197,7 +1197,6 @@ Keep complete column headings readable and align headers with data.
 /* Keep the serial-number column compact. */
 #registerTable th:first-child,#registerTable td:first-child,
 #appealsRegisterTable th:first-child,#appealsRegisterTable td:first-child,
-#grievanceInlineRegisterTable th:first-child,#grievanceInlineRegisterTable td:first-child,
 #definitionsTable th:first-child,#definitionsTable td:first-child,
 #masterGrid th:first-child,#masterGrid td:first-child,
 #officeMasterGrid th:first-child,#officeMasterGrid td:first-child,
@@ -1227,3 +1226,65 @@ body[data-fms-module="disha"] .table-responsive table td:last-child{
 #appealsRegisterTable td[data-field*="date" i],
 #grievanceInlineRegisterTable td[data-field*="date" i],
 #reportTable td[data-field*="date" i]{white-space:nowrap!important}
+
+
+/*==========================================================
+FMS v1.10.13 - GRIEVANCE NUMBER / DATE COLUMN SEPARATION
+Prevent identifier and date values from overlapping in inline grievance registers.
+==========================================================*/
+#grievanceInlineRegisterTable{
+    width:max-content!important;
+    min-width:100%!important;
+    table-layout:auto!important;
+}
+#grievanceInlineRegisterTable th,
+#grievanceInlineRegisterTable td{
+    box-sizing:border-box!important;
+    overflow:visible!important;
+}
+/* Only LAQ/LCQ inline registers have a real serial-number first column. */
+#grievanceInlineRegisterTable .fms-serial-col{
+    width:64px!important;
+    min-width:64px!important;
+    max-width:76px!important;
+    white-space:nowrap!important;
+    text-align:center!important;
+}
+/* Grievance / registration number must have its own readable column. */
+#grievanceInlineRegisterTable th[data-field="registrationNo"],
+#grievanceInlineRegisterTable td[data-field="registrationNo"]{
+    min-width:205px!important;
+    max-width:260px!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    word-break:break-word!important;
+}
+/* Dates stay on one line and never intrude into the number column. */
+#grievanceInlineRegisterTable th[data-field="dateReceived"],
+#grievanceInlineRegisterTable td[data-field="dateReceived"],
+#grievanceInlineRegisterTable th[data-field="questionReceivedDate"],
+#grievanceInlineRegisterTable td[data-field="questionReceivedDate"]{
+    min-width:132px!important;
+    max-width:150px!important;
+    white-space:nowrap!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+}
+#grievanceInlineRegisterTable th[data-field="complainantName"],
+#grievanceInlineRegisterTable td[data-field="complainantName"]{min-width:170px!important;max-width:240px!important;}
+#grievanceInlineRegisterTable th[data-field="subject"],
+#grievanceInlineRegisterTable td[data-field="subject"]{min-width:330px!important;max-width:460px!important;}
+#grievanceInlineRegisterTable th[data-field="district"],
+#grievanceInlineRegisterTable td[data-field="district"]{min-width:120px!important;}
+#grievanceInlineRegisterTable th[data-field="mandal"],
+#grievanceInlineRegisterTable td[data-field="mandal"]{min-width:135px!important;}
+#grievanceInlineRegisterTable th[data-field="village"],
+#grievanceInlineRegisterTable td[data-field="village"]{min-width:210px!important;max-width:300px!important;}
+#grievanceInlineRegisterTable th[data-field="atrStatusView"],
+#grievanceInlineRegisterTable td[data-field="atrStatusView"],
+#grievanceInlineRegisterTable th[data-field="finalStatusView"],
+#grievanceInlineRegisterTable td[data-field="finalStatusView"]{min-width:125px!important;}
+#grievanceInlineRegisterTable .fms-action-col{
+    min-width:150px!important;
+    white-space:nowrap!important;
+}

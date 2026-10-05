@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   FMS GRIEVANCES WORKSPACE - v1.10.12
+   FMS GRIEVANCES WORKSPACE - v1.10.13
    Grievance Type -> FY -> Workflow Dashboard -> Register -> Data Entry
 ============================================================ */
 (function(window,document){
@@ -152,9 +152,11 @@
     const head=$("grievanceInlineRegisterHead"), body=$("grievanceInlineRegisterBody"), title=$("grievanceInlineRegisterTitle"), count=$("grievanceInlineRecordCount");if(!head||!body)return;
     const cols=columns();title.textContent=`${currentType()} Register`;count.textContent=`Total Records : ${rows.length}`;
     const includeSerial=currentTypeKey()==="laq"||currentTypeKey()==="lcq", includeAction=true;
-    head.innerHTML=`<tr>${includeSerial?"<th>S.No.</th>":""}${cols.map(c=>`<th class="text-nowrap">${esc(c[1])}</th>`).join("")}${includeAction?"<th>Action</th>":""}</tr>`;
+    const table=$("grievanceInlineRegisterTable");
+    if(table) table.classList.toggle("fms-has-serial-column",includeSerial);
+    head.innerHTML=`<tr>${includeSerial?"<th class=\"fms-serial-col\" data-field=\"serial\">S.No.</th>":""}${cols.map(c=>`<th data-field="${esc(c[0])}">${esc(c[1])}</th>`).join("")}${includeAction?"<th class=\"fms-action-col\" data-field=\"action\">Action</th>":""}</tr>`;
     if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+(includeSerial?1:0)+(includeAction?1:0)}" class="text-center text-muted py-4">No ${esc(currentType())} records available for Financial Year ${esc(currentFY())}.</td></tr>`;return;}
-    body.innerHTML=rows.map((r,i)=>`<tr class="${r.id===lastChangedId?'table-success':''}">${includeSerial?`<td>${currentTypeKey()==="prajavani"?prajavaniSerial(r):i+1}</td>`:""}${cols.map(c=>`<td>${esc(displayValue(r,c[0]))}</td>`).join("")}${includeAction?`<td class="text-nowrap"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td>`:""}</tr>`).join("");
+    body.innerHTML=rows.map((r,i)=>`<tr class="${r.id===lastChangedId?'table-success':''}">${includeSerial?`<td class="fms-serial-col" data-field="serial">${i+1}</td>`:""}${cols.map(c=>`<td data-field="${esc(c[0])}">${esc(displayValue(r,c[0]))}</td>`).join("")}${includeAction?`<td class="text-nowrap fms-action-col" data-field="action"><button type="button" class="btn btn-sm btn-info me-1" data-view="${esc(r.id)}">View</button><button type="button" class="btn btn-sm btn-warning me-1" data-edit="${esc(r.id)}">Edit</button><button type="button" class="btn btn-sm btn-danger" data-delete="${esc(r.id)}">Delete</button></td>`:""}</tr>`).join("");
     body.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.view,"view")));
     body.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openRecord(b.dataset.edit,"edit")));
     body.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>deleteRecord(b.dataset.delete)));
@@ -263,7 +265,7 @@
         window.addEventListener("beforeunload",()=>channel.close(),{once:true});
       }
     }catch(_e){}
-    console.log("FMS Grievances Workspace v1.10.12 loaded");
+    console.log("FMS Grievances Workspace v1.10.13 loaded");
     if(getDb())refresh();else{window.addEventListener("fmsFirebaseReady",refresh,{once:true});setTimeout(()=>{if(getDb())refresh();},1500);}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
