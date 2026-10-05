@@ -108,17 +108,17 @@ function renderCPGRAMSSearch(){
     const tbody=document.querySelector("#resultsGrid tbody");
     if(!tbody) return;
     if(!cpgramsSearchFiltered.length){
-        tbody.innerHTML='<tr><td colspan="7" style="text-align:center">No matching records found.</td></tr>';
+        tbody.innerHTML='<tr><td colspan="8" style="text-align:center">No matching records found.</td></tr>';
         return;
     }
-    tbody.innerHTML=cpgramsSearchFiltered.map(row=>{
+    tbody.innerHTML=cpgramsSearchFiltered.map((row,index)=>{
         const id=encodeURIComponent(row.id||"");
         const grievance=row.grievanceNumber||row.grievanceNo||row.registrationNumber||"";
         const fileNo=row.fileNumber||row.fileNo||"";
         const name=row.complainantName||row.applicantName||"";
         const status=row.currentStatus||row.statusOfFile||row.finalStatus||row.status||"";
         return `<tr>
-            <td>${esc(grievance)}</td><td>${esc(fileNo)}</td><td>${esc(name)}</td>
+            <td>${index+1}</td><td>${esc(grievance)}</td><td>${esc(fileNo)}</td><td>${esc(name)}</td>
             <td>${esc(row.district)}</td><td>${esc(status)}</td><td>${esc(row.dueDate)}</td>
             <td><button type="button" onclick="location.href='cpgrams.html?id=${id}&mode=view'">View</button></td>
         </tr>`;

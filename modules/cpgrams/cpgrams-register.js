@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   CPGRAMS / GRIEVANCES REGISTER CONTROLLER - v1.10.13
+   CPGRAMS / GRIEVANCES REGISTER CONTROLLER - v1.10.14
    - CPGRAMS has separate Grievances and Appeals registers.
    - Grievance / Appeal numbers open their uploaded documents.
    - Registers default to latest Date Received first.
@@ -140,10 +140,10 @@
     const grievanceCard=$("grievanceRegisterCard"),pagination=$("grievancePaginationRow");
     if(view==="appeals"){grievanceCard?.classList.add("d-none");pagination?.classList.add("d-none");updateTitle();renderAppealsRegister();return;}
     grievanceCard?.classList.remove("d-none");pagination?.classList.remove("d-none");
-    const includeSerial=k==="cpgrams"||k==="laq"||k==="lcq";
+    const includeSerial=true;
     updateTitle();
     if($("recordCount"))$("recordCount").textContent=`Total Records : ${filteredRecords.length}`;
-    if(head)head.innerHTML=(includeSerial?'<th>Sl.No.</th>':'')+cols.map(c=>`<th>${esc(c[1])}</th>`).join("")+'<th>Action</th>';
+    if(head)head.innerHTML='<th class="fms-serial-col" data-field="serial">S.No.</th>'+cols.map(c=>`<th>${esc(c[1])}</th>`).join("")+'<th>Action</th>';
     if(!body)return;
     if(!filteredRecords.length){body.innerHTML=`<tr><td colspan="${cols.length+(includeSerial?1:0)+1}" class="text-center text-muted py-5">No ${esc(selectedType())} records available${selectedFY()&&selectedFY()!=="all"?` for Financial Year ${esc(selectedFY())}`:""}.</td></tr>`;updatePageInfo();renderAppealsRegister();return;}
     const start=(currentPage-1)*PAGE_SIZE,rows=filteredRecords.slice(start,start+PAGE_SIZE);
@@ -154,7 +154,7 @@
         if((k==="laq"||k==="lcq")&&c[0]==="questionNo")return `<td>${linkCell(r,"grievance",value)}</td>`;
         return `<td>${esc(value)}</td>`;
       }).join("");
-      const serial=includeSerial?`<td>${k==="prajavani"?prajavaniSerial(r):start+i+1}</td>`:"";
+      const serial=`<td class="fms-serial-col" data-field="serial">${start+i+1}</td>`;
       return `<tr>${serial}${cells}<td>${actionButtons(r,"grievance")}</td></tr>`;
     }).join("");
     bindRenderedActions(body);updatePageInfo();renderAppealsRegister();
@@ -187,12 +187,12 @@
     const fallback=[["appealNumber","Appeal No."],["appealReceivedDate","Date Received"],["appellantName","Appellant Name"],["registrationNo","Corresponding Grievance No."],["appealStatusView","Appeal Status"]];
     const cols=window.FMSRegisterMasterConfig?.columnsFor?.("cpgrams-appeals",fallback)||fallback;
     const head=$("appealsRegisterHead")||card.querySelector("thead tr");
-    if(head)head.innerHTML='<th>Sl.No.</th>'+cols.map(c=>`<th>${esc(c[1])}</th>`).join('')+'<th>Action</th>';
+    if(head)head.innerHTML='<th class="fms-serial-col" data-field="serial">S.No.</th>'+cols.map(c=>`<th>${esc(c[1])}</th>`).join('')+'<th>Action</th>';
     const rows=appealRows();if(count)count.textContent=`Total Records : ${rows.length}`;
     if(!rows.length){body.innerHTML=`<tr><td colspan="${cols.length+2}" class="text-center text-muted py-4">No appeals available.</td></tr>`;return;}
     body.innerHTML=rows.map((r,i)=>{
       const cells=cols.map(c=>{const value=appealValue(r,c[0]);if(c[0]==="appealNumber")return `<td>${linkCell(r,"appeal",value)}</td>`;if(c[0]==="registrationNo")return `<td>${linkCell(r,"grievance",value)}</td>`;return `<td>${esc(value)}</td>`;}).join('');
-      return `<tr><td>${i+1}</td>${cells}<td>${actionButtons(r,"appeal")}</td></tr>`;
+      return `<tr><td class="fms-serial-col" data-field="serial">${i+1}</td>${cells}<td>${actionButtons(r,"appeal")}</td></tr>`;
     }).join("");
     bindRenderedActions(body);
   }
@@ -215,7 +215,7 @@
 
   function bind(){["searchGrievanceType","financialYear","searchDistrict","searchStatus","searchCategory","searchPriority","fromDate","toDate"].forEach(id=>{const e=$(id);if(!e)return;e.addEventListener("change",applyFilters);e.addEventListener("keyup",applyFilters);});$("btnSearch")?.addEventListener("click",applyFilters);$("btnRefresh")?.addEventListener("click",loadRegister);$("btnRefreshData")?.addEventListener("click",loadRegister);$("btnNew")?.addEventListener("click",()=>{sessionStorage.removeItem("selectedGrievance");location.href=`cpgrams.html?mode=new&fullscreenForm=1&grievanceType=${encodeURIComponent(selectedType())}`;});$("btnHome")?.addEventListener("click",()=>location.href="../../index.html");$("btnDashboard")?.addEventListener("click",()=>location.href=`cpgrams.html?grievanceType=${encodeURIComponent(selectedType())}`);$("btnFirst")?.addEventListener("click",()=>{currentPage=1;renderTable();});$("btnPrevious")?.addEventListener("click",()=>{currentPage=Math.max(1,currentPage-1);renderTable();});$("btnNext")?.addEventListener("click",()=>{currentPage=Math.min(Math.ceil(filteredRecords.length/PAGE_SIZE)||1,currentPage+1);renderTable();});$("btnLast")?.addEventListener("click",()=>{currentPage=Math.ceil(filteredRecords.length/PAGE_SIZE)||1;renderTable();});$("btnWhatsApp")?.addEventListener("click",async()=>{await window.FMSWhatsAppService?.compose?.({module:"GRIEVANCES",title:`${selectedType()} Register Message`,defaultMessage:`${selectedType()} Register Update\nFY: ${selectedFY()}\nRecords: ${filteredRecords.length}\n\n${($("registerBody")?.innerText||"").slice(0,2800)}`,message:m=>showMessage("info",m)});});}
   function bindExternalRefresh(){const reload=()=>loadRegister();window.addEventListener("fmsRecordChanged",event=>{if(!event?.detail?.module||event.detail.module==="cpgrams")reload();});window.addEventListener("storage",event=>{if(event.key==="fms_cpgrams_record_changed"&&event.newValue)reload();});try{if("BroadcastChannel" in window){const channel=new BroadcastChannel("fms-cpgrams-records");channel.addEventListener("message",reload);window.addEventListener("beforeunload",()=>channel.close(),{once:true});}}catch(_e){}}
-  function init(){console.log("CPGRAMS Registers v1.10.13 loaded");populateTypeDropdown();populateFY();bind();bindExternalRefresh();renderTable();loadRegister();}
+  function init(){console.log("CPGRAMS Registers v1.10.14 loaded");populateTypeDropdown();populateFY();bind();bindExternalRefresh();renderTable();loadRegister();}
 
   window.openCPGRAMSSummaryFilter=f=>{const p=new URLSearchParams();p.set("filter",f||"total");p.set("fullscreen","1");p.set("fy",selectedFY());p.set("grievanceType",selectedType());if(String(f||"").startsWith("appeals-"))p.set("register","appeals");location.href="cpgrams-register.html?"+p;};
   window.viewRecord=id=>openRecord(id,"view");window.editRecord=id=>openRecord(id,"edit");window.deleteRecordFromGrid=deleteRecord;window.searchRecords=applyFilters;window.applyFinancialYearFilter=applyFilters;window.applyURLFilter=applyFilters;window.refreshRegister=loadRegister;window.goHome=()=>location.href="../../index.html";window.openDashboard=()=>location.href=`cpgrams.html?grievanceType=${encodeURIComponent(selectedType())}`;

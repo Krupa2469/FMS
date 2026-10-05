@@ -4,7 +4,7 @@ const css=fs.readFileSync('css/style.css','utf8');
 const cp=fs.readFileSync('modules/cpgrams/cpgrams-register.html','utf8');
 const reports=fs.readFileSync('pages/reports.html','utf8');
 const exp=fs.readFileSync('js/services/export-service.js','utf8');
-assert(css.includes('FMS v1.10.13 - REGISTER / REPORT COLUMN AUTO-FIT'));
+assert(css.includes('FMS v1.10.14 - REGISTER / REPORT COLUMN AUTO-FIT'));
 assert(css.includes('overflow-wrap:normal!important'));
 assert(css.includes('min-width:max-content!important'));
 assert(css.includes('overflow-x:auto!important'));
@@ -12,4 +12,4 @@ assert(cp.includes('auto-fit columns while preserving complete column headings')
 assert(!cp.includes('overflow-wrap:anywhere;word-break:normal'));
 assert(reports.includes('table-layout:auto'));
 assert(exp.includes('table-layout:auto'));
-console.log('v1.10.13 register/report auto-fit checks passed');
+console.log('v1.10.14 register/report auto-fit checks passed');

@@ -751,7 +751,7 @@ function renderRegister(records) {
         ["appealStatusView", "Appeal Status"]
     ];
     const columns = window.FMSRegisterMasterConfig?.columnsFor?.("rti-applications",fallbackColumns) || fallbackColumns;
-    if (headerRow) headerRow.innerHTML = `<th>Sl.No</th>${columns.map(c=>`<th>${escapeHTML(c[1])}</th>`).join("")}<th>Action</th>`;
+    if (headerRow) headerRow.innerHTML = `<th class="fms-serial-col" data-field="serial">S.No.</th>${columns.map(c=>`<th>${escapeHTML(c[1])}</th>`).join("")}<th>Action</th>`;
     if (!tbody) return;
     if (recordCount) recordCount.textContent = `Records : ${records.length}`;
     tbody.innerHTML = "";
@@ -781,7 +781,7 @@ function renderRegister(records) {
             }
             return `<td>${value(c[0])}</td>`;
         }).join("");
-        tr.innerHTML = `<td>${index+1}</td>${cells}<td><button type="button" class="btn-open" onclick="viewRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-eye"></i> View</button><button type="button" class="btn-open" style="background:#ffc107;color:#111;margin-left:4px;" onclick="editRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button><button type="button" class="btn-open" style="background:#dc3545;color:white;margin-left:4px;" onclick="deleteRTIRecordFromRegister('${escapeHTML(record.id)}')"><i class="fa-solid fa-trash"></i> Delete</button></td>`;
+        tr.innerHTML = `<td class="fms-serial-col" data-field="serial">${index+1}</td>${cells}<td><button type="button" class="btn-open" onclick="viewRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-eye"></i> View</button><button type="button" class="btn-open" style="background:#ffc107;color:#111;margin-left:4px;" onclick="editRTIRecord('${escapeHTML(record.id)}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button><button type="button" class="btn-open" style="background:#dc3545;color:white;margin-left:4px;" onclick="deleteRTIRecordFromRegister('${escapeHTML(record.id)}')"><i class="fa-solid fa-trash"></i> Delete</button></td>`;
         tbody.appendChild(tr);
     });
     tbody.querySelectorAll("[data-rti-application-doc]").forEach(btn=>btn.addEventListener("click",()=>openRTIApplicationDocument(btn.dataset.rtiApplicationDoc)));

@@ -1173,7 +1173,7 @@ function renderRegisterTable(records) {
     ];
     const target=filePendingView?"disha-pending-files":"disha-meetings";
     const columns = window.FMSRegisterMasterConfig?.columnsFor?.(target,fallbackColumns) || fallbackColumns;
-    if (headerRow) headerRow.innerHTML = `<th>Sl.No</th>${columns.map(c=>`<th>${safe(c[1])}</th>`).join("")}<th>Action</th>`;
+    if (headerRow) headerRow.innerHTML = `<th class="fms-serial-col" data-field="serial">S.No.</th>${columns.map(c=>`<th>${safe(c[1])}</th>`).join("")}<th>Action</th>`;
     tbody.innerHTML = "";
     if (!records || records.length === 0) {
         const emptyMessage=filePendingView?"No pending DISHA files found.":"No DISHA meetings found.";
@@ -1201,7 +1201,7 @@ function renderRegisterTable(records) {
         };
         const row=document.createElement("tr");
         const actions = meeting.syntheticNoMeeting ? '<span class="text-muted">No meeting record</span>' : `<button type="button" class="btn btn-info btn-sm me-1" onclick="viewDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-eye"></i> View</button><button type="button" class="btn btn-warning btn-sm me-1" onclick="editDISHARecord('${safeJS(meeting.id)}')"><i class="bi bi-pencil-square"></i> Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteDISHARecordFromRegister('${safeJS(meeting.id)}')"><i class="bi bi-trash"></i> Delete</button>`;
-        row.innerHTML=`<td>${index+1}</td>${columns.map(c=>`<td>${val(c[0])}</td>`).join("")}<td>${actions}</td>`;
+        row.innerHTML=`<td class="fms-serial-col" data-field="serial">${index+1}</td>${columns.map(c=>`<td>${val(c[0])}</td>`).join("")}<td>${actions}</td>`;
         tbody.appendChild(row);
     });
     updateRecordCount(sortedRecords.length);
