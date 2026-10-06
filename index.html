@@ -7,11 +7,25 @@
 <title>FMS Home Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
-<link href="css/style.css?v=1.10.14" rel="stylesheet"/>
+<link href="css/style.css?v=1.10.15" rel="stylesheet"/>
 <style>
 body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:16px 110px;text-align:center;position:relative;min-height:128px;display:flex;flex-direction:column;justify-content:center}.home-header .gov-title{font-size:22pt;font-weight:700;line-height:1.12}.home-header .office-title{font-size:20pt;font-weight:600;line-height:1.12;margin-top:2px}.home-header h2{font-weight:700;margin:4px 0 0;font-size:18pt;line-height:1.12}.metric-card{border:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);min-height:0}.metric-value{font-size:30px;font-weight:700}.dashboard-home-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}.dashboard-home-card:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.14)!important}.fy-bar{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.home-shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}.home-sidebar{position:sticky;top:12px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.10);overflow:hidden}.home-sidebar-links{padding:10px}.home-sidebar a{display:flex;align-items:center;gap:9px;padding:10px 11px;margin:3px 0;border-radius:7px;text-decoration:none;color:#212529;font-weight:700;font-size:1rem;line-height:1.2;border:1px solid transparent}.home-sidebar a:hover{background:#eef4ff;border-color:#cfe2ff;color:#0d6efd}.home-sidebar .sidebar-cpgrams-group{margin-bottom:4px}.home-sidebar .sidebar-cpgrams-parent{margin-bottom:0}.home-sidebar .sidebar-subitem{margin-left:26px;padding:7px 10px;font-size:.95rem;background:#f8f9fa;border-left:3px solid #0d6efd;border-radius:6px}.home-sidebar .sidebar-subitem .sidebar-count{margin-left:auto;font-weight:800}.home-sidebar a.sidebar-rti{color:#8a6200}.home-sidebar a.sidebar-disha{color:#087990}.home-sidebar .sidebar-system{border-top:1px solid #dee2e6;margin-top:8px;padding-top:8px}.home-main{min-width:0}@media(max-width:991.98px){.home-shell{grid-template-columns:1fr}.home-sidebar{position:static}.home-sidebar-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.home-sidebar a{margin:0}}@media(max-width:575.98px){.home-sidebar-links{grid-template-columns:1fr}.home-header{padding:14px 70px}.home-state-logo{left:12px;width:58px;height:58px}}
 .home-state-logo{position:absolute;left:28px;top:50%;transform:translateY(-50%);width:86px;height:86px;object-fit:contain;border-radius:50%;background:#fff;padding:5px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .sidebar-count-wrap[hidden]{display:none!important}.pending-roll[hidden]{display:none!important}.pending-roll{position:fixed;right:24px;top:145px;width:min(390px,calc(100vw - 36px));z-index:1080;background:linear-gradient(180deg,#fffdf4 0%,#fff8dc 55%,#f7edc8 100%);border:1px solid #d7c58a;border-radius:10px;box-shadow:0 14px 34px rgba(0,0,0,.24);padding:22px 18px 18px;color:#3b331f;max-height:calc(100vh - 175px);overflow-y:auto}.pending-roll:before,.pending-roll:after{content:"";position:absolute;left:12px;right:12px;height:14px;border:1px solid #cbb777;background:linear-gradient(180deg,#f7edc8,#e7d7a4);border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.14)}.pending-roll:before{top:-8px}.pending-roll:after{bottom:-8px}.pending-roll-header{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px dashed #c9b875;padding-bottom:9px;margin-bottom:8px}.pending-roll-title{font-size:1.05rem;font-weight:800;letter-spacing:.2px}.pending-roll-close{border:0;background:transparent;font-size:1.2rem;line-height:1;color:#6b5d2f;padding:2px 4px}.pending-roll-item{display:flex;gap:8px;align-items:flex-start;padding:8px 2px;border-bottom:1px dotted rgba(110,92,40,.28);font-weight:650;line-height:1.35}.pending-roll-item:last-child{border-bottom:0}.pending-roll-item a{color:#3b331f;text-decoration:none;flex:1}.pending-roll-item a:hover{text-decoration:underline}.pending-roll-item i{margin-top:2px;color:#9a6a00}.pending-roll-subtle{font-size:.78rem;color:#76683e;margin-top:8px}.home-sidebar a[title]{cursor:pointer}@media(max-width:767.98px){.pending-roll{right:12px;top:118px;width:calc(100vw - 24px)}}
+
+/* FMS v1.10.15: per-person pending grievance/appeal durations */
+.pending-roll{width:min(470px,calc(100vw - 36px));}
+.pending-roll-group{padding:3px 0 10px;border-bottom:1px dashed #d9c894;margin-bottom:5px;}
+.pending-roll-group-heading{display:flex;align-items:center;gap:8px;font-size:.94rem;font-weight:800;color:#56441c;padding:9px 0 4px;}
+.pending-roll-group-count{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:23px;border-radius:999px;background:#e7d59a;color:#55401a;font-size:.75rem;padding:2px 7px;}
+.pending-roll-person-item{align-items:center;}
+.pending-roll-person-item .pending-roll-person-link{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;flex:1;color:#302a19;text-decoration:none;}
+.pending-roll-person-item .pending-roll-person-link:hover{text-decoration:none;}
+.pending-roll-person-item .pending-roll-person-link:hover strong{text-decoration:underline;}
+.pending-roll-person-info{display:flex;flex-direction:column;gap:2px;min-width:0;overflow-wrap:anywhere;}
+.pending-roll-ref{color:#70694b;font-size:.73rem;line-height:1.25;font-weight:500;}
+.pending-roll-age{flex:0 0 auto;max-width:138px;text-align:center;line-height:1.3;font-size:.78rem;font-weight:800;color:#875700;background:#ffebba;border:1px solid #e4c981;padding:5px 8px;border-radius:999px;}
+@media(max-width:480px){.pending-roll-person-item .pending-roll-person-link{gap:6px}.pending-roll-age{max-width:104px}.pending-roll{width:calc(100vw - 24px)}}
 </style>
 </head>
 <body>
@@ -75,12 +89,12 @@ body{background:#f4f6f9}.home-header{background:#0d6efd;color:#fff;padding:16px 
 </div>
 <footer class="bg-light text-center p-3"><small>© <span id="currentYear"></span> File Management System (FMS) | Version <span id="appVersion"></span></small></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/app.js?v=1.10.14"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js?v=1.10.14"></script>
+<script src="js/app.js?v=1.10.15"></script><script src="js/navigation.js"></script><script src="js/fms-financial-year.js?v=1.10.15"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase/firebase-bootstrap.js"></script>
-<script src="js/progress-report-import-30092026.js?v=1.10.14"></script>
-<script src="js/record-consistency.js?v=1.10.14"></script>
+<script src="js/progress-report-import-30092026.js?v=1.10.15"></script>
+<script src="js/record-consistency.js?v=1.10.15"></script>
 <script>
 /* ==========================================================
    FMS HOME DASHBOARD - ROBUST FY + FIRESTORE LOADING
@@ -210,14 +224,48 @@ function homeDishaMeetingHeld(row){
 const HOME_DISHA_DISTRICTS=["Adilabad","Bhadradri Kothagudem","Hanumakonda","Hyderabad","Jagtial","Jangaon","Jayashankar Bhupalpally","Jogulamba Gadwal","Kamareddy","Karimnagar","Khammam","Kumuram Bheem","Mahabubabad","Mahabubnagar","Mancherial","Medak","Medchal-Malkajgiri","Mulugu","Nagarkurnool","Nalgonda","Narayanpet","Nirmal","Nizamabad","Peddapalli","Rajanna Sircilla","Rangareddy","Sangareddy","Siddipet","Suryapet","Vikarabad","Wanaparthy","Warangal","Yadadri Bhuvanagiri"];
 function homeDistrictKey(v){let s=String(v||'').trim().toLowerCase().replace(/[–—]/g,'-').replace(/\s+/g,' ');if(s==='kb asifabad'||s==='komaram bheem asifabad'||s==='kumuram bheem asifabad')s='kumuram bheem';return s;}
 function pendingRollRow(text,href){return `<div class="pending-roll-item"><i class="bi bi-hourglass-split"></i>${href?`<a href="${href}">${text}</a>`:`<span>${text}</span>`}</div>`;}
+function pendingRollEscape(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function pendingRollPersonName(row,kind){
+  const keys=kind==='appeal'
+    ? ['appellantName','appealApplicantName','appealPetitionerName','complainantName','petitionerName']
+    : ['complainantName','complaintName','petitionerName','applicantName','nameOfComplainant'];
+  for(const key of keys){const name=String(row?.[key]??'').trim();if(name)return name;}
+  return kind==='appeal'?'Appellant name not recorded':'Complainant name not recorded';
+}
+function pendingRollPersonGroup(title,rows,href,kind,fields){
+  if(!rows.length)return '';
+  const sorted=rows.map(row=>({row,days:homeAgeDays([row],fields)}))
+    .sort((a,b)=>(b.days??-1)-(a.days??-1));
+  const heading=`<div class="pending-roll-group-heading">${pendingRollEscape(title)} <span class="pending-roll-group-count">${sorted.length}</span></div>`;
+  const entries=sorted.map(({row,days})=>{
+    const name=pendingRollEscape(pendingRollPersonName(row,kind));
+    const number=kind==='appeal'
+      ? (row?.appealNumber||row?.appealNo||'')
+      : (row?.grievanceNumber||row?.registrationNumber||row?.grievanceNo||'');
+    const reference=String(number||'').trim();
+    const sub=reference?`<small class="pending-roll-ref">${pendingRollEscape(reference)}</small>`:'';
+    const age=days===null?'Date not recorded':`${days} ${days===1?'day':'days'} pending`;
+    return `<div class="pending-roll-item pending-roll-person-item"><i class="bi bi-hourglass-split"></i><a class="pending-roll-person-link" href="${href}" title="Open pending ${kind==='appeal'?'appeals':'grievances'} register"><span class="pending-roll-person-info"><strong>${name}</strong>${sub}</span><span class="pending-roll-age">${age}</span></a></div>`;
+  });
+  return `<section class="pending-roll-group">${heading}${entries.join('')}</section>`;
+}
 function renderPendingRoll(cpRows,rtiRows,dishaRows){
   const roll=document.getElementById('pendingRoll'),list=document.getElementById('pendingRollList');if(!roll||!list)return;
   const cp=(cpRows||[]).filter(r=>r&&r.active!==false&&r.deleted!==true);const lines=[];
   const cpGrievances=cp.filter(r=>rowTypeHome(r)==='cpgrams'&&!homeCpgramsClosed(r));
-  if(cpGrievances.length){const days=homeAgeDays(cpGrievances,homeDateFields.cpgrams);lines.push(pendingRollRow(`CPGRAMS Grievances pending for ${days===null?'—':days} days`,`modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=pending&fullscreen=1&register=grievances`));}
+  lines.push(pendingRollPersonGroup('CPGRAMS Grievances',cpGrievances,
+    'modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=pending&fullscreen=1&register=grievances',
+    'grievance',homeDateFields.cpgrams));
   const cpAppeals=cp.filter(r=>rowTypeHome(r)==='cpgrams'&&homeHasAppeal(r)&&!homeAppealClosed(r));
-  if(cpAppeals.length){const days=homeAgeDays(cpAppeals,['appealReceivedDate','appealDate','dateReceived','orgReceivedDate']);lines.push(pendingRollRow(`CPGRAMS Appeals pending for ${days===null?'—':days} days`,`modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=appeals-pending&fullscreen=1&register=appeals`));}
-  HOME_CATEGORIES.filter(c=>homeCategoryKey(c)!=='cpgrams').forEach(cat=>{const rows=cp.filter(r=>categoryMatchesHome(r,cat)&&!homeCpgramsClosed(r));if(!rows.length)return;const days=homeAgeDays(rows,homeDateFields.cpgrams);lines.push(pendingRollRow(`${cat} pending for ${days===null?'—':days} days`,`modules/cpgrams/cpgrams-register.html?grievanceType=${encodeURIComponent(cat)}&fy=all&filter=pending&fullscreen=1&register=grievances`));});
+  lines.push(pendingRollPersonGroup('CPGRAMS Appeals',cpAppeals,
+    'modules/cpgrams/cpgrams-register.html?grievanceType=CPGRAMS&fy=all&filter=appeals-pending&fullscreen=1&register=appeals',
+    'appeal',['appealReceivedDate','appealDate']));
+  HOME_CATEGORIES.filter(c=>homeCategoryKey(c)!=='cpgrams').forEach(cat=>{
+    const rows=cp.filter(r=>categoryMatchesHome(r,cat)&&!homeCpgramsClosed(r));
+    lines.push(pendingRollPersonGroup(cat,rows,
+      `modules/cpgrams/cpgrams-register.html?grievanceType=${encodeURIComponent(cat)}&fy=all&filter=pending&fullscreen=1&register=grievances`,
+      'grievance',homeDateFields.cpgrams));
+  });
   const rti=(rtiRows||[]).filter(r=>r&&r.active!==false&&r.deleted!==true&&!homeRTIClosed(r));
   if(rti.length){const days=homeAgeDays(rti,homeDateFields.rti);lines.push(pendingRollRow(`RTI replies pending for ${days===null?'—':days} days`,`modules/rti/rti-register.html?fy=all&filter=pending&fullscreen=1`));}
   const fy=populateHomeFY();
@@ -227,7 +275,7 @@ function renderPendingRoll(cpRows,rtiRows,dishaRows){
   const conducted=new Set(disha.filter(homeDishaMeetingHeld).map(r=>homeDistrictKey(r.district||r.nameOfDistrict)).filter(Boolean));
   const noMeetings=HOME_DISHA_DISTRICTS.filter(d=>!conducted.has(homeDistrictKey(d))).length;
   if(noMeetings>0)lines.push(pendingRollRow(`No. of Districts with no meetings: ${noMeetings}`,`modules/disha/disha-register.html?fy=${encodeURIComponent(fy)}&scope=current&filter=districts-no-meetings&fullscreen=1`));
-  list.innerHTML=lines.join('');roll.hidden=lines.length===0;
+  list.innerHTML=lines.filter(Boolean).join('');roll.hidden=!lines.some(Boolean);
 }
 function populateHomeFY(){ return window.FMSFY?.getCurrentFY?.() || '2026-27';
 }
