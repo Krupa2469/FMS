@@ -53,7 +53,7 @@
         if(!database) throw new Error("Firestore is not ready. Please refresh the page and try again.");
 
         const module=String(moduleName||"FMS").toLowerCase();
-        const path=`attachments/${module}/${recordId}/${Date.now()}_${safeName(file.name)}`;
+        const path=`attachments/${module}/${recordId}/${Date.now()}_${Math.random().toString(36).slice(2,10)}_${safeName(file.name)}`;
         let info;
         const storage=getStorage();
         if(storage){
@@ -109,56 +109,105 @@
         if(!item) return;
         if(storage && item.storagePath){ try{ await storage.ref(item.storagePath).delete(); }catch(e){ console.warn("Storage delete:",e); } }
         if(database && item.id){
-            if(window.FMSCrud && typeof window.FMSCrud.softDelete === "function") await window.FMSCrud.softDelete("fmsAttachments", item.id);
-            else await database.collection("fmsAttachments").doc(item.id).update({active:false,deletedOn:serverTimestamp()});
+            if(window.FMSCrud && typeof window.FMSCrud.softDelete === "function") {
+                const result=await window.FMSCrud.softDelete("fmsAttachments",item.id);
+                if(!result.success) throw new Error(result.message||"Unable to remove document.");
+            } else await database.collection("fmsAttachments").doc(item.id).update({active:false,deletedOn:serverTimestamp()});
         }
+    }
+
+    async function update(item,fields={}){
+        const database=getDB();
+        if(!database||!item?.id) throw new Error('Document could not be found.');
+        const fileRole=String(fields.fileRole||'').trim();
+        if(!fileRole) throw new Error('Select a document type.');
+        const changes={fileRole,updatedOn:serverTimestamp()};
+        if(window.FMSCrud && typeof window.FMSCrud.update==='function'){
+            const result=await window.FMSCrud.update('fmsAttachments',item.id,changes);
+            if(!result.success) throw new Error(result.message||'Unable to edit document details.');
+        }else{
+            await database.collection('fmsAttachments').doc(item.id).update(changes);
+        }
+        return {...item,...changes};
     }
 
     function wireUI(config){
         const input=document.getElementById(config.inputId);
         const button=document.getElementById(config.buttonId);
         const listEl=document.getElementById(config.listId);
-        if(!input || !button || !listEl) return;
-
+        const typeInput=document.getElementById(config.typeSelectId||'dishaAttachmentDocumentType');
+        if(!input||!button||!listEl) return;
+        input.multiple=true;
+        const show=(message,type='success')=>{
+            if(typeof config.message==='function') config.message(message,type);
+            else if(type==='danger'||type==='warning') alert(message);
+        };
         async function refresh(){
-            const id=typeof config.getRecordId==="function" ? config.getRecordId() : null;
-            listEl.innerHTML="";
-            if(!id){ listEl.innerHTML='<div class="text-muted text-center py-2">Save the record first to manage attachments.</div>'; return; }
+            const id=typeof config.getRecordId==='function'?config.getRecordId():null;
+            listEl.replaceChildren();
+            if(!id){listEl.textContent='Save the record first to manage documents.';return;}
             try{
                 const items=await list(config.module,id);
-                if(!items.length){ listEl.innerHTML='<div class="text-muted text-center py-2">No attachments.</div>'; return; }
-                items.forEach(item=>{
-                    const row=document.createElement("div");
-                    row.className="d-flex justify-content-between align-items-center border rounded p-2 mb-2 bg-light";
-                    row.innerHTML=`<div><strong>${escapeHtml(item.fileName)}</strong><div class="small text-muted">${escapeHtml(item.fileRole||item.fileType)} • ${Math.ceil((item.fileSize||0)/1024)} KB</div></div>
-                    <div class="d-flex gap-1">
-                      <a class="btn btn-sm btn-outline-primary" href="${escapeHtml(item.downloadURL)}" target="_blank" rel="noopener">View</a>
-                      <button type="button" class="btn btn-sm btn-outline-danger" data-delete="${escapeHtml(item.id)}">Delete</button>
-                    </div>`;
-                    row.querySelector("[data-delete]").addEventListener("click",async()=>{ if(!confirm("Delete this attachment?")) return; await remove(item); await refresh(); });
-                    listEl.appendChild(row);
+                if(!items.length){listEl.textContent='No saved documents.';return;}
+                const wrapper=document.createElement('div');wrapper.className='table-responsive';
+                const table=document.createElement('table');table.className='table table-striped table-bordered align-middle mb-0';
+                table.innerHTML='<thead><tr><th>S.No.</th><th>File Name</th><th>Document Type</th><th>Size</th><th>Action</th></tr></thead>';
+                const tbody=document.createElement('tbody');
+                items.forEach((item,index)=>{
+                    const row=tbody.insertRow();row.insertCell().textContent=String(index+1);
+                    const name=row.insertCell();name.textContent=item.fileName||'Document';name.style.overflowWrap='anywhere';
+                    const typeCell=row.insertCell();typeCell.textContent=item.fileRole||'Other';
+                    row.insertCell().textContent=`${((item.fileSize||0)/1024).toFixed(1)} KB`;
+                    const actionCell=row.insertCell();actionCell.className='text-nowrap';
+                    const makeButton=(text,style,callback)=>{
+                        const el=document.createElement('button');el.type='button';el.className=`btn btn-sm ${style} me-1`;
+                        el.textContent=text;el.addEventListener('click',callback);actionCell.appendChild(el);return el;
+                    };
+                    function openDocument(){
+                        if(!item.downloadURL){show('No uploaded document is available for viewing.','warning');return;}
+                        window.open(item.downloadURL,'_blank','noopener,noreferrer');
+                    }
+                    makeButton('View','btn-info',openDocument);
+                    makeButton('Edit','btn-warning',()=>{
+                        const original=item.fileRole||'Other';
+                        const select=document.createElement('select');select.className='form-select form-select-sm';
+                        select.innerHTML=window.FMSDocumentTypes?.options(original)||`<option>${escapeHtml(original)}</option>`;
+                        typeCell.replaceChildren(select);actionCell.replaceChildren();
+                        makeButton('Save','btn-success',async()=>{
+                            try{await update(item,{fileRole:select.value});show('Document type updated.');await refresh();}
+                            catch(error){show(error.message||'Unable to update document type.','danger');}
+                        });
+                        makeButton('Cancel','btn-secondary',refresh);
+                    });
+                    makeButton('Delete','btn-danger',async()=>{
+                        if(!confirm('Delete this document?')) return;
+                        try{await remove(item);await refresh();show('Document removed.');}
+                        catch(error){show(error.message||'Unable to delete document.','danger');}
+                    });
                 });
-            }catch(e){ console.error(e); listEl.innerHTML='<div class="text-danger text-center py-2">Unable to load attachments.</div>'; }
+                table.appendChild(tbody);wrapper.appendChild(table);listEl.appendChild(wrapper);
+            }catch(e){console.error(e);listEl.textContent='Unable to load documents. Please refresh and try again.';}
         }
-
-        button.addEventListener("click",async()=>{
+        button.addEventListener('click',async()=>{
+            const files=Array.from(input.files||[]);
+            if(!files.length){show('Choose one or more documents to upload.','warning');return;}
+            const id=typeof config.getRecordId==='function'?config.getRecordId():null;
+            if(!id){show('Save the record before uploading documents.','warning');return;}
+            const fileRole=typeInput?.value||'Other';
+            let uploaded=0;const failed=[];
+            button.disabled=true;
             try{
-                const file=input.files && input.files[0];
-                const id=typeof config.getRecordId==="function" ? config.getRecordId() : null;
-                const item=await upload(config.module,id,file);
-                input.value=""; await refresh();
-                if(typeof config.message==="function") config.message("Attachment uploaded successfully.","success");
-                console.log("FMS attachment uploaded:",item.fileName);
-            }catch(e){
-                console.error(e);
-                if(typeof config.message==="function") config.message(e.message,"danger");
-                else alert(e.message);
-            }
+                for(const file of files){
+                    try{await upload(config.module,id,file,{fileRole,sourceField:config.inputId});uploaded++;}
+                    catch(e){failed.push(`${file.name}: ${e.message||e}`);}
+                }
+                input.value='';
+                await refresh();
+                show(`${uploaded} document(s) uploaded.${failed.length?` ${failed.length} failed: ${failed.join('; ')}. Please reselect the failed files to retry.`:''}`,failed.length?'warning':'success');
+            }finally{button.disabled=false;}
         });
-
-        refresh();
-        return {refresh};
+        refresh();return {refresh};
     }
 
-    window.FMSAttachmentService={upload,list,remove,wireUI};
+    window.FMSAttachmentService={upload,list,remove,update,wireUI};
 })(window);

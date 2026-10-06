@@ -260,6 +260,7 @@ function registerEvents() {
                 inputId: "fmsAttachmentFile",
                 buttonId: "fmsUploadAttachment",
                 listId: "fmsAttachmentList",
+                typeSelectId: "dishaAttachmentDocumentType",
                 getRecordId: () => currentRecordId,
                 message: showMessage
             });

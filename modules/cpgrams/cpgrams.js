@@ -990,7 +990,7 @@ function buildGrievanceObject() {
     grievance.grievanceNumberNormalized = String(grievance.grievanceNumber || grievance.registrationNumber || "")
         .trim().toUpperCase().replace(/\s+/g, "");
     grievance.updatedOn = new Date();
-    grievance.version = "1.10.15";
+    grievance.version = "1.10.16";
     return grievance;
 }
 /*==========================================================
@@ -1138,27 +1138,20 @@ async function uploadSelectedCPGRAMSDocuments(recordId) {
     }
 
     for (const item of fileInputs) {
-        const input = document.getElementById(item.id);
-        const file = input?.files?.[0];
-        if (!file) continue;
-
-        try {
-            const result = await uploadAttachmentRepository(recordId, file, {
-                module: "cpgrams",
-                fileRole: item.role,
-                sourceField: item.id
-            });
-
-            if (result?.success) {
-                summary.uploaded.push(result.data);
-                input.value = "";
-            } else {
-                summary.failed.push(`${item.role}: ${result?.message || "upload failed"}`);
-            }
-        } catch (error) {
-            console.error("Document upload failed:", item.id, error);
-            summary.failed.push(`${item.role}: ${error.message || error}`);
+        const input=document.getElementById(item.id);
+        const files=Array.from(input?.files||[]);
+        if (!files.length) continue;
+        const role=item.id==="fileAttachment"
+            ? (document.getElementById("attachmentDocumentType")?.value||"Grievance") : item.role;
+        let completed=0;
+        for (const file of files) {
+            try {
+                const result=await uploadAttachmentRepository(recordId,file,{module:"cpgrams",fileRole:role,sourceField:item.id});
+                if (!result?.success) throw new Error(result?.message||"Upload failed");
+                summary.uploaded.push(result.data);completed++;
+            } catch(error){summary.failed.push(`${file.name}: ${error.message||error}`);}
         }
+        if (completed===files.length) input.value="";
     }
 
     return summary;

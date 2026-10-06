@@ -87,7 +87,7 @@ class AttachmentRepository {
             const database = this.getDB();
             if (!database) throw new Error("Firestore is not ready. Please refresh the page and try again.");
 
-            const fileName = Date.now() + "_" + this.safeName(file.name);
+            const fileName = Date.now() + "_" + Math.random().toString(36).slice(2,10) + "_" + this.safeName(file.name);
             const storagePath = "attachments/cpgrams/" + grievanceId + "/" + fileName;
             let uploadInfo = null;
             const storageRef = this.getStorage();
@@ -175,6 +175,22 @@ class AttachmentRepository {
         }
     }
 
+    async updateAttachment(id, changes = {}) {
+        try {
+            if (!id) throw new Error("Select a document to edit.");
+            const fileRole = String(changes.fileRole || "").trim();
+            if (!fileRole) throw new Error("Select a document type.");
+            const data = {fileRole, updatedOn: this.serverTimestamp()};
+            if (window.FMSCrud && typeof window.FMSCrud.update === "function") {
+                const response = await window.FMSCrud.update(this.collectionName, id, data);
+                if (!response.success) throw new Error(response.message || "Unable to update document type.");
+            } else {
+                await this.collection().doc(id).update(data);
+            }
+            return this.success({id, ...data});
+        } catch (error) { return this.failure(error); }
+    }
+
     async deleteAttachment(id) {
         try {
             const docRef = this.collection().doc(id);
@@ -212,3 +228,4 @@ window.uploadAttachmentRepository = (grievanceId, file, meta) => attachmentRepos
 window.getAttachmentsRepository = grievanceId => attachmentRepository.getAttachments(grievanceId);
 window.getAttachmentRepository = id => attachmentRepository.getAttachment(id);
 window.deleteAttachmentRepository = id => attachmentRepository.deleteAttachment(id);
+window.updateAttachmentRepository = (id, changes) => attachmentRepository.updateAttachment(id, changes);

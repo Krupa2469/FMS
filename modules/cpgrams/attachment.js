@@ -96,52 +96,27 @@ async function loadAttachments(grievanceId) {
 ==========================================================*/
 
 async function uploadAttachment() {
-
+    const input=document.getElementById("fileAttachment");
+    const files=Array.from(input?.files||[]);
+    if (!files.length) { showMessage?.("Please choose documents to upload.","warning"); return; }
+    if (!currentDocumentId) { showMessage?.("Save the grievance first, then upload documents.","warning"); return; }
+    const fileRole=document.getElementById("attachmentDocumentType")?.value||"Grievance";
+    let uploaded=0; const failed=[];
     try {
-        const control = document.getElementById("fileAttachment");
-        if (!control) {
-            showMessage?.("Attachment file control not found.", "danger");
-            return;
-        }
-
-        if (!control.files || control.files.length === 0) {
-            showMessage?.("Please choose an attachment first.", "warning");
-            return;
-        }
-
-        if (!currentDocumentId) {
-            showMessage?.("Please save the grievance first. After saving, attachments can be uploaded.", "warning");
-            return;
-        }
-
-        if (typeof uploadAttachmentRepository !== "function") {
-            showMessage?.("Attachment repository is not loaded. Please refresh the page and try again.", "danger");
-            return;
-        }
-
         showLoading?.();
-        const result = await uploadAttachmentRepository(
-            currentDocumentId,
-            control.files[0],
-            { module: "cpgrams", fileRole: "Attachment", sourceField: "fileAttachment" }
-        );
-        hideLoading?.();
-
-        if (!result.success) {
-            showMessage?.(result.message || "Unable to upload attachment.", "danger");
-            return;
+        for (const file of files) {
+            try {
+                const result=await uploadAttachmentRepository(currentDocumentId,file,{module:"cpgrams",fileRole,sourceField:"fileAttachment"});
+                if (!result?.success) throw new Error(result?.message||"Unable to upload this document.");
+                uploaded++;
+            } catch (error) { failed.push(`${file.name}: ${error.message||error}`); }
         }
-
-        control.value = "";
+        input.value="";
         await loadAttachments(currentDocumentId);
-        showMessage?.("Attachment uploaded successfully.", "success");
-    }
-    catch (error) {
-        hideLoading?.();
-        console.error("UPLOAD ERROR", error);
-        showMessage?.("Unable to upload attachment: " + (error.message || error), "danger");
-    }
-
+        showMessage?.(`${uploaded} document(s) uploaded.${failed.length?` ${failed.length} failed: ${failed.join("; ")}. Please reselect failed files to retry.`:""}`, failed.length?"warning":"success");
+    } catch(error) {
+        console.error(error); showMessage?.("Unable to upload documents: "+(error.message||error),"danger");
+    } finally { hideLoading?.(); }
 }
 
 /*==========================================================
@@ -149,96 +124,43 @@ async function uploadAttachment() {
 ==========================================================*/
 
 function renderAttachments() {
-
-    const tbody =
-        document.getElementById(
-            "attachmentBody"
-        );
-
-    if (!tbody)
-        return;
-
-    tbody.innerHTML = "";
-
-    if (attachmentList.length === 0) {
-
-        tbody.innerHTML = `
-
-        <tr>
-
-            <td colspan="5"
-                class="text-center text-muted">
-
-                No Attachments
-
-            </td>
-
-        </tr>
-
-        `;
-
-        updateAttachmentCount();
-
-        return;
-
+    const tbody=document.getElementById("attachmentBody"); if(!tbody) return;
+    tbody.replaceChildren();
+    if (!attachmentList.length) {
+        const row=tbody.insertRow();const cell=row.insertCell();cell.colSpan=5;
+        cell.className="text-center text-muted";cell.textContent="No Attachments";
+        updateAttachmentCount();return;
     }
-
-    attachmentList.forEach((file, index) => {
-
-        const sizeKB =
-            (file.fileSize / 1024).toFixed(2);
-
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-
-            <td>${index + 1}</td>
-
-            <td>${file.fileName}</td>
-
-            <td>${file.fileType}</td>
-
-            <td>${sizeKB} KB</td>
-
-            <td class="text-center">
-
-                <button
-                    class="btn btn-info btn-sm me-1"
-                    onclick="viewAttachment('${file.id}')"
-                    title="View">
-
-                    <i class="bi bi-eye"></i>
-
-                </button>
-
-                <button
-                    class="btn btn-success btn-sm me-1"
-                    onclick="downloadAttachment('${file.id}')"
-                    title="Download">
-
-                    <i class="bi bi-download"></i>
-
-                </button>
-
-                <button
-                    class="btn btn-danger btn-sm"
-                    onclick="deleteAttachment('${file.id}')"
-                    title="Delete">
-
-                    <i class="bi bi-trash"></i>
-
-                </button>
-
-            </td>
-
-        `;
-
-        tbody.appendChild(row);
-
+    attachmentList.forEach((file,index)=>{
+        const row=tbody.insertRow();
+        row.insertCell().textContent=index+1;
+        const name=row.insertCell();name.textContent=file.fileName||"Document";name.style.overflowWrap="anywhere";
+        const category=row.insertCell();
+        const selectedType=file.fileRole || "Other";
+        const label=document.createElement("span");label.textContent=selectedType;category.appendChild(label);
+        row.insertCell().textContent=`${((file.fileSize||0)/1024).toFixed(1)} KB`;
+        const actions=row.insertCell();actions.className="text-nowrap";
+        function action(title,cls,handler){
+            const button=document.createElement("button");button.type="button";button.textContent=title;
+            button.className=`btn btn-sm ${cls} me-1`;button.addEventListener("click",handler);actions.appendChild(button);return button;
+        }
+        action("View","btn-info",()=>viewAttachment(file.id));
+        action("Edit","btn-warning",()=>{
+            const options=window.FMSDocumentTypes?.options(selectedType)||`<option>${selectedType}</option>`;
+            category.replaceChildren();const select=document.createElement("select");select.className="form-select form-select-sm";
+            select.innerHTML=options;category.appendChild(select);
+            actions.replaceChildren();
+            action("Save","btn-success",async()=>{
+                const result=await updateAttachmentRepository(file.id,{fileRole:select.value});
+                if (!result?.success) { alert(result?.message||"Unable to update document type.");return; }
+                file.fileRole=select.value;renderAttachments();
+            });
+            action("Cancel","btn-secondary",()=>renderAttachments());
+        });
+        action("Download","btn-outline-primary",()=>downloadAttachment(file.id));
+        action("Delete","btn-danger",()=>deleteAttachment(file.id));
     });
-
     updateAttachmentCount();
-
 }
 
 /*==========================================================

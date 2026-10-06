@@ -17,8 +17,8 @@
    and its metadata is saved in Firestore when the record is saved
 
  Attachments:
- - one common attachment upload control
- - no document type is required
+ - multi-select attachment upload control
+ - editable document type for each saved file
  - saved to Firebase Storage + Firestore
 ================================================================
 */
@@ -305,7 +305,7 @@ function readRTIFileAsDataURL(file){
 async function uploadFileToRTI(file,type,recordId){
     if(!file) return null;
     if(!recordId) throw new Error("Save the RTI record first, then upload attachments.");
-    const path=`rtiApplications/${recordId}/${Date.now()}_${safeName(file.name)}`;
+    const path=`rtiApplications/${recordId}/${Date.now()}_${Math.random().toString(36).slice(2,10)}_${safeName(file.name)}`;
     const storage=rtiStorage();
     if(storage){
         try{
@@ -690,16 +690,48 @@ function fallbackFill(fields,mapping){
 }
 
 async function uploadRTIAttachment(type="Attachment",inputId="attachmentFile"){
-    const file=document.getElementById(inputId)?.files?.[0];
-    if(!file){ showRTIMessage("Please choose an attachment first.","warning"); return; }
-    if(!currentRTIRecordId){ showRTIMessage("Please save the RTI application first, then upload the attachment.","warning"); return; }
-    try {
-        const meta=await uploadFileToRTI(file,"Attachment",currentRTIRecordId);
-        rtiDocuments.push(meta);
-        await rtiDb().collection(RTI_COLLECTION).doc(currentRTIRecordId).update({documents:rtiDocuments,attachments:rtiDocuments,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-        document.getElementById(inputId).value=""; renderRTIAttachments(); showRTIMessage("Attachment saved successfully.","success");
-    } catch(e){ console.error(e); showRTIMessage(`Unable to save attachment: ${e.message}`,"danger"); }
+    const input=document.getElementById(inputId);
+    const files=Array.from(input?.files||[]);
+    if(!files.length){showRTIMessage("Please choose documents to upload.","warning");return;}
+    if(!currentRTIRecordId){showRTIMessage("Please save the RTI application first, then upload the documents.","warning");return;}
+    const role=document.getElementById("rtiAttachmentDocumentType")?.value||type;
+    let uploaded=0;const failed=[];
+    for(const file of files){
+        try {
+            const meta=await uploadFileToRTI(file,role,currentRTIRecordId);
+            const updated=[...rtiDocuments,meta];
+            await rtiDb().collection(RTI_COLLECTION).doc(currentRTIRecordId).update({documents:updated,attachments:updated,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+            rtiDocuments=updated;uploaded++;
+        }catch(e){console.error(e);failed.push(`${file.name}: ${e.message||e}`);}
+    }
+    input.value="";
+    renderRTIAttachments();
+    showRTIMessage(`${uploaded} document(s) uploaded.${failed.length?` ${failed.length} failed: ${failed.join("; ")}. Please reselect failed files to retry.`:""}`,failed.length?"warning":"success");
 }
+
+async function editRTIAttachment(index){
+    const item=rtiDocuments[index]; if(!item)return;
+    const row=document.querySelector(`[data-rti-doc-row="${index}"]`);if(!row)return;
+    const typeCell=row.querySelector('[data-doc-type]'), actionCell=row.querySelector('[data-doc-actions]');
+    if(!typeCell||!actionCell)return;
+    const select=document.createElement('select');select.className='form-select form-select-sm';
+    select.innerHTML=window.FMSDocumentTypes?.options(item.type||'Other')||`<option>${esc(item.type||'Other')}</option>`;
+    typeCell.replaceChildren(select);
+    actionCell.replaceChildren();
+    const save=document.createElement('button');save.type='button';save.className='btn btn-sm btn-success me-1';save.textContent='Save';
+    const cancel=document.createElement('button');cancel.type='button';cancel.className='btn btn-sm btn-secondary';cancel.textContent='Cancel';
+    cancel.addEventListener('click',renderRTIAttachments);
+    save.addEventListener('click',async()=>{
+        if(!currentRTIRecordId){showRTIMessage('Save the RTI record before editing document details.','warning');return;}
+        const next=rtiDocuments.map((d,i)=>i===index?{...d,type:select.value}:d);
+        try{
+            await rtiDb().collection(RTI_COLLECTION).doc(currentRTIRecordId).update({documents:next,attachments:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+            rtiDocuments=next;renderRTIAttachments();showRTIMessage('Document type updated.','success');
+        }catch(e){showRTIMessage('Unable to update document type: '+e.message,'danger');}
+    });
+    actionCell.append(save,cancel);
+}
+window.editRTIAttachment=editRTIAttachment;
 
 async function removeRTIAttachment(index){
     const doc=rtiDocuments[index]; if(!doc) return;
@@ -714,9 +746,9 @@ async function removeRTIAttachment(index){
 window.removeRTIAttachment=removeRTIAttachment;
 
 function renderRTIAttachments(){
-    const list=document.getElementById("attachmentList"); if(!list) return;
-    if(!rtiDocuments.length){ list.innerHTML='<div class="text-muted text-center py-3">No saved attachments.</div>'; return; }
-    list.innerHTML=rtiDocuments.map((d,i)=>`<div class="attachment-row"><div><strong>${esc(d.name)}</strong><div class="small text-muted">Saved attachment</div></div><div class="d-flex gap-2">${d.url?`<a class="btn btn-sm btn-outline-primary" target="_blank" href="${esc(d.url)}">View</a>`:""}<button type="button" class="btn btn-sm btn-outline-danger" onclick="removeRTIAttachment(${i})">Remove</button></div></div>`).join("");
+    const list=document.getElementById("attachmentList");if(!list)return;
+    if(!rtiDocuments.length){list.innerHTML='<div class="text-muted text-center py-3">No saved documents.</div>';return;}
+    list.innerHTML=`<div class="table-responsive"><table class="table table-bordered table-striped align-middle mb-0"><thead><tr><th>S.No.</th><th>File Name</th><th>Document Type</th><th>Size</th><th>Action</th></tr></thead><tbody>${rtiDocuments.map((d,i)=>`<tr data-rti-doc-row="${i}"><td>${i+1}</td><td>${esc(d.name||'Document')}</td><td data-doc-type>${esc(d.type||'Other')}</td><td>${((d.size||0)/1024).toFixed(1)} KB</td><td data-doc-actions class="text-nowrap">${d.url?`<a class="btn btn-sm btn-info me-1" target="_blank" rel="noopener" href="${esc(d.url)}">View</a>`:''}<button type="button" class="btn btn-sm btn-warning me-1" onclick="editRTIAttachment(${i})">Edit</button><button type="button" class="btn btn-sm btn-danger" onclick="removeRTIAttachment(${i})">Delete</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 
 async function shareRTIWhatsApp(){
