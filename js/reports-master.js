@@ -33,8 +33,13 @@ function readSections(validate=false){
  const cards=[...document.querySelectorAll("#sectionsContainer [data-report-section]")];
  const sections=cards.map(card=>({
   heading:card.querySelector("[data-section-heading]")?.value.trim()||"",
-  fields:[...card.querySelector("[data-section-fields]")?.selectedOptions||[]].map(o=>o.value)
- })).filter(s=>s.heading||s.fields.length);
+  fields:[...card.querySelector("[data-section-fields]")?.selectedOptions||[]].map(o=>o.value),
+  filters:[0,1,2].map(i=>({
+   field:card.querySelector(`[data-section-filter-field="${i}"]`)?.value||"",
+   operator:card.querySelector(`[data-section-filter-operator="${i}"]`)?.value||"contains",
+   value:card.querySelector(`[data-section-filter-value="${i}"]`)?.value||""
+  })).filter(f=>f.field)
+ })).filter(s=>s.heading||s.fields.length||s.filters.length);
  if(validate){
   sections.forEach((sec,i)=>{
    if(!sec.heading)throw new Error(`Enter a heading for Report Section ${i+1}.`);
@@ -49,21 +54,44 @@ function moveSection(card,dir){
  if(dir>0&&card.nextElementSibling)parent.insertBefore(card.nextElementSibling,card);
  renumberSections();
 }
+function syncFilterScopeUI(){const flat=$("flatFiltersBlock");if(flat)flat.style.display=document.querySelector("#sectionsContainer [data-report-section]")?"none":"";}
 function renumberSections(){
  [...document.querySelectorAll("#sectionsContainer [data-report-section]")].forEach((card,i)=>{
   const n=card.querySelector("[data-section-number]");if(n)n.textContent=`Section ${i+1}`;
  });
+ syncFilterScopeUI();
+}
+function sectionFilterFieldOptions(selected=""){
+ const arr=CATALOG[$("module").value]||[];
+ return '<option value="">None</option>'+arr.map(k=>`<option value="${k}" ${selected===k?"selected":""}>${esc(label(k))}</option>`).join("");
+}
+function sectionOperatorOptions(selected="contains"){
+ const ops=[["contains","Contains"],["equals","Equals"],["notEquals","Not Equals"],["gt","Greater Than"],["gte","Greater/Equal"],["lt","Less Than"],["lte","Less/Equal"],["isEmpty","Is Empty"],["notEmpty","Not Empty"]];
+ return ops.map(([v,t])=>`<option value="${v}" ${selected===v?"selected":""}>${t}</option>`).join("");
+}
+function sectionFiltersFrom(section={}){
+ if(Array.isArray(section.filters))return section.filters.slice(0,3);
+ return [1,2,3].map(n=>({field:section[n===1?"filterField":`filterField${n}`]||"",operator:section[n===1?"operator":`operator${n}`]||"contains",value:section[n===1?"filterValue":`filterValue${n}`]||""})).filter(f=>f.field);
+}
+async function populateSectionFilterValue(card,index,selectedValue=""){
+ const field=card.querySelector(`[data-section-filter-field="${index}"]`)?.value||"",sel=card.querySelector(`[data-section-filter-value="${index}"]`),op=card.querySelector(`[data-section-filter-operator="${index}"]`)?.value||"contains";if(!sel)return;
+ if(!field){sel.disabled=true;sel.innerHTML='<option value="">Select a filter field first</option>';return;}
+ if(op==="isEmpty"||op==="notEmpty"){sel.disabled=true;sel.innerHTML='<option value="">Not required for this operator</option>';return;}
+ const rows=await loadFilterSource($("module").value);
+ const values=[...new Set(rows.map(r=>filterValueText(r?.[field])).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:"base"}));
+ if(selectedValue&&!values.includes(String(selectedValue)))values.unshift(String(selectedValue));
+ sel.disabled=false;sel.innerHTML='<option value="">— Select value —</option>'+values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");if(selectedValue)sel.value=String(selectedValue);
 }
 function addSection(section={}){
- const card=document.createElement("div");card.className="card section-config-card";card.dataset.reportSection="1";
- card.innerHTML=`<div class="card-body p-3"><div class="d-flex justify-content-between align-items-center mb-2"><div class="section-config-heading" data-section-number>Section</div><div class="btn-group btn-group-sm"><button type="button" class="btn btn-outline-secondary section-order-btn" data-section-up title="Move section up"><i class="bi bi-arrow-up"></i></button><button type="button" class="btn btn-outline-secondary section-order-btn" data-section-down title="Move section down"><i class="bi bi-arrow-down"></i></button><button type="button" class="btn btn-outline-danger" data-section-remove><i class="bi bi-trash"></i> Remove</button></div></div><div class="row g-2"><div class="col-12"><label class="form-label">Section Heading *</label><input type="text" class="form-control" data-section-heading placeholder="Example: Grievance Details" value="${esc(section.heading||"")}"></div><div class="col-12"><label class="form-label">Fields in this Section *</label><select class="form-select section-fields" data-section-fields multiple>${sectionOptions(Array.isArray(section.fields)?section.fields:[])}</select><div class="form-text">Ctrl/Command-click to select multiple fields. The fields are shown in the listed order.</div></div></div></div>`;
+ const filters=sectionFiltersFrom(section),card=document.createElement("div");card.className="card section-config-card";card.dataset.reportSection="1";
+ const filterRows=[0,1,2].map(i=>{const f=filters[i]||{field:"",operator:"contains",value:""};return `<div class="row g-2 align-items-end section-filter-row"><div class="col-md-5"><label class="form-label">Filter Field ${i+1}</label><select class="form-select" data-section-filter-field="${i}">${sectionFilterFieldOptions(f.field)}</select></div><div class="col-md-3"><label class="form-label">Operator ${i+1}</label><select class="form-select" data-section-filter-operator="${i}">${sectionOperatorOptions(f.operator)}</select></div><div class="col-md-4"><label class="form-label">Filter Value ${i+1}</label><select class="form-select" data-section-filter-value="${i}"><option value="">Select a filter field first</option></select></div></div>`;}).join("");
+ card.innerHTML=`<div class="card-body p-3"><div class="d-flex justify-content-between align-items-center mb-2"><div class="section-config-heading" data-section-number>Section</div><div class="btn-group btn-group-sm"><button type="button" class="btn btn-outline-secondary section-order-btn" data-section-up title="Move section up"><i class="bi bi-arrow-up"></i></button><button type="button" class="btn btn-outline-secondary section-order-btn" data-section-down title="Move section down"><i class="bi bi-arrow-down"></i></button><button type="button" class="btn btn-outline-danger" data-section-remove><i class="bi bi-trash"></i> Remove</button></div></div><div class="row g-2"><div class="col-12"><label class="form-label">Section Heading *</label><input type="text" class="form-control" data-section-heading placeholder="Example: Pending Grievances" value="${esc(section.heading||"")}"></div><div class="col-12"><label class="form-label">Fields in this Section *</label><select class="form-select section-fields" data-section-fields multiple>${sectionOptions(Array.isArray(section.fields)?section.fields:[])}</select><div class="form-text">Ctrl/Command-click to select multiple fields. The fields are shown in the listed order.</div></div><div class="col-12 mt-3"><div class="fw-bold text-primary mb-1"><i class="bi bi-funnel"></i> Section Filters</div><div class="form-text mb-2">These filters apply only to this section. Up to three conditions can be combined.</div>${filterRows}</div></div></div>`;
  $("sectionsContainer").appendChild(card);
- card.querySelector("[data-section-remove]").onclick=()=>{card.remove();renumberSections();};
- card.querySelector("[data-section-up]").onclick=()=>moveSection(card,-1);
- card.querySelector("[data-section-down]").onclick=()=>moveSection(card,1);
+ card.querySelector("[data-section-remove]").onclick=()=>{card.remove();renumberSections();};card.querySelector("[data-section-up]").onclick=()=>moveSection(card,-1);card.querySelector("[data-section-down]").onclick=()=>moveSection(card,1);
+ [0,1,2].forEach(i=>{const f=filters[i]||{};const field=card.querySelector(`[data-section-filter-field="${i}"]`),op=card.querySelector(`[data-section-filter-operator="${i}"]`);field.onchange=()=>populateSectionFilterValue(card,i);op.onchange=()=>populateSectionFilterValue(card,i);populateSectionFilterValue(card,i,f.value||"").catch(console.warn);});
  renumberSections();
 }
-function renderSections(sections=[]){$("sectionsContainer").innerHTML="";(sections||[]).forEach(addSection);}
+function renderSections(sections=[]){$("sectionsContainer").innerHTML="";(sections||[]).forEach(addSection);syncFilterScopeUI();}
 
 function rebuildFields(){
  const module=$("module").value,arr=CATALOG[module]||[];
@@ -79,7 +107,7 @@ function rebuildFields(){
  oldSort.forEach((v,i)=>{const id=i===0?"sortField":`sortField${i+1}`;if(arr.includes(v))$(id).value=v;});
  const summaries=SUMMARY_CATALOG[module]||[];
  $("summaryCards").innerHTML=summaries.map(x=>`<option value="${x.key}" ${oldSummaries.includes(x.key)?"selected":""}>${esc(x.label)}</option>`).join("");
- const validSections=oldSections.map(sec=>({heading:sec.heading,fields:(sec.fields||[]).filter(k=>arr.includes(k))})).filter(sec=>sec.heading||sec.fields.length);
+ const validSections=oldSections.map(sec=>({heading:sec.heading,fields:(sec.fields||[]).filter(k=>arr.includes(k)),filters:(sec.filters||[]).filter(f=>arr.includes(f.field))})).filter(sec=>sec.heading||sec.fields.length);
  renderSections(validSections);
 }
 
@@ -128,12 +156,12 @@ async function refreshFilterValues(selected={}){
   populateFilterValue("filterField3","filterValue3","operator3",selected.filterValue3||"")
  ]);
 }
+function formatFilterList(filters=[]){return (filters||[]).filter(f=>f?.field).map(f=>`${label(f.field)} ${f.operator||""}${/^(isEmpty|notEmpty)$/.test(f.operator||"")?"":` ${f.value||""}`}`).join("; ");}
 function filterText(d){
- return [
-  [d.filterField,d.operator,d.filterValue],
-  [d.filterField2,d.operator2,d.filterValue2],
-  [d.filterField3,d.operator3,d.filterValue3]
- ].filter(x=>x[0]).map(x=>`${label(x[0])} ${x[1]||""}${/^(isEmpty|notEmpty)$/.test(x[1]||"")?"":` ${x[2]||""}`}`).join("; ");
+ const sections=Array.isArray(d.sections)?d.sections:[];
+ const sectionText=sections.map(sec=>{const t=formatFilterList(sectionFiltersFrom(sec));return t?`${sec.heading||"Section"}: ${t}`:"";}).filter(Boolean).join(" | ");
+ if(sectionText)return sectionText;
+ return formatFilterList([{field:d.filterField,operator:d.operator,value:d.filterValue},{field:d.filterField2,operator:d.operator2,value:d.filterValue2},{field:d.filterField3,operator:d.operator3,value:d.filterValue3}]);
 }
 function clear(){selectedId=null;$("reportDefForm").reset();$("active").checked=true;$("module").value="cpgrams";renderSections([]);rebuildFields();$("definitionId").value="";refreshFilterValues();}
 function data(){
@@ -141,16 +169,17 @@ function data(){
  if(!$("reportName").value.trim())throw new Error("Report Name is required.");
  const fields=sections.length?[...new Set(sections.flatMap(s=>s.fields))]:flatFields;
  if(!fields.length)throw new Error("Select at least one report field or configure a report section.");
+ const hasSections=sections.length>0;
  return {name:$("reportName").value.trim(),mainHeading:$("mainHeading").value.trim(),module:$("module").value,fields,sections,summaryCards,
-  filterField:$("filterField").value,operator:$("operator").value,filterValue:$("filterValue").value,
-  filterField2:$("filterField2").value,operator2:$("operator2").value,filterValue2:$("filterValue2").value,
-  filterField3:$("filterField3").value,operator3:$("operator3").value,filterValue3:$("filterValue3").value,
+  filterField:hasSections?"":$("filterField").value,operator:hasSections?"contains":$("operator").value,filterValue:hasSections?"":$("filterValue").value,
+  filterField2:hasSections?"":$("filterField2").value,operator2:hasSections?"contains":$("operator2").value,filterValue2:hasSections?"":$("filterValue2").value,
+  filterField3:hasSections?"":$("filterField3").value,operator3:hasSections?"contains":$("operator3").value,filterValue3:hasSections?"":$("filterValue3").value,
   sortField:$("sortField").value,sortDirection:$("sortDirection").value,sortField2:$("sortField2").value,sortDirection2:$("sortDirection2").value,sortField3:$("sortField3").value,sortDirection3:$("sortDirection3").value,datePreset:$("datePreset").value,description:$("description").value.trim(),active:$("active").checked,modifiedOn:firebase.firestore.FieldValue.serverTimestamp()};
 }
 async function load(){setStatus("Loading report definitions...");if(window.FMSCrud&&typeof window.FMSCrud.list==="function"){const result=await window.FMSCrud.list("reportDefinitions",{activeOnly:true});if(!result.success)throw new Error(result.message||"Unable to load report definitions.");defs=(result.data||[]).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));}else{db=window.FMSCrud?await window.FMSCrud.waitForDb():db;const snap=await db.collection("reportDefinitions").get();defs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(d=>d.active!==false).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));}render();setStatus(`${defs.length} report definitions loaded`,"success");}
 function filtered(){const q=$("search").value.trim().toLowerCase();return !q?defs:defs.filter(d=>JSON.stringify(d).toLowerCase().includes(q));}
 function render(){const arr=filtered();$("recordCount").textContent=`${arr.length} records`;$("definitionsTable").querySelector("tbody").innerHTML=arr.length?arr.map((d,i)=>`<tr><td>${i+1}</td><td>${esc(d.name)}</td><td>${esc(moduleLabel(d.module))}</td><td>${esc((d.sections||[]).length?(d.sections||[]).map(sec=>`${sec.heading}: ${(sec.fields||[]).map(label).join(", ")}`).join(" | "):(d.fields||[]).map(label).join(", "))}</td><td>${esc(filterText(d))}</td><td>${d.active===false?'<span class="badge bg-secondary">Inactive</span>':'<span class="badge bg-success">Active</span>'}</td><td class="text-nowrap"><button class="btn btn-sm btn-primary" data-edit="${d.id}">Edit</button> <button class="btn btn-sm btn-outline-danger" data-del="${d.id}">Delete</button></td></tr>`).join(""):'<tr><td colspan="7" class="text-center text-muted p-4">No custom report definitions.</td></tr>';document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>edit(b.dataset.edit));document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>remove(b.dataset.del));}
-async function edit(id){const d=defs.find(x=>x.id===id);if(!d)return;selectedId=id;$("definitionId").value=id;$("reportName").value=d.name||"";$("mainHeading").value=d.mainHeading||"";$("module").value=d.module||"cpgrams";renderSections([]);rebuildFields();[...$("fields").options].forEach(o=>o.selected=(d.fields||[]).includes(o.value));[...$("summaryCards").options].forEach(o=>o.selected=(d.summaryCards||[]).includes(o.value));renderSections(Array.isArray(d.sections)?d.sections:[]);$("filterField").value=d.filterField||"";$("operator").value=d.operator||"contains";$("filterField2").value=d.filterField2||"";$("operator2").value=d.operator2||"contains";$("filterField3").value=d.filterField3||"";$("operator3").value=d.operator3||"contains";$("sortField").value=d.sortField||"";$("sortDirection").value=d.sortDirection||"asc";$("sortField2").value=d.sortField2||"";$("sortDirection2").value=d.sortDirection2||"asc";$("sortField3").value=d.sortField3||"";$("sortDirection3").value=d.sortDirection3||"asc";$("datePreset").value=d.datePreset||"none";$("description").value=d.description||"";$("active").checked=d.active!==false;await refreshFilterValues(d);window.scrollTo({top:0,behavior:"smooth"});}
+async function edit(id){const d=defs.find(x=>x.id===id);if(!d)return;selectedId=id;$("definitionId").value=id;$("reportName").value=d.name||"";$("mainHeading").value=d.mainHeading||"";$("module").value=d.module||"cpgrams";renderSections([]);rebuildFields();[...$("fields").options].forEach(o=>o.selected=(d.fields||[]).includes(o.value));[...$("summaryCards").options].forEach(o=>o.selected=(d.summaryCards||[]).includes(o.value));let editSections=Array.isArray(d.sections)?d.sections.map(sec=>({...sec})):[];const legacyFilters=[{field:d.filterField,operator:d.operator,value:d.filterValue},{field:d.filterField2,operator:d.operator2,value:d.filterValue2},{field:d.filterField3,operator:d.operator3,value:d.filterValue3}].filter(f=>f.field);if(editSections.length&&legacyFilters.length&&!editSections.some(sec=>sectionFiltersFrom(sec).length))editSections=editSections.map(sec=>({...sec,filters:legacyFilters}));renderSections(editSections);$("filterField").value=d.filterField||"";$("operator").value=d.operator||"contains";$("filterField2").value=d.filterField2||"";$("operator2").value=d.operator2||"contains";$("filterField3").value=d.filterField3||"";$("operator3").value=d.operator3||"contains";$("sortField").value=d.sortField||"";$("sortDirection").value=d.sortDirection||"asc";$("sortField2").value=d.sortField2||"";$("sortDirection2").value=d.sortDirection2||"asc";$("sortField3").value=d.sortField3||"";$("sortDirection3").value=d.sortDirection3||"asc";$("datePreset").value=d.datePreset||"none";$("description").value=d.description||"";$("active").checked=d.active!==false;await refreshFilterValues(d);window.scrollTo({top:0,behavior:"smooth"});}
 async function save(){try{db=window.FMSCrud?await window.FMSCrud.waitForDb():db;const d=data();const result=window.FMSCrud?await window.FMSCrud.create("reportDefinitions",d):await db.collection("reportDefinitions").add({...d,active:true,createdOn:firebase.firestore.FieldValue.serverTimestamp()}).then(ref=>({success:true,id:ref.id})).catch(e=>({success:false,message:e.message||String(e)}));if(!result.success)throw new Error(result.message||"Unable to save report definition.");clear();await load();setStatus("Custom report saved.","success");}catch(e){setStatus(e.message||String(e),"danger");alert(e.message||e);}}
 async function update(){if(!selectedId)return alert("Select a report definition to update.");try{db=window.FMSCrud?await window.FMSCrud.waitForDb():db;const result=window.FMSCrud?await window.FMSCrud.update("reportDefinitions",selectedId,data()):await db.collection("reportDefinitions").doc(selectedId).update(data()).then(()=>({success:true})).catch(e=>({success:false,message:e.message||String(e)}));if(!result.success)throw new Error(result.message||"Unable to update report definition.");clear();await load();setStatus("Custom report updated.","success");}catch(e){setStatus(e.message||String(e),"danger");alert(e.message||e);}}
 async function remove(id=selectedId){if(!id)return alert("Select a report definition to delete.");if(!confirm("Delete this custom report definition?"))return;try{db=window.FMSCrud?await window.FMSCrud.waitForDb():db;const result=window.FMSCrud?await window.FMSCrud.softDelete("reportDefinitions",id):await db.collection("reportDefinitions").doc(id).update({active:false,deletedOn:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>({success:true})).catch(e=>({success:false,message:e.message||String(e)}));if(!result.success)throw new Error(result.message||"Unable to delete report definition.");clear();await load();setStatus("Custom report deleted.","success");}catch(e){setStatus(e.message||String(e),"danger");alert(e.message||e);}}

@@ -1,7 +1,7 @@
 /*==========================================================
     FILE MANAGEMENT SYSTEM (FMS)
     File        : app.js
-    Version     : 1.10.20
+    Version     : 1.10.21
     Description : Application Controller
 ==========================================================*/
 
@@ -17,7 +17,7 @@ const APP = {
 
     SHORT_NAME: "FMS",
 
-    VERSION: "1.10.20",
+    VERSION: "1.10.21",
 
     DEPARTMENT: "Office of the Commissioner, Rural Development",
 

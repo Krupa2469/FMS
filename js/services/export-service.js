@@ -30,7 +30,7 @@
   }
   function normalizeSections(opts,rows,columns){
     if(!Array.isArray(opts?.sections)||!opts.sections.length)return [];
-    return opts.sections.map((sec,i)=>({heading:String(sec?.heading||`Section ${i+1}`).trim(),columns:normalizeColumns(rows,sec?.columns||[])})).filter(sec=>sec.heading&&sec.columns.length);
+    return opts.sections.map((sec,i)=>{const sectionRows=Array.isArray(sec?.rows)?sec.rows:rows;return {heading:String(sec?.heading||`Section ${i+1}`).trim(),columns:normalizeColumns(sectionRows,sec?.columns||[]),rows:sectionRows};}).filter(sec=>sec.heading&&sec.columns.length);
   }
   function exportRows(rows,columns){
     const cols=normalizeColumns(rows,columns);
@@ -86,7 +86,7 @@
         if(idx)aoa.push([]);
         aoa.push([sec.heading]);
         aoa.push(sec.columns.map(c=>c.label||c.key));
-        rows.forEach(r=>aoa.push(sec.columns.map(c=>clean(r?.[c.key]))));
+        sec.rows.forEach(r=>aoa.push(sec.columns.map(c=>clean(r?.[c.key]))));
       });
     }else{
       aoa.push(cols.map(c=>c.label||c.key));
@@ -128,12 +128,12 @@
     const summaryCardRows=[];for(let i=0;i<summary.length;i+=4){const row=[];for(let j=0;j<4;j++){const x=summary[i+j];row.push(x?`${x.label}\n${x.value}`:"");}summaryCardRows.push(row);}
     doc.autoTable({body:summaryCardRows,startY:y,theme:"grid",styles:{fontSize:8,cellPadding:2.2,halign:"center",valign:"middle",fontStyle:"bold"},margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth});
     y=(doc.lastAutoTable?.finalY||y)+5;
-    const drawTable=(tableCols,heading="")=>{
+    const drawTable=(tableCols,heading="",tableRows=rows)=>{
       if(heading){if(y>pageHeight-24){doc.addPage();y=12;}doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text(String(heading),reportMargin,y);y+=4;}
-      doc.autoTable({head:[tableCols.map(c=>c.label||c.key)],body:rows.map(r=>tableCols.map(c=>clean(r?.[c.key]))),startY:y,styles:{fontSize:7,cellPadding:1.5,overflow:"linebreak"},headStyles:{fontStyle:"bold"},margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth});
+      doc.autoTable({head:[tableCols.map(c=>c.label||c.key)],body:tableRows.map(r=>tableCols.map(c=>clean(r?.[c.key]))),startY:y,styles:{fontSize:7,cellPadding:1.5,overflow:"linebreak"},headStyles:{fontStyle:"bold"},margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth});
       y=(doc.lastAutoTable?.finalY||y)+6;
     };
-    if(sections.length)sections.forEach(sec=>drawTable(sec.columns,sec.heading));else drawTable(cols);
+    if(sections.length)sections.forEach(sec=>drawTable(sec.columns,sec.heading,sec.rows));else drawTable(cols);
     return doc;
   }
 
@@ -151,8 +151,8 @@
     addLine(headers[0]||"","text-align:center;font-weight:700;font-size:24px;margin-bottom:5px");addLine(headers[1]||"","text-align:center;font-weight:700;font-size:17px;margin-bottom:4px");addLine(headers[2]||"","text-align:center;font-size:14px;margin-bottom:14px");addLine(opts.title||"FMS Report","text-align:center;font-weight:700;font-size:17px;margin-bottom:5px");metaLines(opts,rows).forEach(line=>addLine(line,"text-align:center;font-size:12px;margin-bottom:3px"));
     const sumHeading=document.createElement("div");sumHeading.textContent="SUMMARY";sumHeading.style.cssText="width:100%;box-sizing:border-box;text-align:center;font-weight:700;background:#eee;border:1px solid #555;padding:7px;margin-top:14px";wrap.appendChild(sumHeading);
     const sum=document.createElement("div");sum.className="summary-cards";sum.style.cssText="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:8px 0 16px";sum.innerHTML=summary.map(x=>`<div style="border:1px solid #777;border-radius:5px;padding:9px 7px;text-align:center;min-height:58px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:600">${escapeHtml(x.label)}</div><div style="font-size:18px;font-weight:700;margin-top:4px">${escapeHtml(x.value)}</div></div>`).join("");wrap.appendChild(sum);
-    const appendTable=(tableCols,heading="")=>{if(heading)addLine(heading,"font-weight:700;font-size:14px;background:#212529;color:#fff;padding:8px 10px;margin-top:12px");const table=document.createElement("table");table.style.cssText="border-collapse:collapse;width:100%;font-size:12px;table-layout:auto;margin-bottom:18px";const trh=document.createElement("tr");tableCols.forEach(c=>{const th=document.createElement("th");th.textContent=c.label||c.key;th.style.cssText="border:1px solid #555;padding:6px;background:#eee;text-align:center;white-space:nowrap";trh.appendChild(th);});const thead=document.createElement("thead");thead.appendChild(trh);table.appendChild(thead);const tbody=document.createElement("tbody");rows.forEach(r=>{const tr=document.createElement("tr");tableCols.forEach(c=>{const td=document.createElement("td");td.textContent=clean(r?.[c.key]);td.style.cssText="border:1px solid #777;padding:5px;vertical-align:top;max-width:300px;white-space:pre-wrap";tr.appendChild(td);});tbody.appendChild(tr);});table.appendChild(tbody);wrap.appendChild(table);};
-    if(sections.length)sections.forEach(sec=>appendTable(sec.columns,sec.heading));else appendTable(cols);document.body.appendChild(wrap);return wrap;
+    const appendTable=(tableCols,heading="",tableRows=rows)=>{if(heading)addLine(heading,"font-weight:700;font-size:14px;background:#212529;color:#fff;padding:8px 10px;margin-top:12px");const table=document.createElement("table");table.style.cssText="border-collapse:collapse;width:100%;font-size:12px;table-layout:auto;margin-bottom:18px";const trh=document.createElement("tr");tableCols.forEach(c=>{const th=document.createElement("th");th.textContent=c.label||c.key;th.style.cssText="border:1px solid #555;padding:6px;background:#eee;text-align:center;white-space:nowrap";trh.appendChild(th);});const thead=document.createElement("thead");thead.appendChild(trh);table.appendChild(thead);const tbody=document.createElement("tbody");tableRows.forEach(r=>{const tr=document.createElement("tr");tableCols.forEach(c=>{const td=document.createElement("td");td.textContent=clean(r?.[c.key]);td.style.cssText="border:1px solid #777;padding:5px;vertical-align:top;max-width:300px;white-space:pre-wrap";tr.appendChild(td);});tbody.appendChild(tr);});table.appendChild(tbody);wrap.appendChild(table);};
+    if(sections.length)sections.forEach(sec=>appendTable(sec.columns,sec.heading,sec.rows));else appendTable(cols);document.body.appendChild(wrap);return wrap;
   }
 
   async function jpegBlobFromElement(element){
@@ -213,8 +213,8 @@
   async function printRows(opts={}){
     const rows=opts.rows||[];ensureRows(rows);const cols=normalizeColumns(rows,opts.columns),sections=normalizeSections(opts,rows,cols),headers=headerLines(opts),summary=summaryItems(opts,rows);
     const w=window.open("","_blank","width=1200,height=800");if(!w)throw new Error("Popup blocked. Please allow popups for printing.");
-    const tableHtml=(tableCols,heading="")=>`${heading?`<div class="section-heading">${escapeHtml(heading)}</div>`:""}<table class="data"><thead><tr>${tableCols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${tableCols.map(c=>`<td>${escapeHtml(clean(r?.[c.key]))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
-    const bodyTables=sections.length?sections.map(sec=>tableHtml(sec.columns,sec.heading)).join(""):tableHtml(cols);
+    const tableHtml=(tableCols,heading="",tableRows=rows)=>`${heading?`<div class="section-heading">${escapeHtml(heading)}</div>`:""}<table class="data"><thead><tr>${tableCols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${tableRows.map(r=>`<tr>${tableCols.map(c=>`<td>${escapeHtml(clean(r?.[c.key]))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    const bodyTables=sections.length?sections.map(sec=>tableHtml(sec.columns,sec.heading,sec.rows)).join(""):tableHtml(cols);
     const sumCards=summary.map(x=>`<div class="summary-card"><div class="summary-label">${escapeHtml(x.label)}</div><div class="summary-value">${escapeHtml(x.value)}</div></div>`).join("");
     w.document.write(`<!doctype html><html><head><title>${escapeHtml(opts.title||"FMS Report")}</title><style>body{font-family:Arial;padding:18px;color:#111}.report-shell{width:100%;margin:0 auto}.gov{text-align:center;margin:0;width:100%}.gov1{font-size:22px;font-weight:700}.gov2{font-size:15px;font-weight:700;margin-top:4px}.gov3{font-size:13px;margin-top:4px}.title{text-align:center;font-size:16px;font-weight:700;margin:14px 0 5px}.meta{text-align:center;font-size:11px;margin:2px}.summary-heading{text-align:center;font-weight:700;background:#eee;border:1px solid #555;padding:6px;margin-top:14px}.summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;width:100%;margin:8px 0 14px;box-sizing:border-box}.summary-card{border:1px solid #777;border-radius:4px;padding:8px;text-align:center;min-height:52px;display:flex;flex-direction:column;justify-content:center}.summary-label{font-size:10px;font-weight:600}.summary-value{font-size:16px;font-weight:700;margin-top:3px}.section-heading{font-weight:700;background:#212529;color:#fff;padding:7px 9px;margin-top:14px;border:1px solid #212529}table.data{border-collapse:collapse;width:100%;font-size:11px;table-layout:auto;margin-bottom:14px}th,td{border:1px solid #555;padding:5px;vertical-align:top;word-break:normal}th{background:#eee;white-space:normal;overflow-wrap:normal;hyphens:none}td{overflow-wrap:break-word}@media print{button{display:none}}</style></head><body><div class="report-shell"><div class="gov gov1">${escapeHtml(headers[0]||"")}</div><div class="gov gov2">${escapeHtml(headers[1]||"")}</div><div class="gov gov3">${escapeHtml(headers[2]||"")}</div><div class="title">${escapeHtml(opts.title||"FMS Report")}</div>${metaLines(opts,rows).map(x=>`<div class="meta">${escapeHtml(x)}</div>`).join("")}<div class="summary-heading">SUMMARY</div><div class="summary-cards">${sumCards}</div>${bodyTables}</div><script>window.onload=()=>{window.print();}<\/script></body></html>`);w.document.close();
   }

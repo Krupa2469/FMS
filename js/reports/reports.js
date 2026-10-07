@@ -1,5 +1,5 @@
 "use strict";
-/* Central reports + custom report definitions - v1.10.20 */
+/* Central reports + custom report definitions - v1.10.21 */
 (function(window,document){
 const CFG={
   cpgrams:{collection:"cpgrams",dateFields:["dateReceived","orgReceivedDate","receivedDate","grievanceDate","dateOfReceipt","receiptDate","dateArised","questionReceivedDate","date"],dueFields:["dueDate"],name:"GRIEVANCES"},
@@ -55,13 +55,19 @@ function applyFYDates(fy){const b=fyBounds(fy);if(!b)return;$("fromDate").value=
 function selectedPeriod(){const fy=$("financialYear")?.value;if(fy&&fy!=="custom")return `Financial Year: ${fy}`;const f=$("fromDate").value,t=$("toDate").value;return `Period: ${f||"Start"} to ${t||"Today"}`;}
 function isDishaMeetingStatusDefinition(def){return def?.module==="disha"&&/disha\s+meetings?\s+status/i.test(String(def.name||""));}
 function reportName(module){if(activeDefinition){const custom=String(activeDefinition.mainHeading||"").trim();if(custom)return custom;return `${activeDefinition.name||"Custom Report"} as on ${todayLabel()}`;}if(module==="all")return `All Modules Status Report as on ${todayLabel()}`;return `${CFG[module]?.name||String(module).toUpperCase()} Status Report as on ${todayLabel()}`;}
+function legacyDefinitionFilters(def){return [{field:def?.filterField,operator:def?.operator,value:def?.filterValue},{field:def?.filterField2,operator:def?.operator2,value:def?.filterValue2},{field:def?.filterField3,operator:def?.operator3,value:def?.filterValue3}].filter(f=>f.field);}
+function sectionFilterSpecs(sec,def){
+ const own=Array.isArray(sec?.filters)?sec.filters.filter(f=>f?.field).slice(0,3):[];
+ if(own.length)return own.map(f=>({field:f.field,operator:f.operator||"contains",value:f.value??""}));
+ return legacyDefinitionFilters(def);
+}
 function definitionSections(def){
- return (Array.isArray(def?.sections)?def.sections:[]).map(sec=>({heading:String(sec?.heading||"").trim(),fields:Array.isArray(sec?.fields)?sec.fields.filter(Boolean):[]})).filter(sec=>sec.heading&&sec.fields.length).map(sec=>({heading:sec.heading,columns:sec.fields.map(k=>({key:k,label:label(k)}))}));
+ return (Array.isArray(def?.sections)?def.sections:[]).map(sec=>({heading:String(sec?.heading||"").trim(),fields:Array.isArray(sec?.fields)?sec.fields.filter(Boolean):[],filters:sectionFilterSpecs(sec,def)})).filter(sec=>sec.heading&&sec.fields.length).map(sec=>({heading:sec.heading,columns:sec.fields.map(k=>({key:k,label:label(k)})),filters:sec.filters,rows:[]}));
 }
 function definitionFields(def){const fromSections=definitionSections(def).flatMap(sec=>sec.columns.map(c=>c.key));return [...new Set((fromSections.length?fromSections:(def?.fields||[])).filter(Boolean))];}
 function sectionTableHtml(sections,rows,preview=false){
  const blockClass=preview?"export-preview-section-block":"report-section-block",headingClass=preview?"export-preview-section-heading":"report-section-heading";
- return (sections||[]).map(sec=>`<div class="${blockClass}"><div class="${headingClass}">${escapeHtml(sec.heading)}</div><div class="table-responsive"><table class="table table-bordered table-striped table-hover mb-0"><thead><tr>${sec.columns.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${sec.columns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${Math.max(sec.columns.length,1)}" class="text-center p-4 text-muted">No records found.</td></tr>`}</tbody></table></div></div>`).join("");
+ return (sections||[]).map(sec=>{const sectionRows=Array.isArray(sec.rows)?sec.rows:rows;return `<div class="${blockClass}"><div class="${headingClass}">${escapeHtml(sec.heading)} <span class="badge bg-light text-dark ms-2">${sectionRows.length}</span></div><div class="table-responsive"><table class="table table-bordered table-striped table-hover mb-0"><thead><tr>${sec.columns.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${sectionRows.length?sectionRows.map(r=>`<tr>${sec.columns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${Math.max(sec.columns.length,1)}" class="text-center p-4 text-muted">No records found.</td></tr>`}</tbody></table></div></div>`;}).join("");
 }
 async function loadAll(){if(!window.db)throw new Error("Firestore is not ready.");for(const m of Object.keys(CFG)){const snap=await db.collection(CFG[m].collection).get();loaded[m]=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.active!==false);}try{const snap=await db.collection("reportDefinitions").get();definitions=snap.docs.map(d=>({id:d.id,...d.data()})).filter(d=>d.active!==false).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));}catch(e){console.warn("Report definitions unavailable",e);definitions=[];}populateDefinitions();}
 function populateDefinitions(){const sel=$("customReport"),current=sel.value;sel.innerHTML='<option value="">— Standard report —</option>'+definitions.map(d=>`<option value="${d.id}">${escapeHtml(d.name)} (${String(d.module||"").toUpperCase()})</option>`).join("");if(definitions.some(d=>d.id===current))sel.value=current;}
@@ -72,6 +78,7 @@ function passesOneFilter(r,field,operator,filterValue){
  let v=r?.[field];if(v&&typeof v.toDate==="function")v=fmt(v);v=String(v??"");const q=String(filterValue??"");
  switch(operator){case"equals":return v.toLowerCase()===q.toLowerCase();case"notEquals":return v.toLowerCase()!==q.toLowerCase();case"gt":return Number(v)>Number(q);case"gte":return Number(v)>=Number(q);case"lt":return Number(v)<Number(q);case"lte":return Number(v)<=Number(q);case"isEmpty":return !v.trim();case"notEmpty":return !!v.trim();default:return v.toLowerCase().includes(q.toLowerCase());}
 }
+function passesFilters(r,filters=[]){return (filters||[]).every(f=>passesOneFilter(r,f?.field,f?.operator||"contains",f?.value??""));}
 function passesDef(r,def){
  if(!def)return true;
  return passesOneFilter(r,def.filterField,def.operator,def.filterValue)&&
@@ -144,19 +151,29 @@ function generate(){
  reportRows=out;const keys=[];out.forEach(row=>Object.keys(row).forEach(k=>{if(!keys.includes(k))keys.push(k);}));reportColumns=(keys.length?keys:["Module","ID","Date","Subject","Workflow Stage","Final Status"]).map(k=>({key:k,label:k}));reportSummary=buildSummary(m,raw,out);render(reportName(m));
 }
 function generateCustom(def){const modules=def.module==="all"?Object.keys(loaded):[def.module];let out=[],raw=[];activeModule=def.module||"all";reportSections=definitionSections(def);const fields=definitionFields(def);
- if(isDishaMeetingStatusDefinition(def)&&!reportSections.length){
-   let source=(loaded.disha||[]).filter(x=>inRange(x,"disha")).filter(x=>passesDef(x,def));
-   if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,"disha");
-   raw=source.slice();out=source.map((r,i)=>standardRow("disha",r,i));reportColumns=DISHA_STATUS_COLUMNS.map(c=>({...c}));reportRows=out;reportSummary=buildSummary("disha",raw,out,def.summaryCards);render(reportName("disha"));return;
+ if(reportSections.length){
+   const represented=new Set();
+   if(def.module==="all"){
+     const combined=[];for(const m of modules){for(const r of loaded[m].filter(x=>inRange(x,m))){combined.push({raw:r,module:m,row:standardRow(m,r)});}}
+     if(def.sortField)combined.sort((a,b)=>{for(const [field,dir] of [[def.sortField,def.sortDirection],[def.sortField2,def.sortDirection2],[def.sortField3,def.sortDirection3]].filter(x=>x[0])){const c=compareCustom(a.row,b.row,field);if(c)return c*(dir==="desc"?-1:1);}return 0;});else combined.sort((a,b)=>dateTimeOf(b.raw,b.module)-dateTimeOf(a.raw,a.module));
+     reportSections.forEach(sec=>{const matches=combined.filter(x=>passesFilters(x.row,sec.filters));matches.forEach(x=>represented.add(x));sec.rows=matches.map((x,i)=>{const o={};sec.columns.forEach(c=>o[c.key]=c.key==="slNo"?i+1:(x.row?.[c.key]??""));return o;});});
+     const selected=combined.filter(x=>represented.has(x));raw=selected.map(x=>({...x.raw,__module:x.module}));const chosen=fields.length?fields:Object.keys(selected[0]?.row||{});out=selected.map((x,i)=>{const o={};chosen.forEach(k=>o[k]=(k==="slNo"?i+1:(x.row?.[k]??"")));return o;});reportColumns=chosen.map(k=>({key:k,label:label(k)}));
+   }else{
+     let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,def.module);
+     reportSections.forEach(sec=>{const matches=source.filter(r=>passesFilters(r,sec.filters));matches.forEach(r=>represented.add(r));sec.rows=matches.map((r,i)=>{const o={};sec.columns.forEach(c=>o[c.key]=customValue(r,c.key,i,def.module));return o;});});
+     raw=source.filter(r=>represented.has(r));out=raw.map((r,i)=>{const o={};fields.forEach(k=>o[k]=customValue(r,k,i,def.module));return o;});reportColumns=fields.map(k=>({key:k,label:label(k)}));
+   }
+   reportRows=out;reportSummary=buildSummary(def.module,raw,out,def.summaryCards);render(reportName(def.module));return;
+ }
+ if(isDishaMeetingStatusDefinition(def)){
+   let source=(loaded.disha||[]).filter(x=>inRange(x,"disha")).filter(x=>passesDef(x,def));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,"disha");raw=source.slice();out=source.map((r,i)=>standardRow("disha",r,i));reportColumns=DISHA_STATUS_COLUMNS.map(c=>({...c}));reportRows=out;reportSummary=buildSummary("disha",raw,out,def.summaryCards);render(reportName("disha"));return;
  }
  if(def.module==="all"){
    const combined=[];for(const m of modules){for(const r of loaded[m].filter(x=>inRange(x,m))){const sr=standardRow(m,r);if(passesDef(sr,def))combined.push({raw:{...r,__module:m},row:sr});}}
-   if(def.sortField)combined.sort((a,b)=>{for(const [field,dir] of [[def.sortField,def.sortDirection],[def.sortField2,def.sortDirection2],[def.sortField3,def.sortDirection3]].filter(x=>x[0])){const c=compareCustom(a.row,b.row,field);if(c)return c*(dir==="desc"?-1:1);}return 0;});
-   else combined.sort((a,b)=>dateTimeOf(b.raw,b.raw.__module)-dateTimeOf(a.raw,a.raw.__module));
+   if(def.sortField)combined.sort((a,b)=>{for(const [field,dir] of [[def.sortField,def.sortDirection],[def.sortField2,def.sortDirection2],[def.sortField3,def.sortDirection3]].filter(x=>x[0])){const c=compareCustom(a.row,b.row,field);if(c)return c*(dir==="desc"?-1:1);}return 0;});else combined.sort((a,b)=>dateTimeOf(b.raw,b.raw.__module)-dateTimeOf(a.raw,a.raw.__module));
    raw=combined.map(x=>x.raw);const chosen=fields.length?fields:Object.keys(combined[0]?.row||{});out=combined.map(x=>{const o={};chosen.forEach(k=>o[k]=x.row?.[k]??"");return o;});reportColumns=chosen.map(k=>({key:k,label:label(k)}));
  }else{
-   let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module)).filter(x=>passesDef(x,def));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,def.module);raw=source.slice();
-   source.forEach((r,i)=>{const o={};fields.forEach(k=>o[k]=customValue(r,k,i,def.module));out.push(o);});reportColumns=fields.map(k=>({key:k,label:label(k)}));
+   let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module)).filter(x=>passesDef(x,def));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,def.module);raw=source.slice();source.forEach((r,i)=>{const o={};fields.forEach(k=>o[k]=customValue(r,k,i,def.module));out.push(o);});reportColumns=fields.map(k=>({key:k,label:label(k)}));
  }
  reportRows=out;reportSummary=buildSummary(def.module,raw,out,def.summaryCards);render(reportName(def.module));
 }
@@ -183,7 +200,7 @@ function closeExportPreview(){$("exportPreviewBackdrop")?.classList.remove("open
 async function previewDownload(){const status=$("exportPreviewStatus");try{const type=$("exportPreviewFormat").value,opts=exportOpts();status.textContent="Preparing file...";if(type==="excel")await FMSExportService.toExcel(opts);if(type==="pdf")await FMSExportService.toPDF(opts);if(type==="jpeg")await FMSExportService.toJPEG(opts);status.textContent="Downloaded successfully.";}catch(e){status.textContent="";alert(e.message||e);}}
 async function previewPrint(){const status=$("exportPreviewStatus");try{status.textContent="Opening print preview...";await FMSExportService.printRows(exportOpts());status.textContent="";}catch(e){status.textContent="";alert(e.message||e);}}
 async function previewShare(){const status=$("exportPreviewStatus");try{const type=$("exportPreviewFormat").value;status.textContent="Preparing share...";const result=await FMSExportService.shareFile(type,exportOpts());if(result?.cancelled)status.textContent="Share cancelled.";else if(result?.shared)status.textContent=result.fileShared?"Report file shared.":"Report details shared. The file remains available from Download.";else if(result?.downloaded)status.textContent=result.message||"Sharing was not permitted; report downloaded instead.";else status.textContent="";}catch(e){console.error(e);status.textContent="Unable to use device sharing. Please use Download.";}}
-async function shareWhatsApp(){const shareCols=reportSections[0]?.columns?.length?reportSections[0].columns:reportColumns;const preview=reportRows.slice(0,15).map((r,i)=>`${i+1}. ${shareCols.slice(0,4).map(c=>`${c.label}: ${r[c.key]??""}`).join(" | ")}`).join("\n");await window.FMSWhatsAppService?.compose({module:"REPORTS",title:$("reportTitle").textContent,summaryText:`${selectedPeriod()}\nRecords: ${reportRows.length}\n${preview}`});}
+async function shareWhatsApp(){const firstSection=reportSections[0],shareCols=firstSection?.columns?.length?firstSection.columns:reportColumns,shareRows=Array.isArray(firstSection?.rows)?firstSection.rows:reportRows;const preview=shareRows.slice(0,15).map((r,i)=>`${i+1}. ${shareCols.slice(0,4).map(c=>`${c.label}: ${r[c.key]??""}`).join(" | ")}`).join("\n");await window.FMSWhatsAppService?.compose({module:"REPORTS",title:$("reportTitle").textContent,summaryText:`${selectedPeriod()}\nRecords: ${reportRows.length}\n${preview}`});}
 async function init(){if(started)return;started=true;$("btnHome").onclick=()=>location.href="../index.html";$("btnMasters").onclick=()=>location.href="admin/master-management.html";$("btnReportsMaster").onclick=()=>location.href="admin/reports-master.html";$("btnRefresh").onclick=async()=>{await loadAll();generate();};$("btnGenerate").onclick=generate;$("btnExcel").onclick=()=>openExportPreview("excel");$("btnPDF").onclick=()=>openExportPreview("pdf");$("btnJPEG").onclick=()=>openExportPreview("jpeg");$("btnPrint").onclick=()=>openExportPreview("print");$("btnWhatsApp").onclick=shareWhatsApp;$("btnCloseExportPreview").onclick=closeExportPreview;$("btnPreviewDownload").onclick=previewDownload;$("btnPreviewPrint").onclick=previewPrint;$("btnPreviewShare").onclick=previewShare;$("exportPreviewFormat").onchange=e=>{exportPreviewType=e.target.value;updateDeviceShareNote();};$("exportPreviewBackdrop").addEventListener("click",e=>{if(e.target===$("exportPreviewBackdrop"))closeExportPreview();});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("exportPreviewBackdrop")?.classList.contains("open"))closeExportPreview();});$("customReport").onchange=()=>{activeDefinition=definitions.find(d=>d.id===$("customReport").value)||null;if(activeDefinition){$("reportModule").value=activeDefinition.module==="all"?"all":activeDefinition.module;dateRangePreset(activeDefinition);}};$("financialYear").onchange=e=>{if(e.target.value!=="custom")applyFYDates(e.target.value);generate();};["fromDate","toDate"].forEach(id=>$(id).addEventListener("change",()=>{$("financialYear").value="custom";}));try{await loadAll();populateFY();const q=new URLSearchParams(location.search).get("module");if(q&&CFG[q])$("reportModule").value=q;generate();}catch(e){$("reportStatus").textContent="Unable to load reports: "+(e.message||e);console.error(e);}}
 document.addEventListener("DOMContentLoaded",()=>{if(window.fmsFirebaseReady&&window.db)init();else{window.addEventListener("fmsFirebaseReady",init,{once:true});setTimeout(()=>{if(window.db)init();},1600);}});
 })(window,document);
