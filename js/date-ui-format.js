@@ -4,7 +4,7 @@
   function isoToDisplay(v){const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:String(v||'');}
   function displayToIso(v){const s=String(v||'').trim();if(!s)return '';let m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(m){const d=+m[1],mo=+m[2],y=+m[3],x=new Date(y,mo-1,d);if(x.getFullYear()===y&&x.getMonth()===mo-1&&x.getDate()===d)return `${y}-${pad(mo)}-${pad(d)}`;return null;}m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?s:null;}
   function adapt(el){
-    if(!el||el.dataset.fmsDdMmYyyy==='1')return; el.dataset.fmsDdMmYyyy='1';
+    if(!el||el.dataset.fmsDdMmYyyy==='1'||el.dataset.fmsDateUiSkip==='1'||el.classList.contains('fms-date-ui-skip'))return; el.dataset.fmsDdMmYyyy='1';
     const wrap=document.createElement('div');wrap.className='fms-date-wrap';
     const visible=document.createElement('input');visible.type='text';visible.className=el.className;visible.placeholder='DD/MM/YYYY';visible.autocomplete='off';visible.inputMode='numeric';visible.value=isoToDisplay(el.value);visible.dataset.fmsDateDisplayFor=el.id||'';
     const pick=document.createElement('button');pick.type='button';pick.className='fms-date-picker-btn';pick.setAttribute('aria-label','Open calendar');pick.title='Open calendar';pick.innerHTML='&#128197;';
@@ -18,7 +18,7 @@
     el.addEventListener('change',()=>{last=el.value;visible.value=isoToDisplay(el.value);visible.setCustomValidity('');});
     setInterval(()=>{if(el.value!==last&&document.activeElement!==visible){last=el.value;visible.value=isoToDisplay(el.value);}visible.disabled=el.disabled;visible.readOnly=el.readOnly;pick.disabled=el.disabled||el.readOnly;},200);
   }
-  function init(){document.querySelectorAll('input[type="date"]').forEach(adapt);}
+  function init(){document.querySelectorAll('input[type="date"]:not([data-fms-date-ui-skip="1"]):not(.fms-date-ui-skip)').forEach(adapt);}
   function syncAll(){document.querySelectorAll('[data-fms-date-display-for]').forEach(visible=>{const id=visible.dataset.fmsDateDisplayFor;if(!id)return;const el=document.getElementById(id);if(!el)return;const iso=displayToIso(visible.value);if(iso!==null){visible.setCustomValidity('');el.value=iso;}else visible.setCustomValidity('Enter date as DD/MM/YYYY');});}
   function refreshDisplays(){document.querySelectorAll('[data-fms-date-display-for]').forEach(v=>{const el=document.getElementById(v.dataset.fmsDateDisplayFor||'');if(el){v.value=isoToDisplay(el.value);v.setCustomValidity('');}});}
   const style=document.createElement('style');style.textContent='.fms-date-wrap{position:relative;display:flex;align-items:stretch;width:100%}.fms-date-wrap>input[data-fms-date-display-for]{padding-right:46px}.fms-date-picker-btn{position:absolute;right:1px;top:1px;bottom:1px;width:42px;border:0;border-left:1px solid #dee2e6;background:#fff;border-radius:0 .375rem .375rem 0;cursor:pointer;font-size:20px;line-height:1}.fms-date-picker-btn:hover{background:#f3f6f9}.fms-date-picker-btn:disabled{opacity:.45;cursor:not-allowed}.fms-native-date-picker{position:absolute!important;right:0!important;bottom:0!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}';document.head.appendChild(style);

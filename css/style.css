@@ -452,7 +452,7 @@ table td {
 
 
 /*==========================================================
-FMS v1.10.16 - OPERATIONAL DESK INSPIRED UI REFRESH
+FMS v1.10.17 - OPERATIONAL DESK INSPIRED UI REFRESH
 Sidebar, dashboard cards, registers and forms redesigned
 ==========================================================*/
 :root{
@@ -845,7 +845,7 @@ main.container-fluid.py-3{padding-left:18px!important;padding-right:18px!importa
 }
 
 /*==========================================================
-FMS v1.10.16 - GLOBAL LIGHT DASHBOARD CARDS
+FMS v1.10.17 - GLOBAL LIGHT DASHBOARD CARDS
 Keep RTI five-card layout while using the unified light theme
 ==========================================================*/
 #moduleDashboardCards.fms-rti-dashboard{
@@ -875,7 +875,7 @@ Keep RTI five-card layout while using the unified light theme
 
 
 /*==========================================================
-FMS v1.10.16 - HOME HEADER + LIGHT BLUE SIDEBAR
+FMS v1.10.17 - HOME HEADER + LIGHT BLUE SIDEBAR
 ==========================================================*/
 .home-sidebar{
     background:#dcebff!important;
@@ -919,7 +919,7 @@ FMS v1.10.16 - HOME HEADER + LIGHT BLUE SIDEBAR
 }
 
 /*==========================================================
-FMS v1.10.16 - COMMON HEADER ON ALL SCREENS
+FMS v1.10.17 - COMMON HEADER ON ALL SCREENS
 ==========================================================*/
 body > header:not(.fms-global-header),
 body > .page-header:not(.fms-global-header),
@@ -1005,7 +1005,7 @@ body > .hero:not(.fms-global-header){
 }
 
 /*==========================================================
-FMS v1.10.16 - SINGLE HEADER, MODULE TITLE, COMPLETE NAVIGATION
+FMS v1.10.17 - SINGLE HEADER, MODULE TITLE, COMPLETE NAVIGATION
 AND BOTTOM DATA-ENTRY ACTIONS
 ==========================================================*/
 .fms-legacy-header-hidden,
@@ -1132,7 +1132,7 @@ body[data-fms-module="disha"] .fms-action-toolbar{
 
 
 /*==========================================================
-FMS v1.10.16 - REGISTER / REPORT COLUMN AUTO-FIT
+FMS v1.10.17 - REGISTER / REPORT COLUMN AUTO-FIT
 Keep complete column headings readable and align headers with data.
 ==========================================================*/
 .table-responsive{
@@ -1229,7 +1229,7 @@ body[data-fms-module="disha"] .table-responsive table td:last-child{
 
 
 /*==========================================================
-FMS v1.10.16 - GRIEVANCE NUMBER / DATE COLUMN SEPARATION
+FMS v1.10.17 - GRIEVANCE NUMBER / DATE COLUMN SEPARATION
 Prevent identifier and date values from overlapping in inline grievance registers.
 ==========================================================*/
 #grievanceInlineRegisterTable{
@@ -1291,7 +1291,7 @@ Prevent identifier and date values from overlapping in inline grievance register
 
 
 /*==========================================================
-FMS v1.10.16 - DYNAMIC S.NO. ON ALL REGISTERS
+FMS v1.10.17 - DYNAMIC S.NO. ON ALL REGISTERS
 Serial numbers are display-only and recalculate after filter/sort/delete.
 ==========================================================*/
 .fms-serial-col,
