@@ -1,5 +1,5 @@
 "use strict";
-/* Central reports + custom report definitions - v1.10.27 */
+/* Central reports + custom report definitions - v1.10.28 */
 (function(window,document){
 const CFG={
   cpgrams:{collection:"cpgrams",dateFields:["dateReceived","orgReceivedDate","receivedDate","grievanceDate","dateOfReceipt","receiptDate","dateArised","questionReceivedDate","date"],dueFields:["dueDate"],name:"GRIEVANCES"},
@@ -89,6 +89,21 @@ function reportColumnWidthsCh(columns,rows){
 }
 function reportTableWidthCh(columns,rows){return reportColumnWidthsCh(columns,rows).reduce((a,b)=>a+b,0)+2;}
 function reportColgroup(columns,rows){return '<colgroup>'+reportColumnWidthsCh(columns,rows).map(w=>`<col style="width:${w}ch">`).join('')+'</colgroup>';}
+function reportContentWidthPx(){
+ const widths=reportSections.length?reportSections.map(sec=>reportTableWidthCh(sec.columns,Array.isArray(sec.rows)?sec.rows:reportRows)):[reportTableWidthCh(reportColumns,reportRows)];
+ const widest=Math.max(64,...widths.filter(Number.isFinite));
+ return Math.max(680,Math.min(1080,Math.round(widest*8+44)));
+}
+function applyCompactReportWidth(preview=false){
+ const width=reportContentWidthPx();
+ if(preview){
+  const paper=$("exportPreviewReportTitle")?.closest(".export-preview-paper");
+  if(paper){paper.style.width=width+"px";paper.style.minWidth=width+"px";paper.style.maxWidth=width+"px";}
+  return;
+ }
+ const summary=$("summarySection"),card=$("reportTitle")?.closest(".card");
+ [summary,card].forEach(el=>{if(!el)return;el.style.width=width+"px";el.style.maxWidth="100%";el.style.marginLeft="auto";el.style.marginRight="auto";});
+}
 function sectionTableHtml(sections,rows,preview=false){
  const blockClass=preview?"export-preview-section-block":"report-section-block",headingClass=preview?"export-preview-section-heading":"report-section-heading";
  return (sections||[]).map(sec=>{const sectionRows=Array.isArray(sec.rows)?sec.rows:rows,tableWidth=reportTableWidthCh(sec.columns,sectionRows);return `<div class="${blockClass}"><div class="${headingClass}">${escapeHtml(sec.heading)} <span class="badge bg-light text-dark ms-2">${sectionRows.length}</span></div><div class="table-responsive"><table class="table table-bordered table-striped table-hover mb-0 report-autofit-table" style="width:${tableWidth}ch">${reportColgroup(sec.columns,sectionRows)}<thead><tr>${sec.columns.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${sectionRows.length?sectionRows.map(r=>`<tr>${sec.columns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${Math.max(sec.columns.length,1)}" class="text-center p-4 text-muted">No records found.</td></tr>`}</tbody></table></div></div>`;}).join("");
@@ -258,6 +273,7 @@ function render(title){
  const colors=["primary","success","warning","danger"];
  $("summaryCards").innerHTML=reportSummary.map((x,i)=>`<div class="col-xl-3 col-md-6"><div class="card border-${colors[i%colors.length]} summary-card h-100"><div class="card-body text-center"><div class="text-muted">${escapeHtml(x.label)}</div><h3 class="text-${colors[i%colors.length]}">${escapeHtml(x.value)}</h3></div></div></div>`).join("");
  if($("summarySection"))$("summarySection").style.display=reportSummary.length?"":"none";
+ applyCompactReportWidth(false);
  $("summaryPeriod").textContent=selectedPeriod();$("reportStatus").textContent=`Generated ${new Date().toLocaleString("en-IN")}`;
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -265,7 +281,7 @@ function exportOpts(){const fy=$("financialYear")?.value;return {rows:reportRows
 function renderExportPreview(){
  const title=$("reportTitle").textContent||"FMS Report";$("exportPreviewTitle").textContent="Export Report — Preview";$("exportPreviewMeta").textContent=`${title} • ${reportRows.length} record(s)`;$("exportPreviewGov1").textContent=GOV_HEADER[0];$("exportPreviewGov2").textContent=GOV_HEADER[1];$("exportPreviewGov3").textContent=GOV_HEADER[2];$("exportPreviewReportTitle").textContent=title;$("exportPreviewReportMeta").textContent=selectedPeriod()+` • Records: ${reportRows.length}`;
  $("exportPreviewSummary").innerHTML=reportSummary.length?'<div class="export-preview-summary-heading">SUMMARY</div><div class="export-preview-summary-grid">'+reportSummary.map(x=>`<div class="export-preview-summary-card"><div class="export-preview-summary-label">${escapeHtml(x.label)}</div><div class="export-preview-summary-value">${escapeHtml(x.value)}</div></div>`).join("")+"</div>":"";
- const previewSections=$("exportPreviewSections"),previewFlat=$("exportPreviewFlatTableWrap");if(reportSections.length){previewSections.innerHTML=sectionTableHtml(reportSections,reportRows,true);previewSections.style.display="";previewFlat.style.display="none";}else{previewSections.innerHTML="";previewSections.style.display="none";previewFlat.style.display="";const table=$("exportPreviewTable"),th=table.querySelector("thead"),tb=table.querySelector("tbody");table.querySelector("colgroup")?.remove();table.insertAdjacentHTML("afterbegin",reportColgroup(reportColumns,reportRows));table.classList.add("report-autofit-table");table.style.width=reportTableWidthCh(reportColumns,reportRows)+"ch";th.innerHTML='<tr>'+reportColumns.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join('')+'</tr>';tb.innerHTML=reportRows.map(r=>'<tr>'+reportColumns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join('')+'</tr>').join('');}$("exportPreviewFormat").value=exportPreviewType==="print"?"pdf":exportPreviewType;$("exportPreviewStatus").textContent="";updateDeviceShareNote();
+ const previewSections=$("exportPreviewSections"),previewFlat=$("exportPreviewFlatTableWrap");if(reportSections.length){previewSections.innerHTML=sectionTableHtml(reportSections,reportRows,true);previewSections.style.display="";previewFlat.style.display="none";}else{previewSections.innerHTML="";previewSections.style.display="none";previewFlat.style.display="";const table=$("exportPreviewTable"),th=table.querySelector("thead"),tb=table.querySelector("tbody");table.querySelector("colgroup")?.remove();table.insertAdjacentHTML("afterbegin",reportColgroup(reportColumns,reportRows));table.classList.add("report-autofit-table");table.style.width=reportTableWidthCh(reportColumns,reportRows)+"ch";th.innerHTML='<tr>'+reportColumns.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join('')+'</tr>';tb.innerHTML=reportRows.map(r=>'<tr>'+reportColumns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join('')+'</tr>').join('');}applyCompactReportWidth(true);$("exportPreviewFormat").value=exportPreviewType==="print"?"pdf":exportPreviewType;$("exportPreviewStatus").textContent="";updateDeviceShareNote();
 }
 function updateDeviceShareNote(){const note=$("deviceShareNote"),btn=$("btnPreviewShare");if(!note||!btn)return;btn.disabled=false;if(navigator.share){note.textContent="Share will open the device/browser share menu. File sharing is used when permitted; otherwise the report is shared as text or downloaded automatically.";note.classList.add("share-ready");}else{note.textContent="Native device sharing is unavailable in this browser. Share will download the selected report file instead.";note.classList.remove("share-ready");}}
 function openExportPreview(type){try{if(!Array.isArray(reportRows)||!reportRows.length)throw new Error("No records are available to export.");exportPreviewType=type||"pdf";renderExportPreview();$("exportPreviewBackdrop").classList.add("open");document.body.style.overflow="hidden";if(type==="print")setTimeout(()=>$("btnPreviewPrint")?.focus(),50);else setTimeout(()=>$("btnPreviewShare")?.focus(),50);}catch(e){alert(e.message||e);}}
