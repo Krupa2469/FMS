@@ -1,5 +1,5 @@
 "use strict";
-/* FMS v1.10.21 - Common module title + streamlined navigation row + bottom form actions */
+/* FMS v1.10.24 - Common module title + streamlined navigation row + bottom form actions */
 (function(window,document){
   const TYPE_LINKS=[
     {key:"cpgrams",label:"CPGRAMS",icon:"▣",href:"../cpgrams/cpgrams.html?grievanceType=CPGRAMS"},

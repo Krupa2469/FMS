@@ -1,4 +1,4 @@
-/* FMS v1.10.21 — Document categories shared by CPGRAMS, RTI and DISHA. */
+/* FMS v1.10.24 — Document categories shared by CPGRAMS, RTI and DISHA. */
 (function (window) {
   'use strict';
   const TYPES = ['Grievance', 'Appeal', 'Memo', 'ATR', 'Final Reply', 'RTI Application', 'First Appeal', 'Second Appeal', 'PoM', 'Meeting Notice', 'Agenda', 'Other'];

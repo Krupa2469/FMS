@@ -19,7 +19,7 @@ assert(masterJs.includes('summaryCards'),'Selected summary cards are persisted')
 assert(reportsJs.includes('passesOneFilter(r,def.filterField2'),'Runtime applies Filter 2');
 assert(reportsJs.includes('passesOneFilter(r,def.filterField3'),'Runtime applies Filter 3');
 assert(reportsJs.includes('if(!selected.length)return []'),'Summary cards are not hard-coded when none are selected in Reports Master');
-assert(reportsJs.includes('buildSummary(def.module,raw,out,def.summaryCards)'),'Custom report summary uses Reports Master selection');
+assert(reportsJs.includes('buildSummary(def.module,raw,out,def.summaryCards)') || reportsJs.includes('buildSummary(def.module,summaryData.raw,summaryData.transformed,def.summaryCards)'),'Custom report summary uses Reports Master selection');
 assert(reportsHtml.includes('id="summarySection"'),'Report summary section can be hidden when no master summary cards are selected');
 assert(!dishaJs.includes('"Records: " +\n            count'),'DISHA count no longer repeats Records label');
 assert(dishaJs.includes('String(count)'),'DISHA record count writes number only inside the existing Records label');

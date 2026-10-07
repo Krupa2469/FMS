@@ -1,5 +1,5 @@
 "use strict";
-/* Central reports + custom report definitions - v1.10.21 */
+/* Central reports + custom report definitions - v1.10.24 */
 (function(window,document){
 const CFG={
   cpgrams:{collection:"cpgrams",dateFields:["dateReceived","orgReceivedDate","receivedDate","grievanceDate","dateOfReceipt","receiptDate","dateArised","questionReceivedDate","date"],dueFields:["dueDate"],name:"GRIEVANCES"},
@@ -13,7 +13,10 @@ const DISHA_STATUS_COLUMNS=[
 ];
 const LABELS={grievanceType:"Grievance Type",grievanceNumber:"Grievance No.",dateReceived:"Date Received",applicationNumber:"Application No.",applicationDate:"Application Date",dateOfMeeting:"Meeting Date",pomDueDate:"PoM Due Date",pomUploaded:"PoM Uploaded",statusOfMeeting:"Meeting Status",statusOfBills:"Bill Status",meetingExpenditure:"Meeting Expenditure",complainantName:"Complainant Name",applicantName:"Applicant Name",informationSought:"Information Sought",assignedTo:"Assigned To",assignedOfficer:"Assigned Officer",officeCommunicationType:"Communication Type",presentStatus:"Present Status",currentStatus:"Current Status",finalStatus:"Final Status",officeStatus:"Office Status",fileLocation:"File Location",priorityClassification:"Priority Classification",natureOfGrievance:"Grievance Nature",questionSerialNo:"LAQ / LCQ No.",questionType:"Question Type",questionReceivedDate:"Received Date",questionConcernedSection:"Concerned Section",question:"Question",answer:"Answer",answerFurnishedBy:"Answer Furnished By",answerFurnishedTo:"Answer Furnished To",answerFurnishedDate:"Answer Furnished Date",questionCommunicationType:"Communication Type",questionFileNumber:"File No.",questionCommunicationDate:"Communication Date",questionFileStatus:"File Status",grievanceFinancialYear:"Financial Year",prajavaniSerial:"S.No.",grievanceDescription:"Grievance Description",fileDocumentName:"Grievance Document",gender:"Gender",district:"District",districtManual:"District (Manual)",mandal:"Mandal",mandalManual:"Mandal (Manual)",village:"Village",villageManual:"Village (Manual)",address:"Address",preferredContact:"Preferred Contact",fileNumber:"File No.",dateArised:"Date Arised",memoNumber:"UO Note/Memo/Letter No.",memoDate:"UO Note/Memo/Letter Date",officeLetterAddressedTo:"Addressed To",communicationStatus:"Communication Status",memoDocumentName:"UO Note/Memo/Letter Document",atrStatus:"ATR Status",appealNumber:"Appeal No.",appealDate:"Appeal Date",appealReceivedDate:"Appeal Received Date",appellantName:"Appellant Name",appealDocumentName:"Appeal Document",appealStatus:"Appeal Status",appealAuthority:"Appeal Authority / Addressed To",appealCommunicationNo:"Communication / Order No.",appealDisposalDate:"Appeal Disposal Date",appealRemarks:"Appeal Subject / Reason / Remarks",fileAttachmentName:"Attachment",applicantAddress:"Applicant Address",rtiApplicationFileName:"RTI Application Document",parsedText:"Extracted Text",newMandal:"New Mandal",newVillage:"New Village",officeFileNo:"File No.",officeDateArised:"Date Arised",officeSubject:"Subject",newOfficeOfficer:"New Officer",officeReplySection:"Reply Obtained From",newOfficeSection:"New Section",concernedSection:"Concerned Section",sentToSectionDate:"Sent to Section Date",replyStatus:"Reply Status",firstAppealNumber:"First Appeal No.",firstAppealDate:"First Appeal Date",firstAppealReceivedDate:"First Appeal Received Date",firstAppealStatus:"First Appeal Status",firstAppealAuthority:"First Appellate Authority",firstAppealOrderDate:"First Appeal Order / Disposal Date",firstAppealOrderNo:"First Appeal Order No.",firstAppealGrounds:"First Appeal Grounds / Remarks",secondAppealNumber:"Second Appeal No.",secondAppealDate:"Second Appeal Date",secondAppealReceivedDate:"Second Appeal Received Date",secondAppealStatus:"Second Appeal Status",secondAppealAuthority:"Second Appellate Authority / Information Commission",secondAppealOrderDate:"Second Appeal Order / Disposal Date",secondAppealOrderNo:"Second Appeal Order No.",secondAppealGrounds:"Second Appeal Grounds / Remarks",attachmentFileName:"Attachment",dishaWorkspaceFY:"Financial Year",slNo:"Sl.No.",pomUploadDate:"PoM Upload Date",pomPendingDays:"PoM Pending Days",billsSubmittedCRD:"Bills Submitted to CRD",billsForwardedMoRD:"Bills Forwarded to MoRD",proposedDateOfMeeting:"Proposed Date of Meeting",remarks:"Remarks"};
 let loaded={cpgrams:[],rti:[],disha:[]},definitions=[],reportRows=[],reportColumns=[],reportSections=[],reportSummary=[],activeDefinition=null,started=false,exportPreviewType="pdf",activeModule="all";
-const $=id=>document.getElementById(id);const label=k=>LABELS[k]||String(k).replace(/([A-Z])/g," $1").replace(/^./,c=>c.toUpperCase());
+const $=id=>document.getElementById(id);const baseLabel=k=>LABELS[k]||String(k).replace(/([A-Z])/g," $1").replace(/^./,c=>c.toUpperCase());
+function parseFieldRef(ref,fallbackModule){const v=String(ref||"");const i=v.indexOf("::");return i>0?{module:v.slice(0,i),key:v.slice(i+2),qualified:true}:{module:fallbackModule||"cpgrams",key:v,qualified:false};}
+const moduleName=m=>m==="cpgrams"?"GRIEVANCES":String(CFG[m]?.name||m||"").toUpperCase();
+function label(ref,fallbackModule){const p=parseFieldRef(ref,fallbackModule);return p.qualified?`${moduleName(p.module)} — ${baseLabel(p.key)}`:baseLabel(p.key);}
 function parseDate(v){if(!v)return null;if(v&&typeof v.toDate==="function")v=v.toDate();if(v&&v.seconds!=null)v=new Date(Number(v.seconds)*1000);const s=String(v);let m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);const d=v instanceof Date?v:new Date(v);return Number.isNaN(d.getTime())?null:d;}
 function fmt(v){const d=parseDate(v);return d?d.toLocaleDateString("en-GB"):String(v??"");}
 function iso(v){const d=parseDate(v);return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`:"";}
@@ -62,7 +65,11 @@ function sectionFilterSpecs(sec,def){
  return legacyDefinitionFilters(def);
 }
 function definitionSections(def){
- return (Array.isArray(def?.sections)?def.sections:[]).map(sec=>({heading:String(sec?.heading||"").trim(),fields:Array.isArray(sec?.fields)?sec.fields.filter(Boolean):[],filters:sectionFilterSpecs(sec,def)})).filter(sec=>sec.heading&&sec.fields.length).map(sec=>({heading:sec.heading,columns:sec.fields.map(k=>({key:k,label:label(k)})),filters:sec.filters,rows:[]}));
+ const fallback=def?.module||"cpgrams";
+ return (Array.isArray(def?.sections)?def.sections:[])
+  .map(sec=>({heading:String(sec?.heading||"").trim(),fields:Array.isArray(sec?.fields)?sec.fields.filter(Boolean):[],filters:sectionFilterSpecs(sec,def)}))
+  .filter(sec=>sec.heading&&sec.fields.length)
+  .map(sec=>({heading:sec.heading,columns:sec.fields.map(ref=>{const p=parseFieldRef(ref,fallback);return {key:ref,ref,module:p.module,fieldKey:p.key,label:label(ref,fallback)};}),filters:sec.filters,rows:[]}));
 }
 function definitionFields(def){const fromSections=definitionSections(def).flatMap(sec=>sec.columns.map(c=>c.key));return [...new Set((fromSections.length?fromSections:(def?.fields||[])).filter(Boolean))];}
 function sectionTableHtml(sections,rows,preview=false){
@@ -79,17 +86,43 @@ function passesOneFilter(r,field,operator,filterValue){
  switch(operator){case"equals":return v.toLowerCase()===q.toLowerCase();case"notEquals":return v.toLowerCase()!==q.toLowerCase();case"gt":return Number(v)>Number(q);case"gte":return Number(v)>=Number(q);case"lt":return Number(v)<Number(q);case"lte":return Number(v)<=Number(q);case"isEmpty":return !v.trim();case"notEmpty":return !!v.trim();default:return v.toLowerCase().includes(q.toLowerCase());}
 }
 function passesFilters(r,filters=[]){return (filters||[]).every(f=>passesOneFilter(r,f?.field,f?.operator||"contains",f?.value??""));}
+function passesSectionFilters(r,module,filters=[],fallbackModule){
+ return (filters||[]).every(f=>{const p=parseFieldRef(f?.field,fallbackModule||module);if(p.qualified&&p.module!==module)return true;return passesOneFilter(r,p.key,f?.operator||"contains",f?.value??"");});
+}
+function sectionModules(sec,fallbackModule){
+ const mods=new Set();
+ (sec?.columns||[]).forEach(c=>{const p=parseFieldRef(c.ref||c.key,fallbackModule);if(p.qualified)mods.add(p.module);});
+ (sec?.filters||[]).forEach(f=>{const p=parseFieldRef(f?.field,fallbackModule);if(p.qualified)mods.add(p.module);});
+ if(!mods.size){if(fallbackModule==="all")Object.keys(loaded).forEach(m=>mods.add(m));else mods.add(fallbackModule||"cpgrams");}
+ return mods;
+}
 function passesDef(r,def){
  if(!def)return true;
  return passesOneFilter(r,def.filterField,def.operator,def.filterValue)&&
         passesOneFilter(r,def.filterField2,def.operator2,def.filterValue2)&&
         passesOneFilter(r,def.filterField3,def.operator3,def.filterValue3);
 }
-function customValue(r,k,index=0,module=activeModule){
+function customValue(r,ref,index=0,module=activeModule,fallbackModule=activeModule){
+ const p=parseFieldRef(ref,fallbackModule||module);
+ if(p.qualified&&p.module!==module)return "";
+ const k=p.key;
  if(k==="slNo")return Number(index)+1;
  if(module==="disha"&&k==="pomPendingDays")return dishaPendingDays(r);
  if(module==="disha"&&k==="pomUploaded")return window.FMSRecordPolicy?.workflow?.("disha",r)?.pomUploaded?"Yes":"No";
  const v=r?.[k];if(v&&typeof v.toDate==="function")return fmt(v);if(k.toLowerCase().includes("date")||k.toLowerCase().includes("due")){const d=parseDate(v);if(d)return fmt(v);}return v??"";
+}
+function summaryDataset(module){
+ const modules=module==="all"?Object.keys(loaded):[module];
+ const raw=[];
+ const transformed=[];
+ for(const m of modules){
+   const source=(loaded[m]||[]).filter(r=>inRange(r,m));
+   source.forEach((r,i)=>{
+     raw.push(module==="all"?{...r,__module:m}:r);
+     transformed.push(standardRow(m,r,i));
+   });
+ }
+ return {raw,transformed};
 }
 function buildSummary(module,raw,transformed,selectedKeys){
  const selected=Array.isArray(selectedKeys)?selectedKeys.filter(Boolean):[];
@@ -101,6 +134,9 @@ function buildSummary(module,raw,transformed,selectedKeys){
    const allSince2014=(loaded.cpgrams||[]).filter(r=>{const d=parseDate(dateOf(r,"cpgrams"));return r.active!==false && (!P?.rowType || P.rowType(r)==="cpgrams") && d && d>=sinceStart;});
    const fyReceived=(raw||[]).filter(r=>!P?.rowType || P.rowType(r)==="cpgrams");
    const summaryRows=fyReceived.length ? fyReceived : (raw||[]);
+   const hasAppeal=r=>["appealNumber","appealDate","appealReceivedDate","appealStatus","appealAuthority","appealCommunicationNo","appealDisposalDate","appealRemarks"].some(k=>String(r?.[k]||"").trim());
+   const appealDisposed=r=>hasAppeal(r) && (/disposed|closed|completed/i.test(String(r?.appealStatus||"")) || !!String(r?.appealDisposalDate||"").trim());
+   const appealPending=r=>hasAppeal(r) && !appealDisposed(r);
    items=[
      {key:"totalSince2014",label:"Total Received since 2014-15",value:allSince2014.length},
      {key:"totalPeriod",label:`Total Received ${fyLabel}`,value:fyReceived.length},
@@ -110,7 +146,10 @@ function buildSummary(module,raw,transformed,selectedKeys){
      {key:"atrAwaited",label:"ATR / Reply Awaited",value:summaryRows.filter(r=>{const w=P?.workflow?.("cpgrams",r)||{};return w.memoIssued&&!w.atrReceived&&!P?.closed?.("cpgrams",r);}).length},
      {key:"atrReceived",label:"ATR / Reply Received",value:summaryRows.filter(r=>P?.workflow?.("cpgrams",r)?.atrReceived).length},
      {key:"pendingApproval",label:"Pending Approval",value:summaryRows.filter(r=>/Pending JC|EGS|Pending Approval|Reply to Government Pending/i.test(P?.workflow?.("cpgrams",r)?.stage||"")).length},
-     {key:"disposedClosed",label:"Disposed / Closed",value:summaryRows.filter(r=>P?.closed?.("cpgrams",r)).length}
+     {key:"disposedClosed",label:"Disposed / Closed",value:summaryRows.filter(r=>P?.closed?.("cpgrams",r)).length},
+     {key:"appealsReceived",label:"Appeals Received",value:summaryRows.filter(hasAppeal).length},
+     {key:"appealsPending",label:"Appeals Pending",value:summaryRows.filter(appealPending).length},
+     {key:"appealsDisposed",label:"Appeals Disposed",value:summaryRows.filter(appealDisposed).length}
    ];
  }else if(module==="rti"){
    items=[
@@ -129,6 +168,16 @@ function buildSummary(module,raw,transformed,selectedKeys){
  }
  const map=new Map(items.map(x=>[x.key,x]));
  return selected.map(k=>map.get(k)).filter(Boolean);
+}
+function buildDefinitionSummary(def){
+ const selected=Array.isArray(def?.summaryCards)?def.summaryCards.filter(Boolean):[];
+ if(!selected.length)return [];
+ const fallback=def?.module||"cpgrams",out=[];
+ selected.forEach(ref=>{
+   const p=parseFieldRef(ref,fallback),ds=summaryDataset(p.module),card=buildSummary(p.module,ds.raw,ds.transformed,[p.key])[0];
+   if(card)out.push({...card,key:ref,label:p.qualified?`${moduleName(p.module)} — ${card.label}`:card.label});
+ });
+ return out;
 }
 function dateTimeOf(r,m){const d=window.FMSRecordPolicy?.recordDate?.(m,r)||parseDate(dateOf(r,m));return d instanceof Date&&!Number.isNaN(d.getTime())?d.getTime():0;}
 function sortDateDesc(rows,m){return rows.sort((a,b)=>dateTimeOf(b,m)-dateTimeOf(a,m));}
@@ -150,32 +199,39 @@ function generate(){
  }else{raw=loaded[m].filter(r=>inRange(r,m));if(m==="cpgrams"&&window.FMSRecordPolicy?.rowType){raw=raw.filter(r=>window.FMSRecordPolicy.rowType(r)==="cpgrams");}sortDateDesc(raw,m);out=raw.map((r,i)=>standardRow(m,r,i));}
  reportRows=out;const keys=[];out.forEach(row=>Object.keys(row).forEach(k=>{if(!keys.includes(k))keys.push(k);}));reportColumns=(keys.length?keys:["Module","ID","Date","Subject","Workflow Stage","Final Status"]).map(k=>({key:k,label:k}));reportSummary=buildSummary(m,raw,out);render(reportName(m));
 }
-function generateCustom(def){const modules=def.module==="all"?Object.keys(loaded):[def.module];let out=[],raw=[];activeModule=def.module||"all";reportSections=definitionSections(def);const fields=definitionFields(def);
+function generateCustom(def){
+ const modules=def.module==="all"?Object.keys(loaded):[def.module];let out=[],raw=[];activeModule=def.module||"all";reportSections=definitionSections(def);const fields=definitionFields(def);
  if(reportSections.length){
+   // Sectioned reports can draw fields and filters from every operational module.
+   const combined=[];
+   for(const m of Object.keys(loaded)){for(const r of (loaded[m]||[]).filter(x=>inRange(x,m)))combined.push({raw:r,module:m});}
+   combined.sort((a,b)=>dateTimeOf(b.raw,b.module)-dateTimeOf(a.raw,a.module));
    const represented=new Set();
-   if(def.module==="all"){
-     const combined=[];for(const m of modules){for(const r of loaded[m].filter(x=>inRange(x,m))){combined.push({raw:r,module:m,row:standardRow(m,r)});}}
-     if(def.sortField)combined.sort((a,b)=>{for(const [field,dir] of [[def.sortField,def.sortDirection],[def.sortField2,def.sortDirection2],[def.sortField3,def.sortDirection3]].filter(x=>x[0])){const c=compareCustom(a.row,b.row,field);if(c)return c*(dir==="desc"?-1:1);}return 0;});else combined.sort((a,b)=>dateTimeOf(b.raw,b.module)-dateTimeOf(a.raw,a.module));
-     reportSections.forEach(sec=>{const matches=combined.filter(x=>passesFilters(x.row,sec.filters));matches.forEach(x=>represented.add(x));sec.rows=matches.map((x,i)=>{const o={};sec.columns.forEach(c=>o[c.key]=c.key==="slNo"?i+1:(x.row?.[c.key]??""));return o;});});
-     const selected=combined.filter(x=>represented.has(x));raw=selected.map(x=>({...x.raw,__module:x.module}));const chosen=fields.length?fields:Object.keys(selected[0]?.row||{});out=selected.map((x,i)=>{const o={};chosen.forEach(k=>o[k]=(k==="slNo"?i+1:(x.row?.[k]??"")));return o;});reportColumns=chosen.map(k=>({key:k,label:label(k)}));
-   }else{
-     let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,def.module);
-     reportSections.forEach(sec=>{const matches=source.filter(r=>passesFilters(r,sec.filters));matches.forEach(r=>represented.add(r));sec.rows=matches.map((r,i)=>{const o={};sec.columns.forEach(c=>o[c.key]=customValue(r,c.key,i,def.module));return o;});});
-     raw=source.filter(r=>represented.has(r));out=raw.map((r,i)=>{const o={};fields.forEach(k=>o[k]=customValue(r,k,i,def.module));return o;});reportColumns=fields.map(k=>({key:k,label:label(k)}));
-   }
-   reportRows=out;reportSummary=buildSummary(def.module,raw,out,def.summaryCards);render(reportName(def.module));return;
+   reportSections.forEach(sec=>{
+     const allowed=sectionModules(sec,def.module||"cpgrams");
+     let matches=combined.filter(x=>allowed.has(x.module)&&passesSectionFilters(x.raw,x.module,sec.filters,def.module||x.module));
+     // Preserve report sorting for records belonging to the report's base module; mixed-module sections otherwise remain latest-date-first.
+     if(def.sortField&&allowed.size===1){const only=[...allowed][0];matches.sort((a,b)=>{for(const [field,dir] of [[def.sortField,def.sortDirection],[def.sortField2,def.sortDirection2],[def.sortField3,def.sortDirection3]].filter(x=>x[0])){const c=compareCustom(a.raw,b.raw,field);if(c)return c*(dir==="desc"?-1:1);}return 0;});}
+     matches.forEach(x=>represented.add(x));
+     sec.rows=matches.map((x,i)=>{const o={};sec.columns.forEach(c=>o[c.key]=customValue(x.raw,c.ref||c.key,i,x.module,def.module||x.module));return o;});
+   });
+   const selected=combined.filter(x=>represented.has(x));
+   raw=selected.map(x=>({...x.raw,__module:x.module}));
+   out=selected.map((x,i)=>standardRow(x.module,x.raw,i));
+   reportColumns=[];
+   reportRows=out;reportSummary=buildDefinitionSummary(def);render(reportName(def.module));return;
  }
  if(isDishaMeetingStatusDefinition(def)){
-   let source=(loaded.disha||[]).filter(x=>inRange(x,"disha")).filter(x=>passesDef(x,def));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,"disha");raw=source.slice();out=source.map((r,i)=>standardRow("disha",r,i));reportColumns=DISHA_STATUS_COLUMNS.map(c=>({...c}));reportRows=out;reportSummary=buildSummary("disha",raw,out,def.summaryCards);render(reportName("disha"));return;
+   let source=(loaded.disha||[]).filter(x=>inRange(x,"disha")).filter(x=>passesDef(x,def));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,"disha");raw=source.slice();out=source.map((r,i)=>standardRow("disha",r,i));reportColumns=DISHA_STATUS_COLUMNS.map(c=>({...c}));reportRows=out;reportSummary=buildDefinitionSummary(def);render(reportName("disha"));return;
  }
  if(def.module==="all"){
-   const combined=[];for(const m of modules){for(const r of loaded[m].filter(x=>inRange(x,m))){const sr=standardRow(m,r);if(passesDef(sr,def))combined.push({raw:{...r,__module:m},row:sr});}}
+   const combined=[];for(const m of modules){for(const r of loaded[m].filter(x=>inRange(x,m))){const sr=standardRow(m,r);if(passesDef(sr,def))combined.push({raw:{...r,__module:m},row:sr,module:m});}}
    if(def.sortField)combined.sort((a,b)=>{for(const [field,dir] of [[def.sortField,def.sortDirection],[def.sortField2,def.sortDirection2],[def.sortField3,def.sortDirection3]].filter(x=>x[0])){const c=compareCustom(a.row,b.row,field);if(c)return c*(dir==="desc"?-1:1);}return 0;});else combined.sort((a,b)=>dateTimeOf(b.raw,b.raw.__module)-dateTimeOf(a.raw,a.raw.__module));
-   raw=combined.map(x=>x.raw);const chosen=fields.length?fields:Object.keys(combined[0]?.row||{});out=combined.map(x=>{const o={};chosen.forEach(k=>o[k]=x.row?.[k]??"");return o;});reportColumns=chosen.map(k=>({key:k,label:label(k)}));
+   raw=combined.map(x=>x.raw);const chosen=fields.length?fields:Object.keys(combined[0]?.row||{});out=combined.map((x,i)=>{const o={};chosen.forEach(k=>o[k]=customValue(x.raw,k,i,x.module,"all")||(x.row?.[k]??""));return o;});reportColumns=chosen.map(k=>({key:k,label:label(k,"all")}));
  }else{
-   let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module)).filter(x=>passesDef(x,def));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,def.module);raw=source.slice();source.forEach((r,i)=>{const o={};fields.forEach(k=>o[k]=customValue(r,k,i,def.module));out.push(o);});reportColumns=fields.map(k=>({key:k,label:label(k)}));
+   let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module)).filter(x=>passesDef(x,def));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,def.module);raw=source.slice();source.forEach((r,i)=>{const o={};fields.forEach(k=>o[k]=customValue(r,k,i,def.module,def.module));out.push(o);});reportColumns=fields.map(k=>({key:k,label:label(k,def.module)}));
  }
- reportRows=out;reportSummary=buildSummary(def.module,raw,out,def.summaryCards);render(reportName(def.module));
+ reportRows=out;reportSummary=buildDefinitionSummary(def);render(reportName(def.module));
 }
 function render(title){
  $("reportTitle").textContent=title;$("recordCount").textContent=reportRows.length+" records";
