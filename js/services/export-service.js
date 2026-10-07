@@ -1,7 +1,7 @@
 /* ============================================================
    FMS EXPORT SERVICE
    Excel / PDF / JPEG / Print + native device sharing.
-   Version 1.2.2
+   Version 1.3.0
    ============================================================ */
 (function(window,document){
   "use strict";
@@ -27,6 +27,10 @@
   function normalizeColumns(rows,columns){
     if(Array.isArray(columns)&&columns.length)return columns.map(c=>typeof c==="string"?{key:c,label:c}:{key:c.key,label:c.label||c.key});
     const first=(rows||[])[0]||{};return Object.keys(first).map(k=>({key:k,label:k}));
+  }
+  function normalizeSections(opts,rows,columns){
+    if(!Array.isArray(opts?.sections)||!opts.sections.length)return [];
+    return opts.sections.map((sec,i)=>({heading:String(sec?.heading||`Section ${i+1}`).trim(),columns:normalizeColumns(rows,sec?.columns||[])})).filter(sec=>sec.heading&&sec.columns.length);
   }
   function exportRows(rows,columns){
     const cols=normalizeColumns(rows,columns);
@@ -66,7 +70,7 @@
   function buildExcelFile(opts={}){
     const rows=opts.rows||[];ensureRows(rows);
     if(!window.XLSX)throw new Error("Excel export library is not loaded.");
-    const cols=normalizeColumns(rows,opts.columns);
+    const cols=normalizeColumns(rows,opts.columns),sections=normalizeSections(opts,rows,cols);
     const headers=headerLines(opts),summary=summaryItems(opts,rows),meta=metaLines(opts,rows);
     const aoa=[];
     headers.forEach(line=>aoa.push([line]));
@@ -77,19 +81,26 @@
     aoa.push(["SUMMARY"]);
     summary.forEach(item=>aoa.push([item.label,item.value]));
     aoa.push([]);
-    aoa.push(cols.map(c=>c.label||c.key));
-    rows.forEach(r=>aoa.push(cols.map(c=>clean(r?.[c.key]))));
+    if(sections.length){
+      sections.forEach((sec,idx)=>{
+        if(idx)aoa.push([]);
+        aoa.push([sec.heading]);
+        aoa.push(sec.columns.map(c=>c.label||c.key));
+        rows.forEach(r=>aoa.push(sec.columns.map(c=>clean(r?.[c.key]))));
+      });
+    }else{
+      aoa.push(cols.map(c=>c.label||c.key));
+      rows.forEach(r=>aoa.push(cols.map(c=>clean(r?.[c.key]))));
+    }
 
     const ws=window.XLSX.utils.aoa_to_sheet(aoa);
-    const colCount=Math.max(cols.length,2);
+    const widthColumns=sections.length?sections.flatMap(sec=>sec.columns):cols;
+    const colCount=Math.max(...(sections.length?sections.map(sec=>sec.columns.length):[cols.length]),2);
     ws["!merges"]=[];
-    const mergeRows=[0,1,2,4];
-    // meta/title positions vary with number of header lines; merge all one-cell presentation rows.
     for(let r=0;r<aoa.length;r++){
       if(aoa[r]&&aoa[r].length===1&&aoa[r][0])ws["!merges"].push({s:{r,c:0},e:{r,c:colCount-1}});
     }
-    ws["!cols"]=cols.map(c=>({wch:Math.min(Math.max(String(c.label||c.key).length+4,14),38)}));
-    if(ws["!cols"].length<2)ws["!cols"].push({wch:18});
+    const widths=[];for(let i=0;i<colCount;i++){const labels=widthColumns.filter((_,idx)=>idx%colCount===i).map(c=>String(c.label||c.key));widths.push({wch:Math.min(Math.max(...labels.map(x=>x.length+4),14),38)});}ws["!cols"]=widths;
     ws["!freeze"]={xSplit:0,ySplit:headers.length+meta.length+summary.length+5};
 
     const wb=window.XLSX.utils.book_new();
@@ -102,59 +113,48 @@
   function buildPDFDocument(opts={}){
     const rows=opts.rows||[];ensureRows(rows);
     if(!window.jspdf?.jsPDF)throw new Error("PDF export library is not loaded.");
-    const cols=normalizeColumns(rows,opts.columns),{jsPDF}=window.jspdf;
+    const cols=normalizeColumns(rows,opts.columns),sections=normalizeSections(opts,rows,cols),{jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:opts.orientation||"landscape",unit:"mm",format:"a4"});
-    const pageWidth=doc.internal.pageSize.getWidth();
+    const pageWidth=doc.internal.pageSize.getWidth(),pageHeight=doc.internal.pageSize.getHeight();
     const reportMargin=8,reportTableWidth=pageWidth-(reportMargin*2);
     let y=10;
     const center=(text,size,bold=false)=>{doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.text(String(text),pageWidth/2,y,{align:"center"});y+=size*0.42+2;};
     const headers=headerLines(opts);
-    center(headers[0]||"",14,true);
-    center(headers[1]||"",10,true);
-    center(headers[2]||"",9,false);
-    y+=2;
-    center(String(opts.title||"FMS Report"),12,true);
-    metaLines(opts,rows).forEach(line=>center(line,8,false));
-    y+=2;
+    center(headers[0]||"",14,true);center(headers[1]||"",10,true);center(headers[2]||"",9,false);y+=2;
+    center(String(opts.title||"FMS Report"),12,true);metaLines(opts,rows).forEach(line=>center(line,8,false));y+=2;
     if(typeof doc.autoTable!=="function")throw new Error("PDF table library is not loaded.");
     const summary=summaryItems(opts,rows);
     doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text("SUMMARY",pageWidth/2,y,{align:"center"});y+=3;
     const summaryCardRows=[];for(let i=0;i<summary.length;i+=4){const row=[];for(let j=0;j<4;j++){const x=summary[i+j];row.push(x?`${x.label}\n${x.value}`:"");}summaryCardRows.push(row);}
-    doc.autoTable({
-      body:summaryCardRows,startY:y,theme:"grid",styles:{fontSize:8,cellPadding:2.2,halign:"center",valign:"middle",fontStyle:"bold"},
-      margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth
-    });
+    doc.autoTable({body:summaryCardRows,startY:y,theme:"grid",styles:{fontSize:8,cellPadding:2.2,halign:"center",valign:"middle",fontStyle:"bold"},margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth});
     y=(doc.lastAutoTable?.finalY||y)+5;
-    doc.autoTable({
-      head:[cols.map(c=>c.label||c.key)],body:rows.map(r=>cols.map(c=>clean(r?.[c.key]))),startY:y,
-      styles:{fontSize:7,cellPadding:1.5,overflow:"linebreak"},headStyles:{fontStyle:"bold"},margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth
-    });
+    const drawTable=(tableCols,heading="")=>{
+      if(heading){if(y>pageHeight-24){doc.addPage();y=12;}doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text(String(heading),reportMargin,y);y+=4;}
+      doc.autoTable({head:[tableCols.map(c=>c.label||c.key)],body:rows.map(r=>tableCols.map(c=>clean(r?.[c.key]))),startY:y,styles:{fontSize:7,cellPadding:1.5,overflow:"linebreak"},headStyles:{fontStyle:"bold"},margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth});
+      y=(doc.lastAutoTable?.finalY||y)+6;
+    };
+    if(sections.length)sections.forEach(sec=>drawTable(sec.columns,sec.heading));else drawTable(cols);
     return doc;
   }
+
   function buildPDFFile(opts={}){
     const doc=buildPDFDocument(opts),blob=doc.output("blob");
     return fileFromBlob(blob,slug(opts.filename||opts.title||"FMS_Report")+".pdf","application/pdf");
   }
 
   function buildExportSheet(opts={}){
-    const rows=opts.rows||[],cols=normalizeColumns(rows,opts.columns),headers=headerLines(opts),summary=summaryItems(opts,rows);
+    const rows=opts.rows||[],cols=normalizeColumns(rows,opts.columns),sections=normalizeSections(opts,rows,cols),headers=headerLines(opts),summary=summaryItems(opts,rows);
     const wrap=document.createElement("div");
-    const reportWidth=Math.max(1200,cols.length*170);
+    const maxCols=Math.max(cols.length,...sections.map(sec=>sec.columns.length),1);const reportWidth=Math.max(1200,maxCols*170);
     wrap.style.cssText=`position:fixed;left:-100000px;top:0;background:#fff;color:#111;padding:28px;width:${reportWidth}px;box-sizing:border-box;z-index:-1;font-family:Arial,sans-serif`;
     const addLine=(text,css)=>{const d=document.createElement("div");d.textContent=text;d.style.cssText=css;wrap.appendChild(d);};
-    addLine(headers[0]||"","text-align:center;font-weight:700;font-size:24px;margin-bottom:5px");
-    addLine(headers[1]||"","text-align:center;font-weight:700;font-size:17px;margin-bottom:4px");
-    addLine(headers[2]||"","text-align:center;font-size:14px;margin-bottom:14px");
-    addLine(opts.title||"FMS Report","text-align:center;font-weight:700;font-size:17px;margin-bottom:5px");
-    metaLines(opts,rows).forEach(line=>addLine(line,"text-align:center;font-size:12px;margin-bottom:3px"));
+    addLine(headers[0]||"","text-align:center;font-weight:700;font-size:24px;margin-bottom:5px");addLine(headers[1]||"","text-align:center;font-weight:700;font-size:17px;margin-bottom:4px");addLine(headers[2]||"","text-align:center;font-size:14px;margin-bottom:14px");addLine(opts.title||"FMS Report","text-align:center;font-weight:700;font-size:17px;margin-bottom:5px");metaLines(opts,rows).forEach(line=>addLine(line,"text-align:center;font-size:12px;margin-bottom:3px"));
     const sumHeading=document.createElement("div");sumHeading.textContent="SUMMARY";sumHeading.style.cssText="width:100%;box-sizing:border-box;text-align:center;font-weight:700;background:#eee;border:1px solid #555;padding:7px;margin-top:14px";wrap.appendChild(sumHeading);
-    const sum=document.createElement("div");sum.className="summary-cards";sum.style.cssText="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:8px 0 16px";
-    sum.innerHTML=summary.map(x=>`<div style="border:1px solid #777;border-radius:5px;padding:9px 7px;text-align:center;min-height:58px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:600">${escapeHtml(x.label)}</div><div style="font-size:18px;font-weight:700;margin-top:4px">${escapeHtml(x.value)}</div></div>`).join("");wrap.appendChild(sum);
-    const table=document.createElement("table");table.style.cssText="border-collapse:collapse;width:100%;font-size:12px;table-layout:auto";
-    const trh=document.createElement("tr");cols.forEach(c=>{const th=document.createElement("th");th.textContent=c.label||c.key;th.style.cssText="border:1px solid #555;padding:6px;background:#eee;text-align:center;white-space:nowrap";trh.appendChild(th);});
-    const thead=document.createElement("thead");thead.appendChild(trh);table.appendChild(thead);
-    const tbody=document.createElement("tbody");rows.forEach(r=>{const tr=document.createElement("tr");cols.forEach(c=>{const td=document.createElement("td");td.textContent=clean(r?.[c.key]);td.style.cssText="border:1px solid #777;padding:5px;vertical-align:top;max-width:300px;white-space:pre-wrap";tr.appendChild(td);});tbody.appendChild(tr);});table.appendChild(tbody);wrap.appendChild(table);document.body.appendChild(wrap);return wrap;
+    const sum=document.createElement("div");sum.className="summary-cards";sum.style.cssText="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:8px 0 16px";sum.innerHTML=summary.map(x=>`<div style="border:1px solid #777;border-radius:5px;padding:9px 7px;text-align:center;min-height:58px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:600">${escapeHtml(x.label)}</div><div style="font-size:18px;font-weight:700;margin-top:4px">${escapeHtml(x.value)}</div></div>`).join("");wrap.appendChild(sum);
+    const appendTable=(tableCols,heading="")=>{if(heading)addLine(heading,"font-weight:700;font-size:14px;background:#212529;color:#fff;padding:8px 10px;margin-top:12px");const table=document.createElement("table");table.style.cssText="border-collapse:collapse;width:100%;font-size:12px;table-layout:auto;margin-bottom:18px";const trh=document.createElement("tr");tableCols.forEach(c=>{const th=document.createElement("th");th.textContent=c.label||c.key;th.style.cssText="border:1px solid #555;padding:6px;background:#eee;text-align:center;white-space:nowrap";trh.appendChild(th);});const thead=document.createElement("thead");thead.appendChild(trh);table.appendChild(thead);const tbody=document.createElement("tbody");rows.forEach(r=>{const tr=document.createElement("tr");tableCols.forEach(c=>{const td=document.createElement("td");td.textContent=clean(r?.[c.key]);td.style.cssText="border:1px solid #777;padding:5px;vertical-align:top;max-width:300px;white-space:pre-wrap";tr.appendChild(td);});tbody.appendChild(tr);});table.appendChild(tbody);wrap.appendChild(table);};
+    if(sections.length)sections.forEach(sec=>appendTable(sec.columns,sec.heading));else appendTable(cols);document.body.appendChild(wrap);return wrap;
   }
+
   async function jpegBlobFromElement(element){
     if(!element)throw new Error("Nothing is available to export as JPEG.");
     if(!window.html2canvas)throw new Error("JPEG export library is not loaded.");
@@ -211,12 +211,14 @@
   }
 
   async function printRows(opts={}){
-    const rows=opts.rows||[];ensureRows(rows);const cols=normalizeColumns(rows,opts.columns),headers=headerLines(opts),summary=summaryItems(opts,rows);
+    const rows=opts.rows||[];ensureRows(rows);const cols=normalizeColumns(rows,opts.columns),sections=normalizeSections(opts,rows,cols),headers=headerLines(opts),summary=summaryItems(opts,rows);
     const w=window.open("","_blank","width=1200,height=800");if(!w)throw new Error("Popup blocked. Please allow popups for printing.");
-    const htmlRows=rows.map(r=>`<tr>${cols.map(c=>`<td>${escapeHtml(clean(r?.[c.key]))}</td>`).join("")}</tr>`).join("");
+    const tableHtml=(tableCols,heading="")=>`${heading?`<div class="section-heading">${escapeHtml(heading)}</div>`:""}<table class="data"><thead><tr>${tableCols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${tableCols.map(c=>`<td>${escapeHtml(clean(r?.[c.key]))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    const bodyTables=sections.length?sections.map(sec=>tableHtml(sec.columns,sec.heading)).join(""):tableHtml(cols);
     const sumCards=summary.map(x=>`<div class="summary-card"><div class="summary-label">${escapeHtml(x.label)}</div><div class="summary-value">${escapeHtml(x.value)}</div></div>`).join("");
-    w.document.write(`<!doctype html><html><head><title>${escapeHtml(opts.title||"FMS Report")}</title><style>body{font-family:Arial;padding:18px;color:#111}.report-shell{width:100%;margin:0 auto}.gov{text-align:center;margin:0;width:100%}.gov1{font-size:22px;font-weight:700}.gov2{font-size:15px;font-weight:700;margin-top:4px}.gov3{font-size:13px;margin-top:4px}.title{text-align:center;font-size:16px;font-weight:700;margin:14px 0 5px}.meta{text-align:center;font-size:11px;margin:2px}.summary-heading{text-align:center;font-weight:700;background:#eee;border:1px solid #555;padding:6px;margin-top:14px}.summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;width:100%;margin:8px 0 14px;box-sizing:border-box}.summary-card{border:1px solid #777;border-radius:4px;padding:8px;text-align:center;min-height:52px;display:flex;flex-direction:column;justify-content:center}.summary-label{font-size:10px;font-weight:600}.summary-value{font-size:16px;font-weight:700;margin-top:3px}table.data{border-collapse:collapse;width:100%;font-size:11px;table-layout:auto}th,td{border:1px solid #555;padding:5px;vertical-align:top;word-break:normal}th{background:#eee;white-space:normal;overflow-wrap:normal;hyphens:none}td{overflow-wrap:break-word}@media print{button{display:none}}</style></head><body><div class="report-shell"><div class="gov gov1">${escapeHtml(headers[0]||"")}</div><div class="gov gov2">${escapeHtml(headers[1]||"")}</div><div class="gov gov3">${escapeHtml(headers[2]||"")}</div><div class="title">${escapeHtml(opts.title||"FMS Report")}</div>${metaLines(opts,rows).map(x=>`<div class="meta">${escapeHtml(x)}</div>`).join("")}<div class="summary-heading">SUMMARY</div><div class="summary-cards">${sumCards}</div><table class="data"><thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${htmlRows}</tbody></table></div><script>window.onload=()=>{window.print();}<\/script></body></html>`);w.document.close();
+    w.document.write(`<!doctype html><html><head><title>${escapeHtml(opts.title||"FMS Report")}</title><style>body{font-family:Arial;padding:18px;color:#111}.report-shell{width:100%;margin:0 auto}.gov{text-align:center;margin:0;width:100%}.gov1{font-size:22px;font-weight:700}.gov2{font-size:15px;font-weight:700;margin-top:4px}.gov3{font-size:13px;margin-top:4px}.title{text-align:center;font-size:16px;font-weight:700;margin:14px 0 5px}.meta{text-align:center;font-size:11px;margin:2px}.summary-heading{text-align:center;font-weight:700;background:#eee;border:1px solid #555;padding:6px;margin-top:14px}.summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;width:100%;margin:8px 0 14px;box-sizing:border-box}.summary-card{border:1px solid #777;border-radius:4px;padding:8px;text-align:center;min-height:52px;display:flex;flex-direction:column;justify-content:center}.summary-label{font-size:10px;font-weight:600}.summary-value{font-size:16px;font-weight:700;margin-top:3px}.section-heading{font-weight:700;background:#212529;color:#fff;padding:7px 9px;margin-top:14px;border:1px solid #212529}table.data{border-collapse:collapse;width:100%;font-size:11px;table-layout:auto;margin-bottom:14px}th,td{border:1px solid #555;padding:5px;vertical-align:top;word-break:normal}th{background:#eee;white-space:normal;overflow-wrap:normal;hyphens:none}td{overflow-wrap:break-word}@media print{button{display:none}}</style></head><body><div class="report-shell"><div class="gov gov1">${escapeHtml(headers[0]||"")}</div><div class="gov gov2">${escapeHtml(headers[1]||"")}</div><div class="gov gov3">${escapeHtml(headers[2]||"")}</div><div class="title">${escapeHtml(opts.title||"FMS Report")}</div>${metaLines(opts,rows).map(x=>`<div class="meta">${escapeHtml(x)}</div>`).join("")}<div class="summary-heading">SUMMARY</div><div class="summary-cards">${sumCards}</div>${bodyTables}</div><script>window.onload=()=>{window.print();}<\/script></body></html>`);w.document.close();
   }
+
   function fromTable(table,options={}){
     if(!table)return {rows:[],columns:[]};
     const headers=[...table.querySelectorAll("thead th")].map((th,i)=>({key:`c${i}`,label:th.innerText.trim()}));

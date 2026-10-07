@@ -23,4 +23,4 @@ assert(reportsJs.includes('buildSummary(def.module,raw,out,def.summaryCards)'),'
 assert(reportsHtml.includes('id="summarySection"'),'Report summary section can be hidden when no master summary cards are selected');
 assert(!dishaJs.includes('"Records: " +\n            count'),'DISHA count no longer repeats Records label');
 assert(dishaJs.includes('String(count)'),'DISHA record count writes number only inside the existing Records label');
-console.log('PASS v1.10.18 Reports Master: 3 dynamic filters + master-selected summary cards + DISHA count cleanup');
+console.log('PASS v1.10.19 Reports Master: 3 dynamic filters + master-selected summary cards + DISHA count cleanup');

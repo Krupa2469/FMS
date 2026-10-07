@@ -6,9 +6,9 @@ function s(key,label,required=false,source=""){return {key,label,required,source
 function b(key,label){return {key,label,type:"checkbox",default:true};}
 const FORM_FIELD_DEFAULTS=[
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "GRIEVANCE TYPE",
   "fieldKey": "grievanceType",
   "label": "Grievance Type",
@@ -23,9 +23,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "GRIEVANCE TYPE",
   "fieldKey": "grievanceFinancialYear",
   "label": "Financial Year",
@@ -40,9 +40,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "grievanceNumber",
   "label": "Grievance Number",
@@ -57,9 +57,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "dateReceived",
   "label": "Date Received",
@@ -74,9 +74,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "dueDate",
   "label": "Due Date",
@@ -91,9 +91,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "subject",
   "label": "Subject",
@@ -108,9 +108,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "category",
   "label": "Category",
@@ -125,9 +125,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "grievanceDescription",
   "label": "Grievance Description",
@@ -142,9 +142,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "fileDocument",
   "label": "Upload Grievance Document",
@@ -159,9 +159,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "natureOfGrievance",
   "label": "Nature of Grievance",
@@ -176,9 +176,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "priorityClassification",
   "label": "Priority Classification",
@@ -193,9 +193,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 1 : GRIEVANCE DETAILS",
   "fieldKey": "attachmentCount",
   "label": "Number of Attachments",
@@ -210,7 +210,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -227,7 +227,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -244,7 +244,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -261,7 +261,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -278,7 +278,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -295,7 +295,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -312,7 +312,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -329,7 +329,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -346,7 +346,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -363,7 +363,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -380,7 +380,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -397,7 +397,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -414,7 +414,7 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "LAQ/LCQ",
   "formName": "LAQ / LCQ Data Entry",
   "sectionName": "LAQ / LCQ QUESTION DATA ENTRY",
@@ -431,9 +431,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "fileNumber",
   "label": "File No.",
@@ -448,9 +448,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "putUpToJC",
   "label": "Put up to JC?",
@@ -465,9 +465,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "putUpThroughAO",
   "label": "Put up through AO?",
@@ -482,9 +482,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "putUpDate",
   "label": "Put-up Date",
@@ -499,9 +499,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "receivedFrom",
   "label": "Received From",
@@ -516,9 +516,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "sentToSectionDate",
   "label": "Sent to Section Date",
@@ -533,9 +533,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "section",
   "label": "Concerned Section",
@@ -550,9 +550,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "officeCommunicationType",
   "label": "Communication Type",
@@ -567,9 +567,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "addressedToRole",
   "label": "Addressed To",
@@ -584,9 +584,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "officeLetterAddressedTo",
   "label": "Officer / DRDO / Section Name",
@@ -601,9 +601,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "memoNumber",
   "label": "Memo / Letter No.",
@@ -618,9 +618,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "memoDate",
   "label": "Memo / Letter Date",
@@ -635,9 +635,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "memoDocument",
   "label": "Upload Memo / Letter",
@@ -652,9 +652,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "atrStatus",
   "label": "ATR / Reply Status",
@@ -669,9 +669,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "atrDate",
   "label": "ATR / Reply Received Date",
@@ -686,9 +686,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "atrReceivedFrom",
   "label": "ATR / Reply Received From",
@@ -703,9 +703,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "atrDueDate",
   "label": "ATR Due Date",
@@ -720,9 +720,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "atrSummary",
   "label": "ATR / Reply Summary",
@@ -737,9 +737,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 3 : WORKFLOW PROCESSING",
   "fieldKey": "atrDocument",
   "label": "Upload ATR / Reply",
@@ -754,9 +754,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "putUpForJCApproval",
   "label": "Put up for JC Approval?",
@@ -771,9 +771,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "jcApprovalDate",
   "label": "JC Approval Date",
@@ -788,9 +788,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "putUpForEGSApproval",
   "label": "Put up for EGS Approval?",
@@ -805,9 +805,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "egsApprovalDate",
   "label": "EGS Approval Date",
@@ -822,9 +822,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "finalReplySentToComplainant",
   "label": "ATR sent to complainant?",
@@ -839,9 +839,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "replySentDate",
   "label": "Reply Sent Date",
@@ -856,9 +856,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "uploadedInCPGRAMSPortal",
   "label": "Uploaded in CPGRAMS Portal?",
@@ -873,9 +873,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "portalUploadDate",
   "label": "Portal Upload Date",
@@ -890,9 +890,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "approvalStatus",
   "label": "Approval Status",
@@ -907,9 +907,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "approvalDate",
   "label": "Approval Date",
@@ -924,9 +924,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "replySentToGovernment",
   "label": "Reply sent to Government / Referring Authority?",
@@ -941,9 +941,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "replyToGovernmentDate",
   "label": "Reply Sent Date",
@@ -958,9 +958,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "finalStatus",
   "label": "Final Status",
@@ -975,9 +975,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "fileClosed",
   "label": "File Closed",
@@ -992,9 +992,9 @@ const FORM_FIELD_DEFAULTS=[
   "source": "Built-in FMS form definition"
  },
  {
-  "module": "CPGRAMS",
+  "module": "GRIEVANCES",
   "grievanceType": "CPGRAMS",
-  "formName": "CPGRAMS / Other Grievances Data Entry",
+  "formName": "GRIEVANCES Data Entry",
   "sectionName": "SECTION 4 : FINAL APPROVAL / CLOSURE",
   "fieldKey": "remarks",
   "label": "Remarks",
@@ -1842,7 +1842,7 @@ const MASTER_DEFS={
 };
 const DEFAULTS={
  formFields:FORM_FIELD_DEFAULTS,
- modulesMaster:["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases","RTI","DISHA"],
+ modulesMaster:["GRIEVANCES","RTI","DISHA"],
  grievanceTypes:["CPGRAMS","Prajavani","Public Grievances","Direct Complaints","LAQ","LCQ","Court Cases","VIP References","CMO References","PMO References","Audit Paras","Vigilance Cases"],
  districts:["Adilabad","Bhadradri Kothagudem","Hanumakonda","Hyderabad","Jagtial","Jangaon","Jayashankar Bhupalpally","Jogulamba Gadwal","Kamareddy","Karimnagar","Khammam","Komaram Bheem Asifabad","Mahabubabad","Mahabubnagar","Mancherial","Medak","Medchal-Malkajgiri","Mulugu","Nagarkurnool","Nalgonda","Narayanpet","Nirmal","Nizamabad","Peddapalli","Rajanna Sircilla","Rangareddy","Sangareddy","Siddipet","Suryapet","Vikarabad","Wanaparthy","Warangal","Yadadri Bhuvanagiri"],
  categories:["Roads","Drinking Water","Drainage","Housing","Pensions","MGNREGS","PMAY","Sanitation","Electricity","Agriculture","Revenue","Education","Health","Others"],
@@ -1865,8 +1865,13 @@ function status(msg,kind="muted"){const el=$("masterStatus");if(!el)return;el.cl
 function broadcastMasterDataUpdated(type){try{window.dispatchEvent(new CustomEvent("fmsMasterDataUpdated",{detail:{master:type}}));localStorage.setItem("fmsMasterDataUpdated",JSON.stringify({master:type,ts:Date.now()}));window.FMSMasterOptionLoader?.load?.();}catch(e){console.warn("Master update broadcast failed",e);}}
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function normalize(v){return val(v).toLowerCase().replace(/\s+/g," ");}
+function moduleAlias(v){
+ const s=val(v),k=normalize(s);
+ const grievanceModules=new Set(["cpgrams","prajavani","public grievances","direct complaints","laq","lcq","court cases","vip references","cmo references","pmo references","audit paras","vigilance cases"]);
+ return grievanceModules.has(k)?"GRIEVANCES":s;
+}
 function uniqueKeyFor(type,data){
- if(type==="formFields") return [data.module,data.grievanceType,data.formName,data.sectionName,data.fieldKey].map(normalize).join("|");
+ if(type==="formFields") return [moduleAlias(data.module),data.grievanceType,data.formName,data.sectionName,data.fieldKey].map(normalize).join("|");
  if(data.name!==undefined) return [data.name,data.district,data.mandal].map(normalize).join("|");
  return Object.keys(data||{}).sort().map(k=>`${k}:${normalize(data[k])}`).join("|");
 }
@@ -1891,6 +1896,11 @@ async function optionsFrom(source){
    const snap=await db.collection(source).get();
    let opts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false&&x.name);
    if(!opts.length && Array.isArray(DEFAULTS[source])) opts=DEFAULTS[source].filter(x=>typeof x==="string").map(name=>({name}));
+   if(source==="modulesMaster"){
+     const seen=new Map();
+     opts.forEach(o=>{const name=moduleAlias(o.name);if(!seen.has(normalize(name)))seen.set(normalize(name),{...o,name});});
+     opts=[...seen.values()];
+   }
    return opts.sort((a,b)=>val(a.name).localeCompare(val(b.name)));
  }catch(e){console.warn("Master option load failed",source,e);return Array.isArray(DEFAULTS[source])?DEFAULTS[source].filter(x=>typeof x==="string").map(name=>({name})):[];}
 }
@@ -1925,12 +1935,14 @@ function sortRows(list){
  if(currentType==="formFields") return list.sort((a,b)=>[val(a.module),val(a.grievanceType),val(a.formName),val(a.sectionName)].join("|").localeCompare([val(b.module),val(b.grievanceType),val(b.formName),val(b.sectionName)].join("|")) || (Number(a.displayOrder)||9999)-(Number(b.displayOrder)||9999) || val(a.fieldKey).localeCompare(val(b.fieldKey)));
  return list.sort((a,b)=>val(a.name).localeCompare(val(b.name)) || val(a.code).localeCompare(val(b.code)));
 }
-async function loadGrid(){status("Loading register...");try{if(window.FMSCrud&&typeof window.FMSCrud.list==="function"){const result=await window.FMSCrud.list(currentType,{activeOnly:true});if(!result.success)throw new Error(result.message||"Unable to load master.");rows=sortRows(result.data||[]);}else{db=window.FMSCrud?await window.FMSCrud.waitForDb():db;const snap=await db.collection(currentType).get();rows=sortRows(snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.active!==false));}renderGrid();status(`${rows.length} ${MASTER_DEFS[currentType].label.toLowerCase()} loaded`,"success");}catch(e){console.error(e);rows=[];renderGrid();status("Unable to load master: "+(e.message||e),"danger");}}
+async function loadGrid(){status("Loading register...");try{if(window.FMSCrud&&typeof window.FMSCrud.list==="function"){const result=await window.FMSCrud.list(currentType,{activeOnly:true});if(!result.success)throw new Error(result.message||"Unable to load master.");rows=sortRows(result.data||[]);}else{db=window.FMSCrud?await window.FMSCrud.waitForDb():db;const snap=await db.collection(currentType).get();rows=sortRows(snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.active!==false));}
+ if(currentType==="modulesMaster"){const seen=new Map();rows.forEach(r=>{const name=moduleAlias(r.name);if(!["GRIEVANCES","RTI","DISHA"].includes(name.toUpperCase()))return;const k=name.toUpperCase();if(!seen.has(k))seen.set(k,{...r,name:k});});rows=[...seen.values()].sort((a,b)=>val(a.name).localeCompare(val(b.name)));}
+ renderGrid();status(`${rows.length} ${MASTER_DEFS[currentType].label.toLowerCase()} loaded`,"success");}catch(e){console.error(e);rows=[];renderGrid();status("Unable to load master: "+(e.message||e),"danger");}}
 function columns(){const def=MASTER_DEFS[currentType];const cols=def.fields.filter(x=>x.key!=="description"&&x.key!=="helpText"&&x.key!=="placeholder").slice(0,currentType==="formFields"?7:6).map(x=>({key:x.key,label:x.label}));return [{key:"sl",label:"Sl.No"},...cols];}
 function filteredRows(){const q=val($("masterSearch").value).toLowerCase();return !q?rows:rows.filter(r=>Object.values(r).some(v=>val(v).toLowerCase().includes(q)));}
-function renderGrid(){const data=filteredRows(),cols=columns();$("recordCount").textContent=`${data.length} records`;$("masterGrid").querySelector("thead").innerHTML='<tr>'+cols.map(c=>`<th>${esc(c.label)}</th>`).join('')+'<th>Action</th></tr>';$("masterGrid").querySelector("tbody").innerHTML=data.length?data.map((r,i)=>`<tr>${cols.map(c=>`<td>${c.key==="sl"?i+1:esc(c.key==="active"?(r[c.key]===false?"Inactive":"Active"):(r[c.key]??""))}</td>`).join('')}<td class="text-nowrap"><button class="btn btn-sm btn-primary me-1" data-edit="${r.id}"><i class="bi bi-eye"></i> View</button><button class="btn btn-sm btn-outline-danger" data-del="${r.id}"><i class="bi bi-trash"></i></button></td></tr>`).join(''):'<tr><td colspan="99" class="text-center text-muted p-4">No records found.</td></tr>';
+function renderGrid(){const data=filteredRows(),cols=columns();$("recordCount").textContent=`${data.length} records`;$("masterGrid").querySelector("thead").innerHTML='<tr>'+cols.map(c=>`<th>${esc(c.label)}</th>`).join('')+'<th>Action</th></tr>';$("masterGrid").querySelector("tbody").innerHTML=data.length?data.map((r,i)=>`<tr>${cols.map(c=>`<td>${c.key==="sl"?i+1:esc(c.key==="active"?(r[c.key]===false?"Inactive":"Active"):(c.key==="module"?moduleAlias(r[c.key]):(r[c.key]??"")))}</td>`).join('')}<td class="text-nowrap"><button class="btn btn-sm btn-primary me-1" data-edit="${r.id}"><i class="bi bi-eye"></i> View</button><button class="btn btn-sm btn-outline-danger" data-del="${r.id}"><i class="bi bi-trash"></i></button></td></tr>`).join(''):'<tr><td colspan="99" class="text-center text-muted p-4">No records found.</td></tr>';
  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editRecord(b.dataset.edit));document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>deleteById(b.dataset.del));}
-async function editRecord(id){const r=rows.find(x=>x.id===id);if(!r)return;selectedId=id;const def=MASTER_DEFS[currentType];for(const fld of def.fields){const el=$("mf_"+fld.key);if(!el)continue;if(fld.type==="checkbox")el.checked=r[fld.key]!==false;else{ if(r[fld.key]!==undefined && el.tagName==="SELECT" && ![...el.options].some(o=>o.value===val(r[fld.key]))) el.add(new Option(val(r[fld.key]),val(r[fld.key]))); el.value=val(r[fld.key]);}}$("selectedRecordBadge").textContent="Editing: "+(r.name||r.label||r.fieldKey||id);window.scrollTo({top:0,behavior:"smooth"});}
+async function editRecord(id){const r=rows.find(x=>x.id===id);if(!r)return;selectedId=id;const def=MASTER_DEFS[currentType];for(const fld of def.fields){const el=$("mf_"+fld.key);if(!el)continue;if(fld.type==="checkbox")el.checked=r[fld.key]!==false;else{ const editValue=fld.key==="module"?moduleAlias(r[fld.key]):val(r[fld.key]); if(r[fld.key]!==undefined && el.tagName==="SELECT" && ![...el.options].some(o=>o.value===editValue)) el.add(new Option(editValue,editValue)); el.value=editValue;}}$("selectedRecordBadge").textContent="Editing: "+(r.name||r.label||r.fieldKey||id);window.scrollTo({top:0,behavior:"smooth"});}
 function clearForm(){selectedId=null;$("masterForm").reset();MASTER_DEFS[currentType].fields.filter(f=>f.type==="checkbox").forEach(f=>{const el=$("mf_"+f.key);if(el)el.checked=f.default!==false;});$("selectedRecordBadge").textContent="New record";}
 async function duplicateExists(data,excludeId){const key=uniqueKeyFor(currentType,data);if(window.FMSCrud&&typeof window.FMSCrud.list==="function"){const result=await window.FMSCrud.list(currentType,{activeOnly:true});if(!result.success)throw new Error(result.message||"Unable to check duplicate.");return (result.data||[]).some(d=>d.id!==excludeId&&uniqueKeyFor(currentType,d||{})===key&&d.active!==false);}db=window.FMSCrud?await window.FMSCrud.waitForDb():db;const snap=await db.collection(currentType).get();return snap.docs.some(d=>d.id!==excludeId&&uniqueKeyFor(currentType,d.data()||{})===key&&((d.data()||{}).active!==false));}
 async function saveRecord(){try{db=window.FMSCrud?await window.FMSCrud.waitForDb():db;const data=collect();if(await duplicateExists(data,null))throw new Error("A matching master record already exists.");const result=window.FMSCrud?await window.FMSCrud.create(currentType,data):await db.collection(currentType).add({...data,active:true,createdOn:firebase.firestore.FieldValue.serverTimestamp()}).then(ref=>({success:true,id:ref.id})).catch(e=>({success:false,message:e.message||String(e)}));if(!result.success)throw new Error(result.message||"Unable to save record.");broadcastMasterDataUpdated(currentType);clearForm();await renderForm();await loadGrid();status("Record saved successfully.","success");}catch(e){status(e.message||String(e),"danger");alert(e.message||e);}}
