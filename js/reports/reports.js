@@ -1,5 +1,5 @@
 "use strict";
-/* Central reports + custom report definitions - v1.2.2 */
+/* Central reports + custom report definitions - v1.10.18 */
 (function(window,document){
 const CFG={
   cpgrams:{collection:"cpgrams",dateFields:["dateReceived","orgReceivedDate","receivedDate","grievanceDate","dateOfReceipt","receiptDate","dateArised","questionReceivedDate","date"],dueFields:["dueDate"],name:"CPGRAMS"},
@@ -59,38 +59,56 @@ async function loadAll(){if(!window.db)throw new Error("Firestore is not ready."
 function populateDefinitions(){const sel=$("customReport"),current=sel.value;sel.innerHTML='<option value="">— Standard report —</option>'+definitions.map(d=>`<option value="${d.id}">${escapeHtml(d.name)} (${String(d.module||"").toUpperCase()})</option>`).join("");if(definitions.some(d=>d.id===current))sel.value=current;}
 function dateRangePreset(def){if(!def||def.datePreset==="none")return;const now=new Date(),to=new Date(now),from=new Date(now);if(def.datePreset==="currentFY"){const fy=currentFY();$("financialYear").value=fy;applyFYDates(fy);return;}if(def.datePreset==="last7")from.setDate(now.getDate()-6);else if(def.datePreset==="last30")from.setDate(now.getDate()-29);else if(def.datePreset!=="today")return;const f=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;$("financialYear").value="custom";$("fromDate").value=f(from);$("toDate").value=f(to);}
 function inRange(r,m){const from=$("fromDate").value,to=$("toDate").value,d=iso(dateOf(r,m));return (!from||!d||d>=from)&&(!to||!d||d<=to);}
-function passesDef(r,def){if(!def?.filterField)return true;let v=r?.[def.filterField];if(v&&typeof v.toDate==="function")v=fmt(v);v=String(v??"");const q=String(def.filterValue??"");switch(def.operator){case"equals":return v.toLowerCase()===q.toLowerCase();case"notEquals":return v.toLowerCase()!==q.toLowerCase();case"gt":return Number(v)>Number(q);case"gte":return Number(v)>=Number(q);case"lt":return Number(v)<Number(q);case"lte":return Number(v)<=Number(q);case"isEmpty":return !v.trim();case"notEmpty":return !!v.trim();default:return v.toLowerCase().includes(q.toLowerCase());}}
+function passesOneFilter(r,field,operator,filterValue){
+ if(!field)return true;
+ let v=r?.[field];if(v&&typeof v.toDate==="function")v=fmt(v);v=String(v??"");const q=String(filterValue??"");
+ switch(operator){case"equals":return v.toLowerCase()===q.toLowerCase();case"notEquals":return v.toLowerCase()!==q.toLowerCase();case"gt":return Number(v)>Number(q);case"gte":return Number(v)>=Number(q);case"lt":return Number(v)<Number(q);case"lte":return Number(v)<=Number(q);case"isEmpty":return !v.trim();case"notEmpty":return !!v.trim();default:return v.toLowerCase().includes(q.toLowerCase());}
+}
+function passesDef(r,def){
+ if(!def)return true;
+ return passesOneFilter(r,def.filterField,def.operator,def.filterValue)&&
+        passesOneFilter(r,def.filterField2,def.operator2,def.filterValue2)&&
+        passesOneFilter(r,def.filterField3,def.operator3,def.filterValue3);
+}
 function customValue(r,k){const v=r?.[k];if(v&&typeof v.toDate==="function")return fmt(v);if(k.toLowerCase().includes("date")||k.toLowerCase().includes("due")){const d=parseDate(v);if(d)return fmt(v);}return v??"";}
-function buildSummary(module,raw,transformed){
- const P=window.FMSRecordPolicy,total=(raw||[]).length;
+function buildSummary(module,raw,transformed,selectedKeys){
+ const selected=Array.isArray(selectedKeys)?selectedKeys.filter(Boolean):[];
+ if(!selected.length)return [];
+ const P=window.FMSRecordPolicy,total=(raw||[]).length;let items=[];
  if(module==="cpgrams"){
    const fyLabel=$("financialYear")?.value && $("financialYear")?.value!=="custom" ? $("financialYear").value : selectedPeriod();
    const sinceStart=new Date(2014,3,1);
    const allSince2014=(loaded.cpgrams||[]).filter(r=>{const d=parseDate(dateOf(r,"cpgrams"));return r.active!==false && (!P?.rowType || P.rowType(r)==="cpgrams") && d && d>=sinceStart;});
    const fyReceived=(raw||[]).filter(r=>!P?.rowType || P.rowType(r)==="cpgrams");
    const summaryRows=fyReceived.length ? fyReceived : (raw||[]);
-   return [
-     {label:"Total Received since 2014-15",value:allSince2014.length},
-     {label:`Total Received ${fyLabel}`,value:fyReceived.length},
-     {label:"Within Due Date",value:summaryRows.filter(r=>P?.withinDue?.("cpgrams",r)).length},
-     {label:"Due Today",value:summaryRows.filter(r=>P?.dueToday?.("cpgrams",r)).length},
-     {label:"Overdue",value:summaryRows.filter(r=>P?.overdue?.("cpgrams",r)).length},
-     {label:"ATR / Reply Awaited",value:summaryRows.filter(r=>{const w=P?.workflow?.("cpgrams",r)||{};return w.memoIssued&&!w.atrReceived&&!P?.closed?.("cpgrams",r);}).length},
-     {label:"ATR / Reply Received",value:summaryRows.filter(r=>P?.workflow?.("cpgrams",r)?.atrReceived).length},
-     {label:"Pending Approval",value:summaryRows.filter(r=>/Pending JC|EGS|Pending Approval|Reply to Government Pending/i.test(P?.workflow?.("cpgrams",r)?.stage||"")).length},
-     {label:"Disposed / Closed",value:summaryRows.filter(r=>P?.closed?.("cpgrams",r)).length}
+   items=[
+     {key:"totalSince2014",label:"Total Received since 2014-15",value:allSince2014.length},
+     {key:"totalPeriod",label:`Total Received ${fyLabel}`,value:fyReceived.length},
+     {key:"withinDue",label:"Within Due Date",value:summaryRows.filter(r=>P?.withinDue?.("cpgrams",r)).length},
+     {key:"dueToday",label:"Due Today",value:summaryRows.filter(r=>P?.dueToday?.("cpgrams",r)).length},
+     {key:"overdue",label:"Overdue",value:summaryRows.filter(r=>P?.overdue?.("cpgrams",r)).length},
+     {key:"atrAwaited",label:"ATR / Reply Awaited",value:summaryRows.filter(r=>{const w=P?.workflow?.("cpgrams",r)||{};return w.memoIssued&&!w.atrReceived&&!P?.closed?.("cpgrams",r);}).length},
+     {key:"atrReceived",label:"ATR / Reply Received",value:summaryRows.filter(r=>P?.workflow?.("cpgrams",r)?.atrReceived).length},
+     {key:"pendingApproval",label:"Pending Approval",value:summaryRows.filter(r=>/Pending JC|EGS|Pending Approval|Reply to Government Pending/i.test(P?.workflow?.("cpgrams",r)?.stage||"")).length},
+     {key:"disposedClosed",label:"Disposed / Closed",value:summaryRows.filter(r=>P?.closed?.("cpgrams",r)).length}
    ];
- }
- if(module==="rti"){
-   return [{label:"Total RTI Applications",value:total},{label:"Within Due Date",value:raw.filter(r=>P?.withinDue?.("rti",r)).length},{label:"Due Today",value:raw.filter(r=>P?.dueToday?.("rti",r)).length},{label:"Overdue",value:raw.filter(r=>P?.overdue?.("rti",r)).length},{label:"Reply Awaited",value:raw.filter(r=>{const w=P?.workflow?.("rti",r)||{};return w.sentToSection&&!w.replyReceived&&!P?.closed?.("rti",r);}).length},{label:"Reply Received",value:raw.filter(r=>P?.workflow?.("rti",r)?.replyReceived).length},{label:"Reply Sent",value:raw.filter(r=>P?.workflow?.("rti",r)?.replySent).length},{label:"Disposed / Closed",value:raw.filter(r=>P?.closed?.("rti",r)).length}];
- }
- if(module==="disha"){
+ }else if(module==="rti"){
+   items=[
+    {key:"total",label:"Total RTI Applications",value:total},{key:"withinDue",label:"Within Due Date",value:raw.filter(r=>P?.withinDue?.("rti",r)).length},{key:"dueToday",label:"Due Today",value:raw.filter(r=>P?.dueToday?.("rti",r)).length},{key:"overdue",label:"Overdue",value:raw.filter(r=>P?.overdue?.("rti",r)).length},{key:"replyAwaited",label:"Reply Awaited",value:raw.filter(r=>{const w=P?.workflow?.("rti",r)||{};return w.sentToSection&&!w.replyReceived&&!P?.closed?.("rti",r);}).length},{key:"replyReceived",label:"Reply Received",value:raw.filter(r=>P?.workflow?.("rti",r)?.replyReceived).length},{key:"replySent",label:"Reply Sent",value:raw.filter(r=>P?.workflow?.("rti",r)?.replySent).length},{key:"disposedClosed",label:"Disposed / Closed",value:raw.filter(r=>P?.closed?.("rti",r)).length}
+   ];
+ }else if(module==="disha"){
    const notUploaded=raw.filter(r=>!P?.workflow?.("disha",r)?.pomUploaded);
    const heldRows=raw.filter(r=>/held/i.test(String(r.statusOfMeeting||r.meetingStatus||r.status||"")));
    const districtsConducted=new Set(heldRows.map(r=>String(r.district||r.nameOfDistrict||"").trim().toLowerCase()).filter(Boolean)).size;
-   return [{label:"Total Meetings",value:total},{label:"Districts Conducted Meetings",value:districtsConducted},{label:"PoM Uploaded",value:raw.filter(r=>P?.workflow?.("disha",r)?.pomUploaded).length},{label:"PoM Not Uploaded",value:notUploaded.length},{label:"PoM Pending 0–7 Days",value:notUploaded.filter(r=>{const d=P?.diffDays?.(P?.recordDate?.("disha",r),new Date());return d!=null&&d>=0&&d<=7;}).length},{label:"PoM Pending 8–15 Days",value:notUploaded.filter(r=>{const d=P?.diffDays?.(P?.recordDate?.("disha",r),new Date());return d!=null&&d>=8&&d<=15;}).length},{label:"PoM Pending More Than 15 Days",value:notUploaded.filter(r=>{const d=P?.diffDays?.(P?.recordDate?.("disha",r),new Date());return d!=null&&d>15;}).length},{label:"Districts Pending PoM",value:new Set(notUploaded.map(r=>String(r.district||r.nameOfDistrict||"").trim()).filter(Boolean)).size}];
+   items=[
+    {key:"totalMeetings",label:"Total Meetings",value:total},{key:"districtsConducted",label:"Districts Conducted Meetings",value:districtsConducted},{key:"pomUploaded",label:"PoM Uploaded",value:raw.filter(r=>P?.workflow?.("disha",r)?.pomUploaded).length},{key:"pomNotUploaded",label:"PoM Not Uploaded",value:notUploaded.length},{key:"pom0to7",label:"PoM Pending 0–7 Days",value:notUploaded.filter(r=>{const d=P?.diffDays?.(P?.recordDate?.("disha",r),new Date());return d!=null&&d>=0&&d<=7;}).length},{key:"pom8to15",label:"PoM Pending 8–15 Days",value:notUploaded.filter(r=>{const d=P?.diffDays?.(P?.recordDate?.("disha",r),new Date());return d!=null&&d>=8&&d<=15;}).length},{key:"pomMore15",label:"PoM Pending More Than 15 Days",value:notUploaded.filter(r=>{const d=P?.diffDays?.(P?.recordDate?.("disha",r),new Date());return d!=null&&d>15;}).length},{key:"districtsPendingPom",label:"Districts Pending PoM",value:new Set(notUploaded.map(r=>String(r.district||r.nameOfDistrict||"").trim()).filter(Boolean)).size}
+   ];
+ }else{
+   const rows=transformed||[],closed=rows.filter(r=>String(r.Status||r["Final Status"]||"").toLowerCase().match(/closed|disposed|completed/)).length;
+   items=[{key:"totalRecords",label:"Total Records",value:rows.length},{key:"closedCompleted",label:"Closed / Completed",value:closed},{key:"pendingOpen",label:"Pending / Open",value:Math.max(rows.length-closed,0)}];
  }
- const rows=transformed||[];const closed=rows.filter(r=>String(r.Status||r["Final Status"]||"").toLowerCase().match(/closed|disposed|completed/)).length;return [{label:"Total Records",value:rows.length},{label:"Closed / Completed",value:closed},{label:"Pending / Open",value:Math.max(rows.length-closed,0)}];
+ const map=new Map(items.map(x=>[x.key,x]));
+ return selected.map(k=>map.get(k)).filter(Boolean);
 }
 function dateTimeOf(r,m){const d=window.FMSRecordPolicy?.recordDate?.(m,r)||parseDate(dateOf(r,m));return d instanceof Date&&!Number.isNaN(d.getTime())?d.getTime():0;}
 function sortDateDesc(rows,m){return rows.sort((a,b)=>dateTimeOf(b,m)-dateTimeOf(a,m));}
@@ -116,18 +134,29 @@ function generateCustom(def){const modules=def.module==="all"?Object.keys(loaded
  if(isDishaMeetingStatusDefinition(def)){
    let source=(loaded.disha||[]).filter(x=>inRange(x,"disha")).filter(x=>passesDef(x,def));
    if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,"disha");
-   raw=source.slice();out=source.map((r,i)=>standardRow("disha",r,i));reportColumns=DISHA_STATUS_COLUMNS.map(c=>({...c}));reportRows=out;reportSummary=buildSummary("disha",raw,out);render(reportName("disha"));return;
+   raw=source.slice();out=source.map((r,i)=>standardRow("disha",r,i));reportColumns=DISHA_STATUS_COLUMNS.map(c=>({...c}));reportRows=out;reportSummary=buildSummary("disha",raw,out,def.summaryCards);render(reportName("disha"));return;
  }
  if(def.module==="all"){
    const combined=[];for(const m of modules){for(const r of loaded[m].filter(x=>inRange(x,m))){const sr=standardRow(m,r);if(passesDef(sr,def))combined.push({raw:{...r,__module:m},row:sr});}}
    if(def.sortField)combined.sort((a,b)=>{for(const [field,dir] of [[def.sortField,def.sortDirection],[def.sortField2,def.sortDirection2],[def.sortField3,def.sortDirection3]].filter(x=>x[0])){const c=compareCustom(a.row,b.row,field);if(c)return c*(dir==="desc"?-1:1);}return 0;});
    else combined.sort((a,b)=>dateTimeOf(b.raw,b.raw.__module)-dateTimeOf(a.raw,a.raw.__module));
    out=combined.map(x=>x.row);raw=combined.map(x=>x.raw);reportColumns=(def.fields||Object.keys(out[0]||{})).map(k=>({key:k,label:label(k)}));
- }else{let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module)).filter(x=>passesDef(x,def));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,def.module);raw=source.slice();for(const r of source){const o={};(def.fields||[]).forEach(k=>o[k]=customValue(r,k));out.push(o);}reportColumns=(def.fields||[]).map(k=>({key:k,label:label(k)}));}reportRows=out;reportSummary=buildSummary(def.module,raw,out);render(reportName(def.module));}
-function render(title){$("reportTitle").textContent=title;$("recordCount").textContent=reportRows.length+" records";const th=$("reportTable").querySelector("thead"),tb=$("reportTable").querySelector("tbody");th.innerHTML='<tr>'+reportColumns.map(c=>`<th>${escapeHtml(c.label)}</th>`).join('')+'</tr>';tb.innerHTML=reportRows.length?reportRows.map(r=>'<tr>'+reportColumns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join('')+'</tr>'):`<tr><td colspan="${Math.max(reportColumns.length,1)}" class="text-center p-5 text-muted">No records found.</td></tr>`;const colors=["primary","success","warning","danger"];$("summaryCards").innerHTML=reportSummary.map((x,i)=>`<div class="col-xl-3 col-md-6"><div class="card border-${colors[i%colors.length]} summary-card h-100"><div class="card-body text-center"><div class="text-muted">${escapeHtml(x.label)}</div><h3 class="text-${colors[i%colors.length]}">${escapeHtml(x.value)}</h3></div></div></div>`).join("");$("summaryPeriod").textContent=selectedPeriod();$("reportStatus").textContent=`Generated ${new Date().toLocaleString("en-IN")}`;}
+ }else{let source=(loaded[def.module]||[]).filter(x=>inRange(x,def.module)).filter(x=>passesDef(x,def));if(def.sortField)applyDefinitionSort(source,def);else sortDateDesc(source,def.module);raw=source.slice();for(const r of source){const o={};(def.fields||[]).forEach(k=>o[k]=customValue(r,k));out.push(o);}reportColumns=(def.fields||[]).map(k=>({key:k,label:label(k)}));}reportRows=out;reportSummary=buildSummary(def.module,raw,out,def.summaryCards);render(reportName(def.module));}
+function render(title){
+ $("reportTitle").textContent=title;$("recordCount").textContent=reportRows.length+" records";
+ const th=$("reportTable").querySelector("thead"),tb=$("reportTable").querySelector("tbody");th.innerHTML='<tr>'+reportColumns.map(c=>`<th>${escapeHtml(c.label)}</th>`).join('')+'</tr>';tb.innerHTML=reportRows.length?reportRows.map(r=>'<tr>'+reportColumns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join('')+'</tr>'):`<tr><td colspan="${Math.max(reportColumns.length,1)}" class="text-center p-5 text-muted">No records found.</td></tr>`;
+ const colors=["primary","success","warning","danger"];
+ $("summaryCards").innerHTML=reportSummary.map((x,i)=>`<div class="col-xl-3 col-md-6"><div class="card border-${colors[i%colors.length]} summary-card h-100"><div class="card-body text-center"><div class="text-muted">${escapeHtml(x.label)}</div><h3 class="text-${colors[i%colors.length]}">${escapeHtml(x.value)}</h3></div></div></div>`).join("");
+ if($("summarySection"))$("summarySection").style.display=reportSummary.length?"":"none";
+ $("summaryPeriod").textContent=selectedPeriod();$("reportStatus").textContent=`Generated ${new Date().toLocaleString("en-IN")}`;
+}
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function exportOpts(){const fy=$("financialYear")?.value;return {rows:reportRows,columns:reportColumns,title:$("reportTitle").textContent,filename:$("reportTitle").textContent,headerLines:GOV_HEADER,summary:reportSummary,financialYear:fy&&fy!=="custom"?fy:"",periodLabel:fy==="custom"?selectedPeriod():"",shareText:`${GOV_HEADER.join("\n")}\n\n${$("reportTitle").textContent}\n${selectedPeriod()}\nRecords: ${reportRows.length}`};}
-function renderExportPreview(){const title=$("reportTitle").textContent||"FMS Report";$("exportPreviewTitle").textContent="Export Report — Preview";$("exportPreviewMeta").textContent=`${title} • ${reportRows.length} record(s)`;$("exportPreviewGov1").textContent=GOV_HEADER[0];$("exportPreviewGov2").textContent=GOV_HEADER[1];$("exportPreviewGov3").textContent=GOV_HEADER[2];$("exportPreviewReportTitle").textContent=title;$("exportPreviewReportMeta").textContent=selectedPeriod()+` • Records: ${reportRows.length}`;$("exportPreviewSummary").innerHTML='<div class="export-preview-summary-heading">SUMMARY</div><div class="export-preview-summary-grid">'+reportSummary.map(x=>`<div class="export-preview-summary-card"><div class="export-preview-summary-label">${escapeHtml(x.label)}</div><div class="export-preview-summary-value">${escapeHtml(x.value)}</div></div>`).join("")+"</div>";const th=$("exportPreviewTable").querySelector("thead"),tb=$("exportPreviewTable").querySelector("tbody");th.innerHTML='<tr>'+reportColumns.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join('')+'</tr>';tb.innerHTML=reportRows.map(r=>'<tr>'+reportColumns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join('')+'</tr>').join('');$("exportPreviewFormat").value=exportPreviewType==="print"?"pdf":exportPreviewType;$("exportPreviewStatus").textContent="";updateDeviceShareNote();}
+function renderExportPreview(){
+ const title=$("reportTitle").textContent||"FMS Report";$("exportPreviewTitle").textContent="Export Report — Preview";$("exportPreviewMeta").textContent=`${title} • ${reportRows.length} record(s)`;$("exportPreviewGov1").textContent=GOV_HEADER[0];$("exportPreviewGov2").textContent=GOV_HEADER[1];$("exportPreviewGov3").textContent=GOV_HEADER[2];$("exportPreviewReportTitle").textContent=title;$("exportPreviewReportMeta").textContent=selectedPeriod()+` • Records: ${reportRows.length}`;
+ $("exportPreviewSummary").innerHTML=reportSummary.length?'<div class="export-preview-summary-heading">SUMMARY</div><div class="export-preview-summary-grid">'+reportSummary.map(x=>`<div class="export-preview-summary-card"><div class="export-preview-summary-label">${escapeHtml(x.label)}</div><div class="export-preview-summary-value">${escapeHtml(x.value)}</div></div>`).join("")+"</div>":"";
+ const th=$("exportPreviewTable").querySelector("thead"),tb=$("exportPreviewTable").querySelector("tbody");th.innerHTML='<tr>'+reportColumns.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join('')+'</tr>';tb.innerHTML=reportRows.map(r=>'<tr>'+reportColumns.map(c=>`<td>${escapeHtml(r[c.key]??"")}</td>`).join('')+'</tr>').join('');$("exportPreviewFormat").value=exportPreviewType==="print"?"pdf":exportPreviewType;$("exportPreviewStatus").textContent="";updateDeviceShareNote();
+}
 function updateDeviceShareNote(){const note=$("deviceShareNote"),btn=$("btnPreviewShare");if(!note||!btn)return;btn.disabled=false;if(navigator.share){note.textContent="Share will open the device/browser share menu. File sharing is used when permitted; otherwise the report is shared as text or downloaded automatically.";note.classList.add("share-ready");}else{note.textContent="Native device sharing is unavailable in this browser. Share will download the selected report file instead.";note.classList.remove("share-ready");}}
 function openExportPreview(type){try{if(!Array.isArray(reportRows)||!reportRows.length)throw new Error("No records are available to export.");exportPreviewType=type||"pdf";renderExportPreview();$("exportPreviewBackdrop").classList.add("open");document.body.style.overflow="hidden";if(type==="print")setTimeout(()=>$("btnPreviewPrint")?.focus(),50);else setTimeout(()=>$("btnPreviewShare")?.focus(),50);}catch(e){alert(e.message||e);}}
 function closeExportPreview(){$("exportPreviewBackdrop")?.classList.remove("open");document.body.style.overflow="";}

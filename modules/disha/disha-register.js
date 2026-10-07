@@ -1260,8 +1260,7 @@ function updateRecordCount(
     if (element) {
 
         element.textContent =
-            "Records: " +
-            count;
+            String(count);
 
     }
 

@@ -1,0 +1,26 @@
+const fs=require('fs');
+const assert=require('assert');
+const masterHtml=fs.readFileSync('pages/admin/reports-master.html','utf8');
+const masterJs=fs.readFileSync('js/reports-master.js','utf8');
+const reportsHtml=fs.readFileSync('pages/reports.html','utf8');
+const reportsJs=fs.readFileSync('js/reports/reports.js','utf8');
+const dishaJs=fs.readFileSync('modules/disha/disha-register.js','utf8');
+
+assert(masterHtml.includes('id="filterField2"'),'Reports Master has Filter Field 2');
+assert(masterHtml.includes('id="filterField3"'),'Reports Master has Filter Field 3');
+assert(masterHtml.includes('id="filterValue" class="form-select"'),'Filter Value 1 is a dropdown');
+assert(masterHtml.includes('id="filterValue2" class="form-select"'),'Filter Value 2 is a dropdown');
+assert(masterHtml.includes('id="filterValue3" class="form-select"'),'Filter Value 3 is a dropdown');
+assert(masterHtml.includes('id="summaryCards"'),'Reports Master has Summary Cards selector');
+assert(masterJs.includes('const SUMMARY_CATALOG='),'Summary card catalog is maintained in Reports Master');
+assert(masterJs.includes('loadFilterSource'),'Filter values are loaded from module records');
+assert(masterJs.includes('filterField2') && masterJs.includes('filterField3'),'All three filters are saved/edited');
+assert(masterJs.includes('summaryCards'),'Selected summary cards are persisted');
+assert(reportsJs.includes('passesOneFilter(r,def.filterField2'),'Runtime applies Filter 2');
+assert(reportsJs.includes('passesOneFilter(r,def.filterField3'),'Runtime applies Filter 3');
+assert(reportsJs.includes('if(!selected.length)return []'),'Summary cards are not hard-coded when none are selected in Reports Master');
+assert(reportsJs.includes('buildSummary(def.module,raw,out,def.summaryCards)'),'Custom report summary uses Reports Master selection');
+assert(reportsHtml.includes('id="summarySection"'),'Report summary section can be hidden when no master summary cards are selected');
+assert(!dishaJs.includes('"Records: " +\n            count'),'DISHA count no longer repeats Records label');
+assert(dishaJs.includes('String(count)'),'DISHA record count writes number only inside the existing Records label');
+console.log('PASS v1.10.18 Reports Master: 3 dynamic filters + master-selected summary cards + DISHA count cleanup');
