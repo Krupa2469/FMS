@@ -1,7 +1,7 @@
 /* ============================================================
    FMS EXPORT SERVICE
    Excel / PDF / JPEG / Print + native device sharing.
-   Version 1.10.26
+   Version 1.10.27
    ============================================================ */
 (function(window,document){
   "use strict";
@@ -83,12 +83,20 @@
       return Math.max(9,Math.min(maxLen,24));
     });
   }
-  function columnWidthPercents(columns,rows){
-    const scores=columnWidthScores(columns,rows),total=scores.reduce((a,b)=>a+b,0)||1;
-    return scores.map(x=>Math.max(4,+(x/total*100).toFixed(2)));
+  function columnWidthsCh(columns,rows){
+    return columnWidthScores(columns,rows).map((score,i)=>{
+      const label=String(columns?.[i]?.label||columns?.[i]?.key||"").toLowerCase();
+      if(/^(s\.?no\.?|sl\.?no\.?|serial)/i.test(label))return 7;
+      if(/date/i.test(label))return Math.min(score,13);
+      if(/status|type/i.test(label))return Math.min(score,15);
+      if(/name/i.test(label))return Math.min(score,22);
+      if(/subject|description|remarks|information|question|answer/i.test(label))return Math.min(score,32);
+      return Math.min(score,22);
+    });
   }
+  function tableWidthCh(columns,rows){return columnWidthsCh(columns,rows).reduce((a,b)=>a+b,0)+2;}
   function colgroupHtml(columns,rows){
-    return '<colgroup>'+columnWidthPercents(columns,rows).map(w=>`<col style="width:${w}%">`).join('')+'</colgroup>';
+    return '<colgroup>'+columnWidthsCh(columns,rows).map(w=>`<col style="width:${w}ch">`).join('')+'</colgroup>';
   }
 
   function buildExcelFile(opts={}){
@@ -124,7 +132,7 @@
     for(let r=0;r<aoa.length;r++){
       if(aoa[r]&&aoa[r].length===1&&aoa[r][0])ws["!merges"].push({s:{r,c:0},e:{r,c:colCount-1}});
     }
-    const widths=[];for(let i=0;i<colCount;i++){let maxLen=8;aoa.forEach(row=>{const v=row?.[i];if(v!==undefined&&v!==null)maxLen=Math.max(maxLen,Math.min(String(v).length+2,42));});widths.push({wch:maxLen});}ws["!cols"]=widths;
+    const widths=[];for(let i=0;i<colCount;i++){let maxLen=8;aoa.forEach(row=>{const v=row?.[i];if(v!==undefined&&v!==null)maxLen=Math.max(maxLen,Math.min(String(v).length+2,32));});widths.push({wch:maxLen});}ws["!cols"]=widths;
     ws["!freeze"]={xSplit:0,ySplit:headers.length+meta.length+summary.length+5};
 
     const wb=window.XLSX.utils.book_new();
@@ -158,9 +166,10 @@
         doc.setFillColor(232,243,255);doc.setDrawColor(187,211,235);doc.roundedRect(reportMargin,y-3,reportTableWidth,7,1.2,1.2,"FD");
         doc.setTextColor(35,64,92);doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text(String(heading),reportMargin+3,y+1.5);doc.setTextColor(17,24,39);y+=7;
       }
-      const scores=columnWidthScores(tableCols,tableRows),scoreTotal=scores.reduce((a,b)=>a+b,0)||1,columnStyles={};
-      scores.forEach((score,i)=>columnStyles[i]={cellWidth:Math.max(11,reportTableWidth*(score/scoreTotal))});
-      doc.autoTable({head:[tableCols.map(c=>c.label||c.key)],body:tableRows.map(r=>tableCols.map(c=>clean(r?.[c.key]))),startY:y,styles:{fontSize:7,cellPadding:1.6,overflow:"linebreak",textColor:[31,41,55],lineColor:[203,216,230],lineWidth:.15},headStyles:{fontStyle:"bold",fillColor:[235,245,255],textColor:[32,67,96],lineColor:[187,211,235],halign:"center"},alternateRowStyles:{fillColor:[248,251,255]},columnStyles,margin:{left:reportMargin,right:reportMargin},tableWidth:reportTableWidth});
+      const scores=columnWidthScores(tableCols,tableRows),rawWidths=scores.map((score,i)=>{const label=String(tableCols?.[i]?.label||"").toLowerCase();if(/^(s\.?no\.?|sl\.?no\.?|serial)/i.test(label))return 9;if(/date/i.test(label))return 18;if(/status|type/i.test(label))return Math.min(24,Math.max(16,score*1.25));if(/name/i.test(label))return Math.min(34,Math.max(20,score*1.3));if(/subject|description|remarks|information|question|answer/i.test(label))return Math.min(46,Math.max(26,score*1.25));return Math.min(32,Math.max(14,score*1.25));}),rawTotal=rawWidths.reduce((a,b)=>a+b,0)||1,scale=Math.min(1,reportTableWidth/rawTotal),columnStyles={};
+      rawWidths.forEach((w,i)=>columnStyles[i]={cellWidth:w*scale});
+      const naturalTableWidth=rawTotal*scale;
+      doc.autoTable({head:[tableCols.map(c=>c.label||c.key)],body:tableRows.map(r=>tableCols.map(c=>clean(r?.[c.key]))),startY:y,styles:{fontSize:7,cellPadding:1.6,overflow:"linebreak",textColor:[31,41,55],lineColor:[203,216,230],lineWidth:.15},headStyles:{fontStyle:"bold",fillColor:[235,245,255],textColor:[32,67,96],lineColor:[187,211,235],halign:"center"},alternateRowStyles:{fillColor:[248,251,255]},columnStyles,margin:{left:reportMargin,right:reportMargin},tableWidth:naturalTableWidth});
       y=(doc.lastAutoTable?.finalY||y)+6;
     };
     if(sections.length)sections.forEach(sec=>drawTable(sec.columns,sec.heading,sec.rows));else drawTable(cols);
@@ -175,7 +184,7 @@
   function buildExportSheet(opts={}){
     const rows=opts.rows||[],cols=normalizeColumns(rows,opts.columns),sections=normalizeSections(opts,rows,cols),headers=headerLines(opts),summary=summaryItems(opts,rows);
     const wrap=document.createElement("div");
-    const maxCols=Math.max(cols.length,...sections.map(sec=>sec.columns.length),1);const reportWidth=Math.max(1100,Math.min(1800,maxCols*155));
+    const sectionWidths=sections.map(sec=>tableWidthCh(sec.columns,sec.rows));const flatWidth=tableWidthCh(cols,rows);const widestCh=Math.max(flatWidth,...sectionWidths,70);const reportWidth=Math.max(900,Math.min(1500,Math.round(widestCh*8.2+80)));
     wrap.style.cssText=`position:fixed;left:-100000px;top:0;background:#fff;color:#111;padding:28px;width:${reportWidth}px;box-sizing:border-box;z-index:-1;font-family:Arial,sans-serif`;
     const addLine=(text,css)=>{const d=document.createElement("div");d.textContent=text;d.style.cssText=css;wrap.appendChild(d);};
     addLine(headers[0]||"","text-align:center;font-weight:700;font-size:24px;margin-bottom:5px");addLine(headers[1]||"","text-align:center;font-weight:700;font-size:17px;margin-bottom:4px");addLine(headers[2]||"","text-align:center;font-size:14px;margin-bottom:14px");addLine(opts.title||"FMS Report","text-align:center;font-weight:700;font-size:17px;margin-bottom:5px");metaLines(opts,rows).forEach(line=>addLine(line,"text-align:center;font-size:12px;margin-bottom:3px"));
@@ -183,8 +192,8 @@
     const sum=document.createElement("div");sum.className="summary-cards";sum.style.cssText="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:8px 0 16px";const lightCards=["#eef6ff","#eff8f3","#fff8e8","#fff1f1","#f4efff","#eef8f8"];sum.innerHTML=summary.map((x,i)=>`<div style="border:1px solid #d3e1ee;border-radius:8px;padding:9px 7px;text-align:center;min-height:58px;display:flex;flex-direction:column;justify-content:center;background:${lightCards[i%lightCards.length]};color:#29445f"><div style="font-size:11px;font-weight:600">${escapeHtml(x.label)}</div><div style="font-size:18px;font-weight:700;margin-top:4px">${escapeHtml(x.value)}</div></div>`).join("");wrap.appendChild(sum);
     const appendTable=(tableCols,heading="",tableRows=rows)=>{
       if(heading)addLine(heading,"font-weight:700;font-size:14px;background:#e8f3ff;color:#23405c;border:1px solid #c6d9ec;padding:8px 10px;margin-top:12px;border-radius:7px 7px 0 0");
-      const table=document.createElement("table");table.style.cssText="border-collapse:collapse;width:100%;font-size:12px;table-layout:fixed;margin-bottom:18px;background:#fff";
-      const colgroup=document.createElement("colgroup");columnWidthPercents(tableCols,tableRows).forEach(w=>{const col=document.createElement("col");col.style.width=w+"%";colgroup.appendChild(col);});table.appendChild(colgroup);
+      const table=document.createElement("table");table.style.cssText=`border-collapse:collapse;width:${tableWidthCh(tableCols,tableRows)}ch;max-width:none;font-size:12px;table-layout:fixed;margin-bottom:18px;background:#fff`;
+      const colgroup=document.createElement("colgroup");columnWidthsCh(tableCols,tableRows).forEach(w=>{const col=document.createElement("col");col.style.width=w+"ch";colgroup.appendChild(col);});table.appendChild(colgroup);
       const trh=document.createElement("tr");tableCols.forEach(c=>{const th=document.createElement("th");th.textContent=c.label||c.key;th.style.cssText="border:1px solid #c7d8e8;padding:7px;background:#edf6ff;color:#29445f;text-align:center;white-space:normal;overflow-wrap:normal;word-break:normal;font-weight:700";trh.appendChild(th);});const thead=document.createElement("thead");thead.appendChild(trh);table.appendChild(thead);
       const tbody=document.createElement("tbody");tableRows.forEach((r,ri)=>{const tr=document.createElement("tr");if(ri%2===1)tr.style.background="#f9fbfd";tableCols.forEach(c=>{const td=document.createElement("td");td.textContent=clean(r?.[c.key]);td.style.cssText="border:1px solid #d6e1eb;padding:6px;vertical-align:top;white-space:normal;overflow-wrap:anywhere;word-break:normal;color:#263747";tr.appendChild(td);});tbody.appendChild(tr);});table.appendChild(tbody);wrap.appendChild(table);
     };
@@ -249,10 +258,10 @@
   async function printRows(opts={}){
     const rows=opts.rows||[];ensureRows(rows);const cols=normalizeColumns(rows,opts.columns),sections=normalizeSections(opts,rows,cols),headers=headerLines(opts),summary=summaryItems(opts,rows);
     const w=window.open("","_blank","width=1200,height=800");if(!w)throw new Error("Popup blocked. Please allow popups for printing.");
-    const tableHtml=(tableCols,heading="",tableRows=rows)=>`${heading?`<div class="section-heading">${escapeHtml(heading)}</div>`:""}<table class="data">${colgroupHtml(tableCols,tableRows)}<thead><tr>${tableCols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${tableRows.map(r=>`<tr>${tableCols.map(c=>`<td>${escapeHtml(clean(r?.[c.key]))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    const tableHtml=(tableCols,heading="",tableRows=rows)=>`${heading?`<div class="section-heading">${escapeHtml(heading)}</div>`:""}<table class="data" style="width:${tableWidthCh(tableCols,tableRows)}ch">${colgroupHtml(tableCols,tableRows)}<thead><tr>${tableCols.map(c=>`<th>${escapeHtml(c.label||c.key)}</th>`).join("")}</tr></thead><tbody>${tableRows.map(r=>`<tr>${tableCols.map(c=>`<td>${escapeHtml(clean(r?.[c.key]))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     const bodyTables=sections.length?sections.map(sec=>tableHtml(sec.columns,sec.heading,sec.rows)).join(""):tableHtml(cols);
     const sumCards=summary.map(x=>`<div class="summary-card"><div class="summary-label">${escapeHtml(x.label)}</div><div class="summary-value">${escapeHtml(x.value)}</div></div>`).join("");
-    w.document.write(`<!doctype html><html><head><title>${escapeHtml(opts.title||"FMS Report")}</title><style>body{font-family:Arial;padding:18px;color:#111}.report-shell{width:100%;margin:0 auto}.gov{text-align:center;margin:0;width:100%}.gov1{font-size:22px;font-weight:700}.gov2{font-size:15px;font-weight:700;margin-top:4px}.gov3{font-size:13px;margin-top:4px}.title{text-align:center;font-size:16px;font-weight:700;margin:14px 0 5px}.meta{text-align:center;font-size:11px;margin:2px}.summary-heading{text-align:center;font-weight:700;background:#eaf4ff;color:#23405c;border:1px solid #c7d9eb;padding:6px;margin-top:14px}.summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;width:100%;margin:8px 0 14px;box-sizing:border-box}.summary-card{border:1px solid #d3e1ee;border-radius:7px;padding:8px;text-align:center;min-height:52px;display:flex;flex-direction:column;justify-content:center;background:#f8fbff;color:#29445f}.summary-card:nth-child(6n+1){background:#eef6ff}.summary-card:nth-child(6n+2){background:#eff8f3}.summary-card:nth-child(6n+3){background:#fff8e8}.summary-card:nth-child(6n+4){background:#fff1f1}.summary-card:nth-child(6n+5){background:#f4efff}.summary-card:nth-child(6n+6){background:#eef8f8}.summary-label{font-size:10px;font-weight:600}.summary-value{font-size:16px;font-weight:700;margin-top:3px}.section-heading{font-weight:700;background:#e8f3ff;color:#23405c;padding:7px 9px;margin-top:14px;border:1px solid #c6d9ec;border-radius:6px 6px 0 0}table.data{border-collapse:collapse;width:100%;font-size:11px;table-layout:fixed;margin-bottom:14px}th,td{border:1px solid #d3dfe9;padding:5px;vertical-align:top;word-break:normal}th{background:#edf6ff;color:#29445f;white-space:normal;overflow-wrap:normal;hyphens:none;text-align:center}td{overflow-wrap:anywhere;color:#263747}tbody tr:nth-child(even){background:#f9fbfd}@media print{button{display:none}}</style></head><body><div class="report-shell"><div class="gov gov1">${escapeHtml(headers[0]||"")}</div><div class="gov gov2">${escapeHtml(headers[1]||"")}</div><div class="gov gov3">${escapeHtml(headers[2]||"")}</div><div class="title">${escapeHtml(opts.title||"FMS Report")}</div>${metaLines(opts,rows).map(x=>`<div class="meta">${escapeHtml(x)}</div>`).join("")}<div class="summary-heading">SUMMARY</div><div class="summary-cards">${sumCards}</div>${bodyTables}</div><script>window.onload=()=>{window.print();}<\/script></body></html>`);w.document.close();
+    w.document.write(`<!doctype html><html><head><title>${escapeHtml(opts.title||"FMS Report")}</title><style>body{font-family:Arial;padding:18px;color:#111}.report-shell{width:100%;margin:0 auto}.gov{text-align:center;margin:0;width:100%}.gov1{font-size:22px;font-weight:700}.gov2{font-size:15px;font-weight:700;margin-top:4px}.gov3{font-size:13px;margin-top:4px}.title{text-align:center;font-size:16px;font-weight:700;margin:14px 0 5px}.meta{text-align:center;font-size:11px;margin:2px}.summary-heading{text-align:center;font-weight:700;background:#eaf4ff;color:#23405c;border:1px solid #c7d9eb;padding:6px;margin-top:14px}.summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;width:100%;margin:8px 0 14px;box-sizing:border-box}.summary-card{border:1px solid #d3e1ee;border-radius:7px;padding:8px;text-align:center;min-height:52px;display:flex;flex-direction:column;justify-content:center;background:#f8fbff;color:#29445f}.summary-card:nth-child(6n+1){background:#eef6ff}.summary-card:nth-child(6n+2){background:#eff8f3}.summary-card:nth-child(6n+3){background:#fff8e8}.summary-card:nth-child(6n+4){background:#fff1f1}.summary-card:nth-child(6n+5){background:#f4efff}.summary-card:nth-child(6n+6){background:#eef8f8}.summary-label{font-size:10px;font-weight:600}.summary-value{font-size:16px;font-weight:700;margin-top:3px}.section-heading{font-weight:700;background:#e8f3ff;color:#23405c;padding:7px 9px;margin-top:14px;border:1px solid #c6d9ec;border-radius:6px 6px 0 0}table.data{border-collapse:collapse;width:auto;max-width:100%;font-size:11px;table-layout:fixed;margin-bottom:14px}th,td{border:1px solid #d3dfe9;padding:5px;vertical-align:top;word-break:normal}th{background:#edf6ff;color:#29445f;white-space:normal;overflow-wrap:normal;hyphens:none;text-align:center}td{overflow-wrap:anywhere;color:#263747}tbody tr:nth-child(even){background:#f9fbfd}@media print{button{display:none}}</style></head><body><div class="report-shell"><div class="gov gov1">${escapeHtml(headers[0]||"")}</div><div class="gov gov2">${escapeHtml(headers[1]||"")}</div><div class="gov gov3">${escapeHtml(headers[2]||"")}</div><div class="title">${escapeHtml(opts.title||"FMS Report")}</div>${metaLines(opts,rows).map(x=>`<div class="meta">${escapeHtml(x)}</div>`).join("")}<div class="summary-heading">SUMMARY</div><div class="summary-cards">${sumCards}</div>${bodyTables}</div><script>window.onload=()=>{window.print();}<\/script></body></html>`);w.document.close();
   }
 
   function fromTable(table,options={}){
