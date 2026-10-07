@@ -1,5 +1,5 @@
 "use strict";
-/* Central reports + custom report definitions - v1.10.24 */
+/* Central reports + custom report definitions - v1.10.25 */
 (function(window,document){
 const CFG={
   cpgrams:{collection:"cpgrams",dateFields:["dateReceived","orgReceivedDate","receivedDate","grievanceDate","dateOfReceipt","receiptDate","dateArised","questionReceivedDate","date"],dueFields:["dueDate"],name:"GRIEVANCES"},
@@ -16,7 +16,7 @@ let loaded={cpgrams:[],rti:[],disha:[]},definitions=[],reportRows=[],reportColum
 const $=id=>document.getElementById(id);const baseLabel=k=>LABELS[k]||String(k).replace(/([A-Z])/g," $1").replace(/^./,c=>c.toUpperCase());
 function parseFieldRef(ref,fallbackModule){const v=String(ref||"");const i=v.indexOf("::");return i>0?{module:v.slice(0,i),key:v.slice(i+2),qualified:true}:{module:fallbackModule||"cpgrams",key:v,qualified:false};}
 const moduleName=m=>m==="cpgrams"?"GRIEVANCES":String(CFG[m]?.name||m||"").toUpperCase();
-function label(ref,fallbackModule){const p=parseFieldRef(ref,fallbackModule);return p.qualified?`${moduleName(p.module)} — ${baseLabel(p.key)}`:baseLabel(p.key);}
+function label(ref,fallbackModule){const p=parseFieldRef(ref,fallbackModule);if(!p.qualified||p.module==="cpgrams")return baseLabel(p.key);return `${moduleName(p.module)} — ${baseLabel(p.key)}`;}
 function parseDate(v){if(!v)return null;if(v&&typeof v.toDate==="function")v=v.toDate();if(v&&v.seconds!=null)v=new Date(Number(v.seconds)*1000);const s=String(v);let m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);const d=v instanceof Date?v:new Date(v);return Number.isNaN(d.getTime())?null:d;}
 function fmt(v){const d=parseDate(v);return d?d.toLocaleDateString("en-GB"):String(v??"");}
 function iso(v){const d=parseDate(v);return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`:"";}
@@ -175,7 +175,7 @@ function buildDefinitionSummary(def){
  const fallback=def?.module||"cpgrams",out=[];
  selected.forEach(ref=>{
    const p=parseFieldRef(ref,fallback),ds=summaryDataset(p.module),card=buildSummary(p.module,ds.raw,ds.transformed,[p.key])[0];
-   if(card)out.push({...card,key:ref,label:p.qualified?`${moduleName(p.module)} — ${card.label}`:card.label});
+   if(card)out.push({...card,key:ref,label:(p.qualified&&p.module!=="cpgrams")?`${moduleName(p.module)} — ${card.label}`:card.label});
  });
  return out;
 }
