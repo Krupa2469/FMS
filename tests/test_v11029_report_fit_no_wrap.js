@@ -1,0 +1,15 @@
+const fs=require('fs');
+const assert=require('assert');
+const reports=fs.readFileSync('js/reports/reports.js','utf8');
+const exportSvc=fs.readFileSync('js/services/export-service.js','utf8');
+const html=fs.readFileSync('pages/reports.html','utf8');
+assert(reports.includes('function isNoWrapReportColumn'), 'reports no-wrap helper missing');
+assert(reports.includes('style="width:100%"'), 'section tables should fill report content width');
+assert(reports.includes('report-nowrap'), 'report identifier cells should use no-wrap class');
+assert(reports.includes('reportColumnPercentages'), 'report proportional widths missing');
+assert(exportSvc.includes('function isNoWrapColumn'), 'export no-wrap helper missing');
+assert(exportSvc.includes('scale=reportContentWidth/rawTotal'), 'PDF columns must scale to full report width');
+assert(exportSvc.includes('const naturalTableWidth=reportContentWidth'), 'PDF table should use full report content width');
+assert(exportSvc.includes('class="nowrap"'), 'print identifier no-wrap class missing');
+assert(html.includes('.report-autofit-table .report-nowrap{white-space:nowrap!important'), 'preview no-wrap CSS missing');
+console.log('v1.10.29 report fit/no-wrap checks passed');
