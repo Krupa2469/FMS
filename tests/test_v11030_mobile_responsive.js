@@ -1,0 +1,14 @@
+const fs=require('fs');
+const assert=require('assert');
+const style=fs.readFileSync('css/style.css','utf8');
+const reportsHtml=fs.readFileSync('pages/reports.html','utf8');
+const reportsJs=fs.readFileSync('js/reports/reports.js','utf8');
+assert(style.includes('FMS v1.10.30 - MOBILE RESPONSIVE APPLICATION SHELL'),'global mobile responsive CSS missing');
+assert(style.includes('.home-sidebar-links{display:flex!important'),'mobile home sidebar rail missing');
+assert(style.includes('#homeModuleCards>div'),'mobile dashboard card sizing missing');
+assert(reportsHtml.includes('FMS v1.10.30 - mobile report readability'),'mobile report CSS missing');
+assert(reportsHtml.includes('.report-autofit-table tbody td::before{content:attr(data-label)'),'mobile report label layout missing');
+assert(reportsHtml.includes('.export-preview-paper{width:100%!important;min-width:0!important;max-width:100%!important'),'mobile preview paper must fit viewport');
+assert(reportsJs.includes('data-label="${escapeHtml(c.label||c.key)}"'),'report cells need mobile labels');
+assert(reportsJs.includes('matchMedia("(max-width: 768px)")'),'report compact width must be mobile-aware');
+console.log('v1.10.30 mobile responsive checks passed');

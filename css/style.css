@@ -1308,3 +1308,110 @@ Serial numbers are display-only and recalculate after filter/sort/delete.
     overflow-wrap:normal!important;
     word-break:normal!important;
 }
+
+/*==========================================================
+FMS v1.10.30 - MOBILE RESPONSIVE APPLICATION SHELL
+==========================================================*/
+@media (max-width: 991.98px){
+    html,body{max-width:100%;overflow-x:hidden!important}
+    body{font-size:14px!important}
+    .container-fluid,
+    main.container-fluid,
+    main.container-fluid.py-3,
+    .container-fluid.mt-4{padding-left:10px!important;padding-right:10px!important}
+
+    /* Home: convert desktop sidebar into a compact swipeable module rail. */
+    .home-shell{grid-template-columns:1fr!important;gap:10px!important}
+    .home-sidebar{position:static!important;width:100%!important;max-width:100%!important;border-radius:14px!important;overflow:hidden!important}
+    .home-sidebar-links{display:flex!important;grid-template-columns:none!important;flex-wrap:nowrap!important;gap:6px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:8px!important;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+    .home-sidebar a,.home-sidebar .sidebar-subitem{flex:0 0 auto!important;margin:0!important;margin-left:0!important;padding:8px 10px!important;white-space:nowrap!important;font-size:.9rem!important;border-radius:9px!important}
+    .home-sidebar .sidebar-system{border-top:0!important;margin-top:0!important;padding-top:0!important}
+    .home-main{width:100%!important;min-width:0!important}
+
+    /* Cards: two per row on tablets, one per row on narrow phones. */
+    #homeModuleCards>div,
+    #moduleDashboardCards>div{flex:0 0 50%!important;max-width:50%!important}
+    .dashboard-home-card .card-body,
+    .metric-card .card-body,
+    .fms-compact-dashboard-card .card-body,
+    .fms-inline-metric-card .card-body,
+    .dashboard-card .card-body{min-height:108px!important;padding:.75rem!important}
+
+    /* Forms and toolbars */
+    .sticky-tools .container-fluid,
+    nav.navbar .container-fluid{gap:6px!important}
+    .sticky-tools .btn,
+    nav.navbar .btn{font-size:.88rem!important;padding:.5rem .7rem!important}
+    .form-section,.card{max-width:100%!important}
+    .form-control,.form-select,input,textarea,select{font-size:16px!important} /* prevents iOS zoom */
+    .fms-bottom-form-actions{padding:10px!important;margin:12px 0 18px!important}
+    .fms-bottom-form-actions-buttons .btn{flex:1 1 30%!important;min-width:96px!important}
+
+    /* Registers remain clear and swipeable instead of shrinking text. */
+    .table-responsive{max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}
+    .table-responsive table{font-size:12.5px!important}
+    .table-responsive th,.table-responsive td{padding:.5rem!important}
+    .table-responsive .btn{font-size:.78rem!important;padding:.38rem .5rem!important}
+
+    /* Pending alert panel: bottom sheet on phones/tablets. */
+    .pending-roll{left:10px!important;right:10px!important;top:auto!important;bottom:10px!important;width:auto!important;max-height:68dvh!important;padding:16px 12px 14px!important;border-radius:14px!important}
+    #pendingRollList{max-height:calc(68dvh - 58px)!important}
+}
+
+@media (max-width: 767.98px){
+    /* Common header becomes compact but remains fully readable. */
+    .fms-global-header{min-height:0!important;padding:12px 8px 12px 62px!important;border-bottom-width:3px!important}
+    .fms-global-logo{left:8px!important;width:46px!important;height:46px!important;padding:4px!important}
+    .fms-global-header-text{gap:1px!important}
+    .fms-global-gov{font-size:16pt!important;line-height:1.08!important}
+    .fms-global-office{font-size:13pt!important;line-height:1.1!important}
+    .fms-global-address{font-size:9pt!important;line-height:1.18!important;margin-top:2px!important}
+    .fms-global-system{font-size:13pt!important;line-height:1.1!important;margin-top:3px!important}
+    .fms-module-title-strip{font-size:14pt!important;padding:8px!important}
+    .fms-module-nav{padding:6px!important}
+    .fms-module-nav-inner{gap:5px!important}
+    .fms-module-nav .fms-nav-item{font-size:.8rem!important;padding:7px 8px!important;border-radius:8px!important}
+
+    #homeModuleCards,#moduleDashboardCards{--bs-gutter-x:.6rem!important;--bs-gutter-y:.6rem!important}
+    .card-header{padding:.7rem .8rem!important}
+    .card-body{padding:.8rem!important}
+
+    /* Stack common form rows cleanly on phones. */
+    form .row>[class*="col-md-"],
+    form .row>[class*="col-lg-"],
+    form .row>[class*="col-xl-"],
+    .form-section .row>[class*="col-md-"],
+    .form-section .row>[class*="col-lg-"]{flex:0 0 100%!important;max-width:100%!important;width:100%!important}
+
+    .fms-bottom-form-actions-buttons .btn{flex:1 1 100%!important;width:100%!important}
+    .card-header>.d-flex,.card-body>.d-flex,.sticky-tools .d-flex{flex-wrap:wrap!important}
+    .card-header .badge{margin-top:3px!important}
+}
+
+@media (max-width: 479.98px){
+    .container-fluid,main.container-fluid,main.container-fluid.py-3,.container-fluid.mt-4{padding-left:7px!important;padding-right:7px!important}
+    #homeModuleCards>div,#moduleDashboardCards>div{flex:0 0 100%!important;max-width:100%!important}
+    .fms-global-header{padding-left:54px!important;padding-right:6px!important}
+    .fms-global-logo{width:40px!important;height:40px!important;left:7px!important}
+    .fms-global-gov{font-size:14pt!important}
+    .fms-global-office{font-size:11.5pt!important}
+    .fms-global-address{font-size:8.5pt!important}
+    .fms-global-system{font-size:12pt!important}
+    .sticky-tools .btn,nav.navbar .btn{flex:1 1 calc(50% - 6px)!important;white-space:nowrap!important}
+    .table-responsive table{font-size:12px!important}
+}
+
+@media (max-width: 767.98px){
+    img,svg,canvas{max-width:100%;height:auto}
+    .row{min-width:0!important}
+    [class*="col-"]{min-width:0}
+    .modal-dialog{margin:.5rem!important;max-width:calc(100vw - 1rem)!important}
+    .modal-content{max-height:calc(100dvh - 1rem)!important;overflow:auto!important}
+    .entryTable,.entryTable tbody,.entryTable tr,.entryTable td{display:block!important;width:100%!important;max-width:100%!important}
+    .entryTable td{padding:5px 0!important}
+    table.grid{display:block!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}
+    .buttonBar{gap:6px!important}
+    .buttonBar button{flex:1 1 calc(50% - 6px)!important}
+    .input-group{flex-wrap:nowrap!important}
+    .input-group>.form-control,.input-group>.form-select{min-width:0!important}
+}
