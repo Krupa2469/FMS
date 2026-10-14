@@ -1,0 +1,10 @@
+const fs=require('fs');
+const assert=require('assert');
+const reportsJs=fs.readFileSync('js/reports/reports.js','utf8');
+assert(reportsJs.includes('function passesDefinitionFiltersForModule'), 'Report-level filter helper is missing');
+assert(reportsJs.includes('function filteredSummaryRows'), 'Filtered summary-row helper is missing');
+assert(reportsJs.includes('return source.filter(r=>passesDefinitionFiltersForModule(r,module,def));'), 'Flat report filters must apply to summary rows');
+assert(reportsJs.includes('return source.filter(r=>relevant.some(sec=>passesSectionFilters'), 'Section filters must apply to summary rows');
+assert(reportsJs.includes('const fyReceived=filteredScope ? (raw||[])'), 'Filtered GRIEVANCES total must use filtered records');
+assert(reportsJs.includes('value:fyReceived.length'), 'Filtered Total Received card calculation is missing');
+console.log('PASS v1.10.32 filtered report summary cards');

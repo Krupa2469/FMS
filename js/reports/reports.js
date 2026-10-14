@@ -1,5 +1,5 @@
 "use strict";
-/* Central reports + custom report definitions - v1.10.30 */
+/* Central reports + custom report definitions - v1.10.32 */
 (function(window,document){
 const CFG={
   cpgrams:{collection:"cpgrams",dateFields:["dateReceived","orgReceivedDate","receivedDate","grievanceDate","dateOfReceipt","receiptDate","dateArised","questionReceivedDate","date"],dueFields:["dueDate"],name:"GRIEVANCES"},
@@ -141,6 +141,35 @@ function sectionModules(sec,fallbackModule){
  if(!mods.size){if(fallbackModule==="all")Object.keys(loaded).forEach(m=>mods.add(m));else mods.add(fallbackModule||"cpgrams");}
  return mods;
 }
+function grievanceTypeScope(def){
+ const scope=new Set(),P=window.FMSRecordPolicy;
+ const addFilter=f=>{
+  if(!f?.field)return;
+  const fallback=(def?.module&&def.module!=="all")?def.module:"cpgrams";
+  const p=parseFieldRef(f.field,fallback);
+  if(p.module!=="cpgrams"||p.key!=="grievanceType")return;
+  const op=String(f.operator||"contains");
+  if(op!=="equals"&&op!=="contains")return;
+  const key=P?.normalizeType?.(f.value);
+  if(key)scope.add(key);
+ };
+ legacyDefinitionFilters(def).forEach(addFilter);
+ (Array.isArray(def?.sections)?def.sections:[]).forEach(sec=>(Array.isArray(sec?.filters)?sec.filters:[]).forEach(addFilter));
+ if(!scope.size){
+  const text=`${def?.mainHeading||""} ${def?.name||""}`.toLowerCase();
+  const inferred=[
+   ["public grievances","public grievances"],["direct complaints","direct complaints"],["vip references","vip references"],
+   ["cmo references","cmo references"],["pmo references","pmo references"],["audit paras","audit paras"],
+   ["vigilance cases","vigilance cases"],["court cases","court cases"],["prajavani","prajavani"],
+   ["cpgrams","cpgrams"],["laq","laq"],["lcq","lcq"]
+  ];
+  for(const [phrase,key] of inferred){if(text.includes(phrase)){scope.add(key);break;}}
+ }
+ return scope;
+}
+function grievanceTypeKey(r){
+ return window.FMSRecordPolicy?.rowType?.(r)||window.FMSRecordPolicy?.normalizeType?.(r?.grievanceType)||"cpgrams";
+}
 function passesDef(r,def){
  if(!def)return true;
  return passesOneFilter(r,def.filterField,def.operator,def.filterValue)&&
@@ -156,12 +185,36 @@ function customValue(r,ref,index=0,module=activeModule,fallbackModule=activeModu
  if(module==="disha"&&k==="pomUploaded")return window.FMSRecordPolicy?.workflow?.("disha",r)?.pomUploaded?"Yes":"No";
  const v=r?.[k];if(v&&typeof v.toDate==="function")return fmt(v);if(k.toLowerCase().includes("date")||k.toLowerCase().includes("due")){const d=parseDate(v);if(d)return fmt(v);}return v??"";
 }
-function summaryDataset(module){
+function passesDefinitionFiltersForModule(r,module,def){
+ const filters=legacyDefinitionFilters(def);
+ if(!filters.length)return true;
+ return filters.every(f=>{
+   const p=parseFieldRef(f?.field,(def?.module&&def.module!=="all")?def.module:module);
+   if(p.qualified&&p.module!==module)return true;
+   if(Object.prototype.hasOwnProperty.call(r||{},p.key))return passesOneFilter(r,p.key,f?.operator||"contains",f?.value??"");
+   const sr=standardRow(module,r);
+   return passesOneFilter(sr,p.key,f?.operator||"contains",f?.value??"");
+ });
+}
+function filteredSummaryRows(module,def,ignoreRange=false){
+ let source=(loaded[module]||[]).filter(r=>ignoreRange||inRange(r,module));
+ if(module==="cpgrams"&&def){const typeScope=grievanceTypeScope(def);if(typeScope.size)source=source.filter(r=>typeScope.has(grievanceTypeKey(r)));}
+ if(!def)return source;
+ const sections=definitionSections(def);
+ if(sections.length){
+   const fallback=def.module||module;
+   const relevant=sections.filter(sec=>sectionModules(sec,fallback).has(module));
+   if(!relevant.length)return source;
+   return source.filter(r=>relevant.some(sec=>passesSectionFilters(r,module,sec.filters,fallback)));
+ }
+ return source.filter(r=>passesDefinitionFiltersForModule(r,module,def));
+}
+function summaryDataset(module,def=null,ignoreRange=false){
  const modules=module==="all"?Object.keys(loaded):[module];
  const raw=[];
  const transformed=[];
  for(const m of modules){
-   const source=(loaded[m]||[]).filter(r=>inRange(r,m));
+   const source=filteredSummaryRows(m,def,ignoreRange);
    source.forEach((r,i)=>{
      raw.push(module==="all"?{...r,__module:m}:r);
      transformed.push(standardRow(m,r,i));
@@ -169,16 +222,19 @@ function summaryDataset(module){
  }
  return {raw,transformed};
 }
-function buildSummary(module,raw,transformed,selectedKeys){
+function buildSummary(module,raw,transformed,selectedKeys,options={}){
  const selected=Array.isArray(selectedKeys)?selectedKeys.filter(Boolean):[];
  if(!selected.length)return [];
  const P=window.FMSRecordPolicy,total=(raw||[]).length;let items=[];
  if(module==="cpgrams"){
    const fyLabel=$("financialYear")?.value && $("financialYear")?.value!=="custom" ? $("financialYear").value : selectedPeriod();
    const sinceStart=new Date(2014,3,1);
-   const allSince2014=(loaded.cpgrams||[]).filter(r=>{const d=parseDate(dateOf(r,"cpgrams"));return r.active!==false && (!P?.rowType || P.rowType(r)==="cpgrams") && d && d>=sinceStart;});
-   const fyReceived=(raw||[]).filter(r=>!P?.rowType || P.rowType(r)==="cpgrams");
-   const summaryRows=fyReceived.length ? fyReceived : (raw||[]);
+   const filteredScope=!!options.filteredScope;
+   const allSince2014=filteredScope
+     ? (Array.isArray(options.allTimeRows)?options.allTimeRows:[]).filter(r=>{const d=parseDate(dateOf(r,"cpgrams"));return r.active!==false&&d&&d>=sinceStart;})
+     : (loaded.cpgrams||[]).filter(r=>{const d=parseDate(dateOf(r,"cpgrams"));return r.active!==false && (!P?.rowType || P.rowType(r)==="cpgrams") && d && d>=sinceStart;});
+   const fyReceived=filteredScope ? (raw||[]) : (raw||[]).filter(r=>!P?.rowType || P.rowType(r)==="cpgrams");
+   const summaryRows=filteredScope ? (raw||[]) : (fyReceived.length ? fyReceived : (raw||[]));
    const hasAppeal=r=>["appealNumber","appealDate","appealReceivedDate","appealStatus","appealAuthority","appealCommunicationNo","appealDisposalDate","appealRemarks"].some(k=>String(r?.[k]||"").trim());
    const appealDisposed=r=>hasAppeal(r) && (/disposed|closed|completed/i.test(String(r?.appealStatus||"")) || !!String(r?.appealDisposalDate||"").trim());
    const appealPending=r=>hasAppeal(r) && !appealDisposed(r);
@@ -218,8 +274,13 @@ function buildDefinitionSummary(def){
  const selected=Array.isArray(def?.summaryCards)?def.summaryCards.filter(Boolean):[];
  if(!selected.length)return [];
  const fallback=def?.module||"cpgrams",out=[];
+ const cache=new Map(),allTimeCache=new Map();
  selected.forEach(ref=>{
-   const p=parseFieldRef(ref,fallback),ds=summaryDataset(p.module),card=buildSummary(p.module,ds.raw,ds.transformed,[p.key])[0];
+   const p=parseFieldRef(ref,fallback);
+   if(!cache.has(p.module))cache.set(p.module,summaryDataset(p.module,def,false));
+   if(p.module==="cpgrams"&&!allTimeCache.has(p.module))allTimeCache.set(p.module,summaryDataset(p.module,def,true));
+   const ds=cache.get(p.module),allTime=allTimeCache.get(p.module);
+   const card=buildSummary(p.module,ds.raw,ds.transformed,[p.key],{filteredScope:true,allTimeRows:allTime?.raw||[]})[0];
    if(card)out.push({...card,key:ref,label:(p.qualified&&p.module!=="cpgrams")?`${moduleName(p.module)} — ${card.label}`:card.label});
  });
  return out;

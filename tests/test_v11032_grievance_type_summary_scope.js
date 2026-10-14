@@ -1,0 +1,11 @@
+const fs=require('fs');
+const assert=require('assert');
+const src=fs.readFileSync('js/reports/reports.js','utf8');
+assert(src.includes('function grievanceTypeScope(def)'), 'Missing grievance-type summary scope helper');
+assert(src.includes('p.key!=="grievanceType"'), 'Summary scope must detect Grievance Type filters');
+assert(src.includes('P?.normalizeType?.(f.value)'), 'Grievance type values must be normalized');
+assert(src.includes('typeScope.has(grievanceTypeKey(r))'), 'GRIEVANCES summary dataset must be restricted to selected grievance type');
+assert(src.includes('["public grievances","public grievances"]'), 'Public Grievances title inference is missing');
+assert(src.includes('["prajavani","prajavani"]'), 'Prajavani title inference is missing');
+assert(src.includes('["cpgrams","cpgrams"]'), 'CPGRAMS title inference is missing');
+console.log('PASS v1.10.32 grievance-type scoped report dashboard cards');
