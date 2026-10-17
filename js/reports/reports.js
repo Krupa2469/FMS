@@ -1,5 +1,5 @@
 "use strict";
-/* Central reports + custom report definitions - v1.10.32 */
+/* Central reports + custom report definitions - v1.10.33 */
 (function(window,document){
 const CFG={
   cpgrams:{collection:"cpgrams",dateFields:["dateReceived","orgReceivedDate","receivedDate","grievanceDate","dateOfReceipt","receiptDate","dateArised","questionReceivedDate","date"],dueFields:["dueDate"],name:"GRIEVANCES"},
@@ -7,6 +7,13 @@ const CFG={
   disha:{collection:"dishaMeetings",dateFields:["dateOfMeeting","meetingDate","proposedDateOfMeeting","date"],dueFields:["pomDueDate"],name:"DISHA"}
 };
 const GOV_HEADER=["GOVERNMENT OF TELANGANA","OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT","#6-3-607, Anand Nagar Colony, Khairatabad,Hyderabad-500 004"];
+const CONSOLIDATED_STATUS_REPORT="status";
+const STATUS_GRIEVANCE_TYPES=[
+  ["cpgrams","CPGRAMS Pending Grievances"],["prajavani","Prajavani Pending Grievances"],["public grievances","Public Grievances Pending"],
+  ["direct complaints","Direct Complaints Pending"],["laq","LAQ Pending"],["lcq","LCQ Pending"],["court cases","Court Cases Pending"],
+  ["vip references","VIP References Pending"],["cmo references","CMO References Pending"],["pmo references","PMO References Pending"],
+  ["audit paras","Audit Paras Pending"],["vigilance cases","Vigilance Cases Pending"]
+];
 const DISHA_STATUS_COLUMNS=[
   {key:"Sl.No.",label:"Sl.No."},{key:"District",label:"District"},{key:"Meeting Date",label:"Meeting Date"},
   {key:"PoM Uploaded",label:"PoM Uploaded"},{key:"PoM Pending Days",label:"PoM Pending Days"},{key:"Remarks",label:"Remarks"}
@@ -52,6 +59,10 @@ function isClosedStatus(status,m){const s=String(status||"").trim().toLowerCase(
 function isOverdueRecord(r,m){const due=parseDate(dueOf(r,m));if(!due||isClosedStatus(statusOf(r,m),m))return false;const today=new Date();today.setHours(0,0,0,0);due.setHours(0,0,0,0);return due<today;}
 function todayLabel(){return new Date().toLocaleDateString("en-GB");}
 function currentFY(){const d=new Date(),y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1;return `${y}-${String(y+1).slice(-2)}`;}
+function currentQuarter(){const m=new Date().getMonth();return m>=3&&m<=5?1:m>=6&&m<=8?2:m>=9&&m<=11?3:4;}
+function quarterOfDate(d){if(!(d instanceof Date)||Number.isNaN(d.getTime()))return 0;const m=d.getMonth();return m>=3&&m<=5?1:m>=6&&m<=8?2:m>=9&&m<=11?3:4;}
+function quarterLabel(q,fy=currentFY()){const y=parseInt(String(fy).slice(0,4),10),ranges={1:["Apr","Jun",y],2:["Jul","Sep",y],3:["Oct","Dec",y],4:["Jan","Mar",y+1]},r=ranges[q];return r?`Q${q} (${r[0]}–${r[1]} ${r[2]})`:`Q${q}`;}
+function statusPeriodLabel(){return `Pending status as on ${todayLabel()} • DISHA Financial Year ${currentFY()} through Q${currentQuarter()}`;}
 function fyBounds(fy){const y=parseInt(String(fy).slice(0,4),10);if(!Number.isFinite(y))return null;return {from:`${y}-04-01`,to:`${y+1}-03-31`};}
 function populateFY(){const sel=$("financialYear");if(!sel)return;const cur=currentFY(),start=parseInt(cur.slice(0,4),10);let html="";for(let y=start;y>=2014;y--){const fy=`${y}-${String(y+1).slice(-2)}`;html+=`<option value="${fy}">${fy}${fy===cur?" (Current FY)":""}</option>`;}html+='<option value="custom">Custom Date Range</option>';sel.innerHTML=html;sel.value=cur;applyFYDates(cur);}
 function applyFYDates(fy){const b=fyBounds(fy);if(!b)return;$("fromDate").value=b.from;$("toDate").value=b.to;}
@@ -293,10 +304,57 @@ function compareCustom(a,b,field){
   return String(av??"").localeCompare(String(bv??""),undefined,{numeric:true,sensitivity:"base"});
 }
 function applyDefinitionSort(rows,def){const specs=[[def.sortField,def.sortDirection],[def.sortField2,def.sortDirection2],[def.sortField3,def.sortDirection3]].filter(x=>x[0]);if(!specs.length)return rows;return rows.sort((a,b)=>{for(const [field,dir] of specs){const c=compareCustom(a,b,field);if(c)return c*(dir==="desc"?-1:1);}return 0;});}
+function statusSimpleColumns(kind){
+ const base=[{key:"slNo",label:"S.No."}];
+ if(kind==="appeal")return base.concat([{key:"appealNo",label:"Appeal No."},{key:"appealDate",label:"Appeal Date"},{key:"appellant",label:"Appellant Name"},{key:"grievanceNo",label:"Corresponding Grievance No."},{key:"status",label:"Appeal Status"}]);
+ if(kind==="laq"||kind==="lcq")return base.concat([{key:"questionNo",label:kind.toUpperCase()+" No."},{key:"receivedDate",label:"Received Date"},{key:"section",label:"Concerned Section"},{key:"question",label:"Question"},{key:"status",label:"File Status"}]);
+ if(kind==="rti")return base.concat([{key:"applicationNo",label:"RTI Application No."},{key:"applicationDate",label:"Application Date"},{key:"dueDate",label:"Due Date"},{key:"applicant",label:"Applicant Name"},{key:"section",label:"Concerned Section"},{key:"status",label:"Present Status"}]);
+ if(kind==="disha")return base.concat([{key:"district",label:"District"},{key:"meetingDate",label:"Meeting Date"},{key:"pomUploaded",label:"PoM Uploaded"},{key:"meetingStatus",label:"Meeting Status"},{key:"remarks",label:"Remarks"}]);
+ return base.concat([{key:"grievanceNo",label:"Grievance / Reference No."},{key:"receivedDate",label:"Date Received"},{key:"dueDate",label:"Due Date"},{key:"name",label:"Complainant / Received From"},{key:"district",label:"District"},{key:"status",label:"Status"}]);
+}
+function statusRows(kind,records){
+ const P=window.FMSRecordPolicy;
+ return (records||[]).map((r,i)=>{
+  if(kind==="appeal")return {slNo:i+1,appealNo:first(r,["appealNumber"]),appealDate:fmt(first(r,["appealReceivedDate","appealDate"])),appellant:first(r,["appellantName"]),grievanceNo:first(r,["grievanceNumber","registrationNumber","grievanceNo"]),status:first(r,["appealStatus"])||"Pending"};
+  if(kind==="laq"||kind==="lcq")return {slNo:i+1,questionNo:first(r,["questionSerialNo"]),receivedDate:fmt(first(r,["questionReceivedDate","dateReceived"])),section:first(r,["questionConcernedSection","section"]),question:first(r,["question","subject"]),status:first(r,["questionFileStatus","officeStatus","finalStatus"])||"Pending"};
+  if(kind==="rti")return {slNo:i+1,applicationNo:first(r,["applicationNumber"]),applicationDate:fmt(first(r,["applicationDate","dateReceived"])),dueDate:fmt(first(r,["dueDate"])),applicant:first(r,["applicantName"]),section:first(r,["concernedSection","officeReplySection","newOfficeSection"]),status:first(r,["presentStatus","replyStatus","officeStatus","finalStatus"])||"Pending"};
+  if(kind==="disha")return {slNo:i+1,district:first(r,["district","nameOfDistrict"]),meetingDate:fmt(first(r,["dateOfMeeting","meetingDate"])),pomUploaded:P?.workflow?.("disha",r)?.pomUploaded?"Yes":"No",meetingStatus:first(r,["statusOfMeeting","meetingStatus","status"])||"Held",remarks:first(r,["remarks"])};
+  return {slNo:i+1,grievanceNo:first(r,["grievanceNumber","registrationNumber","referenceNumber","fileNumber","memoNumber","questionSerialNo"]),receivedDate:fmt(first(r,["dateReceived","orgReceivedDate","receivedDate","questionReceivedDate","dateArised"])),dueDate:fmt(first(r,["dueDate","atrDueDate"])),name:first(r,["complainantName","receivedFrom","appellantName"]),district:first(r,["district","nameOfDistrict"]),status:first(r,["finalStatus","officeStatus","currentStatus","atrStatus","questionFileStatus"])||"Pending"};
+ });
+}
+function statusSection(heading,kind,records){if(!(records||[]).length)return null;return {heading,columns:statusSimpleColumns(kind),rows:statusRows(kind,records),filters:[]};}
+function isAppealPresent(r){return ["appealNumber","appealDate","appealReceivedDate","appealStatus","appealAuthority","appealCommunicationNo","appealDisposalDate","appealRemarks"].some(k=>String(r?.[k]||"").trim());}
+function isAppealPending(r){return isAppealPresent(r)&&!(/disposed|closed|completed/i.test(String(r?.appealStatus||""))||!!String(r?.appealDisposalDate||"").trim());}
+function sortPendingRows(rows,module){return (rows||[]).slice().sort((a,b)=>dateTimeOf(b,module)-dateTimeOf(a,module));}
+function generateConsolidatedStatus(){
+ const P=window.FMSRecordPolicy,sections=[],cpRows=(loaded.cpgrams||[]).filter(r=>P?.active?.(r)!==false),rtiRows=(loaded.rti||[]).filter(r=>P?.active?.(r)!==false),dishaRows=(loaded.disha||[]).filter(r=>P?.active?.(r)!==false);
+ let grievancePendingCount=0;
+ STATUS_GRIEVANCE_TYPES.forEach(([type,heading])=>{
+  const rows=sortPendingRows(cpRows.filter(r=>(P?.rowType?.(r)||"cpgrams")===type&&!P?.closed?.("cpgrams",r)),"cpgrams");
+  grievancePendingCount+=rows.length;
+  const sec=statusSection(heading,(type==="laq"||type==="lcq")?type:"grievance",rows);if(sec)sections.push(sec);
+ });
+ const pendingAppeals=sortPendingRows(cpRows.filter(r=>(P?.rowType?.(r)||"cpgrams")==="cpgrams"&&isAppealPending(r)),"cpgrams");
+ const appealSection=statusSection("CPGRAMS Pending Appeals","appeal",pendingAppeals);if(appealSection)sections.push(appealSection);
+ const pendingRti=sortPendingRows(rtiRows.filter(r=>!P?.closed?.("rti",r)),"rti");
+ const rtiSection=statusSection("RTI Pending Applications","rti",pendingRti);if(rtiSection)sections.push(rtiSection);
+ const fy=currentFY(),cq=currentQuarter(),today=new Date();today.setHours(23,59,59,999);
+ const dishaHeld=dishaRows.filter(r=>{const d=parseDate(first(r,["dateOfMeeting","meetingDate"]));if(!d||d>today)return false;const recordFy=P?.recordFY?.("disha",r)||(()=>{const y=d.getMonth()>=3?d.getFullYear():d.getFullYear()-1;return `${y}-${String(y+1).slice(-2)}`;})();return recordFy===fy&&quarterOfDate(d)<=cq;});
+ for(let q=1;q<=cq;q++){const rows=dishaHeld.filter(r=>quarterOfDate(parseDate(first(r,["dateOfMeeting","meetingDate"])))===q).sort((a,b)=>dateTimeOf(b,"disha")-dateTimeOf(a,"disha"));const sec=statusSection(`DISHA — ${quarterLabel(q,fy)} Meetings Held`,"disha",rows);if(sec)sections.push(sec);}
+ reportSections=sections.filter(sec=>sec&&sec.rows?.length&&sec.columns?.length);
+ reportRows=reportSections.flatMap(sec=>sec.rows.map(r=>({...r,__section:sec.heading})));reportColumns=[];activeModule=CONSOLIDATED_STATUS_REPORT;
+ reportSummary=[
+  {key:"pendingGrievances",label:"Pending Grievances",value:grievancePendingCount},
+  {key:"pendingAppeals",label:"Pending CPGRAMS Appeals",value:pendingAppeals.length},
+  {key:"pendingRti",label:"Pending RTI Applications",value:pendingRti.length},
+  {key:"dishaMeetings",label:`DISHA Meetings Held ${fy} (Q1–Q${cq})`,value:dishaHeld.length}
+ ];
+ render("Status Report");
+}
 function generate(){
  activeDefinition=definitions.find(d=>d.id===$("customReport").value)||null;
  if(activeDefinition){generateCustom(activeDefinition);return;}
- const m=$("reportModule").value;activeModule=m;reportSections=[];let out=[],raw=[];
+ const m=$("reportModule").value;if(m===CONSOLIDATED_STATUS_REPORT){activeDefinition=null;generateConsolidatedStatus();return;}activeModule=m;reportSections=[];let out=[],raw=[];
  if(m==="all"){
    const combined=[];
    for(const mod of Object.keys(loaded)){for(const r of loaded[mod].filter(x=>inRange(x,mod)))combined.push({...r,__module:mod});}
@@ -348,12 +406,12 @@ function render(title){
  $("summaryCards").innerHTML=reportSummary.map((x,i)=>`<div class="col-xl-3 col-md-6 col-6 fms-report-summary-col"><div class="card border-${colors[i%colors.length]} summary-card h-100"><div class="card-body text-center"><div class="text-muted">${escapeHtml(x.label)}</div><h3 class="text-${colors[i%colors.length]}">${escapeHtml(x.value)}</h3></div></div></div>`).join("");
  if($("summarySection"))$("summarySection").style.display=reportSummary.length?"":"none";
  applyCompactReportWidth(false);
- $("summaryPeriod").textContent=selectedPeriod();$("reportStatus").textContent=`Generated ${new Date().toLocaleString("en-IN")}`;
+ $("summaryPeriod").textContent=activeModule===CONSOLIDATED_STATUS_REPORT?statusPeriodLabel():selectedPeriod();$("reportStatus").textContent=`Generated ${new Date().toLocaleString("en-IN")}`;
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function exportOpts(){const fy=$("financialYear")?.value;return {rows:reportRows,columns:reportColumns,sections:reportSections,title:$("reportTitle").textContent,filename:$("reportTitle").textContent,headerLines:GOV_HEADER,summary:reportSummary,financialYear:fy&&fy!=="custom"?fy:"",periodLabel:fy==="custom"?selectedPeriod():"",shareText:`${GOV_HEADER.join("\n")}\n\n${$("reportTitle").textContent}\n${selectedPeriod()}\nRecords: ${reportRows.length}`};}
+function exportOpts(){const fy=$("financialYear")?.value,statusMode=activeModule===CONSOLIDATED_STATUS_REPORT,period=statusMode?statusPeriodLabel():selectedPeriod();return {rows:reportRows,columns:reportColumns,sections:reportSections,title:$("reportTitle").textContent,filename:$("reportTitle").textContent,headerLines:GOV_HEADER,summary:reportSummary,financialYear:statusMode?"":(fy&&fy!=="custom"?fy:""),periodLabel:statusMode?period:(fy==="custom"?period:""),shareText:`${GOV_HEADER.join("\n")}\n\n${$("reportTitle").textContent}\n${period}\nRecords: ${reportRows.length}`};}
 function renderExportPreview(){
- const title=$("reportTitle").textContent||"FMS Report";$("exportPreviewTitle").textContent="Export Report — Preview";$("exportPreviewMeta").textContent=`${title} • ${reportRows.length} record(s)`;$("exportPreviewGov1").textContent=GOV_HEADER[0];$("exportPreviewGov2").textContent=GOV_HEADER[1];$("exportPreviewGov3").textContent=GOV_HEADER[2];$("exportPreviewReportTitle").textContent=title;$("exportPreviewReportMeta").textContent=selectedPeriod()+` • Records: ${reportRows.length}`;
+ const title=$("reportTitle").textContent||"FMS Report";$("exportPreviewTitle").textContent="Export Report — Preview";$("exportPreviewMeta").textContent=`${title} • ${reportRows.length} record(s)`;$("exportPreviewGov1").textContent=GOV_HEADER[0];$("exportPreviewGov2").textContent=GOV_HEADER[1];$("exportPreviewGov3").textContent=GOV_HEADER[2];$("exportPreviewReportTitle").textContent=title;$("exportPreviewReportMeta").textContent=(activeModule===CONSOLIDATED_STATUS_REPORT?statusPeriodLabel():selectedPeriod())+` • Records: ${reportRows.length}`;
  $("exportPreviewSummary").innerHTML=reportSummary.length?'<div class="export-preview-summary-heading">SUMMARY</div><div class="export-preview-summary-grid">'+reportSummary.map(x=>`<div class="export-preview-summary-card"><div class="export-preview-summary-label">${escapeHtml(x.label)}</div><div class="export-preview-summary-value">${escapeHtml(x.value)}</div></div>`).join("")+"</div>":"";
  const previewSections=$("exportPreviewSections"),previewFlat=$("exportPreviewFlatTableWrap");if(reportSections.length){previewSections.innerHTML=sectionTableHtml(reportSections,reportRows,true);previewSections.style.display="";previewFlat.style.display="none";}else{previewSections.innerHTML="";previewSections.style.display="none";previewFlat.style.display="";const table=$("exportPreviewTable"),th=table.querySelector("thead"),tb=table.querySelector("tbody");table.querySelector("colgroup")?.remove();table.insertAdjacentHTML("afterbegin",reportColgroup(reportColumns,reportRows));table.classList.add("report-autofit-table");table.style.width="100%";th.innerHTML='<tr>'+reportColumns.map(c=>`<th${reportCellClass(c)}>${escapeHtml(c.label||c.key)}</th>`).join('')+'</tr>';tb.innerHTML=reportRows.map(r=>'<tr>'+reportColumns.map(c=>`<td${reportCellClass(c)} data-label="${escapeHtml(c.label||c.key)}">${escapeHtml(r[c.key]??"")}</td>`).join('')+'</tr>').join('');}applyCompactReportWidth(true);$("exportPreviewFormat").value=exportPreviewType==="print"?"pdf":exportPreviewType;$("exportPreviewStatus").textContent="";updateDeviceShareNote();
 }
@@ -363,7 +421,7 @@ function closeExportPreview(){$("exportPreviewBackdrop")?.classList.remove("open
 async function previewDownload(){const status=$("exportPreviewStatus");try{const type=$("exportPreviewFormat").value,opts=exportOpts();status.textContent="Preparing file...";if(type==="excel")await FMSExportService.toExcel(opts);if(type==="pdf")await FMSExportService.toPDF(opts);if(type==="jpeg")await FMSExportService.toJPEG(opts);status.textContent="Downloaded successfully.";}catch(e){status.textContent="";alert(e.message||e);}}
 async function previewPrint(){const status=$("exportPreviewStatus");try{status.textContent="Opening print preview...";await FMSExportService.printRows(exportOpts());status.textContent="";}catch(e){status.textContent="";alert(e.message||e);}}
 async function previewShare(){const status=$("exportPreviewStatus");try{const type=$("exportPreviewFormat").value;status.textContent="Preparing share...";const result=await FMSExportService.shareFile(type,exportOpts());if(result?.cancelled)status.textContent="Share cancelled.";else if(result?.shared)status.textContent=result.fileShared?"Report file shared.":"Report details shared. The file remains available from Download.";else if(result?.downloaded)status.textContent=result.message||"Sharing was not permitted; report downloaded instead.";else status.textContent="";}catch(e){console.error(e);status.textContent="Unable to use device sharing. Please use Download.";}}
-async function shareWhatsApp(){const firstSection=reportSections[0],shareCols=firstSection?.columns?.length?firstSection.columns:reportColumns,shareRows=Array.isArray(firstSection?.rows)?firstSection.rows:reportRows;const preview=shareRows.slice(0,15).map((r,i)=>`${i+1}. ${shareCols.slice(0,4).map(c=>`${c.label}: ${r[c.key]??""}`).join(" | ")}`).join("\n");await window.FMSWhatsAppService?.compose({module:"REPORTS",title:$("reportTitle").textContent,summaryText:`${selectedPeriod()}\nRecords: ${reportRows.length}\n${preview}`});}
-async function init(){if(started)return;started=true;$("btnHome").onclick=()=>location.href="../index.html";$("btnMasters").onclick=()=>location.href="admin/master-management.html";$("btnReportsMaster").onclick=()=>location.href="admin/reports-master.html";$("btnRefresh").onclick=async()=>{await loadAll();generate();};$("btnGenerate").onclick=generate;$("btnExcel").onclick=()=>openExportPreview("excel");$("btnPDF").onclick=()=>openExportPreview("pdf");$("btnJPEG").onclick=()=>openExportPreview("jpeg");$("btnPrint").onclick=()=>openExportPreview("print");$("btnWhatsApp").onclick=shareWhatsApp;$("btnCloseExportPreview").onclick=closeExportPreview;$("btnPreviewDownload").onclick=previewDownload;$("btnPreviewPrint").onclick=previewPrint;$("btnPreviewShare").onclick=previewShare;$("exportPreviewFormat").onchange=e=>{exportPreviewType=e.target.value;updateDeviceShareNote();};$("exportPreviewBackdrop").addEventListener("click",e=>{if(e.target===$("exportPreviewBackdrop"))closeExportPreview();});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("exportPreviewBackdrop")?.classList.contains("open"))closeExportPreview();});window.addEventListener("resize",()=>{applyCompactReportWidth(false);if($("exportPreviewBackdrop")?.classList.contains("open"))applyCompactReportWidth(true);},{passive:true});$("customReport").onchange=()=>{activeDefinition=definitions.find(d=>d.id===$("customReport").value)||null;if(activeDefinition){$("reportModule").value=activeDefinition.module==="all"?"all":activeDefinition.module;dateRangePreset(activeDefinition);}};$("financialYear").onchange=e=>{if(e.target.value!=="custom")applyFYDates(e.target.value);generate();};["fromDate","toDate"].forEach(id=>$(id).addEventListener("change",()=>{$("financialYear").value="custom";}));try{await loadAll();populateFY();const q=new URLSearchParams(location.search).get("module");if(q&&CFG[q])$("reportModule").value=q;generate();}catch(e){$("reportStatus").textContent="Unable to load reports: "+(e.message||e);console.error(e);}}
+async function shareWhatsApp(){const firstSection=reportSections[0],shareCols=firstSection?.columns?.length?firstSection.columns:reportColumns,shareRows=Array.isArray(firstSection?.rows)?firstSection.rows:reportRows;const preview=shareRows.slice(0,15).map((r,i)=>`${i+1}. ${shareCols.slice(0,4).map(c=>`${c.label}: ${r[c.key]??""}`).join(" | ")}`).join("\n");await window.FMSWhatsAppService?.compose({module:"REPORTS",title:$("reportTitle").textContent,summaryText:`${activeModule===CONSOLIDATED_STATUS_REPORT?statusPeriodLabel():selectedPeriod()}\nRecords: ${reportRows.length}\n${preview}`});}
+async function init(){if(started)return;started=true;$("btnHome").onclick=()=>location.href="../index.html";$("btnMasters").onclick=()=>location.href="admin/master-management.html";$("btnReportsMaster").onclick=()=>location.href="admin/reports-master.html";$("btnRefresh").onclick=async()=>{await loadAll();generate();};$("reportModule").onchange=e=>{if(e.target.value===CONSOLIDATED_STATUS_REPORT){$("customReport").value="";const fy=currentFY();$("financialYear").value=fy;applyFYDates(fy);}};$("btnGenerate").onclick=generate;$("btnExcel").onclick=()=>openExportPreview("excel");$("btnPDF").onclick=()=>openExportPreview("pdf");$("btnJPEG").onclick=()=>openExportPreview("jpeg");$("btnPrint").onclick=()=>openExportPreview("print");$("btnWhatsApp").onclick=shareWhatsApp;$("btnCloseExportPreview").onclick=closeExportPreview;$("btnPreviewDownload").onclick=previewDownload;$("btnPreviewPrint").onclick=previewPrint;$("btnPreviewShare").onclick=previewShare;$("exportPreviewFormat").onchange=e=>{exportPreviewType=e.target.value;updateDeviceShareNote();};$("exportPreviewBackdrop").addEventListener("click",e=>{if(e.target===$("exportPreviewBackdrop"))closeExportPreview();});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("exportPreviewBackdrop")?.classList.contains("open"))closeExportPreview();});window.addEventListener("resize",()=>{applyCompactReportWidth(false);if($("exportPreviewBackdrop")?.classList.contains("open"))applyCompactReportWidth(true);},{passive:true});$("customReport").onchange=()=>{activeDefinition=definitions.find(d=>d.id===$("customReport").value)||null;if(activeDefinition){$("reportModule").value=activeDefinition.module==="all"?"all":activeDefinition.module;dateRangePreset(activeDefinition);}};$("financialYear").onchange=e=>{if(e.target.value!=="custom")applyFYDates(e.target.value);generate();};["fromDate","toDate"].forEach(id=>$(id).addEventListener("change",()=>{$("financialYear").value="custom";}));try{await loadAll();populateFY();const q=new URLSearchParams(location.search).get("module");if(q&&CFG[q])$("reportModule").value=q;generate();}catch(e){$("reportStatus").textContent="Unable to load reports: "+(e.message||e);console.error(e);}}
 document.addEventListener("DOMContentLoaded",()=>{if(window.fmsFirebaseReady&&window.db)init();else{window.addEventListener("fmsFirebaseReady",init,{once:true});setTimeout(()=>{if(window.db)init();},1600);}});
 })(window,document);
