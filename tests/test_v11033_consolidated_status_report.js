@@ -13,4 +13,4 @@ ok(reports.includes('RTI Pending Applications'),'Pending RTI section missing');
 ok(reports.includes('quarterLabel(q,fy)'), 'DISHA quarter section generation missing');
 ok(reports.includes('if(sec)sections.push(sec)'), 'Empty section suppression missing');
 ok(reports.includes('d>today'), 'Future DISHA meeting exclusion missing');
-console.log('PASS v1.10.33 consolidated Status Report');
+console.log('PASS v1.10.34 consolidated Status Report');

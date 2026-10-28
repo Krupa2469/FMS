@@ -275,7 +275,6 @@ function getRTIFormData(){
 
 function validateRTIForm(data){
     const checks=[
-        ["applicationNumber","Please enter RTI Application Number."],
         ["applicationDate","Please enter Application Date."],
         ["applicantName","Please enter Applicant Name."],
         ["informationSought","Please enter Information Sought."]
@@ -668,7 +667,6 @@ async function parseSelectedRTIApplication(){
         if(status) status.textContent=`Parsed: ${file.name} (${result.extractionMethod||"document engine"}) — pending Save`;
 
         const populated=Object.entries({
-            applicationNumber:val("applicationNumber"),
             applicationDate:val("applicationDate"),
             informationSought:val("informationSought"),
             applicantName:val("applicantName"),

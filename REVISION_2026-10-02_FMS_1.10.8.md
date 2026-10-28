@@ -7,7 +7,7 @@ A single standard Telangana FMS header is now used on every HTML screen/page in 
 ### Header format
 - **GOVERNMENT OF TELANGANA** — 22 pt, Bold
 - **OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT** — 20 pt, Bold
-- **#6-3-6-605, Anand Nagar Colony, Khairatabad, Hyderabad-500 004** — 12 pt
+- **#6-3-605, Anand Nagar Colony, Khairatabad, Hyderabad-500 004** — 12 pt
 - **FILE MANAGEMENT SYSTEM** — 18 pt, Bold
 
 ### Coverage

@@ -1,12 +1,12 @@
 "use strict";
-/* Central reports + custom report definitions - v1.10.33 */
+/* Central reports + custom report definitions - v1.10.34 */
 (function(window,document){
 const CFG={
   cpgrams:{collection:"cpgrams",dateFields:["dateReceived","orgReceivedDate","receivedDate","grievanceDate","dateOfReceipt","receiptDate","dateArised","questionReceivedDate","date"],dueFields:["dueDate"],name:"GRIEVANCES"},
   rti:{collection:"rtiApplications",dateFields:["applicationDate","dateReceived","date"],dueFields:["dueDate"],name:"RTI"},
   disha:{collection:"dishaMeetings",dateFields:["dateOfMeeting","meetingDate","proposedDateOfMeeting","date"],dueFields:["pomDueDate"],name:"DISHA"}
 };
-const GOV_HEADER=["GOVERNMENT OF TELANGANA","OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT","#6-3-607, Anand Nagar Colony, Khairatabad,Hyderabad-500 004"];
+const GOV_HEADER=["GOVERNMENT OF TELANGANA","OFFICE OF THE COMMISSIONER, RURAL DEVELOPMENT","#6-3-605, Anand Nagar Colony, Khairatabad, Hyderabad-500 004"];
 const CONSOLIDATED_STATUS_REPORT="status";
 const STATUS_GRIEVANCE_TYPES=[
   ["cpgrams","CPGRAMS Pending Grievances"],["prajavani","Prajavani Pending Grievances"],["public grievances","Public Grievances Pending"],
